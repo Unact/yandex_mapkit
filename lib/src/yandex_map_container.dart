@@ -13,11 +13,16 @@ class YandexMapContainer extends StatefulWidget {
   /// By default uses `CircularProgressIndicator`
   final Widget mapPlaceholder;
 
+  final Function afterMapShow;
+
+  static void _kAfterMapShow(YandexMap yandexMap) => null;
+
   /// A `Widget` for displaying Yandex Map
   const YandexMapContainer({
     Key key,
     this.placemarks = const [],
-    this.mapPlaceholder = const CircularProgressIndicator()
+    this.mapPlaceholder = const CircularProgressIndicator(),
+    this.afterMapShow = _kAfterMapShow
   }) : super(key: key);
 
   @override
@@ -25,7 +30,7 @@ class YandexMapContainer extends StatefulWidget {
 }
 
 class _YandexMapContainerState extends State<YandexMapContainer> {
-  YandexMap _yandexMap = YandexMapkit().map;
+  YandexMap _yandexMap = YandexMapkit().yandexMap;
   GlobalKey _containerKey = GlobalKey();
 
   @override
@@ -67,6 +72,8 @@ class _YandexMapContainerState extends State<YandexMapContainer> {
       await _yandexMap.reset();
       await _yandexMap.addPlacemarks(widget.placemarks);
       await _yandexMap.showFitRect(_buildRect());
+
+      widget.afterMapShow(_yandexMap);
     });
   }
 

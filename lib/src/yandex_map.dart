@@ -22,11 +22,11 @@ class YandexMap {
   /// Initializes MapView
   /// If MapView was initialized before it will reset it
   static Future<YandexMap> init({@required String apiKey}) async {
-    YandexMap map = YandexMap._();
-    await map._setApiKey(apiKey);
-    await map.reset();
+    YandexMap yandexMap = YandexMap._();
+    await yandexMap._setApiKey(apiKey);
+    await yandexMap.reset();
 
-    return map;
+    return yandexMap;
   }
 
   /// Returns map to the default state

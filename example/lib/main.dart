@@ -14,7 +14,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  YandexMap _yandexMap = YandexMapkit().map;
+  YandexMap _yandexMap = YandexMapkit().yandexMap;
   Placemark _placemark = Placemark(
     point: _point,
     iconName: 'lib/assets/Mark.png',
