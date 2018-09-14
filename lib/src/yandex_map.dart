@@ -132,6 +132,10 @@ class YandexMap {
     placemarks.add(placemark);
   }
 
+  Future<Null> addPlacemarks(List<Placemark> placemarks) async {
+    placemarks.forEach((Placemark placemark) => addPlacemark(placemark));
+  }
+
   Future<Null> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
@@ -15,20 +14,12 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
+  YandexMap _yandexMap = YandexMapkit().map;
   Placemark _placemark = Placemark(
     point: _point,
     iconName: 'lib/assets/Mark.png',
     onTap: (latitude, longitude) => print('Tapped me at $latitude,$longitude')
   );
-  YandexMapkit _yandexMapkit = YandexMapkit();
-
-  Rect _buildRect(BuildContext context) {
-    RenderObject object = _scaffoldKey.currentContext.findRenderObject();
-    Vector3 translation = object.getTransformTo(null).getTranslation();
-    Size size = object.semanticBounds.size;
-
-    return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,19 +34,19 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.showFitRect(_buildRect(context));
+                    await _yandexMap.show();
                   },
                   child: Text('Show')
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.hide();
+                    await _yandexMap.hide();
                   },
                   child: Text('Hide')
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.move(
+                    await _yandexMap.move(
                       point: _point,
                       animation: MapAnimation(smooth: true, duration: 2.0)
                     );
@@ -68,13 +59,13 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.addPlacemark(_placemark);
+                    await _yandexMap.addPlacemark(_placemark);
                   },
                   child: Text('Add placemark')
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.removePlacemark(_placemark);
+                    await _yandexMap.removePlacemark(_placemark);
                   },
                   child: Text('Remove placemark')
                 ),
@@ -84,7 +75,7 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapkit.map.setBounds(
+                    await _yandexMap.setBounds(
                       southWestPoint: Point(latitude: 60.0, longitude: 30.0),
                       northEastPoint: Point(latitude: 65.0, longitude: 40.0),
                     );
@@ -93,9 +84,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    Rect rect = _buildRect(context);
-                    Rect newRect = Rect.fromLTWH(rect.left, rect.top, rect.width, rect.height + 100.0);
-                    await _yandexMapkit.map.resize(newRect);
+                    await _yandexMap.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
                   },
                   child: Text('Resize')
                 )
@@ -108,7 +97,8 @@ class _MyAppState extends State<MyApp> {
                 width: 300.0,
                 height: 300.0
               )
-            )
+            ),
+            Expanded(child: YandexMapContainer(placemarks: [_placemark]))
           ]
         ),
       )
