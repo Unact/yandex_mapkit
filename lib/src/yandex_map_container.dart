@@ -5,8 +5,6 @@ import 'package:vector_math/vector_math_64.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class YandexMapContainer extends StatefulWidget {
-
-  /// A list of `Placemark` to show on map
   final List<Placemark> placemarks;
 
   /// A `Widget` to show before MapView is shown
