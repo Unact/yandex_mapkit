@@ -20,7 +20,7 @@ class YandexMap {
   }
 
   /// Initializes MapView
-  /// If MapView was initialized before it will reset it
+  /// If MapView was initialized before it will be reset
   static Future<YandexMap> init({@required String apiKey}) async {
     YandexMap yandexMap = YandexMap._();
     await yandexMap._setApiKey(apiKey);
@@ -29,36 +29,8 @@ class YandexMap {
     return yandexMap;
   }
 
-  /// Returns map to the default state
-  /// 1. Removes all placemarks
-  /// 2. Hides map
-  /// 3. Set MapView size to a 0,0,0,0 sized rectangle
-  Future<Null> reset() async {
-    await clear();
-    await _destroy();
-    await _create();
-  }
-
-  Future<Null> clear() async {
-    await hide();
-    await removePlacemarks();
-  }
-
-  Future<Null> showFitRect(Rect rect) async {
-    await resize(rect);
-    await show();
-  }
-
   Future<Null> _setApiKey(String apiKey) async {
     await _channel.invokeMethod('setApiKey', apiKey);
-  }
-
-  Future<Null> _create() async {
-    await _channel.invokeMethod('create');
-  }
-
-  Future<Null> _destroy() async {
-    await _channel.invokeMethod('destroy');
   }
 
   Future<Null> hide() async {
@@ -87,15 +59,29 @@ class YandexMap {
     );
   }
 
+  /// Returns map to the default state
+  /// 1. Removes all placemarks
+  /// 2. Hides map
+  /// 3. Set MapView size to a 0,0,0,0 sized rectangle
+  Future<Null> reset() async {
+    await _channel.invokeMethod('reset');
+    _resetLocal();
+  }
+
+  void _resetLocal() {
+    _removePlacemarksLocal();
+  }
+
   Future<Null> resize(Rect rect) async {
-    await _channel.invokeMethod(
-      'resize',
-      {'left': rect.left, 'top': rect.top, 'width': rect.width, 'height': rect.height}
-    );
+    await _channel.invokeMethod('resize', _rectParams(rect));
   }
 
   Future<Null> show() async {
     await _channel.invokeMethod('show');
+  }
+
+  Future<Null> showFitRect(Rect rect) async {
+    await _channel.invokeMethod('showFitRect', _rectParams(rect));
   }
 
   Future<Null> setBounds({
@@ -118,22 +104,20 @@ class YandexMap {
   }
 
   Future<Null> addPlacemark(Placemark placemark) async {
-    await _channel.invokeMethod(
-      'addPlacemark',
-      {
-        'latitude': placemark.point.latitude,
-        'longitude': placemark.point.longitude,
-        'opacity': placemark.opacity,
-        'isDraggable': placemark.isDraggable,
-        'iconName': placemark.iconName,
-        'hashCode': placemark.hashCode
-      }
-    );
-    placemarks.add(placemark);
+    await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
+    _addPlacemarksLocal([placemark]);
   }
 
-  Future<Null> addPlacemarks(List<Placemark> placemarks) async {
-    placemarks.forEach((Placemark placemark) => addPlacemark(placemark));
+  Future<Null> addPlacemarks(List<Placemark> newPlacemarks) async {
+    await _channel.invokeMethod(
+      'addPlacemarks',
+      newPlacemarks.map((Placemark placemark) => _placemarkParams(placemark)).toList()
+    );
+    _addPlacemarksLocal(newPlacemarks);
+  }
+
+  void _addPlacemarksLocal(List<Placemark> newPlacemarks) {
+    placemarks.addAll(newPlacemarks);
   }
 
   Future<Null> removePlacemark(Placemark placemark) async {
@@ -149,6 +133,10 @@ class YandexMap {
 
   Future<Null> removePlacemarks() async {
     await _channel.invokeMethod('removePlacemarks');
+    _removePlacemarksLocal();
+  }
+
+  void _removePlacemarksLocal() {
     placemarks.removeRange(0, placemarks.length);
   }
 
@@ -166,5 +154,25 @@ class YandexMap {
     double longitude = arguments['longitude'];
 
     placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode).onTap(latitude, longitude);
+  }
+
+  Map<String, double> _rectParams(Rect rect) {
+    return {
+      'left': rect.left,
+      'top': rect.top,
+      'width': rect.width,
+      'height': rect.height
+    };
+  }
+
+  Map<String, dynamic> _placemarkParams(Placemark placemark) {
+    return {
+      'latitude': placemark.point.latitude,
+      'longitude': placemark.point.longitude,
+      'opacity': placemark.opacity,
+      'isDraggable': placemark.isDraggable,
+      'iconName': placemark.iconName,
+      'hashCode': placemark.hashCode
+    };
   }
 }
