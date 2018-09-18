@@ -32,3 +32,7 @@ android {
         disable 'InvalidPackage'
     }
 }
+
+dependencies {
+    implementation 'com.yandex.android:mapkit:3.0.0'
+}

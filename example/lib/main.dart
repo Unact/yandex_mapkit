@@ -12,7 +12,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   YandexMap _yandexMap = YandexMapkit().yandexMap;
   Placemark _placemark = Placemark(
@@ -89,14 +88,6 @@ class _MyAppState extends State<MyApp> {
                   child: Text('Resize')
                 )
               ],
-            ),
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: SizedBox(
-                key: _scaffoldKey,
-                width: 300.0,
-                height: 300.0
-              )
             ),
             Expanded(
               child: YandexMapContainer(

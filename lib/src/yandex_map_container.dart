@@ -89,13 +89,18 @@ class _YandexMapContainerState extends State<YandexMapContainer> {
   }
 
   Rect _buildRect() {
-    RenderObject object = _containerKey.currentContext.findRenderObject();
-    Vector3 translation = object.getTransformTo(null).getTranslation();
-    Size size = object.semanticBounds.size;
+    // Sometimes findRenderObject may fail
+    try {
+      RenderObject object = _containerKey.currentContext.findRenderObject();
+      Vector3 translation = object.getTransformTo(null).getTranslation();
+      Size size = object.semanticBounds.size;
 
-    if (translation.x >= 0 && translation.y >= 0) {
-      return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
-    } else {
+      if (translation.x >= 0 && translation.y >= 0) {
+        return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
+      } else {
+        return Rect.zero;
+      }
+    } catch(e) {
       return Rect.zero;
     }
   }
