@@ -1,26 +1,26 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class YandexMapContainer extends StatefulWidget {
-  final List<Placemark> placemarks;
 
   /// A `Widget` to show before MapView is shown
   /// By default uses `CircularProgressIndicator`
   final Widget mapPlaceholder;
 
-  final Function afterMapShow;
+  /// Will be called each time MapView refreshes its position
+  final Function afterMapRefresh;
 
-  static void _kAfterMapShow(YandexMap yandexMap) => null;
+  static void _kAfterMapRefresh(YandexMap yandexMap) => null;
 
   /// A `Widget` for displaying Yandex Map
   const YandexMapContainer({
     Key key,
-    this.placemarks = const [],
-    this.mapPlaceholder = const CircularProgressIndicator(),
-    this.afterMapShow = _kAfterMapShow
+    this.mapPlaceholder = const Center(child: CircularProgressIndicator()),
+    this.afterMapRefresh = _kAfterMapRefresh
   }) : super(key: key);
 
   @override
@@ -30,49 +30,62 @@ class YandexMapContainer extends StatefulWidget {
 class _YandexMapContainerState extends State<YandexMapContainer> {
   YandexMap _yandexMap = YandexMapkit().yandexMap;
   GlobalKey _containerKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-
-    _setMapRefresh();
-  }
+  Rect _rect;
+  Timer _refreshTimer;
 
   @override
   void reassemble() {
-    _setMapRefresh();
-
     super.reassemble();
+
+    _refreshMapContainer();
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+
+    _yandexMap.reset();
   }
 
   @override
   void dispose() {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await _yandexMap.reset();
-    });
-
     super.dispose();
+
+    _yandexMap.reset();
   }
 
   @override
   Widget build(BuildContext context) {
+    _setRefreshTimer();
+
     return Container(
       key: widget.key,
       child: Container(
         key: _containerKey,
-        child: Center(child: widget.mapPlaceholder)
+        child: widget.mapPlaceholder
       )
     );
   }
 
-  void _setMapRefresh() {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      await _yandexMap.reset();
-      await _yandexMap.addPlacemarks(widget.placemarks);
-      await _yandexMap.showFitRect(_buildRect());
-
-      widget.afterMapShow(_yandexMap);
+  void _setRefreshTimer() {
+    _refreshTimer = Timer(Duration(milliseconds: 100), () async {
+      _refreshTimer?.cancel();
+      await _refreshMapContainer();
     });
+  }
+
+  Future<Null> _refreshMapContainer() async {
+    Rect newRect = _buildRect();
+
+    if (_rect != newRect) {
+      _rect = newRect;
+      await _yandexMap.showResize(_rect);
+      widget.afterMapRefresh(_yandexMap);
+    }
+
+    if (newRect == Rect.zero) {
+      _setRefreshTimer();
+    }
   }
 
   Rect _buildRect() {
@@ -80,6 +93,10 @@ class _YandexMapContainerState extends State<YandexMapContainer> {
     Vector3 translation = object.getTransformTo(null).getTranslation();
     Size size = object.semanticBounds.size;
 
-    return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
+    if (translation.x >= 0 && translation.y >= 0) {
+      return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
+    } else {
+      return Rect.zero;
+    }
   }
 }

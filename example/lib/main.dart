@@ -98,7 +98,14 @@ class _MyAppState extends State<MyApp> {
                 height: 300.0
               )
             ),
-            Expanded(child: YandexMapContainer(placemarks: [_placemark]))
+            Expanded(
+              child: YandexMapContainer(
+                afterMapRefresh: (YandexMap yandexMap) async {
+                  await yandexMap.removePlacemark(_placemark);
+                  await yandexMap.addPlacemark(_placemark);
+                },
+              )
+            )
           ]
         ),
       )

@@ -80,8 +80,8 @@ class YandexMap {
     await _channel.invokeMethod('show');
   }
 
-  Future<Null> showFitRect(Rect rect) async {
-    await _channel.invokeMethod('showFitRect', _rectParams(rect));
+  Future<Null> showResize(Rect rect) async {
+    await _channel.invokeMethod('showResize', _rectParams(rect));
   }
 
   Future<Null> setBounds({
@@ -103,9 +103,12 @@ class YandexMap {
     );
   }
 
+  /// Does nothing if passed `Placemark` is `null`
   Future<Null> addPlacemark(Placemark placemark) async {
-    await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
-    _addPlacemarksLocal([placemark]);
+    if (placemark != null) {
+      await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
+      _addPlacemarksLocal([placemark]);
+    }
   }
 
   Future<Null> addPlacemarks(List<Placemark> newPlacemarks) async {
@@ -120,6 +123,7 @@ class YandexMap {
     placemarks.addAll(newPlacemarks);
   }
 
+  /// Does nothing if passed `Placemark` wasn't added before
   Future<Null> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod(

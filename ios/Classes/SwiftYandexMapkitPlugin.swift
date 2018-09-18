@@ -4,6 +4,7 @@ import YandexMapKit
 
 public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   static var channel: FlutterMethodChannel!
+  private let emptyRect: CGRect = CGRect(x: 0, y: 0, width: 0, height: 0)
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let viewController: UIViewController
   private let mapObjectCollectionListener = MapObjectCollectionListener()
@@ -42,11 +43,11 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     case "resize":
       resize(call)
       result(nil)
-    case "showFitRect":
-      showFitRect(call)
-      result(nil)
     case "show":
       show(call)
+      result(nil)
+    case "showResize":
+      showResize(call)
       result(nil)
     case "setBounds":
       setBounds(call)
@@ -71,7 +72,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   private func setApiKey(_ call: FlutterMethodCall) {
     YMKMapKit.setApiKey(call.arguments as! String?)
   }
-
+  
   private func hide(_ call: FlutterMethodCall) {
     if (mapView == nil) { return }
 
@@ -112,7 +113,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     viewController.view.addSubview(mapView!)
   }
 
-  private func showFitRect(_ call: FlutterMethodCall) {
+  private func showResize(_ call: FlutterMethodCall) {
     if (mapView == nil) { return }
 
     resize(call)
@@ -191,7 +192,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   private func create(_ call: FlutterMethodCall) {
     if (mapView != nil) { return }
 
-    mapView = YMKMapView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+    mapView = YMKMapView(frame: emptyRect)
     mapView!.mapWindow.map!.mapObjects!.addListener(with: mapObjectCollectionListener)
   }
 
@@ -202,6 +203,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
+    if (isMapViewEmptyRect()) { return }
     if (params["animate"] as! Bool) {
       let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
       let animationType = YMKAnimation(type: type, duration: params["animationDuration"] as! Float)
@@ -214,6 +216,12 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
 
   private func parseRect(_ rect: [String: Double]) -> CGRect {
     return CGRect(x: rect["left"]!, y: rect["top"]!, width: rect["width"]!, height: rect["height"]!)
+  }
+  
+  private func isMapViewEmptyRect() -> Bool {
+    if (mapView == nil) {return true}
+    
+    return mapView!.frame.equalTo(emptyRect)
   }
 
   internal class MapObjectCollectionListener: NSObject, YMKMapObjectCollectionListener {
