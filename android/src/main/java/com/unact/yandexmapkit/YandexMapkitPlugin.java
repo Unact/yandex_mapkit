@@ -145,7 +145,7 @@ public class YandexMapkitPlugin implements MethodCallHandler {
       PlacemarkMapObject placemarkMapObject = iterator.next();
       if (placemarkMapObject.getUserData().equals(params.get("hashCode"))) {
         mapObjects.remove(placemarkMapObject);
-        placemarks.remove(placemarkMapObject);
+        iterator.remove();
       }
     }
   }

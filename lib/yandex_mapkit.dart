@@ -9,7 +9,7 @@ import 'src/yandex_map.dart';
 export 'src/map_animation.dart';
 export 'src/placemark.dart';
 export 'src/point.dart';
-export 'src/yandex_map_container.dart';
+export 'src/yandex_map_view.dart';
 export 'src/yandex_map.dart';
 
 /// Singleton Class for accessing Yandex MapView
