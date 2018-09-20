@@ -12,7 +12,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  YandexMapViewController controller = YandexMapViewController();
+  GlobalKey<YandexMapViewState> _mapKey = GlobalKey<YandexMapViewState>();
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   YandexMap _yandexMap = YandexMapkit().yandexMap;
   Placemark _placemark = Placemark(
@@ -92,10 +92,10 @@ class _MyAppState extends State<MyApp> {
             ),
             Expanded(
               child: YandexMapView(
-                controller: controller,
+                key: _mapKey,
                 afterMapRefresh: () async {
-                  await controller.yandexMap.removePlacemark(_placemark);
-                  await controller.yandexMap.addPlacemark(_placemark);
+                  await _mapKey.currentState.yandexMap.removePlacemark(_placemark);
+                  await _mapKey.currentState.yandexMap.addPlacemark(_placemark);
                 },
               )
             )

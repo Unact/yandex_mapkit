@@ -161,8 +161,10 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     let mapObjects = mapView!.mapWindow.map!.mapObjects!
     let placemark = placemarks.first(where: { $0.userData as! Int == params["hashCode"] as! Int })
 
-    mapObjects.remove(with: placemark)
-    placemarks.remove(at: placemarks.index(of: placemark!)!)
+    if (placemark != nil) {
+      mapObjects.remove(with: placemark)
+      placemarks.remove(at: placemarks.index(of: placemark!)!)
+    }
   }
 
   private func removePlacemarks(_ call: FlutterMethodCall) {
