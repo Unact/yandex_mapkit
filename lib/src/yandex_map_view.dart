@@ -29,6 +29,7 @@ class YandexMapView extends StatefulWidget {
 class YandexMapViewState extends State<YandexMapView> {
   // Time to wait for layout build to finish
   final int _kWaitTimeMs = 500;
+  bool _hidden = true;
   YandexMap yandexMap = YandexMapkit().yandexMap;
   Rect _rect;
 
@@ -53,26 +54,53 @@ class YandexMapViewState extends State<YandexMapView> {
     return widget.mapPlaceholder;
   }
 
-  /// Refreshes current mapView
-  /// Hides mapView before refreshing
-  Future<Null> refresh() async {
+  Future<Null> hide() async {
     await _hideMapContainer();
-    // Have to wait for layout to finish
-    await Future.delayed(Duration(milliseconds: _kWaitTimeMs), () async {
-      await _refreshMapContainer(forceRefresh: true);
-    });
   }
 
-  Future<Null> _hideMapContainer() async {
+  Future<Null> show() async {
+    await _showMapContainer();
+  }
+
+  /// Refreshes current mapView
+  /// Always shows mapView
+  Future<Null> refresh() async {
+    _refreshMapContainerDelayed();
+  }
+
+  Future<Null> _hideMapContainer({bool force: false}) async {
+    if (_hidden && !force) return;
+
+    _hidden = true;
     await yandexMap.hide();
   }
 
-  Future<Null> _refreshMapContainer({bool forceRefresh: false}) async {
+  Future<Null> _showMapContainer({bool force: false}) async {
+    if (!_hidden && !force) return;
+
+    _hidden = false;
+    await yandexMap.show();
+  }
+
+  /// Waiting for layout to finish
+  Future<Null> _refreshMapContainerDelayed() async {
+    await Future.delayed(Duration(milliseconds: _kWaitTimeMs), () async {
+      await _refreshMapContainer(force: true);
+    });
+  }
+
+  Future<Null> _refreshMapContainer({bool force: false}) async {
     Rect newRect = _buildRect();
 
-    if (_rect != newRect || forceRefresh) {
+    if (newRect == null) {
+      _refreshMapContainerDelayed();
+      return;
+    }
+
+    if (_rect != newRect || force) {
       _rect = newRect;
-      await yandexMap.showResize(_rect);
+      await yandexMap.resize(_rect);
+      await _showMapContainer(force: true);
       widget.afterMapRefresh();
     }
   }
@@ -80,9 +108,9 @@ class YandexMapViewState extends State<YandexMapView> {
   Rect _buildRect() {
     // Sometimes findRenderObject can fail
     try {
-      RenderObject object = context.findRenderObject();
-      Vector3 translation = object.getTransformTo(null).getTranslation();
-      Size size = object.semanticBounds.size;
+      RenderBox box = context.findRenderObject();
+      Vector3 translation = box.getTransformTo(null).getTranslation();
+      Size size = box.semanticBounds.size;
 
       if (translation.x >= 0 && translation.y >= 0) {
         return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
@@ -90,7 +118,7 @@ class YandexMapViewState extends State<YandexMapView> {
         return Rect.zero;
       }
     } catch(e) {
-      return Rect.zero;
+      return null;
     }
   }
 }
