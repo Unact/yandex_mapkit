@@ -1,6 +1,9 @@
 package com.unact.yandexmapkit;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -14,6 +17,7 @@ import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
@@ -21,6 +25,9 @@ import com.yandex.mapkit.map.MapObjectCollectionListener;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.mapview.MapView;
+import com.yandex.mapkit.user_location.UserLocationLayer;
+import com.yandex.mapkit.user_location.UserLocationObjectListener;
+import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
 
 import java.util.ArrayList;
@@ -31,10 +38,12 @@ import java.util.Map;
 
 public class YandexMapkitPlugin implements MethodCallHandler {
   static MethodChannel channel;
+  static String userLocationIconName;
   private FrameLayout.LayoutParams currentLayout;
   private Activity activity;
   private MapView mapView;
   private Registrar pluginRegistrar;
+  private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexMapObjectCollectionListener yandexMapObjectCollectionListener;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
 
@@ -46,14 +55,36 @@ public class YandexMapkitPlugin implements MethodCallHandler {
   }
 
   private YandexMapkitPlugin(Registrar pluginRegistrar) {
-    this.pluginRegistrar = pluginRegistrar;
     this.activity = pluginRegistrar.activity();
+    this.pluginRegistrar = pluginRegistrar;
     this.yandexMapObjectCollectionListener = new YandexMapObjectCollectionListener();
+    this.yandexUserLocationObjectListener = new YandexUserLocationObjectListener(pluginRegistrar);
   }
 
   private void setApiKey(MethodCall call) {
     MapKitFactory.setApiKey(call.arguments.toString());
     MapKitFactory.initialize(this.activity);
+  }
+
+  private void showUserLayer(MethodCall call) {
+    if (this.mapView == null) return;
+    if (!hasLocationPermission()) return;
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    YandexMapkitPlugin.userLocationIconName = (String) params.get("iconName");
+
+    UserLocationLayer userLocationLayer = this.mapView.getMap().getUserLocationLayer();
+    userLocationLayer.setEnabled(true);
+    userLocationLayer.setHeadingEnabled(true);
+    userLocationLayer.setObjectListener(this.yandexUserLocationObjectListener);
+  }
+
+  private void hideUserLayer(MethodCall call) {
+    if (this.mapView == null) return;
+    if (!hasLocationPermission()) return;
+
+    UserLocationLayer userLocationLayer = this.mapView.getMap().getUserLocationLayer();
+    userLocationLayer.setEnabled(false);
   }
 
   private void hide(MethodCall call) {
@@ -87,6 +118,7 @@ public class YandexMapkitPlugin implements MethodCallHandler {
 
   private void reset(MethodCall call) {
     hide(call);
+    hideUserLayer(call);
     removePlacemarks(call);
     destroy(call);
     create(call);
@@ -247,6 +279,11 @@ public class YandexMapkitPlugin implements MethodCallHandler {
     }
   }
 
+  private boolean hasLocationPermission() {
+    int permissionState = ActivityCompat.checkSelfPermission(this.activity, Manifest.permission.ACCESS_FINE_LOCATION);
+    return permissionState == PackageManager.PERMISSION_GRANTED;
+  }
+
   private void startView() {
     ViewGroup viewGroup = ((ViewGroup) (this.mapView.getParent()));
 
@@ -277,6 +314,14 @@ public class YandexMapkitPlugin implements MethodCallHandler {
     switch (call.method) {
       case "setApiKey":
         setApiKey(call);
+        result.success(null);
+        break;
+      case "showUserLayer":
+        showUserLayer(call);
+        result.success(null);
+        break;
+      case "hideUserLayer":
+        hideUserLayer(call);
         result.success(null);
         break;
       case "hide":
@@ -327,6 +372,27 @@ public class YandexMapkitPlugin implements MethodCallHandler {
         result.notImplemented();
         break;
     }
+  }
+
+  private class YandexUserLocationObjectListener implements UserLocationObjectListener {
+    private Registrar pluginRegistrar;
+
+    private YandexUserLocationObjectListener(Registrar pluginRegistrar) {
+      this.pluginRegistrar = pluginRegistrar;
+    }
+
+    public void onObjectAdded(UserLocationView view) {
+      view.getPin().setIcon(
+        ImageProvider.fromAsset(
+          pluginRegistrar.activity(),
+          this.pluginRegistrar.lookupKeyForAsset(YandexMapkitPlugin.userLocationIconName)
+        )
+      );
+    }
+
+    public void onObjectRemoved(UserLocationView view) {}
+
+    public void onObjectUpdated(UserLocationView view, ObjectEvent event) {}
   }
 
   private class YandexMapObjectCollectionListener implements MapObjectCollectionListener {

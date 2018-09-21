@@ -17,7 +17,7 @@ class _MyAppState extends State<MyApp> {
   YandexMap _yandexMap = YandexMapkit().yandexMap;
   Placemark _placemark = Placemark(
     point: _point,
-    iconName: 'lib/assets/Mark.png',
+    iconName: 'lib/assets/place.png',
     onTap: (latitude, longitude) => print('Tapped me at $latitude,$longitude')
   );
 
@@ -87,6 +87,22 @@ class _MyAppState extends State<MyApp> {
                     await _yandexMap.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
                   },
                   child: Text('Resize')
+                )
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMap.showUserLayer(iconName: 'lib/assets/user.png');
+                  },
+                  child: Text('Show User')
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMap.hideUserLayer();
+                  },
+                  child: Text('Hide User')
                 )
               ],
             ),

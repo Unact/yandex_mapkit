@@ -54,3 +54,4 @@ For usage examples refer to example app
 - [X] Receive Placemark tap events
 - [X] Moving around the map
 - [X] Setting map bounds
+- [X] Showing current user location

@@ -1,13 +1,16 @@
+import CoreLocation
 import Flutter
 import UIKit
 import YandexMapKit
 
 public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   static var channel: FlutterMethodChannel!
+  static var userLocationIconName: String!
   private let emptyRect: CGRect = CGRect(x: 0, y: 0, width: 0, height: 0)
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let viewController: UIViewController
   private let mapObjectCollectionListener = MapObjectCollectionListener()
+  private let userLocationObjectListener: UserLocationObjectListener
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var mapView: YMKMapView?
 
@@ -23,6 +26,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   public required init(viewController: UIViewController, pluginRegistrar: FlutterPluginRegistrar) {
     self.viewController = viewController
     self.pluginRegistrar = pluginRegistrar
+    self.userLocationObjectListener = UserLocationObjectListener(pluginRegistrar: pluginRegistrar)
     viewController.dismiss(animated: false)
   }
 
@@ -30,6 +34,12 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "setApiKey":
       setApiKey(call)
+      result(nil)
+    case "showUserLayer":
+      showUserLayer(call)
+      result(nil)
+    case "hideUserLayer":
+      hideUserLayer(call)
       result(nil)
     case "hide":
       hide(call)
@@ -72,7 +82,28 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   private func setApiKey(_ call: FlutterMethodCall) {
     YMKMapKit.setApiKey(call.arguments as! String?)
   }
-  
+
+  private func showUserLayer(_ call: FlutterMethodCall) {
+    if (mapView == nil) { return }
+    if (!hasLocationPermission()) { return }
+
+    let params = call.arguments as! [String: Any]
+    SwiftYandexMapkitPlugin.userLocationIconName = params["iconName"] as! String
+
+    let userLocationLayer = mapView!.mapWindow.map!.userLocationLayer
+    userLocationLayer!.isEnabled = true
+    userLocationLayer!.isHeadingEnabled = true
+    userLocationLayer!.setObjectListenerWith(userLocationObjectListener)
+  }
+
+  private func hideUserLayer(_ call: FlutterMethodCall) {
+    if (mapView == nil) { return }
+    if (!hasLocationPermission()) { return }
+
+    let userLocationLayer = mapView!.mapWindow.map!.userLocationLayer
+    userLocationLayer!.isEnabled = false
+  }
+
   private func hide(_ call: FlutterMethodCall) {
     if (mapView == nil) { return }
 
@@ -102,6 +133,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
 
   private func reset(_ call: FlutterMethodCall) {
     hide(call)
+    hideUserLayer(call)
     removePlacemarks(call)
     destroy(call)
     create(call)
@@ -219,11 +251,43 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   private func parseRect(_ rect: [String: Double]) -> CGRect {
     return CGRect(x: rect["left"]!, y: rect["top"]!, width: rect["width"]!, height: rect["height"]!)
   }
-  
+
   private func isMapViewEmptyRect() -> Bool {
     if (mapView == nil) {return true}
-    
+
     return mapView!.frame.equalTo(emptyRect)
+  }
+
+  private func hasLocationPermission() -> Bool {
+    if CLLocationManager.locationServicesEnabled() {
+      switch CLLocationManager.authorizationStatus() {
+      case .notDetermined, .restricted, .denied:
+        return false
+      case .authorizedAlways, .authorizedWhenInUse:
+        return true
+      }
+    } else {
+      return false
+    }
+  }
+
+  internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
+    private let pluginRegistrar: FlutterPluginRegistrar!
+
+
+    public required init(pluginRegistrar: FlutterPluginRegistrar) {
+      self.pluginRegistrar = pluginRegistrar
+    }
+
+    func onObjectAdded(with view: YMKUserLocationView?) {
+      view!.pin!.setIconWith(
+        UIImage(named: pluginRegistrar.lookupKey(forAsset: SwiftYandexMapkitPlugin.userLocationIconName!))
+      )
+    }
+
+    func onObjectRemoved(with view: YMKUserLocationView?) {}
+
+    func onObjectUpdated(with view: YMKUserLocationView?, event: YMKObjectEvent?) {}
   }
 
   internal class MapObjectCollectionListener: NSObject, YMKMapObjectCollectionListener {

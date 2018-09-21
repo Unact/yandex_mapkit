@@ -33,6 +33,37 @@ class YandexMap {
     await _channel.invokeMethod('setApiKey', apiKey);
   }
 
+  /// Shows an icon at current user location
+  ///
+  /// Requires location permissions:
+  ///
+  /// `NSLocationWhenInUseUsageDescription`
+  ///
+  /// `android.permission.ACCESS_FINE_LOCATION`
+  ///
+  /// Does nothing if these permissions where denied
+  Future<Null> showUserLayer({@required String iconName}) async {
+    await _channel.invokeMethod(
+      'showUserLayer',
+      {
+        'iconName': iconName
+      }
+    );
+  }
+
+  /// Hides an icon at current user location
+  ///
+  /// Requires location permissions:
+  ///
+  /// `NSLocationWhenInUseUsageDescription`
+  ///
+  /// `android.permission.ACCESS_FINE_LOCATION`
+  ///
+  /// Does nothing if these permissions where denied
+  Future<Null> hideUserLayer() async {
+    await _channel.invokeMethod('hideUserLayer');
+  }
+
   Future<Null> hide() async {
     await _channel.invokeMethod('hide');
   }

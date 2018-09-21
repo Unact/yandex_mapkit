@@ -19,5 +19,6 @@ dev_dependencies:
 
 flutter:
   assets:
-    - lib/assets/Mark.png
+    - lib/assets/user.png
+    - lib/assets/place.png
   uses-material-design: true
