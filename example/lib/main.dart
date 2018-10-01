@@ -12,9 +12,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  GlobalKey<YandexMapViewState> _mapKey = GlobalKey<YandexMapViewState>();
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  YandexMap _yandexMap = YandexMapkit().yandexMap;
+  YandexMapController _yandexMapController;
   Placemark _placemark = Placemark(
     point: _point,
     iconName: 'lib/assets/place.png',
@@ -33,39 +32,37 @@ class _MyAppState extends State<MyApp> {
             Row(
               children: <Widget>[
                 RaisedButton(
+
                   onPressed: () async {
-                    await _yandexMap.show();
+                    await _yandexMapController.show();
                   },
-                  child: Text('Show')
+                  child: Tooltip(message: 'Works only on iOS', child: Text('Show'))
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.hide();
+                    await _yandexMapController.hide();
                   },
-                  child: Text('Hide')
+                  child: Tooltip(message: 'Works only on iOS', child: Text('Hide'))
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.move(
-                      point: _point,
-                      animation: MapAnimation(smooth: true, duration: 2.0)
-                    );
+                    await _yandexMapController.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
                   },
-                  child: Text('Move')
-                ),
+                  child: Tooltip(message: 'Works only on iOS', child: Text('Resize'))
+                )
               ]
             ),
             Row(
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.addPlacemark(_placemark);
+                    await _yandexMapController.addPlacemark(_placemark);
                   },
                   child: Text('Add placemark')
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.removePlacemark(_placemark);
+                    await _yandexMapController.removePlacemark(_placemark);
                   },
                   child: Text('Remove placemark')
                 ),
@@ -75,7 +72,7 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.setBounds(
+                    await _yandexMapController.setBounds(
                       southWestPoint: Point(latitude: 60.0, longitude: 30.0),
                       northEastPoint: Point(latitude: 65.0, longitude: 40.0),
                     );
@@ -84,34 +81,38 @@ class _MyAppState extends State<MyApp> {
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
+                    await _yandexMapController.move(
+                      point: _point,
+                      animation: MapAnimation(smooth: true, duration: 2.0)
+                    );
                   },
-                  child: Text('Resize')
-                )
+                  child: Text('Move')
+                ),
               ],
             ),
             Row(
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.showUserLayer(iconName: 'lib/assets/user.png');
+                    await _yandexMapController.showUserLayer(iconName: 'lib/assets/user.png');
                   },
                   child: Text('Show User')
                 ),
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMap.hideUserLayer();
+                    await _yandexMapController.hideUserLayer();
                   },
                   child: Text('Hide User')
                 )
               ],
             ),
             Expanded(
-              child: YandexMapView(
-                key: _mapKey,
-                afterMapRefresh: () async {
-                  await _mapKey.currentState.yandexMap.removePlacemark(_placemark);
-                  await _mapKey.currentState.yandexMap.addPlacemark(_placemark);
+              child: YandexMap(
+                onMapCreated: (controller) async {
+                  _yandexMapController = controller;
+
+                  await _yandexMapController.removePlacemark(_placemark);
+                  await _yandexMapController.addPlacemark(_placemark);
                 },
               )
             )

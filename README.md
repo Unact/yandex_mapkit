@@ -2,7 +2,7 @@
 
 A flutter plugin for displaying yandex maps on iOS and Android
 
-__Warning__: The `YandexMapView` is not integrated in the widget tree, it is a native view on top of the flutter view.  
+__Warning__: On iOS `YandexMap` is not integrated in the widget tree, it is a native view on top of the flutter view.  
 You won't be able to use snackbars, dialogs ...  
 Scrolling is also not supported, since it relies on the widget tree  
 
@@ -30,18 +30,10 @@ void main() async {
 }
 ```
 
-You can use it as a standalone map, like so
+You can use a `YandexMap` which resizes itself to its parent size
 
 ```dart
-YandexMap yandexMap = YandexMapkit().yandexMap;
-yandexMap.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
-yandexMap.show();
-```
-
-Or you can use a `YandexMapView` which does resizes itself to its parent size
-
-```dart
-Expanded(child: YandexMapView())
+Expanded(child: YandexMap())
 ```
 
 For usage examples refer to example app

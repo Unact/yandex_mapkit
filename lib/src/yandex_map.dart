@@ -1,213 +1,161 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:vector_math/vector_math_64.dart';
 
-import 'map_animation.dart';
-import 'placemark.dart';
-import 'point.dart';
+import 'yandex_map_controller.dart';
 
-class YandexMap {
-  static const MethodChannel _channel = MethodChannel('yandex_mapkit');
-  static const double kTilt = 0.0;
-  static const double kAzimuth = 0.0;
-  static const double kZoom = 15.0;
+class YandexMap extends StatefulWidget {
+  /// Only for `iOS`
+  /// A `Widget` to show before MapView is shown
+  /// By default uses `CircularProgressIndicator`
+  final Widget mapPlaceholder;
 
-  final List<Placemark> placemarks = [];
+  /// On `Android` will be called only once
+  /// On `iOS` will be called each time native MapView refreshes its position
+  final Function onMapCreated;
 
-  YandexMap._() {
-    _channel.setMethodCallHandler(_handleMethod);
-  }
+  static void _kOnMapCreated(YandexMapController controller) => null;
 
-  /// Initializes MapView
-  /// If MapView was initialized before it will be reset
-  static Future<YandexMap> init({@required String apiKey}) async {
-    YandexMap yandexMap = YandexMap._();
-    await yandexMap._setApiKey(apiKey);
-    await yandexMap.reset();
+  /// A `Widget` for displaying Yandex Map
+  const YandexMap({
+    Key key,
+    this.mapPlaceholder = const Center(child: CircularProgressIndicator()),
+    this.onMapCreated = _kOnMapCreated,
+  }) : super(key: key);
 
-    return yandexMap;
-  }
+  @override
+  YandexMapState createState() => YandexMapState();
+}
 
-  Future<Null> _setApiKey(String apiKey) async {
-    await _channel.invokeMethod('setApiKey', apiKey);
-  }
+class YandexMapState extends State<YandexMap> {
+  // Time to wait for layout build to finish
+  final int _kWaitTimeMs = 500;
+  bool _hidden = true;
+  Rect _rect;
+  YandexMapController _controller;
 
-  /// Shows an icon at current user location
-  ///
-  /// Requires location permissions:
-  ///
-  /// `NSLocationWhenInUseUsageDescription`
-  ///
-  /// `android.permission.ACCESS_FINE_LOCATION`
-  ///
-  /// Does nothing if these permissions where denied
-  Future<Null> showUserLayer({@required String iconName}) async {
-    await _channel.invokeMethod(
-      'showUserLayer',
-      {
-        'iconName': iconName
-      }
-    );
-  }
+  @override
+  void deactivate() {
+    super.deactivate();
 
-  /// Hides an icon at current user location
-  ///
-  /// Requires location permissions:
-  ///
-  /// `NSLocationWhenInUseUsageDescription`
-  ///
-  /// `android.permission.ACCESS_FINE_LOCATION`
-  ///
-  /// Does nothing if these permissions where denied
-  Future<Null> hideUserLayer() async {
-    await _channel.invokeMethod('hideUserLayer');
-  }
-
-  Future<Null> hide() async {
-    await _channel.invokeMethod('hide');
-  }
-
-  Future<Null> move({
-    @required Point point,
-    double zoom = kZoom,
-    double azimuth = kAzimuth,
-    double tilt = kTilt,
-    MapAnimation animation
-  }) async {
-    await _channel.invokeMethod(
-      'move',
-      {
-        'latitude': point.latitude,
-        'longitude': point.longitude,
-        'zoom': zoom,
-        'azimuth': azimuth,
-        'tilt': tilt,
-        'animate': animation != null,
-        'smoothAnimation': animation?.smooth,
-        'animationDuration': animation?.duration
-      }
-    );
-  }
-
-  /// Returns map to the default state
-  /// 1. Removes all placemarks
-  /// 2. Hides map
-  /// 3. Set MapView size to a 0,0,0,0 sized rectangle
-  Future<Null> reset() async {
-    await _channel.invokeMethod('reset');
-    _resetLocal();
-  }
-
-  void _resetLocal() {
-    _removePlacemarksLocal();
-  }
-
-  Future<Null> resize(Rect rect) async {
-    await _channel.invokeMethod('resize', _rectParams(rect));
-  }
-
-  Future<Null> show() async {
-    await _channel.invokeMethod('show');
-  }
-
-  Future<Null> showResize(Rect rect) async {
-    await _channel.invokeMethod('showResize', _rectParams(rect));
-  }
-
-  Future<Null> setBounds({
-    @required Point southWestPoint,
-    @required Point northEastPoint,
-    MapAnimation animation
-  }) async {
-    await _channel.invokeMethod(
-      'setBounds',
-      {
-        'southWestLatitude': southWestPoint.latitude,
-        'southWestLongitude': southWestPoint.longitude,
-        'northEastLatitude': northEastPoint.latitude,
-        'northEastLongitude': northEastPoint.longitude,
-        'animate': animation != null,
-        'smoothAnimation': animation?.smooth,
-        'animationDuration': animation?.duration
-      }
-    );
-  }
-
-  /// Does nothing if passed `Placemark` is `null`
-  Future<Null> addPlacemark(Placemark placemark) async {
-    if (placemark != null) {
-      await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
-      _addPlacemarksLocal([placemark]);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      _controller.reset();
     }
   }
 
-  Future<Null> addPlacemarks(List<Placemark> newPlacemarks) async {
-    await _channel.invokeMethod(
-      'addPlacemarks',
-      newPlacemarks.map((Placemark placemark) => _placemarkParams(placemark)).toList()
-    );
-    _addPlacemarksLocal(newPlacemarks);
+  @override
+  void dispose() {
+    super.dispose();
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      _controller.reset();
+    }
   }
 
-  void _addPlacemarksLocal(List<Placemark> newPlacemarks) {
-    placemarks.addAll(newPlacemarks);
-  }
-
-  /// Does nothing if passed `Placemark` wasn't added before
-  Future<Null> removePlacemark(Placemark placemark) async {
-    if (placemarks.remove(placemark)) {
-      await _channel.invokeMethod(
-        'removePlacemark',
-        {
-          'hashCode': placemark.hashCode
-        }
+  @override
+  Widget build(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidView(
+        viewType: 'yandex_mapkit/yandex_map',
+        onPlatformViewCreated: _onPlatformViewCreated,
+        gestureRecognizers: [
+          VerticalDragGestureRecognizer(),
+          HorizontalDragGestureRecognizer()
+        ],
       );
     }
+
+    _refreshMapContainer();
+
+    return widget.mapPlaceholder;
   }
 
-  Future<Null> removePlacemarks() async {
-    await _channel.invokeMethod('removePlacemarks');
-    _removePlacemarksLocal();
+  void _onPlatformViewCreated(int id) {
+    _controller = YandexMapController.init(id, defaultTargetPlatform);
+    widget.onMapCreated(_controller);
   }
 
-  void _removePlacemarksLocal() {
-    placemarks.removeRange(0, placemarks.length);
-  }
-
-  Future<dynamic> _handleMethod(MethodCall methodCall) async {
-    switch(methodCall.method) {
-      case 'onMapObjectTap':
-        _onMapObjectTap(methodCall.arguments);
-        break;
+  /// Shows mapView
+  /// Works only on `TargetPlatform.iOS`
+  Future<Null> hide() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _hideMapContainer();
     }
   }
 
-  void _onMapObjectTap(dynamic arguments) {
-    int hashCode = arguments['hashCode'];
-    double latitude = arguments['latitude'];
-    double longitude = arguments['longitude'];
-
-    placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode).onTap(latitude, longitude);
+  /// Shows mapView
+  /// Works only on `TargetPlatform.iOS`
+  Future<Null> show() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _showMapContainer();
+    }
   }
 
-  Map<String, double> _rectParams(Rect rect) {
-    return {
-      'left': rect.left,
-      'top': rect.top,
-      'width': rect.width,
-      'height': rect.height
-    };
+  /// Refreshes current mapView
+  /// Always shows mapView
+  /// Works only on `TargetPlatform.iOS`
+  Future<Null> refresh() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      _refreshMapContainerDelayed();
+    }
   }
 
-  Map<String, dynamic> _placemarkParams(Placemark placemark) {
-    return {
-      'latitude': placemark.point.latitude,
-      'longitude': placemark.point.longitude,
-      'opacity': placemark.opacity,
-      'isDraggable': placemark.isDraggable,
-      'iconName': placemark.iconName,
-      'hashCode': placemark.hashCode
-    };
+  Future<Null> _hideMapContainer({bool force: false}) async {
+    if (_hidden && !force) return;
+
+    _hidden = true;
+    await _controller.hide();
+  }
+
+  Future<Null> _showMapContainer({bool force: false}) async {
+    if (!_hidden && !force) return;
+
+    _hidden = false;
+    await _controller.show();
+  }
+
+  /// Waiting for layout to finish
+  Future<Null> _refreshMapContainerDelayed() async {
+    await Future.delayed(Duration(milliseconds: _kWaitTimeMs), () async {
+      await _refreshMapContainer(force: true);
+    });
+  }
+
+  Future<Null> _refreshMapContainer({bool force: false}) async {
+    Rect newRect = _buildRect();
+
+    if (newRect == null) {
+      _refreshMapContainerDelayed();
+      return;
+    }
+
+    if (_rect != newRect || force) {
+      _rect = newRect;
+      _controller = YandexMapController.init(null, defaultTargetPlatform);
+      await _controller.reset();
+      await _controller.resize(_rect);
+      await _showMapContainer(force: true);
+      widget.onMapCreated(_controller);
+    }
+  }
+
+  Rect _buildRect() {
+    // Sometimes findRenderObject can fail
+    try {
+      RenderBox box = context.findRenderObject();
+      Vector3 translation = box.getTransformTo(null).getTranslation();
+      Size size = box.semanticBounds.size;
+
+      if (translation.x >= 0 && translation.y >= 0) {
+        return Rect.fromLTWH(translation.x, translation.y, size.width, size.height);
+      } else {
+        return Rect.zero;
+      }
+    } catch(e) {
+      return null;
+    }
   }
 }
