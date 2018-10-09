@@ -42,7 +42,7 @@ class YandexMapState extends State<YandexMap> {
     super.deactivate();
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      _controller.reset();
+      _controller?.reset();
     }
   }
 
@@ -51,7 +51,7 @@ class YandexMapState extends State<YandexMap> {
     super.dispose();
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      _controller.reset();
+      _controller?.reset();
     }
   }
 

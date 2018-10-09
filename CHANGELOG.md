@@ -10,3 +10,7 @@
 
 - Change android implementation to use `AndroidView`
 - Change ios implementation to match android
+
+## 0.1.1
+
+- Bugfixes
