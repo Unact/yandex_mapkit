@@ -19,59 +19,15 @@ class YandexMapController extends ChangeNotifier {
 
   final int _id;
 
-  final TargetPlatform _targetPlatform;
-
-  YandexMapController._(this._id, this._targetPlatform,  channel)
+  YandexMapController._(this._id,  channel)
       : _channel = channel {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
 
-  static YandexMapController init(int id, TargetPlatform targetPlatform) {
-    final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_${id != null ? id : 'ios'}');
+  static YandexMapController init(int id) {
+    final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
-    return YandexMapController._(id, targetPlatform, methodChannel);
-  }
-
-  /// Returns map to the default state
-  /// 1. Removes all placemarks
-  /// 2. Hides map
-  /// 3. Set MapView size to a 0,0,0,0 sized rectangle
-  Future<Null> reset() async {
-    if (_targetPlatform == TargetPlatform.android) {
-      throw UnimplementedError;
-    }
-
-    await _channel.invokeMethod('reset');
-  }
-
-  /// Resizes native view
-  /// Works only on `TargetPlatform.iOS`
-  Future<Null> resize(Rect rect) async {
-    if (_targetPlatform == TargetPlatform.android) {
-      throw UnimplementedError;
-    }
-
-    await _channel.invokeMethod('resize', _rectParams(rect));
-  }
-
-  /// Shows native view
-  /// Works only on `TargetPlatform.iOS`
-  Future<Null> show() async {
-    if (_targetPlatform == TargetPlatform.android) {
-      throw UnimplementedError;
-    }
-
-    await _channel.invokeMethod('show');
-  }
-
-  /// Hides native view
-  /// Works only on `TargetPlatform.iOS`
-  Future<Null> hide() async {
-    if (_targetPlatform == TargetPlatform.android) {
-      throw UnimplementedError;
-    }
-
-    await _channel.invokeMethod('hide');
+    return YandexMapController._(id, methodChannel);
   }
 
   /// Shows an icon at current user location
@@ -83,7 +39,7 @@ class YandexMapController extends ChangeNotifier {
   /// `android.permission.ACCESS_FINE_LOCATION`
   ///
   /// Does nothing if these permissions where denied
-  Future<Null> showUserLayer({@required String iconName}) async {
+  Future<void> showUserLayer({@required String iconName}) async {
     await _channel.invokeMethod(
       'showUserLayer',
       {
@@ -101,11 +57,11 @@ class YandexMapController extends ChangeNotifier {
   /// `android.permission.ACCESS_FINE_LOCATION`
   ///
   /// Does nothing if these permissions where denied
-  Future<Null> hideUserLayer() async {
+  Future<void> hideUserLayer() async {
     await _channel.invokeMethod('hideUserLayer');
   }
 
-  Future<Null> move({
+  Future<void> move({
     @required Point point,
     double zoom = kZoom,
     double azimuth = kAzimuth,
@@ -127,7 +83,7 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
-  Future<Null> setBounds({
+  Future<void> setBounds({
     @required Point southWestPoint,
     @required Point northEastPoint,
     MapAnimation animation
@@ -147,7 +103,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Does nothing if passed `Placemark` is `null`
-  Future<Null> addPlacemark(Placemark placemark) async {
+  Future<void> addPlacemark(Placemark placemark) async {
     if (placemark != null) {
       await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
       placemarks.add(placemark);
@@ -155,7 +111,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   // Does nothing if passed `Placemark` wasn't added before
-  Future<Null> removePlacemark(Placemark placemark) async {
+  Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod(
         'removePlacemark',
@@ -187,15 +143,6 @@ class YandexMapController extends ChangeNotifier {
     if (placemark != null) {
       placemark.onTap(latitude, longitude);
     }
-  }
-
-  Map<String, double> _rectParams(Rect rect) {
-    return {
-      'left': rect.left,
-      'top': rect.top,
-      'width': rect.width,
-      'height': rect.height
-    };
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {

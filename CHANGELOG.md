@@ -14,3 +14,9 @@
 ## 0.1.1
 
 - Bugfixes
+
+## 0.1.2
+
+- Change ios implementation to use `UiKitView`
+- Change `AnroidView.gestureRecognizers` to accept all gestures
+- Change method signature `Future<Null>` to `Future<void>`

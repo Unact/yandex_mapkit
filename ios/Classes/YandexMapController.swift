@@ -3,35 +3,29 @@ import Flutter
 import UIKit
 import YandexMapKit
 
-public class YandexMapController: NSObject, FlutterPlugin {
-  static var channel: FlutterMethodChannel!
-  private let emptyRect: CGRect = CGRect(x: 0, y: 0, width: 0, height: 0)
+public class YandexMapController: NSObject, FlutterPlatformView {
+  private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
-  private let viewController: UIViewController
-  private let mapObjectCollectionListener = MapObjectCollectionListener()
-  private let userLocationObjectListener: UserLocationObjectListener
-  static var userLocationIconName: String!
+  private let mapObjectCollectionListener: MapObjectCollectionListener!
+  private var userLocationObjectListener: UserLocationObjectListener?
   private var placemarks: [YMKPlacemarkMapObject] = []
-  private let mapView: YMKMapView
+  public let mapView: YMKMapView
 
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    channel = FlutterMethodChannel(
-      name: "yandex_mapkit/yandex_map_ios",
+  public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
+    self.pluginRegistrar = registrar
+    self.mapView = YMKMapView(frame: frame)
+    self.methodChannel = FlutterMethodChannel(
+      name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.mapObjectCollectionListener = MapObjectCollectionListener(channel: methodChannel)
+    super.init()
+    mapView.mapWindow.map!.mapObjects!.addListener(with: mapObjectCollectionListener)
+    self.methodChannel.setMethodCallHandler(self.handle)
   }
 
-  public required init(viewController: UIViewController, pluginRegistrar: FlutterPluginRegistrar) {
-    self.viewController = viewController
-    self.pluginRegistrar = pluginRegistrar
-    self.userLocationObjectListener = UserLocationObjectListener(pluginRegistrar: pluginRegistrar)
-    self.mapView = YMKMapView(frame: emptyRect)
-    super.init()
-
-    mapView.mapWindow.map!.mapObjects!.addListener(with: mapObjectCollectionListener)
-    viewController.dismiss(animated: false)
-    YandexMapController.register(with: pluginRegistrar)
-    pluginRegistrar.addMethodCallDelegate(self, channel: YandexMapController.channel)
+  public func view() -> UIView {
+    return self.mapView
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -42,20 +36,8 @@ public class YandexMapController: NSObject, FlutterPlugin {
     case "hideUserLayer":
       hideUserLayer()
       result(nil)
-    case "hide":
-      hide()
-      result(nil)
     case "move":
       move(call)
-      result(nil)
-    case "reset":
-      reset()
-      result(nil)
-    case "resize":
-      resize(call)
-      result(nil)
-    case "show":
-      show()
       result(nil)
     case "setBounds":
       setBounds(call)
@@ -75,8 +57,10 @@ public class YandexMapController: NSObject, FlutterPlugin {
     if (!hasLocationPermission()) { return }
 
     let params = call.arguments as! [String: Any]
-    YandexMapController.userLocationIconName = params["iconName"] as! String
-
+    self.userLocationObjectListener = UserLocationObjectListener(
+      pluginRegistrar: pluginRegistrar,
+      iconName: params["iconName"] as! String
+    )
     let userLocationLayer = mapView.mapWindow.map!.userLocationLayer
     userLocationLayer!.isEnabled = true
     userLocationLayer!.isHeadingEnabled = true
@@ -90,10 +74,6 @@ public class YandexMapController: NSObject, FlutterPlugin {
     userLocationLayer!.isEnabled = false
   }
 
-  public func hide() {
-    mapView.removeFromSuperview()
-  }
-
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let point = YMKPoint(latitude: params["latitude"] as! Double, longitude: params["longitude"] as! Double)
@@ -105,21 +85,6 @@ public class YandexMapController: NSObject, FlutterPlugin {
     )
 
     moveWithParams(params, cameraPosition)
-  }
-
-  public func resize(_ call: FlutterMethodCall) {
-    mapView.frame = parseRect(call.arguments as! [String: Double])
-  }
-
-  public func reset() {
-    hide()
-    hideUserLayer()
-    mapView.mapWindow.map!.mapObjects!.clear()
-    placemarks.removeAll()
-  }
-
-  public func show() {
-    viewController.view.addSubview(mapView)
   }
 
   public func setBounds(_ call: FlutterMethodCall) {
@@ -174,7 +139,6 @@ public class YandexMapController: NSObject, FlutterPlugin {
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
-    if (isMapViewEmptyRect()) { return }
     if (params["animate"] as! Bool) {
       let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
       let animationType = YMKAnimation(type: type, duration: params["animationDuration"] as! Float)
@@ -183,14 +147,6 @@ public class YandexMapController: NSObject, FlutterPlugin {
     } else {
       mapView.mapWindow.map!.move(with: cameraPosition)
     }
-  }
-
-  private func parseRect(_ rect: [String: Double]) -> CGRect {
-    return CGRect(x: rect["left"]!, y: rect["top"]!, width: rect["width"]!, height: rect["height"]!)
-  }
-
-  private func isMapViewEmptyRect() -> Bool {
-    return mapView.frame.equalTo(emptyRect)
   }
 
   private func hasLocationPermission() -> Bool {
@@ -208,15 +164,16 @@ public class YandexMapController: NSObject, FlutterPlugin {
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!
+    private let iconName: String!
 
-
-    public required init(pluginRegistrar: FlutterPluginRegistrar) {
+    public required init(pluginRegistrar: FlutterPluginRegistrar, iconName: String) {
       self.pluginRegistrar = pluginRegistrar
+      self.iconName = iconName
     }
 
     func onObjectAdded(with view: YMKUserLocationView?) {
       view!.pin!.setIconWith(
-        UIImage(named: pluginRegistrar.lookupKey(forAsset: YandexMapController.userLocationIconName!))
+        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.iconName))
       )
     }
 
@@ -226,10 +183,21 @@ public class YandexMapController: NSObject, FlutterPlugin {
   }
 
   internal class MapObjectCollectionListener: NSObject, YMKMapObjectCollectionListener {
-    let mapObjectTapListener = MapObjectTapListener()
+    private let mapObjectTapListener: MapObjectTapListener!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.mapObjectTapListener = MapObjectTapListener(channel: channel)
+    }
+
     internal class MapObjectTapListener: NSObject, YMKMapObjectTapListener {
+      private let methodChannel: FlutterMethodChannel!
+
+      public required init(channel: FlutterMethodChannel) {
+        self.methodChannel = channel
+      }
+
       func onMapObjectTap(with mapObject: YMKMapObject?, point: YMKPoint) -> Bool {
-        channel.invokeMethod("onMapObjectTap", arguments: [
+        methodChannel.invokeMethod("onMapObjectTap", arguments: [
           "hashCode": mapObject!.userData,
           "latitude": point.latitude,
           "longitude": point.longitude

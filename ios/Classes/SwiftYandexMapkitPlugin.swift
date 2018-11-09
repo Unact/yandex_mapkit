@@ -10,9 +10,12 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     channel = FlutterMethodChannel(name: "yandex_mapkit", binaryMessenger: registrar.messenger())
-    pluginRegistrar = registrar
 
-    pluginRegistrar.addMethodCallDelegate(SwiftYandexMapkitPlugin(), channel: channel)
+    registrar.addMethodCallDelegate(SwiftYandexMapkitPlugin(), channel: channel)
+    registrar.register(
+      YandexMapFactory(registrar: registrar),
+      withId: "yandex_mapkit/yandex_map"
+    )
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -26,14 +29,6 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   }
 
   private func setApiKey(_ call: FlutterMethodCall) {
-    let appDelegate = UIApplication.shared.delegate!
-    let viewController = appDelegate.window?!.rootViewController
-
     YMKMapKit.setApiKey(call.arguments as! String?)
-    SwiftYandexMapkitPlugin.controller?.reset()
-    SwiftYandexMapkitPlugin.controller = YandexMapController(
-      viewController: viewController!,
-      pluginRegistrar: SwiftYandexMapkitPlugin.pluginRegistrar
-    )
   }
 }

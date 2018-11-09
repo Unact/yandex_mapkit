@@ -32,29 +32,6 @@ class _MyAppState extends State<MyApp> {
             Row(
               children: <Widget>[
                 RaisedButton(
-
-                  onPressed: () async {
-                    await _yandexMapController.show();
-                  },
-                  child: Tooltip(message: 'Works only on iOS', child: Text('Show'))
-                ),
-                RaisedButton(
-                  onPressed: () async {
-                    await _yandexMapController.hide();
-                  },
-                  child: Tooltip(message: 'Works only on iOS', child: Text('Hide'))
-                ),
-                RaisedButton(
-                  onPressed: () async {
-                    await _yandexMapController.resize(Rect.fromLTWH(200.0, 200.0, 100.0, 100.0));
-                  },
-                  child: Tooltip(message: 'Works only on iOS', child: Text('Resize'))
-                )
-              ]
-            ),
-            Row(
-              children: <Widget>[
-                RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.addPlacemark(_placemark);
                   },

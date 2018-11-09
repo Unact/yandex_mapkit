@@ -1,10 +1,6 @@
 # yandex_mapkit
 
-A flutter plugin for displaying yandex maps on iOS and Android
-
-__Warning__: On iOS `YandexMap` is not integrated in the widget tree, it is a native view on top of the flutter view.  
-You won't be able to use snackbars, dialogs ...  
-Scrolling is also not supported, since it relies on the widget tree  
+A flutter plugin for displaying yandex maps on iOS and Android. Now fully integrated with flutters widget tree.
 
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
 When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc/mapkit/3.x/concepts/conditions-docpage/)
