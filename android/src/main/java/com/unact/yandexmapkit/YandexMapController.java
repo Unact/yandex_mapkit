@@ -14,7 +14,6 @@ import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
-import com.yandex.mapkit.map.MapObjectCollectionListener;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.mapview.MapView;
@@ -40,7 +39,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar pluginRegistrar;
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
-  private YandexMapObjectCollectionListener yandexMapObjectCollectionListener;
+  private YandexMapObjectTapListener yandexMapObjectTapListener;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private String userLocationIconName;
 
@@ -50,9 +49,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
     pluginRegistrar = registrar;
-    this.yandexMapObjectCollectionListener = new YandexMapObjectCollectionListener();
-    this.yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
-    this.mapView.getMap().getMapObjects().addListener(this.yandexMapObjectCollectionListener);
+    yandexMapObjectTapListener = new YandexMapObjectTapListener();
+    yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
     methodChannel = new MethodChannel(registrar.messenger(), "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
   }
@@ -68,28 +66,29 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapKitFactory.getInstance().onStop();
   }
 
-
+  @SuppressWarnings("unchecked")
   private void showUserLayer(MethodCall call) {
     if (!hasLocationPermission()) return;
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     userLocationIconName = (String) params.get("iconName");
 
-    UserLocationLayer userLocationLayer = this.mapView.getMap().getUserLocationLayer();
+    UserLocationLayer userLocationLayer = mapView.getMap().getUserLocationLayer();
     userLocationLayer.setEnabled(true);
     userLocationLayer.setHeadingEnabled(true);
-    userLocationLayer.setObjectListener(this.yandexUserLocationObjectListener);
+    userLocationLayer.setObjectListener(yandexUserLocationObjectListener);
   }
 
   private void hideUserLayer() {
     if (!hasLocationPermission()) return;
 
-    UserLocationLayer userLocationLayer = this.mapView.getMap().getUserLocationLayer();
+    UserLocationLayer userLocationLayer = mapView.getMap().getUserLocationLayer();
     userLocationLayer.setEnabled(false);
   }
 
+  @SuppressWarnings("unchecked")
   private void move(MethodCall call) {
-        Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
     CameraPosition cameraPosition = new CameraPosition(
         point,
@@ -101,6 +100,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     moveWithParams(params, cameraPosition);
   }
 
+  @SuppressWarnings("unchecked")
   private void setBounds(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     BoundingBox boundingBox = new BoundingBox(
@@ -111,13 +111,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     moveWithParams(params, mapView.getMap().cameraPosition(boundingBox));
   }
 
+  @SuppressWarnings("unchecked")
   private void addPlacemark(MethodCall call) {
     addPlacemarkToMap(((Map<String, Object>) call.arguments));
   }
 
+  @SuppressWarnings("unchecked")
   private void removePlacemark(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    MapObjectCollection mapObjects = this.mapView.getMap().getMapObjects();
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     Iterator<PlacemarkMapObject> iterator = placemarks.iterator();
 
     while (iterator.hasNext()) {
@@ -131,39 +133,37 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   private void addPlacemarkToMap(Map<String, Object> params) {
     Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
-    MapObjectCollection mapObjects = this.mapView.getMap().getMapObjects();
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
     String iconName = (String) params.get("iconName");
 
     placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDraggable((Boolean) params.get("isDraggable"));
+    placemark.addTapListener(yandexMapObjectTapListener);
 
     if (iconName != null) {
-      placemark.setIcon(ImageProvider.fromAsset(this.mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
     }
 
     placemarks.add(placemark);
   }
-
 
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
     if (((Boolean) params.get("animate"))) {
       Animation.Type type = ((Boolean) params.get("smoothAnimation")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
       Animation animation = new Animation(type, ((Double) params.get("animationDuration")).floatValue());
 
-      this.mapView.getMap().move(cameraPosition, animation, null);
+      mapView.getMap().move(cameraPosition, animation, null);
     } else {
-      this.mapView.getMap().move(cameraPosition);
+      mapView.getMap().move(cameraPosition);
     }
   }
 
-
   private boolean hasLocationPermission() {
-    int permissionState = ActivityCompat.checkSelfPermission(this.mapView.getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+    int permissionState = ActivityCompat.checkSelfPermission(mapView.getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
     return permissionState == PackageManager.PERMISSION_GRANTED;
   }
-
 
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
@@ -209,7 +209,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       view.getPin().setIcon(
           ImageProvider.fromAsset(
               pluginRegistrar.activity(),
-              this.pluginRegistrar.lookupKeyForAsset(userLocationIconName)
+              pluginRegistrar.lookupKeyForAsset(userLocationIconName)
           )
       );
     }
@@ -219,34 +219,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     public void onObjectUpdated(UserLocationView view, ObjectEvent event) {}
   }
 
-  private class YandexMapObjectCollectionListener implements MapObjectCollectionListener {
-    private YandexMapObjectTapListener yandexMapObjectTapListener;
+  private class YandexMapObjectTapListener implements MapObjectTapListener {
+    public boolean onMapObjectTap(MapObject mapObject, Point point) {
+      Map<String, Object> arguments = new HashMap<>();
+      arguments.put("hashCode", mapObject.getUserData());
+      arguments.put("latitude", point.getLatitude());
+      arguments.put("longitude", point.getLongitude());
 
-    private YandexMapObjectCollectionListener() {
-      this.yandexMapObjectTapListener = new YandexMapObjectTapListener();
-    }
+      methodChannel.invokeMethod("onMapObjectTap", arguments);
 
-    public void onMapObjectAdded(MapObject mapObject) {
-      mapObject.addTapListener(this.yandexMapObjectTapListener);
-    }
-
-    public void onMapObjectRemoved(MapObject mapObject) {
-      mapObject.removeTapListener(this.yandexMapObjectTapListener);
-    }
-
-    public void onMapObjectUpdated(MapObject mapObject) {}
-
-    class YandexMapObjectTapListener implements MapObjectTapListener {
-      public boolean onMapObjectTap(MapObject mapObject, Point point) {
-        Map<String, Object> arguments = new HashMap<>();
-        arguments.put("hashCode", mapObject.getUserData());
-        arguments.put("latitude", point.getLatitude());
-        arguments.put("longitude", point.getLongitude());
-
-        methodChannel.invokeMethod("onMapObjectTap", arguments);
-
-        return true;
-      }
+      return true;
     }
   }
 }
