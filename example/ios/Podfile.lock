@@ -2,10 +2,10 @@ PODS:
   - Flutter (1.0.0)
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapKit
-  - YandexMapKit (3.0.0):
-    - YandexRuntime (~> 3.0)
-  - YandexRuntime (3.0.0)
+    - YandexMapKit (= 3.2.0)
+  - YandexMapKit (3.2.0):
+    - YandexRuntime (~> 3.2)
+  - YandexRuntime (3.2.0)
 
 DEPENDENCIES:
   - Flutter (from `.symlinks/flutter/ios`)
@@ -24,9 +24,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
-  yandex_mapkit: 7d42dcfeb6aff398371f95eecfbb4b4c97788964
-  YandexMapKit: c32b57caf297c610917d6f4b66e416f07f1ca894
-  YandexRuntime: 3922beb365a8f0c8ff9bd7ee914eae3efbb8103b
+  yandex_mapkit: ad70a932a591489727dc4ae0ee1ab59a960eeea5
+  YandexMapKit: 9bf046c69997348f07a37e587880bf18f147b8d3
+  YandexRuntime: 1b2bf8365e5fec2fc91e9fda449fa7fae54b3d79
 
 PODFILE CHECKSUM: 392a695225479ec66ab171f471d944e1b705a3e8
 

@@ -6,7 +6,7 @@ import YandexMapKit
 public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
-  private let mapObjectCollectionListener: MapObjectCollectionListener!
+  private let mapObjectTapListener: MapObjectTapListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   private var placemarks: [YMKPlacemarkMapObject] = []
   public let mapView: YMKMapView
@@ -18,9 +18,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
-    self.mapObjectCollectionListener = MapObjectCollectionListener(channel: methodChannel)
+    self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     super.init()
-    mapView.mapWindow.map!.mapObjects!.addListener(with: mapObjectCollectionListener)
     self.methodChannel.setMethodCallHandler(self.handle)
   }
 
@@ -61,17 +60,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       pluginRegistrar: pluginRegistrar,
       iconName: params["iconName"] as! String
     )
-    let userLocationLayer = mapView.mapWindow.map!.userLocationLayer
-    userLocationLayer!.isEnabled = true
-    userLocationLayer!.isHeadingEnabled = true
-    userLocationLayer!.setObjectListenerWith(userLocationObjectListener)
+    let userLocationLayer = mapView.mapWindow.map.userLocationLayer
+    userLocationLayer.isEnabled = true
+    userLocationLayer.isHeadingEnabled = true
+    userLocationLayer.setObjectListenerWith(userLocationObjectListener!)
   }
 
   public func hideUserLayer() {
     if (!hasLocationPermission()) { return }
 
-    let userLocationLayer = mapView.mapWindow.map!.userLocationLayer
-    userLocationLayer!.isEnabled = false
+    let userLocationLayer = mapView.mapWindow.map.userLocationLayer
+    userLocationLayer.isEnabled = false
   }
 
   public func move(_ call: FlutterMethodCall) {
@@ -89,7 +88,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func setBounds(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let cameraPosition = mapView.mapWindow.map!.cameraPosition(with:
+    let cameraPosition = mapView.mapWindow.map.cameraPosition(with:
       YMKBoundingBox(
         southWest: YMKPoint(
           latitude: params["southWestLatitude"] as! Double,
@@ -112,30 +111,31 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func removePlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let mapObjects = mapView.mapWindow.map!.mapObjects!
+    let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = placemarks.first(where: { $0.userData as! Int == params["hashCode"] as! Int })
 
     if (placemark != nil) {
-      mapObjects.remove(with: placemark)
+      mapObjects.remove(with: placemark!)
       placemarks.remove(at: placemarks.index(of: placemark!)!)
     }
   }
 
   private func addPlacemarkToMap(_ params: [String: Any]) {
     let point = YMKPoint(latitude: params["latitude"] as! Double, longitude: params["longitude"] as! Double)
-    let mapObjects = mapView.mapWindow.map!.mapObjects!
+    let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = mapObjects.addPlacemark(with: point)
     let iconName = params["iconName"] as? String
 
-    placemark!.userData = params["hashCode"] as! Int
-    placemark!.opacity = params["opacity"] as! Float
-    placemark!.isDraggable = params["isDraggable"] as! Bool
+    placemark.addTapListener(with: mapObjectTapListener)
+    placemark.userData = params["hashCode"] as! Int
+    placemark.opacity = params["opacity"] as! Float
+    placemark.isDraggable = params["isDraggable"] as! Bool
 
     if (iconName != nil) {
-      placemark!.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!)))
+      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
     }
 
-    placemarks.append(placemark!)
+    placemarks.append(placemark)
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
@@ -143,9 +143,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
       let animationType = YMKAnimation(type: type, duration: params["animationDuration"] as! Float)
 
-      mapView.mapWindow.map!.move(with: cameraPosition, animationType: animationType)
+      mapView.mapWindow.map.move(with: cameraPosition, animationType: animationType)
     } else {
-      mapView.mapWindow.map!.move(with: cameraPosition)
+      mapView.mapWindow.map.move(with: cameraPosition)
     }
   }
 
@@ -171,50 +171,33 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       self.iconName = iconName
     }
 
-    func onObjectAdded(with view: YMKUserLocationView?) {
-      view!.pin!.setIconWith(
-        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.iconName))
+    func onObjectAdded(with view: YMKUserLocationView) {
+      view.pin.setIconWith(
+        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.iconName))!
       )
     }
 
-    func onObjectRemoved(with view: YMKUserLocationView?) {}
+    func onObjectRemoved(with view: YMKUserLocationView) {}
 
-    func onObjectUpdated(with view: YMKUserLocationView?, event: YMKObjectEvent?) {}
+    func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
   }
 
-  internal class MapObjectCollectionListener: NSObject, YMKMapObjectCollectionListener {
-    private let mapObjectTapListener: MapObjectTapListener!
+  internal class MapObjectTapListener: NSObject, YMKMapObjectTapListener {
+    private let methodChannel: FlutterMethodChannel!
 
     public required init(channel: FlutterMethodChannel) {
-      self.mapObjectTapListener = MapObjectTapListener(channel: channel)
+      self.methodChannel = channel
     }
 
-    internal class MapObjectTapListener: NSObject, YMKMapObjectTapListener {
-      private let methodChannel: FlutterMethodChannel!
+    func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+      let arguments: [String:Any?] = [
+        "hashCode": mapObject.userData,
+        "latitude": point.latitude,
+        "longitude": point.longitude
+      ]
+      methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
 
-      public required init(channel: FlutterMethodChannel) {
-        self.methodChannel = channel
-      }
-
-      func onMapObjectTap(with mapObject: YMKMapObject?, point: YMKPoint) -> Bool {
-        methodChannel.invokeMethod("onMapObjectTap", arguments: [
-          "hashCode": mapObject!.userData,
-          "latitude": point.latitude,
-          "longitude": point.longitude
-        ])
-
-        return true
-      }
+      return true
     }
-
-    func onMapObjectAdded(with mapObject: YMKMapObject?) {
-      mapObject?.addTapListener(with: mapObjectTapListener)
-    }
-
-    func onMapObjectRemoved(with mapObject: YMKMapObject?) {
-      mapObject?.removeTapListener(with: mapObjectTapListener)
-    }
-
-    func onMapObjectUpdated(with mapObject: YMKMapObject?) {}
   }
 }
