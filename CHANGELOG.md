@@ -1,3 +1,7 @@
+## 0.1.3+1
+
+- Lock YandexRuntime to 3.2 (https://github.com/Unact/yandex_mapkit/issues/3)
+
 ## 0.1.3
 
 - Bump YandexMapkit version to 3.2 for ios and android

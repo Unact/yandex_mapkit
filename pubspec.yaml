@@ -1,8 +1,8 @@
 name: yandex_mapkit
 description: Flutter implementation of Yandex.MapKit
-version: 0.1.3
-author: Unact
-homepage:
+version: 0.1.3+1
+author: Unact <it@unact.ru>
+homepage: https://github.com/Unact/yandex_mapkit
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
