@@ -17,9 +17,7 @@ class YandexMapController extends ChangeNotifier {
 
   final List<Placemark> placemarks = [];
 
-  final int _id;
-
-  YandexMapController._(this._id,  channel)
+  YandexMapController._(channel)
       : _channel = channel {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
@@ -27,7 +25,7 @@ class YandexMapController extends ChangeNotifier {
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
-    return YandexMapController._(id, methodChannel);
+    return YandexMapController._(methodChannel);
   }
 
   /// Shows an icon at current user location

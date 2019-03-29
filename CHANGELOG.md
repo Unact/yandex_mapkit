@@ -1,3 +1,8 @@
+## 0.1.3+2
+
+- Fix some of pub.dartlang.com suggestions
+- Fix Xcode 10.1 SWIFT_VERSION error
+
 ## 0.1.3+1
 
 - Lock YandexRuntime to 3.2 (https://github.com/Unact/yandex_mapkit/issues/3)
