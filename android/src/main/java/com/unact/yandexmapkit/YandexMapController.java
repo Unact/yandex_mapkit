@@ -3,7 +3,7 @@ package com.unact.yandexmapkit;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.view.View;
 
 import com.yandex.mapkit.Animation;
