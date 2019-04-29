@@ -1,3 +1,7 @@
+## 0.2.0
+
+* **Breaking change**. Migrate from the deprecated original Android Support Library to AndroidX.
+
 ## 0.1.3+2
 
 - Fix some of pub.dartlang.com suggestions
