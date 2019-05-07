@@ -47,6 +47,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "removePlacemark":
       removePlacemark(call)
       result(nil)
+    case "zoomIn":
+        zoomIn()
+        result(nil)
+    case "zoomOut":
+        zoomOut()
+        result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -72,6 +78,24 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let userLocationLayer = mapView.mapWindow.map.userLocationLayer
     userLocationLayer.isEnabled = false
   }
+    
+    public func zoomIn() {
+        zoom(1)
+    }
+    
+    public func zoomOut() {
+        zoom(-1)
+    }
+    
+    private func zoom(_ step: Float) {
+        let point = mapView.mapWindow.map.cameraPosition.target
+        let zoom = mapView.mapWindow.map.cameraPosition.zoom
+        let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
+        let tilt = mapView.mapWindow.map.cameraPosition.tilt
+        let currentPosition = YMKCameraPosition(target: point, zoom: zoom+step, azimuth: azimuth, tilt: tilt)
+        mapView.mapWindow.map.move(with: currentPosition,
+                                   animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1), cameraCallback: nil)
+    }
 
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]

@@ -120,6 +120,14 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  Future<void> zoomIn() async {
+    await _channel.invokeMethod('zoomIn');
+  }
+
+  Future<void> zoomOut() async {
+    await _channel.invokeMethod('zoomOut');
+  }
+
   Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onMapObjectTap':

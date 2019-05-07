@@ -165,6 +165,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     return permissionState == PackageManager.PERMISSION_GRANTED;
   }
 
+  private void zoomIn() {
+    zoom(1f);
+  }
+
+  private void zoomOut() {
+    zoom(-1f);
+  }
+
+  private void zoom(float step) {
+    Point zoomPoint = mapView.getMap().getCameraPosition().getTarget();
+    float currentZoom = mapView.getMap().getCameraPosition().getZoom();
+    float tilt = mapView.getMap().getCameraPosition().getTilt();
+    float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
+    mapView.getMap().move(new CameraPosition(zoomPoint, currentZoom+step, tilt, azimuth),
+            new Animation(Animation.Type.SMOOTH, 1),
+            null);
+  }
+
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -190,6 +208,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "removePlacemark":
         removePlacemark(call);
+        result.success(null);
+        break;
+      case "zoomIn":
+        zoomIn();
+        result.success(null);
+        break;
+      case "zoomOut":
+        zoomOut();
         result.success(null);
         break;
       default:

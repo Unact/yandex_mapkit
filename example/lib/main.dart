@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
-  await YandexMapkit.setup(apiKey: 'YOUR_API_KEY');
+  await YandexMapkit.setup(apiKey:'YOUR_API_KEY');
   runApp(MyApp());
 }
 
@@ -80,6 +80,22 @@ class _MyAppState extends State<MyApp> {
                     await _yandexMapController.hideUserLayer();
                   },
                   child: Text('Hide User')
+                )
+              ],
+            ),
+            Row(
+              children: [
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.zoomIn();
+                    },
+                    child: Text('Zoom In')
+                ),
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.zoomOut();
+                    },
+                    child: Text('Zoom Out')
                 )
               ],
             ),
