@@ -178,7 +178,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     float currentZoom = mapView.getMap().getCameraPosition().getZoom();
     float tilt = mapView.getMap().getCameraPosition().getTilt();
     float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
-    mapView.getMap().move(new CameraPosition(zoomPoint, currentZoom+step, tilt, azimuth),
+    mapView.getMap().move(
+            new CameraPosition(
+                zoomPoint,
+                currentZoom+step,
+                tilt,
+                azimuth
+            ),
             new Animation(Animation.Type.SMOOTH, 1),
             null);
   }

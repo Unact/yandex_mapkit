@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
-  await YandexMapkit.setup(apiKey:'YOUR_API_KEY');
+  await YandexMapkit.setup(apiKey: 'YOUR_API_KEY');
   runApp(MyApp());
 }
 

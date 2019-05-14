@@ -92,9 +92,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         let zoom = mapView.mapWindow.map.cameraPosition.zoom
         let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
         let tilt = mapView.mapWindow.map.cameraPosition.tilt
-        let currentPosition = YMKCameraPosition(target: point, zoom: zoom+step, azimuth: azimuth, tilt: tilt)
-        mapView.mapWindow.map.move(with: currentPosition,
-                                   animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1), cameraCallback: nil)
+        let currentPosition = YMKCameraPosition(
+            target: point,
+            zoom: zoom+step,
+            azimuth: azimuth,
+            tilt: tilt
+         )
+        mapView.mapWindow.map.move(
+            with: currentPosition,
+            animationType: YMKAnimation(
+                type: YMKAnimationType.smooth,
+                duration: 1
+                ),
+            cameraCallback: nil
+            )
     }
 
   public func move(_ call: FlutterMethodCall) {
