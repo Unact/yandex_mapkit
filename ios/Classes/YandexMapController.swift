@@ -105,7 +105,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
                 duration: 1
                 ),
             cameraCallback: nil
-            )
+        )
     }
 
   public func move(_ call: FlutterMethodCall) {
