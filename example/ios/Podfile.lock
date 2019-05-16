@@ -24,11 +24,11 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/yandex_mapkit/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
-  yandex_mapkit: c2f430133aa6508c3470840781e858ac99a6d42e
+  Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  yandex_mapkit: 18a6689f766ca4a475d8018485bebd15549a83cb
   YandexMapKit: 9bf046c69997348f07a37e587880bf18f147b8d3
   YandexRuntime: 1b2bf8365e5fec2fc91e9fda449fa7fae54b3d79
 
 PODFILE CHECKSUM: e94cb8ccd5420ded8bd2601a44d8af8d412dd12b
 
-COCOAPODS: 1.6.1
+COCOAPODS: 1.5.3
