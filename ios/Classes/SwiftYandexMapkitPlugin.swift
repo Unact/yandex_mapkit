@@ -19,16 +19,6 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "setApiKey":
-      setApiKey(call)
-      result(nil)
-    default:
-      result(FlutterMethodNotImplemented)
-    }
-  }
-
-  private func setApiKey(_ call: FlutterMethodCall) {
-    YMKMapKit.setApiKey(call.arguments as! String?)
+    result(nil)
   }
 }

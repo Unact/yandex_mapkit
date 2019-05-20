@@ -30,20 +30,8 @@ public class YandexMapkitPlugin implements MethodCallHandler {
     this.activity = activity;
   }
 
-  private void setApiKey(MethodCall call) {
-    MapKitFactory.setApiKey(call.arguments.toString());
-  }
-
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    switch (call.method) {
-      case "setApiKey":
-        setApiKey(call);
-        result.success(null);
-        break;
-      default:
-        result.notImplemented();
-        break;
-    }
+    result.success(null);
   }
 }
