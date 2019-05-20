@@ -17,7 +17,8 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
 
-```objectivec
+`ios/Runner/AppDelegate.swift`:
+```swift
 import UIKit
 import Flutter
 import YandexMapKit
