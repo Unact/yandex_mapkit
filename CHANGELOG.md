@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Add zoom functionality [#20, Ishokov-Dzhafar]
+
 ## 0.2.0
 
 * **Breaking change**. Migrate from the deprecated original Android Support Library to AndroidX.
