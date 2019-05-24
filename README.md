@@ -55,7 +55,6 @@ dependencies {
 ```java
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
-
 import com.yandex.mapkit.MapKitFactory;
 
 public class MainActivity extends FlutterActivity {
@@ -71,14 +70,12 @@ public class MainActivity extends FlutterActivity {
 
 ### Usage
 
-Prior to using the plugin, you must call `YandexMapkit.setup(apiKey: apiKey)`
 Example:
 
 ```dart
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
-  await YandexMapkit.setup();
   runApp(MyApp());
 }
 ```

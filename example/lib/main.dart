@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
-  await YandexMapkit.setup();
   runApp(MyApp());
 }
 

@@ -15,7 +15,4 @@ export 'src/yandex_map_controller.dart';
 /// To initialize use `setup`
 /// To communicate with MapView use `map` property
 class YandexMapkit {
-  /// Initializes native Yandex MapView
-  static Future<void> setup() async {
-  }
 }
