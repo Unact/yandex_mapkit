@@ -30,4 +30,8 @@ public class YandexMapkitPlugin implements MethodCallHandler {
     this.activity = activity;
   }
 
+  @Override
+  public void onMethodCall(MethodCall call, Result result) {
+  }
+
 }
