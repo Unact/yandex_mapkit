@@ -1,3 +1,7 @@
+## 0.3.0
+
+* **Breaking change**. Changed iOS and Android Mapkit key initialization
+
 ## 0.2.1
 
 * Add zoom functionality [#20, Ishokov-Dzhafar]
