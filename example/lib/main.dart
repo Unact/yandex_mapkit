@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 void main() async {
-  await YandexMapkit.setup(apiKey: 'YOUR_API_KEY');
   runApp(MyApp());
 }
 
@@ -15,6 +14,7 @@ class _MyAppState extends State<MyApp> {
   static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   YandexMapController _yandexMapController;
   Placemark _placemark = Placemark(
+    opacity: 0.7,
     point: _point,
     iconName: 'lib/assets/place.png',
     onTap: (latitude, longitude) => print('Tapped me at $latitude,$longitude')
