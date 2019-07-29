@@ -15,6 +15,7 @@ class _MyAppState extends State<MyApp> {
   YandexMapController _yandexMapController;
   Placemark _placemark = Placemark(
     point: _point,
+    opacity: 0.7,
     iconName: 'lib/assets/place.png',
     onTap: (latitude, longitude) => print('Tapped me at $latitude,$longitude')
   );
