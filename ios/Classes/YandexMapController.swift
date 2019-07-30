@@ -163,7 +163,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     placemark.addTapListener(with: mapObjectTapListener)
     placemark.userData = params["hashCode"] as! Int
-    placemark.opacity = params["opacity"] as! Float
+    placemark.opacity = (Float)(params["opacity"] as! Double)
     placemark.isDraggable = params["isDraggable"] as! Bool
 
     if (iconName != nil) {
