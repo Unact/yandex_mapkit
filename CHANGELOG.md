@@ -9,7 +9,7 @@
 
 ## 0.2.1
 
-* Add zoom functionality [#20, Ishokov-Dzhafar]
+* Add zoom functionality [#10, Ishokov-Dzhafar]
 
 ## 0.2.0
 
