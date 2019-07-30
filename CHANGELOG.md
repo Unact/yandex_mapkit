@@ -1,3 +1,8 @@
+## 0.3.1
+
+* Fix `YandexMapController.addPlacemark` sometimes not working on iOS [#13, Ishokov-Dzhafar]
+* Remove unused code
+
 ## 0.3.0
 
 * **Breaking change**. Changed iOS and Android Mapkit key initialization
