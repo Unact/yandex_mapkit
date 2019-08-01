@@ -35,6 +35,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "hideUserLayer":
       hideUserLayer()
       result(nil)
+    case "setMapStyle":
+      setMapStyle(call)
+      result(nil)
     case "move":
       move(call)
       result(nil)
@@ -77,6 +80,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     let userLocationLayer = mapView.mapWindow.map.userLocationLayer
     userLocationLayer.isEnabled = false
+  }
+
+  public func setMapStyle(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let map = mapView.mapWindow.map
+    map.setMapStyleWithStyle(params["style"] as! String)
   }
     
     public func zoomIn() {
