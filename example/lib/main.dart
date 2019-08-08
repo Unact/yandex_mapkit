@@ -103,22 +103,6 @@ class _MyAppState extends State<MyApp> {
               children: [
                 RaisedButton(
                     onPressed: () async {
-                      await _yandexMapController.zoomIn();
-                    },
-                    child: Text('Zoom In')
-                ),
-                RaisedButton(
-                    onPressed: () async {
-                      await _yandexMapController.zoomOut();
-                    },
-                    child: Text('Zoom Out')
-                )
-              ],
-            ),
-            Row(
-              children: [
-                RaisedButton(
-                    onPressed: () async {
                       await _yandexMapController.setMapStyle(style:
                       "[" +
                       "  {" +
