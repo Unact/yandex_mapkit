@@ -99,6 +99,58 @@ class _MyAppState extends State<MyApp> {
                 )
               ],
             ),
+            Row(
+              children: [
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.zoomIn();
+                    },
+                    child: Text('Zoom In')
+                ),
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.zoomOut();
+                    },
+                    child: Text('Zoom Out')
+                )
+              ],
+            ),
+            Row(
+              children: [
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.setMapStyle(style:
+                      "[" +
+                      "  {" +
+                      "    \"featureType\" : \"all\"," +
+                      "    \"stylers\" : {" +
+                      "      \"hue\" : \"0.5\"," +
+                      "      \"saturation\" : \"0.5\"," +
+                      "      \"lightness\" : \"0.5\"" +
+                      "    }" +
+                      "  }" +
+                      "]");
+                    },
+                    child: Text('Set Style')
+                ),
+                RaisedButton(
+                    onPressed: () async {
+                      await _yandexMapController.setMapStyle(style:
+                      "[" +
+                      "  {" +
+                      "    \"featureType\" : \"all\"," +
+                      "    \"stylers\" : {" +
+                      "      \"hue\" : \"0\"," +
+                      "      \"saturation\" : \"0\"," +
+                      "      \"lightness\" : \"0\"" +
+                      "    }" +
+                      "  }" +
+                      "]");
+                    },
+                    child: Text('Disable style')
+                )
+              ],
+            ),
             Expanded(
               child: YandexMap(
                 onMapCreated: (controller) async {
