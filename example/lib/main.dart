@@ -104,32 +104,38 @@ class _MyAppState extends State<MyApp> {
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.setMapStyle(style:
-                      "[" +
-                      "  {" +
-                      "    \"featureType\" : \"all\"," +
-                      "    \"stylers\" : {" +
-                      "      \"hue\" : \"0.5\"," +
-                      "      \"saturation\" : \"0.5\"," +
-                      "      \"lightness\" : \"0.5\"" +
-                      "    }" +
-                      "  }" +
-                      "]");
+                      """
+                        [
+                          {
+                            "featureType": "all",
+                            "stylers": {
+                              "hue": "0.5",
+                              "saturation": "0.5",
+                              "lightness": "0.5"
+                            }
+                          }
+                        ]
+                      """
+                    );
                     },
                     child: Text('Set Style')
                 ),
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.setMapStyle(style:
-                      "[" +
-                      "  {" +
-                      "    \"featureType\" : \"all\"," +
-                      "    \"stylers\" : {" +
-                      "      \"hue\" : \"0\"," +
-                      "      \"saturation\" : \"0\"," +
-                      "      \"lightness\" : \"0\"" +
-                      "    }" +
-                      "  }" +
-                      "]");
+                      """
+                        [
+                          {
+                            "featureType": "all",
+                            "stylers": {
+                              "hue": "0",
+                              "saturation": "0",
+                              "lightness": "0"
+                            }
+                          }
+                        ]
+                      """
+                    );
                     },
                     child: Text('Disable style')
                 )
