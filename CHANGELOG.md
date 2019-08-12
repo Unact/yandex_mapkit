@@ -1,3 +1,7 @@
+## 0.3.2
+
+* Add styling functionality [#18, vanyasem]
+
 ## 0.3.1
 
 * Fix `YandexMapController.addPlacemark` sometimes not working on iOS [#13, Ishokov-Dzhafar]
