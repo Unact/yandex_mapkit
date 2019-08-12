@@ -87,6 +87,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private void setMapStyle(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    mapView.getMap().setMapStyle((String) params.get("style"));
+  }
+
+  @SuppressWarnings("unchecked")
   private void move(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
@@ -198,6 +204,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "hideUserLayer":
         hideUserLayer();
+        result.success(null);
+        break;
+      case "setMapStyle":
+        setMapStyle(call);
         result.success(null);
         break;
       case "move":

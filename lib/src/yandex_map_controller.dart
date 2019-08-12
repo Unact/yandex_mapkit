@@ -59,6 +59,16 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod('hideUserLayer');
   }
 
+  /// Applies styling to the map
+  Future<void> setMapStyle({@required String style}) async {
+    await _channel.invokeMethod(
+        'setMapStyle',
+        {
+          'style': style
+        }
+    );
+  }
+
   Future<void> move({
     @required Point point,
     double zoom = kZoom,
