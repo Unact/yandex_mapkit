@@ -36,7 +36,7 @@ import YandexMapKit
 ```
 
 ### Initilazing for Android
-1. Add dependency `implementation 'com.yandex.android:mapkit:3.2.0'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` to `android/app/build.gradle`
 2. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 3. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 4. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
