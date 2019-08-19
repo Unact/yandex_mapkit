@@ -97,3 +97,4 @@ For usage examples refer to example app
 - [X] Moving around the map
 - [X] Setting map bounds
 - [X] Showing current user location
+- [X] Styling the map
