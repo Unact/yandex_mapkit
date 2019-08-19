@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-void main() async {
+void main() {
   runApp(MyApp());
 }
 
@@ -12,13 +12,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  static Point _point = Point(latitude: 59.945933, longitude: 30.320045);
+  static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   YandexMapController _yandexMapController;
-  Placemark _placemark = Placemark(
+  final Placemark _placemark = Placemark(
     point: _point,
     opacity: 0.7,
     iconName: 'lib/assets/place.png',
-    onTap: (latitude, longitude) => print('Tapped me at $latitude,$longitude')
+    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude')
   );
 
   @override
@@ -26,23 +26,23 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text('YandexMapkit Plugin')
+          title: const Text('YandexMapkit Plugin')
         ),
         body: Column(
-          children: [
+          children: <Widget>[
             Row(
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.addPlacemark(_placemark);
                   },
-                  child: Text('Add placemark')
+                  child: const Text('Add placemark')
                 ),
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.removePlacemark(_placemark);
                   },
-                  child: Text('Remove placemark')
+                  child: const Text('Remove placemark')
                 ),
               ],
             ),
@@ -51,62 +51,62 @@ class _MyAppState extends State<MyApp> {
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.setBounds(
-                      southWestPoint: Point(latitude: 60.0, longitude: 30.0),
-                      northEastPoint: Point(latitude: 65.0, longitude: 40.0),
+                      southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
+                      northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
                     );
                   },
-                  child: Text('setBounds')
+                  child: const Text('setBounds')
                 ),
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.move(
                       point: _point,
-                      animation: MapAnimation(smooth: true, duration: 2.0)
+                      animation: const MapAnimation(smooth: true, duration: 2.0)
                     );
                   },
-                  child: Text('Move')
+                  child: const Text('Move')
                 ),
               ],
             ),
             Row(
-              children: <Widget>[
+              children: <RaisedButton>[
                 RaisedButton(
                   onPressed: () async {
-                    await PermissionHandler().requestPermissions([PermissionGroup.location]);
+                    await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.location]);
                     await _yandexMapController.showUserLayer(iconName: 'lib/assets/user.png');
                   },
-                  child: Text('Show User')
+                  child: const Text('Show User')
                 ),
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.hideUserLayer();
                   },
-                  child: Text('Hide User')
+                  child: const Text('Hide User')
                 )
               ],
             ),
             Row(
-              children: [
+              children: <RaisedButton>[
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.zoomIn();
                     },
-                    child: Text('Zoom In')
+                    child: const Text('Zoom In')
                 ),
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.zoomOut();
                     },
-                    child: Text('Zoom Out')
+                    child: const Text('Zoom Out')
                 )
               ],
             ),
             Row(
-              children: [
+              children: <RaisedButton>[
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.setMapStyle(style:
-                      """
+                      '''
                         [
                           {
                             "featureType": "all",
@@ -117,15 +117,15 @@ class _MyAppState extends State<MyApp> {
                             }
                           }
                         ]
-                      """
+                      '''
                     );
                     },
-                    child: Text('Set Style')
+                    child: const Text('Set Style')
                 ),
                 RaisedButton(
                     onPressed: () async {
                       await _yandexMapController.setMapStyle(style:
-                      """
+                      '''
                         [
                           {
                             "featureType": "all",
@@ -136,16 +136,16 @@ class _MyAppState extends State<MyApp> {
                             }
                           }
                         ]
-                      """
+                      '''
                     );
                     },
-                    child: Text('Disable style')
+                    child: const Text('Disable style')
                 )
               ],
             ),
             Expanded(
               child: YandexMap(
-                onMapCreated: (controller) async {
+                onMapCreated: (YandexMapController controller) async {
                   _yandexMapController = controller;
 
                   await _yandexMapController.removePlacemark(_placemark);
