@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   runApp(MyApp());
@@ -71,6 +72,7 @@ class _MyAppState extends State<MyApp> {
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
+                    await PermissionHandler().requestPermissions([PermissionGroup.location]);
                     await _yandexMapController.showUserLayer(iconName: 'lib/assets/user.png');
                   },
                   child: Text('Show User')
