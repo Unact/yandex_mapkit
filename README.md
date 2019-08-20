@@ -12,7 +12,7 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Go to https://developer.tech.yandex.com
 2. Create a `MapKit mobile SDK` key
 
-### Initilazing for IOS
+### Initializing for IOS
 1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
@@ -35,7 +35,7 @@ import YandexMapKit
   }
 ```
 
-### Initilazing for Android
+### Initializing for Android
 1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` to `android/app/build.gradle`
 2. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 3. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
