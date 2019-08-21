@@ -12,7 +12,7 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Go to https://developer.tech.yandex.com
 2. Create a `MapKit mobile SDK` key
 
-### Initializing for IOS
+### Initializing for iOS
 1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
