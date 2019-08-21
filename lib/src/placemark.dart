@@ -18,5 +18,5 @@ class Placemark {
   final Function onTap;
 
   static const double kOpacity = 0.5;
-  static void _kOnTap(double latitude, double longitude) => null;
+  static void _kOnTap(double latitude, double longitude) => () { };
 }
