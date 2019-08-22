@@ -51,6 +51,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.onStart();
     pluginRegistrar = registrar;
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
+    userLocationLayer =
+            MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
     methodChannel = new MethodChannel(registrar.messenger(), "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
@@ -74,10 +76,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     userLocationIconName = (String) params.get("iconName");
 
-    if(userLocationLayer == null) {
-      userLocationLayer =
-              MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
-    }
     userLocationLayer.setVisible(true);
     userLocationLayer.setHeadingEnabled(true);
     userLocationLayer.setObjectListener(yandexUserLocationObjectListener);
@@ -86,10 +84,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void hideUserLayer() {
     if (!hasLocationPermission()) return;
 
-    if(userLocationLayer == null) {
-      userLocationLayer =
-              MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
-    }
     userLocationLayer.setVisible(false);
   }
 

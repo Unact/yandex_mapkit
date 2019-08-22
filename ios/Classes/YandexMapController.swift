@@ -20,6 +20,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       binaryMessenger: registrar.messenger()
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
+    self.userLocationLayer =
+                YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
     self.methodChannel.setMethodCallHandler(self.handle)
   }
@@ -70,10 +72,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       pluginRegistrar: pluginRegistrar,
       iconName: params["iconName"] as! String
     )
-    if(userLocationLayer == nil) {
-        userLocationLayer =
-            YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
-    }
     userLocationLayer?.setVisibleWithOn(true)
     userLocationLayer!.isHeadingEnabled = true
     userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
@@ -82,10 +80,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func hideUserLayer() {
     if (!hasLocationPermission()) { return }
 
-    if(userLocationLayer == nil) {
-      userLocationLayer =
-        YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
-    }
     userLocationLayer?.setVisibleWithOn(false)
   }
 
