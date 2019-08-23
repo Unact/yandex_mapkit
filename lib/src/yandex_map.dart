@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'yandex_map_controller.dart';
 
 class YandexMap extends StatefulWidget {
-  static const String viewType = 'yandex_mapkit/yandex_map';
-
-  final Function onMapCreated;
-
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
     Key key,
     this.onMapCreated
   }) : super(key: key);
+
+  static const String viewType = 'yandex_mapkit/yandex_map';
+
+  final Function onMapCreated;
 
   @override
   YandexMapState createState() => YandexMapState();

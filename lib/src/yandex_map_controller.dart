@@ -9,18 +9,18 @@ import 'placemark.dart';
 import 'point.dart';
 
 class YandexMapController extends ChangeNotifier {
+  YandexMapController._(MethodChannel channel)
+      : _channel = channel {
+    _channel.setMethodCallHandler(_handleMethodCall);
+  }
+
   static const double kTilt = 0.0;
   static const double kAzimuth = 0.0;
   static const double kZoom = 15.0;
 
   final MethodChannel _channel;
 
-  final List<Placemark> placemarks = [];
-
-  YandexMapController._(channel)
-      : _channel = channel {
-    _channel.setMethodCallHandler(_handleMethodCall);
-  }
+  final List<Placemark> placemarks = <Placemark>[];
 
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -38,9 +38,9 @@ class YandexMapController extends ChangeNotifier {
   ///
   /// Does nothing if these permissions where denied
   Future<void> showUserLayer({@required String iconName}) async {
-    await _channel.invokeMethod(
+    await _channel.invokeMethod<void>(
       'showUserLayer',
-      {
+      <String, dynamic>{
         'iconName': iconName
       }
     );
@@ -56,14 +56,14 @@ class YandexMapController extends ChangeNotifier {
   ///
   /// Does nothing if these permissions where denied
   Future<void> hideUserLayer() async {
-    await _channel.invokeMethod('hideUserLayer');
+    await _channel.invokeMethod<void>('hideUserLayer');
   }
 
   /// Applies styling to the map
   Future<void> setMapStyle({@required String style}) async {
-    await _channel.invokeMethod(
+    await _channel.invokeMethod<void>(
         'setMapStyle',
-        {
+        <String, dynamic>{
           'style': style
         }
     );
@@ -76,9 +76,9 @@ class YandexMapController extends ChangeNotifier {
     double tilt = kTilt,
     MapAnimation animation
   }) async {
-    await _channel.invokeMethod(
+    await _channel.invokeMethod<void>(
       'move',
-      {
+      <String, dynamic>{
         'latitude': point.latitude,
         'longitude': point.longitude,
         'zoom': zoom,
@@ -96,9 +96,9 @@ class YandexMapController extends ChangeNotifier {
     @required Point northEastPoint,
     MapAnimation animation
   }) async {
-    await _channel.invokeMethod(
+    await _channel.invokeMethod<void>(
       'setBounds',
-      {
+      <String, dynamic>{
         'southWestLatitude': southWestPoint.latitude,
         'southWestLongitude': southWestPoint.longitude,
         'northEastLatitude': northEastPoint.latitude,
@@ -113,7 +113,7 @@ class YandexMapController extends ChangeNotifier {
   /// Does nothing if passed `Placemark` is `null`
   Future<void> addPlacemark(Placemark placemark) async {
     if (placemark != null) {
-      await _channel.invokeMethod('addPlacemark', _placemarkParams(placemark));
+      await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
       placemarks.add(placemark);
     }
   }
@@ -121,9 +121,9 @@ class YandexMapController extends ChangeNotifier {
   // Does nothing if passed `Placemark` wasn't added before
   Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
-      await _channel.invokeMethod(
+      await _channel.invokeMethod<void>(
         'removePlacemark',
-        {
+        <String, dynamic>{
           'hashCode': placemark.hashCode
         }
       );
@@ -131,11 +131,11 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<void> zoomIn() async {
-    await _channel.invokeMethod('zoomIn');
+    await _channel.invokeMethod<void>('zoomIn');
   }
 
   Future<void> zoomOut() async {
-    await _channel.invokeMethod('zoomOut');
+    await _channel.invokeMethod<void>('zoomOut');
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
@@ -149,11 +149,11 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onMapObjectTap(dynamic arguments) {
-    int hashCode = arguments['hashCode'];
-    double latitude = arguments['latitude'];
-    double longitude = arguments['longitude'];
+    final int hashCode = arguments['hashCode'];
+    final double latitude = arguments['latitude'];
+    final double longitude = arguments['longitude'];
 
-    Placemark placemark = placemarks.
+    final Placemark placemark = placemarks.
       firstWhere((Placemark placemark) => placemark.hashCode == hashCode, orElse: () => null);
 
     if (placemark != null) {
@@ -162,7 +162,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
-    return {
+    return <String, dynamic>{
       'latitude': placemark.point.latitude,
       'longitude': placemark.point.longitude,
       'opacity': placemark.opacity,

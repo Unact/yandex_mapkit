@@ -12,7 +12,7 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Go to https://developer.tech.yandex.com
 2. Create a `MapKit mobile SDK` key
 
-### Initilazing for IOS
+### Initializing for iOS
 1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
@@ -35,8 +35,8 @@ import YandexMapKit
   }
 ```
 
-### Initilazing for Android
-1. Add dependency `implementation 'com.yandex.android:mapkit:3.2.0'` to `android/app/build.gradle`
+### Initializing for Android
+1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` to `android/app/build.gradle`
 2. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 3. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 4. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
@@ -47,7 +47,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation 'com.yandex.android:mapkit:3.2.0'
+    implementation 'com.yandex.android:mapkit:3.4.0'
 }
 ```
 
@@ -97,3 +97,4 @@ For usage examples refer to example app
 - [X] Moving around the map
 - [X] Setting map bounds
 - [X] Showing current user location
+- [X] Styling the map

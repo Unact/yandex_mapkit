@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  permission_handler: ^3.2.2
 
 dev_dependencies:
   flutter_test:
