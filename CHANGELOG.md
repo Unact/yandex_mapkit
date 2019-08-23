@@ -1,3 +1,11 @@
+## 0.3.3
+
+* Add linter and fix linter errors[#23, vanyasem]
+* Add location permission request messages to example app[#23, vanyasem]
+* Update and lock YandexMapkit version to 3.4 for iOS and Android[#23, vanyasem]
+* Update .gitignore[#25, DCrow]
+* Fix typos in README[#23, vanyasem]
+
 ## 0.3.2
 
 * Add styling functionality [#18, vanyasem]
