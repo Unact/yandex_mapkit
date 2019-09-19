@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -136,6 +137,12 @@ class YandexMapController extends ChangeNotifier {
 
   Future<void> zoomOut() async {
     await _channel.invokeMethod<void>('zoomOut');
+  }
+
+  Future<Point> getTargetPoint() async {
+    var point = await _channel.invokeMethod<String>('getTargetPoint');
+    var map = jsonDecode(point) as Map<String, dynamic>;
+    return Point(latitude: map['latitude'] as double, longitude: map['longitude'] as double  );
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {

@@ -59,6 +59,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "zoomOut":
         zoomOut()
         result(nil)
+    case "getTargetPoint":
+        let targetPoint = getTargetPoint()
+        result(targetPoint)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -148,7 +151,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     moveWithParams(params, cameraPosition)
   }
-
+    
+  public func getTargetPoint() -> String {
+    let targetPoint = mapView.mapWindow.map.cameraPosition.target;
+    return "{\"latitude\": \(targetPoint.latitude), \"longitude\": \(targetPoint.longitude)}"
+  }
+    
   public func addPlacemark(_ call: FlutterMethodCall) {
     addPlacemarkToMap(call.arguments as! [String: Any])
   }
