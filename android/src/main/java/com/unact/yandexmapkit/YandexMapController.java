@@ -130,7 +130,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     arguments.put("latitude", point.getLatitude());
     arguments.put("longitude", point.getLongitude());
     return arguments;
-    //return "{\"latitude\": "+point.getLatitude()+", \"longitude\": "+point.getLongitude()+"}";
   }
 
   @SuppressWarnings("unchecked")
