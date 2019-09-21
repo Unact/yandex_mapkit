@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
-
 import android.view.View;
 
 import com.yandex.mapkit.Animation;
@@ -124,9 +123,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     addPlacemarkToMap(((Map<String, Object>) call.arguments));
   }
 
-  private String getTargetPoint() {
+  private Map<String, Object> getTargetPoint() {
     Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
-    return "{\"latitude\": "+point.getLatitude()+", \"longitude\": "+point.getLongitude()+"}";
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("hashCode", point.hashCode());
+    arguments.put("latitude", point.getLatitude());
+    arguments.put("longitude", point.getLongitude());
+    return arguments;
+    //return "{\"latitude\": "+point.getLatitude()+", \"longitude\": "+point.getLongitude()+"}";
   }
 
   @SuppressWarnings("unchecked")
@@ -242,7 +246,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(null);
         break;
       case "getTargetPoint":
-        String point = getTargetPoint();
+        Map<String, Object> point = getTargetPoint();
         result.success(point);
         break;
       default:

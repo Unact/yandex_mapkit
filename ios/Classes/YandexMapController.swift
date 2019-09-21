@@ -152,9 +152,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     moveWithParams(params, cameraPosition)
   }
     
-  public func getTargetPoint() -> String {
+    public func getTargetPoint() -> [String: Any] {
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
-    return "{\"latitude\": \(targetPoint.latitude), \"longitude\": \(targetPoint.longitude)}"
+        let arguments: [String: Any] = [
+        "hashCode": targetPoint.hashValue,
+        "latitude": targetPoint.latitude,
+        "longitude": targetPoint.longitude
+    ]
+    return arguments
   }
     
   public func addPlacemark(_ call: FlutterMethodCall) {

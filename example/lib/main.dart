@@ -101,11 +101,9 @@ class _MyAppState extends State<MyApp> {
                 ),
                 RaisedButton(
                     onPressed: () async {
-                      var d = await _yandexMapController.getTargetPoint();
-                      print("AAAAAAA  ${d.latitude} ${d.longitude}");
-
+                      Point targetPoint = await _yandexMapController.getTargetPoint();
                       await _yandexMapController.addPlacemark(Placemark(
-                          point: d,
+                          point: targetPoint,
                           opacity: 0.7,
                           iconName: 'lib/assets/place.png',
                           onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude')

@@ -140,9 +140,8 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<Point> getTargetPoint() async {
-    var point = await _channel.invokeMethod<String>('getTargetPoint');
-    var map = jsonDecode(point) as Map<String, dynamic>;
-    return Point(latitude: map['latitude'] as double, longitude: map['longitude'] as double  );
+    final dynamic point = await _channel.invokeMethod<dynamic>('getTargetPoint');
+    return Point(latitude: point['latitude'], longitude: point['longitude']);
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
