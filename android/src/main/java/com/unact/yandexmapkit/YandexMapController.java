@@ -123,6 +123,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     addPlacemarkToMap(((Map<String, Object>) call.arguments));
   }
 
+  private Map<String, Object> getTargetPoint() {
+    Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("hashCode", point.hashCode());
+    arguments.put("latitude", point.getLatitude());
+    arguments.put("longitude", point.getLongitude());
+    return arguments;
+  }
+
   @SuppressWarnings("unchecked")
   private void removePlacemark(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
@@ -234,6 +243,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "zoomOut":
         zoomOut();
         result.success(null);
+        break;
+      case "getTargetPoint":
+        Map<String, Object> point = getTargetPoint();
+        result.success(point);
         break;
       default:
         result.notImplemented();
