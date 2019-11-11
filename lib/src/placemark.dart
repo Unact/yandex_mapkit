@@ -8,7 +8,8 @@ class Placemark {
     this.opacity = kOpacity,
     this.isDraggable = false,
     this.onTap = _kOnTap,
-    this.iconName
+    this.iconName,
+    this.rawImageData,
   });
 
   final Point point;
@@ -16,6 +17,7 @@ class Placemark {
   final bool isDraggable;
   final String iconName;
   final Function onTap;
+  final List<int> rawImageData;
 
   static const double kOpacity = 0.5;
   static void _kOnTap(double latitude, double longitude) => () { };
