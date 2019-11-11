@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import android.view.View;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
@@ -152,6 +154,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
     String iconName = (String) params.get("iconName");
+    ArrayList<Integer> byteArray = (ArrayList<Integer>) params.get("rawImageData");
 
     placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
@@ -160,6 +163,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     if (iconName != null) {
       placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+    }
+
+    if (byteArray != null) {
+      byte[] bytes = new byte[byteArray.size()];
+      for (int i = 0; i < byteArray.size(); i++) {
+        bytes[i] = byteArray.get(i).byteValue();
+      }
+      Bitmap bitmapData = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+      placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
     }
 
     placemarks.add(placemark);

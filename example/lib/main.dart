@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:yandex_mapkit_example/dummy_image_data.dart' show rawImageData;
 
 void main() {
   runApp(MyApp());
@@ -18,7 +19,8 @@ class _MyAppState extends State<MyApp> {
     point: _point,
     opacity: 0.7,
     iconName: 'lib/assets/place.png',
-    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude')
+    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
+    rawImageData: rawImageData,
   );
 
   @override
