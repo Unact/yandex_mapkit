@@ -98,6 +98,19 @@ class _MyAppState extends State<MyApp> {
                       await _yandexMapController.zoomOut();
                     },
                     child: const Text('Zoom Out')
+                ),
+                RaisedButton(
+                    onPressed: () async {
+                      Point targetPoint = await _yandexMapController.getTargetPoint();
+                      await _yandexMapController.addPlacemark(Placemark(
+                          point: targetPoint,
+                          opacity: 0.7,
+                          iconName: 'lib/assets/place.png',
+                          onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude')
+                      ));
+
+                    },
+                    child: const Text('getTargetPoint')
                 )
               ],
             ),

@@ -1,3 +1,7 @@
+## 0.3.4
+
+* Add getting target point(center point) [#27, Ishokov-Dzhafar]
+
 ## 0.3.3
 
 * Add linter and fix linter errors[#23, vanyasem]
