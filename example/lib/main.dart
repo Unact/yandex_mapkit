@@ -20,7 +20,13 @@ class _MyAppState extends State<MyApp> {
     opacity: 0.7,
     iconName: 'lib/assets/place.png',
     onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
+  );
+
+  final Placemark _placemarkWithDynamicIcon = Placemark(
+    point: const Point(latitude: 30.320045, longitude: 59.945933),
+    opacity: 0.95,
     rawImageData: rawImageData,
+    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
   );
 
   @override
@@ -45,6 +51,22 @@ class _MyAppState extends State<MyApp> {
                     await _yandexMapController.removePlacemark(_placemark);
                   },
                   child: const Text('Remove placemark')
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.addPlacemark(_placemarkWithDynamicIcon);
+                  },
+                  child: const Text('Add 📍(Binary Icon)')
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.removePlacemark(_placemarkWithDynamicIcon);
+                  },
+                  child: const Text('Remove 📍(Binary Icon)')
                 ),
               ],
             ),
