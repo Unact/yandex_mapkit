@@ -154,7 +154,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
     String iconName = (String) params.get("iconName");
-    ArrayList<Integer> byteArray = (ArrayList<Integer>) params.get("rawImageData");
+    byte[] rawImageData = (byte[]) params.get("rawImageData");
 
     placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
@@ -165,12 +165,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
     }
 
-    if (byteArray != null) {
-      byte[] bytes = new byte[byteArray.size()];
-      for (int i = 0; i < byteArray.size(); i++) {
-        bytes[i] = byteArray.get(i).byteValue();
-      }
-      Bitmap bitmapData = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    if (rawImageData != null) {
+      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
       placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
     }
 
