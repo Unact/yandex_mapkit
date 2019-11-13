@@ -37,7 +37,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('YandexMapkit Plugin')
         ),
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            const Text('Placemark with Assets Icon:'),
             Row(
               children: <Widget>[
                 RaisedButton(
@@ -54,19 +56,20 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
+            const Text('Placemark with Binary Icon:'),
             Row(
               children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.addPlacemark(_placemarkWithDynamicIcon);
                   },
-                  child: const Text('Add 📍(Binary Icon)')
+                  child: const Text('Add placemark')
                 ),
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.removePlacemark(_placemarkWithDynamicIcon);
                   },
-                  child: const Text('Remove 📍(Binary Icon)')
+                  child: const Text('Remove placemark')
                 ),
               ],
             ),
