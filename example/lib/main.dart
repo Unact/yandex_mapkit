@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:yandex_mapkit_example/dummy_image_data.dart' show rawImageData;
 
 void main() {
   runApp(MyApp());
@@ -18,7 +19,14 @@ class _MyAppState extends State<MyApp> {
     point: _point,
     opacity: 0.7,
     iconName: 'lib/assets/place.png',
-    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude')
+    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
+  );
+
+  final Placemark _placemarkWithDynamicIcon = Placemark(
+    point: const Point(latitude: 30.320045, longitude: 59.945933),
+    opacity: 0.95,
+    rawImageData: rawImageData,
+    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
   );
 
   @override
@@ -29,7 +37,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('YandexMapkit Plugin')
         ),
         body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            const Text('Placemark with Assets Icon:'),
             Row(
               children: <Widget>[
                 RaisedButton(
@@ -41,6 +51,23 @@ class _MyAppState extends State<MyApp> {
                 RaisedButton(
                   onPressed: () async {
                     await _yandexMapController.removePlacemark(_placemark);
+                  },
+                  child: const Text('Remove placemark')
+                ),
+              ],
+            ),
+            const Text('Placemark with Binary Icon:'),
+            Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.addPlacemark(_placemarkWithDynamicIcon);
+                  },
+                  child: const Text('Add placemark')
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.removePlacemark(_placemarkWithDynamicIcon);
                   },
                   child: const Text('Remove placemark')
                 ),

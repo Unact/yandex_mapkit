@@ -174,6 +174,7 @@ class YandexMapController extends ChangeNotifier {
       'opacity': placemark.opacity,
       'isDraggable': placemark.isDraggable,
       'iconName': placemark.iconName,
+      'rawImageData': placemark.rawImageData,
       'hashCode': placemark.hashCode
     };
   }

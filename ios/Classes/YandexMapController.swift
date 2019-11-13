@@ -193,6 +193,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
     }
 
+    if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData, 
+      let image = UIImage(data: rawImageData.data) {
+        placemark.setIconWith(image)
+    }
     placemarks.append(placemark)
   }
 
