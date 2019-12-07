@@ -12,12 +12,14 @@ import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -173,6 +175,18 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemarks.add(placemark);
   }
 
+  private void addPolyline(MethodCall cell) {
+    Map<String, Object> params = (Map<String, Object>)cell.arguments;
+    List<Map<String, Object>> coordinates = (List<Map<String, Object>>)params.get("coordinates");
+    ArrayList<Point> polylineCoordinates = new ArrayList<>();
+    for (Map<String, Object> c: coordinates) {
+      Point p = new Point((Double) c.get("latitude"), (Double) c.get("longitude"));
+      polylineCoordinates.add(p);
+    }
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
+  }
+
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
     if (((Boolean) params.get("animate"))) {
       Animation.Type type = ((Boolean) params.get("smoothAnimation")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
@@ -242,6 +256,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "removePlacemark":
         removePlacemark(call);
+        result.success(null);
+        break;
+      case "addPolyline":
+        addPolyline(call);
         result.success(null);
         break;
       case "zoomIn":

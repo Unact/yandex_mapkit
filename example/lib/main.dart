@@ -93,6 +93,18 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: const Text('Move')
                 ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.addPolyline(
+                      coordinates: const <Point>[
+                        Point(latitude: 60.0, longitude: 30.0),
+                        Point(latitude: 65.0, longitude: 30.0),
+                        Point(latitude: 65.0, longitude: 35.0),
+                      ],
+                    );
+                  },
+                  child: const Text('Add polyline'),
+                )
               ],
             ),
             Row(

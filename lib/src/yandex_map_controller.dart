@@ -131,6 +131,16 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  Future<void> addPolyline({@required List<Point> coordinates}) async {
+    final List<Map<String, double>> preparedCoordinates = coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    await _channel.invokeMethod<void>(
+      'addPolyline',
+      <String, dynamic> {
+        'coordinates': preparedCoordinates
+      }
+    );
+  }
+
   Future<void> zoomIn() async {
     await _channel.invokeMethod<void>('zoomIn');
   }

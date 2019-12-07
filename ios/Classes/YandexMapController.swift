@@ -53,6 +53,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "removePlacemark":
       removePlacemark(call)
       result(nil)
+    case "addPolyline":
+      addPolyline(call)
+      result(nil)
     case "zoomIn":
         zoomIn()
         result(nil)
@@ -198,6 +201,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         placemark.setIconWith(image)
     }
     placemarks.append(placemark)
+  }
+
+  private func addPolyline(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let coordinates = params["coordinates"] as! [[String: Any]]
+    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let polyline = YMKPolyline(points: coordinatesPrepared)
+    let _ = mapObjects.addPolyline(with: polyline)
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
