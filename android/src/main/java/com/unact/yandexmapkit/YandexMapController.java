@@ -188,6 +188,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
     
     polyline.setUserData(params.get("hashCode"));
+    polyline.setOutlineColor(((Long)params.get("outlineColor")).intValue());
+    polyline.setOutlineWidth(((Double)params.get("outlineWidth")).floatValue());
+    polyline.setStrokeColor(((Long)params.get("strokeColor")).intValue());
+    polyline.setStrokeWidth(((Double)params.get("strokeWidth")).floatValue());
+    polyline.setGeodesic((boolean)params.get("isGeodesic"));
+    polyline.setDashLength(((Double)params.get("dashLength")).floatValue());
+    polyline.setDashOffset(((Double)params.get("dashOffset")).floatValue());
+    polyline.setGapLength(((Double)params.get("gapLength")).floatValue());
 
     polylines.add(polyline);
   }
