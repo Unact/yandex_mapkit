@@ -226,13 +226,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     polylines.append(polylineMapObject)
   }
 
-  private func uiColor(fromInt value: Int) -> UIColor {
-    return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
-                   green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
-                   blue: CGFloat(value & 0x0000FF) / 0xFF,
-                   alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF)
-  }
-
   private func removePolyline(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let hashCode = params["hashCode"] as! Int
@@ -266,6 +259,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     } else {
       return false
     }
+  }
+
+  private func uiColor(fromInt value: Int) -> UIColor {
+    return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
+                   green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
+                   blue: CGFloat(value & 0x0000FF) / 0xFF,
+                   alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF)
   }
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
