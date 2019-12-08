@@ -230,7 +230,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
                    green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
                    blue: CGFloat(value & 0x0000FF) / 0xFF,
-                   alpha: CGFloat(1.0))
+                   alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF)
   }
 
   private func removePolyline(_ call: FlutterMethodCall) {
