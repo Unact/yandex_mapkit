@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'map_animation.dart';
 import 'placemark.dart';
 import 'point.dart';
+import 'polyline.dart';
 
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(MethodChannel channel)
@@ -22,6 +23,7 @@ class YandexMapController extends ChangeNotifier {
   final MethodChannel _channel;
 
   final List<Placemark> placemarks = <Placemark>[];
+  final List<Polyline> polylines = <Polyline>[];
 
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -131,14 +133,20 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  Future<void> addPolyline({@required List<Point> coordinates}) async {
-    final List<Map<String, double>> preparedCoordinates = coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
-    await _channel.invokeMethod<void>(
-      'addPolyline',
-      <String, dynamic> {
-        'coordinates': preparedCoordinates
-      }
-    );
+  Future<void> addPolyline(Polyline polyline) async {
+    await _channel.invokeMethod<void>('addPolyline', _polylineParams(polyline));
+    polylines.add(polyline);
+  }
+
+  Future<void> removePolyline(Polyline polyline) async {
+    if (polylines.remove(polyline)) {
+      await _channel.invokeMethod<void>(
+        'removePolyline',
+        <String, dynamic>{
+          'hashCode': polyline.hashCode
+        }
+      );
+    }
   }
 
   Future<void> zoomIn() async {
@@ -186,6 +194,14 @@ class YandexMapController extends ChangeNotifier {
       'iconName': placemark.iconName,
       'rawImageData': placemark.rawImageData,
       'hashCode': placemark.hashCode
+    };
+  }
+
+  Map<String, dynamic> _polylineParams(Polyline polyline) {
+    final List<Map<String, double>> coordinates = polyline.coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    return <String, dynamic>{
+      'coordinates': coordinates,
+      'hashCode': polyline.hashCode
     };
   }
 }

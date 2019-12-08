@@ -29,6 +29,14 @@ class _MyAppState extends State<MyApp> {
     onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
   );
 
+  final Polyline _polyline = Polyline(
+    coordinates: const <Point>[
+      Point(latitude: 60.0, longitude: 30.0),
+      Point(latitude: 65.0, longitude: 30.0),
+      Point(latitude: 65.0, longitude: 35.0),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -93,17 +101,21 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: const Text('Move')
                 ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
                 RaisedButton(
                   onPressed: () async {
-                    await _yandexMapController.addPolyline(
-                      coordinates: const <Point>[
-                        Point(latitude: 60.0, longitude: 30.0),
-                        Point(latitude: 65.0, longitude: 30.0),
-                        Point(latitude: 65.0, longitude: 35.0),
-                      ],
-                    );
+                    await _yandexMapController.addPolyline(_polyline);
                   },
                   child: const Text('Add polyline'),
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.removePolyline(_polyline);
+                  },
+                  child: const Text('Remove polyline'),
                 )
               ],
             ),

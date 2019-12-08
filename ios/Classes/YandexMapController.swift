@@ -10,6 +10,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var placemarks: [YMKPlacemarkMapObject] = []
+  private var polylines: [YMKPolylineMapObject] = []
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -55,6 +56,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(nil)
     case "addPolyline":
       addPolyline(call)
+      result(nil)
+    case "removePolyline":
+      removePolyline(call)
       result(nil)
     case "zoomIn":
         zoomIn()
@@ -209,7 +213,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polyline = YMKPolyline(points: coordinatesPrepared)
-    let _ = mapObjects.addPolyline(with: polyline)
+    let polylineMapObject = mapObjects.addPolyline(with: polyline)
+    polylineMapObject.userData = params["hashCode"] as! Int
+    polylines.append(polylineMapObject)
+  }
+
+  private func removePolyline(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let hashCode = params["hashCode"] as! Int
+
+    if let polyline = polylines.first(where: { $0.userData as! Int ==  hashCode}) {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: polyline)
+      polylines.remove(at: polylines.index(of: polyline)!)
+    }
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
