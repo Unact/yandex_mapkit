@@ -46,6 +46,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexMapObjectTapListener yandexMapObjectTapListener;
   private UserLocationLayer userLocationLayer;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
+  private List<PolylineMapObject> polylines = new ArrayList<>();
   private String userLocationIconName;
 
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
@@ -185,6 +186,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
+    
+    polyline.setUserData(params.get("hashCode"));
+
+    polylines.add(polyline);
+  }
+
+  private void removePolyline(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    Iterator<PolylineMapObject> iterator = polylines.iterator();
+
+    while (iterator.hasNext()) {
+      PolylineMapObject polylineMapObject = iterator.next();
+      if (polylineMapObject.getUserData().equals(params.get("hashCode"))) {
+        mapObjects.remove(polylineMapObject);
+        iterator.remove();
+      }
+    }
   }
 
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
@@ -260,6 +279,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "addPolyline":
         addPolyline(call);
+        result.success(null);
+        break;
+      case "removePolyline":
+        removePolyline(call);
         result.success(null);
         break;
       case "zoomIn":
