@@ -35,6 +35,10 @@ class _MyAppState extends State<MyApp> {
       Point(latitude: 65.0, longitude: 30.0),
       Point(latitude: 65.0, longitude: 35.0),
     ],
+    strokeColor: Colors.orange,
+    strokeWidth: 8.5, // <- default value 5.0, this will be bold
+    outlineColor: Colors.yellow,
+    outlineWidth: 3.0,
   );
 
   @override

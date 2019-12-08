@@ -201,6 +201,14 @@ class YandexMapController extends ChangeNotifier {
     final List<Map<String, double>> coordinates = polyline.coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
     return <String, dynamic>{
       'coordinates': coordinates,
+      'strokeColor': polyline.strokeColor.value,
+      'strokeWidth': polyline.strokeWidth,
+      'outlineColor': polyline.outlineColor.value,
+      'outlineWidth': polyline.outlineWidth,
+      'isGeodesic': polyline.isGeodesic,
+      'dashLength': polyline.dashLength,
+      'dashOffset': polyline.dashOffset,
+      'gapLength': polyline.gapLength,
       'hashCode': polyline.hashCode
     };
   }

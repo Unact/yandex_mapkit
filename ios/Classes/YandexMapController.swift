@@ -215,7 +215,22 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
     polylineMapObject.userData = params["hashCode"] as! Int
+    polylineMapObject.strokeColor = uiColor(fromInt: params["strokeColor"] as! Int)
+    polylineMapObject.outlineColor = uiColor(fromInt: params["outlineColor"] as! Int)
+    polylineMapObject.outlineWidth = params["outlineWidth"] as! Float
+    polylineMapObject.strokeWidth = params["strokeWidth"] as! Float
+    polylineMapObject.isGeodesic = params["isGeodesic"] as! Bool
+    polylineMapObject.dashLength = params["dashLength"] as! Float
+    polylineMapObject.dashOffset = params["dashOffset"] as! Float
+    polylineMapObject.gapLength = params["gapLength"] as! Float
     polylines.append(polylineMapObject)
+  }
+
+  private func uiColor(fromInt value: Int) -> UIColor {
+    return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
+                   green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
+                   blue: CGFloat(value & 0x0000FF) / 0xFF,
+                   alpha: CGFloat(1.0))
   }
 
   private func removePolyline(_ call: FlutterMethodCall) {
