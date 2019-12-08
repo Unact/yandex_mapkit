@@ -7,7 +7,7 @@ import 'point.dart';
 class Polyline {
   Polyline({
     @required this.coordinates,
-    this.strokeColor = const Color(0x0066FFFF),
+    this.strokeColor = const Color(0xFF0066FF),
     this.strokeWidth = 5.0,
     this.outlineColor = const Color(0x00000000),
     this.outlineWidth = 0.0,
