@@ -186,11 +186,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
-    
+
+    String outlineColorString = String.valueOf(params.get("outlineColor"));
+    Long outlineColorLong = Long.parseLong(outlineColorString);
+
+    String strokeColorString = String.valueOf(params.get("strokeColor"));
+    Long strokeColorLong = Long.parseLong(strokeColorString);
+
     polyline.setUserData(params.get("hashCode"));
-    polyline.setOutlineColor(((Long)params.get("outlineColor")).intValue());
+    polyline.setOutlineColor(outlineColorLong.intValue());
     polyline.setOutlineWidth(((Double)params.get("outlineWidth")).floatValue());
-    polyline.setStrokeColor(((Long)params.get("strokeColor")).intValue());
+    polyline.setStrokeColor(strokeColorLong.intValue());
     polyline.setStrokeWidth(((Double)params.get("strokeWidth")).floatValue());
     polyline.setGeodesic((boolean)params.get("isGeodesic"));
     polyline.setDashLength(((Double)params.get("dashLength")).floatValue());
