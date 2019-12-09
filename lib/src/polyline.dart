@@ -21,10 +21,10 @@ class Polyline {
 
   final Color strokeColor;
   final double strokeWidth;
-  
+
   final Color outlineColor;
   final double outlineWidth;
-  
+
   final bool isGeodesic;
 
   final double dashLength;
