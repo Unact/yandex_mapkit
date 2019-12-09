@@ -133,11 +133,15 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  /// Does nothing if passed `Polyline` is `null`
   Future<void> addPolyline(Polyline polyline) async {
-    await _channel.invokeMethod<void>('addPolyline', _polylineParams(polyline));
-    polylines.add(polyline);
+    if (polyline != null) {
+      await _channel.invokeMethod<void>('addPolyline', _polylineParams(polyline));
+      polylines.add(polyline);
+    }
   }
 
+  /// Does nothing if passed `Polyline` wasn't added before
   Future<void> removePolyline(Polyline polyline) async {
     if (polylines.remove(polyline)) {
       await _channel.invokeMethod<void>(
