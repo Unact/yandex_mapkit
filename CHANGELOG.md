@@ -1,3 +1,9 @@
+## 0.3.5
+
+* Add Polyline support [#33, elisar4]
+* Add support for using binary image as Placemark icons [#30, elisar4]
+* Refactor example app [#31, DCrow]
+
 ## 0.3.4
 
 * Add getting target point(center point) [#27, Ishokov-Dzhafar]
