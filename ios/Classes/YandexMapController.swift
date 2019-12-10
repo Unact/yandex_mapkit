@@ -10,6 +10,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var placemarks: [YMKPlacemarkMapObject] = []
+  private var polylines: [YMKPolylineMapObject] = []
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -52,6 +53,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(nil)
     case "removePlacemark":
       removePlacemark(call)
+      result(nil)
+    case "addPolyline":
+      addPolyline(call)
+      result(nil)
+    case "removePolyline":
+      removePolyline(call)
       result(nil)
     case "zoomIn":
         zoomIn()
@@ -200,6 +207,36 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemarks.append(placemark)
   }
 
+  private func addPolyline(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let coordinates = params["coordinates"] as! [[String: Any]]
+    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let polyline = YMKPolyline(points: coordinatesPrepared)
+    let polylineMapObject = mapObjects.addPolyline(with: polyline)
+    polylineMapObject.userData = params["hashCode"] as! Int
+    polylineMapObject.strokeColor = uiColor(fromInt: params["strokeColor"] as! Int)
+    polylineMapObject.outlineColor = uiColor(fromInt: params["outlineColor"] as! Int)
+    polylineMapObject.outlineWidth = params["outlineWidth"] as! Float
+    polylineMapObject.strokeWidth = params["strokeWidth"] as! Float
+    polylineMapObject.isGeodesic = params["isGeodesic"] as! Bool
+    polylineMapObject.dashLength = params["dashLength"] as! Float
+    polylineMapObject.dashOffset = params["dashOffset"] as! Float
+    polylineMapObject.gapLength = params["gapLength"] as! Float
+    polylines.append(polylineMapObject)
+  }
+
+  private func removePolyline(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let hashCode = params["hashCode"] as! Int
+
+    if let polyline = polylines.first(where: { $0.userData as! Int ==  hashCode}) {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: polyline)
+      polylines.remove(at: polylines.index(of: polyline)!)
+    }
+  }
+
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
     if (params["animate"] as! Bool) {
       let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
@@ -222,6 +259,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     } else {
       return false
     }
+  }
+
+  private func uiColor(fromInt value: Int) -> UIColor {
+    return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
+                   green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
+                   blue: CGFloat(value & 0x0000FF) / 0xFF,
+                   alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF)
   }
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {

@@ -29,6 +29,32 @@ class _MyAppState extends State<MyApp> {
     onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
   );
 
+  final Polyline _polyline = Polyline(
+    coordinates: const <Point>[
+      Point(latitude: 59.945933, longitude: 30.320045),
+      Point(latitude: 55.75222, longitude: 37.88398),
+      Point(latitude: 59.2239, longitude: 39.88398),
+      Point(latitude: 56.32867, longitude: 44.00205),
+      Point(latitude: 61.67642, longitude: 50.80994),
+      Point(latitude: 61.823618, longitude: 56.823571),
+      Point(latitude: 60.15328, longitude: 59.95205),
+      Point(latitude: 56.8519, longitude: 60.6122),
+      Point(latitude: 54.74306, longitude: 55.96779),
+      Point(latitude: 55.78874, longitude: 49.12214),
+      Point(latitude: 58.59665, longitude: 49.66007),
+      Point(latitude: 60.44498, longitude: 50.9968),
+      Point(latitude: 63.206777, longitude: 59.750022),
+      Point(latitude: 57.15222, longitude: 65.52722),
+      Point(latitude: 61.25, longitude: 73.41667),
+      Point(latitude: 55.0415, longitude: 82.9346),
+      Point(latitude: 66.42989, longitude: 112.4021),
+    ],
+    strokeColor: Colors.orange[700],
+    strokeWidth: 7.5, // <- default value 5.0, this will be a little bold
+    outlineColor: Colors.yellow[200],
+    outlineWidth: 2.0,
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -93,6 +119,22 @@ class _MyAppState extends State<MyApp> {
                   },
                   child: const Text('Move')
                 ),
+              ],
+            ),
+            Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.addPolyline(_polyline);
+                  },
+                  child: const Text('Add polyline'),
+                ),
+                RaisedButton(
+                  onPressed: () async {
+                    await _yandexMapController.removePolyline(_polyline);
+                  },
+                  child: const Text('Remove polyline'),
+                )
               ],
             ),
             Row(
