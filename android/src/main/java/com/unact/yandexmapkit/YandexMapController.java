@@ -22,6 +22,7 @@ import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -50,6 +51,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private String userLocationIconName;
+  private String userArrowIconName;
+  private Boolean userArrowOrientation;
+  private int accuracyCircleFillColor = 0;
 
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
@@ -82,6 +86,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     userLocationIconName = (String) params.get("iconName");
+    userArrowIconName = (String) params.get("arrowName");
+    userArrowOrientation = (Boolean) params.get("userArrowOrientation");
+    accuracyCircleFillColor = ((Number) params.get("accuracyCircleFillColor")).intValue();
 
     userLocationLayer.setVisible(true);
     userLocationLayer.setHeadingEnabled(true);
@@ -227,6 +234,23 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
+  private void moveToUser() {
+    if (!hasLocationPermission()) return;
+    
+    float currentZoom = mapView.getMap().getCameraPosition().getZoom();
+    float tilt = mapView.getMap().getCameraPosition().getTilt();
+    float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
+    if (userLocationLayer != null) {
+      CameraPosition cameraPosition = userLocationLayer.cameraPosition();
+      if (cameraPosition != null) {
+        mapView.getMap().move(
+                new CameraPosition(cameraPosition.getTarget(), currentZoom, azimuth, tilt),
+                new Animation(Animation.Type.SMOOTH, 1),
+                null);
+      }
+    }
+  }
+
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
     if (((Boolean) params.get("animate"))) {
       Animation.Type type = ((Boolean) params.get("smoothAnimation")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
@@ -318,6 +342,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         Map<String, Object> point = getTargetPoint();
         result.success(point);
         break;
+      case "moveToUser":
+        moveToUser();
+        result.success(null);
+        break;
       default:
         result.notImplemented();
         break;
@@ -338,6 +366,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
               pluginRegistrar.lookupKeyForAsset(userLocationIconName)
           )
       );
+      view.getArrow().setIcon(
+          ImageProvider.fromAsset(
+              pluginRegistrar.activity(),
+              pluginRegistrar.lookupKeyForAsset(userArrowIconName)
+          )
+      );
+      if (userArrowOrientation) {
+        view.getArrow().setIconStyle(new IconStyle().setRotationType(RotationType.ROTATE));
+      }
+      view.getAccuracyCircle().setFillColor(accuracyCircleFillColor);
     }
 
     public void onObjectRemoved(UserLocationView view) {}

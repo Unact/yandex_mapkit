@@ -69,6 +69,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getTargetPoint":
         let targetPoint = getTargetPoint()
         result(targetPoint)
+    case "moveToUser":
+      moveToUser()
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -80,7 +83,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let params = call.arguments as! [String: Any]
     self.userLocationObjectListener = UserLocationObjectListener(
       pluginRegistrar: pluginRegistrar,
-      iconName: params["iconName"] as! String
+      iconName: params["iconName"] as! String,
+      arrowName: params["arrowName"] as! String,
+      userArrowOrientation: params["userArrowOrientation"] as! Bool,
+      accuracyCircleFillColor: uiColor(fromInt: params["accuracyCircleFillColor"] as! Int64)
     )
     userLocationLayer?.setVisibleWithOn(true)
     userLocationLayer!.isHeadingEnabled = true
@@ -240,6 +246,22 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
 
+  public func moveToUser() {
+    if (!hasLocationPermission()) { return }
+    let zoom = mapView.mapWindow.map.cameraPosition.zoom
+    let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
+    let tilt = mapView.mapWindow.map.cameraPosition.tilt
+    if let target = userLocationLayer?.cameraPosition()?.target {
+      let cameraPosition = YMKCameraPosition(
+        target: target,
+        zoom: zoom,
+        azimuth: azimuth,
+        tilt: tilt
+      )
+      mapView.mapWindow.map.move(with: cameraPosition, animationType: YMKAnimation.init(type: YMKAnimationType.smooth, duration: 1), cameraCallback: nil)
+    }
+  }
+
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
     if (params["animate"] as! Bool) {
       let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
@@ -276,16 +298,35 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!
     private let iconName: String!
+    private let arrowName: String!
+    private let userArrowOrientation: Bool!
+    private let accuracyCircleFillColor: UIColor!
 
-    public required init(pluginRegistrar: FlutterPluginRegistrar, iconName: String) {
+    public required init(pluginRegistrar: FlutterPluginRegistrar, iconName: String, arrowName: String, userArrowOrientation: Bool, accuracyCircleFillColor: UIColor) {
       self.pluginRegistrar = pluginRegistrar
       self.iconName = iconName
+      self.arrowName = arrowName
+      self.userArrowOrientation = userArrowOrientation
+      self.accuracyCircleFillColor = accuracyCircleFillColor
     }
 
     func onObjectAdded(with view: YMKUserLocationView) {
       view.pin.setIconWith(
         UIImage(named: pluginRegistrar.lookupKey(forAsset: self.iconName))!
       )
+      view.arrow.setIconWith(
+        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.arrowName))!
+      )
+      if (userArrowOrientation) {
+        view.arrow.setIconStyleWith(YMKIconStyle(anchor: nil,
+                                                 rotationType: YMKRotationType.rotate.rawValue as NSNumber,
+                                                 zIndex: nil,
+                                                 flat: nil,
+                                                 visible: nil,
+                                                 scale: nil,
+                                                 tappableArea: nil))
+      }
+      view.accuracyCircle.fillColor = accuracyCircleFillColor
     }
 
     func onObjectRemoved(with view: YMKUserLocationView) {}

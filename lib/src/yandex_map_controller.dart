@@ -19,6 +19,8 @@ class YandexMapController extends ChangeNotifier {
   static const double kTilt = 0.0;
   static const double kAzimuth = 0.0;
   static const double kZoom = 15.0;
+  static const Color kAccuracyCircleFillColor = Colors.blueGrey;
+  static const bool kUserArrowOrientation = true;
 
   final MethodChannel _channel;
 
@@ -40,11 +42,18 @@ class YandexMapController extends ChangeNotifier {
   /// `android.permission.ACCESS_FINE_LOCATION`
   ///
   /// Does nothing if these permissions where denied
-  Future<void> showUserLayer({@required String iconName}) async {
+  Future<void> showUserLayer(
+      {@required String iconName,
+      @required String arrowName,
+      bool userArrowOrientation = kUserArrowOrientation,
+      Color accuracyCircleFillColor = kAccuracyCircleFillColor}) async {
     await _channel.invokeMethod<void>(
       'showUserLayer',
       <String, dynamic>{
-        'iconName': iconName
+        'iconName': iconName,
+        'arrowName': arrowName,
+        'userArrowOrientation': userArrowOrientation,
+        'accuracyCircleFillColor': accuracyCircleFillColor.value
       }
     );
   }
@@ -159,6 +168,10 @@ class YandexMapController extends ChangeNotifier {
 
   Future<void> zoomOut() async {
     await _channel.invokeMethod<void>('zoomOut');
+  }
+
+  Future<void> moveToUser() async {
+    await _channel.invokeMethod<void>('moveToUser');
   }
 
   Future<Point> getTargetPoint() async {

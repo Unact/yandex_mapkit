@@ -44,7 +44,10 @@ class _LayersExampleState extends State<_LayersExample> {
                     RaisedButton(
                       onPressed: () async {
                         await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.location]);
-                        await controller.showUserLayer(iconName: 'lib/assets/user.png');
+                        await controller.showUserLayer(
+                          iconName: 'lib/assets/user.png',
+                          arrowName: 'lib/assets/arrow.png',
+                          accuracyCircleFillColor: Colors.green.withOpacity(0.5));
                       },
                       child: const Text('Show user layer')
                     ),
@@ -53,6 +56,23 @@ class _LayersExampleState extends State<_LayersExample> {
                         await controller.hideUserLayer();
                       },
                       child: const Text('Hide user layer')
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    RaisedButton(
+                      onPressed: () async {
+                        await PermissionHandler().requestPermissions(<PermissionGroup>[PermissionGroup.location]);
+                        await controller.moveToUser();
+                      },
+                      child: const Text('Move to user')
+                    ),
+                    FlatButton(
+                      padding: const EdgeInsets.all(4),
+                      onPressed: null,
+                      child: const Text('')
                     )
                   ],
                 )

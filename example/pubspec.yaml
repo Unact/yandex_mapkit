@@ -22,4 +22,5 @@ flutter:
   assets:
     - lib/assets/user.png
     - lib/assets/place.png
+    - lib/assets/arrow.png
   uses-material-design: true
