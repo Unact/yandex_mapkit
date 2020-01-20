@@ -159,9 +159,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     moveWithParams(params, cameraPosition)
   }
     
-    public func getTargetPoint() -> [String: Any] {
+  public func getTargetPoint() -> [String: Any] {
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
-        let arguments: [String: Any] = [
+    let arguments: [String: Any] = [
         "hashCode": targetPoint.hashValue,
         "latitude": targetPoint.latitude,
         "longitude": targetPoint.longitude
@@ -170,22 +170,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
     
   public func addPlacemark(_ call: FlutterMethodCall) {
-    addPlacemarkToMap(call.arguments as! [String: Any])
-  }
-
-
-  public func removePlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    let placemark = placemarks.first(where: { $0.userData as! Int == params["hashCode"] as! Int })
-
-    if (placemark != nil) {
-      mapObjects.remove(with: placemark!)
-      placemarks.remove(at: placemarks.index(of: placemark!)!)
-    }
-  }
-
-  private func addPlacemarkToMap(_ params: [String: Any]) {
     let point = YMKPoint(latitude: params["latitude"] as! Double, longitude: params["longitude"] as! Double)
     let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = mapObjects.addPlacemark(with: point)
@@ -204,7 +189,25 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let image = UIImage(data: rawImageData.data) {
         placemark.setIconWith(image)
     }
+
+    let iconStyle = YMKIconStyle()
+    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double), y: (CGFloat)(params["anchorY"] as! Double)))
+    iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
+    iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
+    placemark.setIconStyleWith(iconStyle)
+
     placemarks.append(placemark)
+  }
+
+  public func removePlacemark(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let placemark = placemarks.first(where: { $0.userData as! Int == params["hashCode"] as! Int })
+
+    if (placemark != nil) {
+      mapObjects.remove(with: placemark!)
+      placemarks.remove(at: placemarks.index(of: placemark!)!)
+    }
   }
 
   private func addPolyline(_ call: FlutterMethodCall) {

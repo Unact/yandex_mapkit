@@ -193,6 +193,10 @@ class YandexMapController extends ChangeNotifier {
     return <String, dynamic>{
       'latitude': placemark.point.latitude,
       'longitude': placemark.point.longitude,
+      'anchorX': placemark.iconAnchor.latitude,
+      'anchorY': placemark.iconAnchor.longitude,
+      'scale': placemark.scale,
+      'zIndex' : placemark.zIndex,
       'opacity': placemark.opacity,
       'isDraggable': placemark.isDraggable,
       'iconName': placemark.iconName,

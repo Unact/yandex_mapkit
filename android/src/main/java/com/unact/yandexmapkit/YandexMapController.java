@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
@@ -20,6 +21,7 @@ import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.PolylineMapObject;
+import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -125,7 +127,34 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private void addPlacemark(MethodCall call) {
-    addPlacemarkToMap(((Map<String, Object>) call.arguments));
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
+    String iconName = (String) params.get("iconName");
+    byte[] rawImageData = (byte[]) params.get("rawImageData");
+
+    placemark.setUserData(params.get("hashCode"));
+    placemark.setOpacity(((Double) params.get("opacity")).floatValue());
+    placemark.setDraggable((Boolean) params.get("isDraggable"));
+    placemark.addTapListener(yandexMapObjectTapListener);
+
+    if (iconName != null) {
+      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+    }
+
+    if (rawImageData != null) {
+      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
+      placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
+    }
+
+    IconStyle iconStyle = new IconStyle();
+    iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
+    iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
+    iconStyle.setScale(((Double) params.get("scale")).floatValue());
+    placemark.setIconStyle(iconStyle);
+
+    placemarks.add(placemark);
   }
 
   private Map<String, Object> getTargetPoint() {
@@ -150,30 +179,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         iterator.remove();
       }
     }
-  }
-
-  private void addPlacemarkToMap(Map<String, Object> params) {
-    Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
-    String iconName = (String) params.get("iconName");
-    byte[] rawImageData = (byte[]) params.get("rawImageData");
-
-    placemark.setUserData(params.get("hashCode"));
-    placemark.setOpacity(((Double) params.get("opacity")).floatValue());
-    placemark.setDraggable((Boolean) params.get("isDraggable"));
-    placemark.addTapListener(yandexMapObjectTapListener);
-
-    if (iconName != null) {
-      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
-    }
-
-    if (rawImageData != null) {
-      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-      placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
-    }
-
-    placemarks.add(placemark);
   }
 
   @SuppressWarnings("unchecked")
