@@ -176,6 +176,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemarks.add(placemark);
   }
 
+  @SuppressWarnings("unchecked")
   private void addPolyline(MethodCall cell) {
     Map<String, Object> params = (Map<String, Object>)cell.arguments;
     List<Map<String, Object>> coordinates = (List<Map<String, Object>>)params.get("coordinates");
@@ -206,6 +207,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     polylines.add(polyline);
   }
 
+  @SuppressWarnings("unchecked")
   private void removePolyline(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();

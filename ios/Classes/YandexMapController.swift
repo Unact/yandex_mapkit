@@ -233,7 +233,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     if let polyline = polylines.first(where: { $0.userData as! Int ==  hashCode}) {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polyline)
-      polylines.remove(at: polylines.index(of: polyline)!)
+      polylines.remove(at: polylines.firstIndex(of: polyline)!)
     }
   }
 
@@ -255,6 +255,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         return false
       case .authorizedAlways, .authorizedWhenInUse:
         return true
+      default:
+        return false
       }
     } else {
       return false
