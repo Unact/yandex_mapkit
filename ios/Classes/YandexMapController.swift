@@ -396,7 +396,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let suggestOptions = YMKSuggestOptions.init(suggestTypes: suggestType,
                                                 userPosition: nil,
                                                 suggestWords: params["suggestWords"] as! Bool)
-    suggestSession?.suggest(withText: formattedAddress, window: boundingBox!, suggestOptions: suggestOptions, responseHandler: responseHandler)
+    suggestSession?.suggest(withText: formattedAddress, window: boundingBox, suggestOptions: suggestOptions, responseHandler: responseHandler)
   }
 
   public func moveToUser() {
