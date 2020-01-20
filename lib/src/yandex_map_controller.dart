@@ -10,6 +10,7 @@ import 'placemark.dart';
 import 'point.dart';
 import 'polygon.dart';
 import 'polyline.dart';
+import 'suggest_item.dart';
 
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(MethodChannel channel)
@@ -28,6 +29,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
+  Function onSuggestCallback;
   Function onCameraPositionChanged;
 
   static YandexMapController init(int id) {
@@ -201,6 +203,21 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('zoomOut');
   }
 
+  Future<void> getSuggestions(Point southWestPoint, Point northEastPoint, String address, String suggestType, bool suggestWords) async {
+    await _channel.invokeMethod<void>(
+      'getSuggestions',
+      <String, dynamic>{
+        'southWestLatitude': southWestPoint.latitude,
+        'southWestLongitude': southWestPoint.longitude,
+        'northEastLatitude': northEastPoint.latitude,
+        'northEastLongitude': northEastPoint.longitude,
+        'formattedAddress': address,
+        'suggestType': suggestType,
+        'suggestWords': suggestWords
+      }
+    );
+  }
+
   Future<void> moveToUser() async {
     await _channel.invokeMethod<void>('moveToUser');
   }
@@ -214,6 +231,9 @@ class YandexMapController extends ChangeNotifier {
     switch (call.method) {
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
+        break;
+      case 'onSuggestResponseTitles':
+        _onSuggestResponseTitles(call.arguments);
         break;
       case 'onCameraPositionChanged':
         _onCameraPositionChanged(call.arguments);
@@ -239,6 +259,27 @@ class YandexMapController extends ChangeNotifier {
   void _onCameraPositionChanged(dynamic arguments) {
     if (onCameraPositionChanged != null) {
       onCameraPositionChanged(arguments);
+    }
+  }
+
+  void _onSuggestResponseTitles(dynamic arguments) {
+    final List<dynamic> suggests = arguments['suggests'];
+
+    final List<SuggestItem> suggestItems = [];
+
+    for (dynamic sug in suggests) {
+      final SuggestItem item = SuggestItem(
+        searchText: sug['searchText'],
+        title: sug['title'],
+        subtitle: sug['subtitle'],
+        tags: sug['tags'],
+        type: sug['type'],
+      );
+      suggestItems.add(item);
+    }
+
+    if (onSuggestCallback != null) {
+      onSuggestCallback(suggestItems);
     }
   }
 

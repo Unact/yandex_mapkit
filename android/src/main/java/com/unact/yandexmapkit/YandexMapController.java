@@ -12,7 +12,6 @@ import android.graphics.PointF;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.BoundingBox;
-import com.yandex.mapkit.geometry.Geometry;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Point;
@@ -34,6 +33,14 @@ import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
+import com.yandex.runtime.Error;
+import com.yandex.mapkit.search.SuggestItem;
+import com.yandex.mapkit.search.SuggestType;
+import com.yandex.mapkit.search.SearchFactory;
+import com.yandex.mapkit.search.SearchManagerType;
+import com.yandex.mapkit.search.SuggestOptions;
+import com.yandex.mapkit.search.SearchManager;
+import com.yandex.mapkit.search.SuggestSession;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,11 +55,15 @@ import io.flutter.plugin.platform.PlatformView;
 
 
 public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler {
+  private SuggestSession suggestSession = null;
+  private final SearchManager searchManager;
+
   private final MapView mapView;
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar pluginRegistrar;
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
+  private SuggestSession.SuggestListener suggestListener;
   private UserLocationLayer userLocationLayer;
   private PlacemarkMapObject cameraTargetPlacemark = null;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
@@ -65,12 +76,58 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
+    SearchFactory.initialize(context);
+    searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
     mapView = new MapView(context);
     mapView.getMap().addCameraListener(cameraListener);
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
     pluginRegistrar = registrar;
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
+    suggestListener = new SuggestSession.SuggestListener() {
+      @Override
+      public void onResponse(List<SuggestItem> suggestItems) {
+        List<Map<String, Object>> suggests = new ArrayList<>();
+
+        for (SuggestItem suggestItemResult : suggestItems) {
+          Map<String, Object> suggestMap = new HashMap<>();
+          suggestMap.put("title", suggestItemResult.getTitle().getText());
+          if(suggestItemResult.getSubtitle() != null) {
+            suggestMap.put("subtitle", suggestItemResult.getSubtitle().getText());
+          }
+          if(suggestItemResult.getDisplayText() != null) {
+            suggestMap.put("displayText", suggestItemResult.getDisplayText());
+          }
+          suggestMap.put("searchText", suggestItemResult.getSearchText());
+          suggestMap.put("tags", suggestItemResult.getTags());
+          String suggestItemType;
+          switch (suggestItemResult.getType()) {
+            case TOPONYM:
+              suggestItemType = "TOPONYM";
+              break;
+            case BUSINESS:
+              suggestItemType = "BUSINESS";
+              break;
+            case TRANSIT:
+              suggestItemType = "TRANSIT";
+              break;
+            default:
+              suggestItemType = "UNKNOWN";
+              break;
+          }
+          suggestMap.put("type", suggestItemType);
+          suggests.add(suggestMap);
+        }
+
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("suggests", suggests);
+        methodChannel.invokeMethod("onSuggestResponseTitles", arguments);
+      }
+
+      @Override
+      public void onError(Error error) {
+      }
+    };
     userLocationLayer =
             MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
@@ -317,6 +374,37 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private void getSuggestions(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    BoundingBox boundingBox = new BoundingBox(
+        new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
+        new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
+    );
+    String formattedAddress = (String) params.get("formattedAddress");
+    if (suggestSession == null)
+      suggestSession = searchManager.createSuggestSession();
+    SuggestOptions suggestOptions = new SuggestOptions();
+    SuggestType suggestType;
+    switch ((String) params.get("suggestType")) {
+      case "GEO":
+        suggestType = SuggestType.GEO;
+        break;
+      case "BIZ":
+        suggestType = SuggestType.BIZ;
+        break;
+      case "TRANSIT":
+        suggestType = SuggestType.TRANSIT;
+        break;
+      default:
+        suggestType = SuggestType.UNSPECIFIED;
+        break;
+    }
+    suggestOptions.setSuggestTypes(suggestType.value);
+    suggestOptions.setSuggestWords(((Boolean) params.get("suggestWords")));
+    suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, suggestListener);
+  }
+
   private void moveToUser() {
     if (!hasLocationPermission()) return;
     
@@ -443,6 +531,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "moveToUser":
         moveToUser();
+        result.success(null);
+        break;
+      case "getSuggestions":
+        getSuggestions(call);
         result.success(null);
         break;
       default:
