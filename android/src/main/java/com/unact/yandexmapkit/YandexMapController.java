@@ -26,6 +26,8 @@ import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
+import com.yandex.mapkit.map.CameraUpdateSource;
+import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
@@ -52,6 +54,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
   private UserLocationLayer userLocationLayer;
+  private PlacemarkMapObject cameraTargetPlacemark = null;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private List<PolygonMapObject> polygons = new ArrayList<>();
@@ -63,6 +66,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
     mapView = new MapView(context);
+    mapView.getMap().addCameraListener(cameraListener);
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
     pluginRegistrar = registrar;
@@ -190,6 +194,44 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         mapObjects.remove(placemarkMapObject);
         iterator.remove();
       }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void enableCameraTargetPlacemark(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    cameraTargetPlacemark = mapObjects.addPlacemark(point);
+    String iconName = (String) params.get("iconName");
+    byte[] rawImageData = (byte[]) params.get("rawImageData");
+
+    cameraTargetPlacemark.setUserData(params.get("hashCode"));
+    cameraTargetPlacemark.setOpacity(((Double) params.get("opacity")).floatValue());
+    cameraTargetPlacemark.setDraggable((Boolean) params.get("isDraggable"));
+    cameraTargetPlacemark.addTapListener(yandexMapObjectTapListener);
+
+    if (iconName != null) {
+      cameraTargetPlacemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+    }
+
+    if (rawImageData != null) {
+      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
+      cameraTargetPlacemark.setIcon(ImageProvider.fromBitmap(bitmapData));
+    }
+
+    IconStyle iconStyle = new IconStyle();
+    iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
+    iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
+    iconStyle.setScale(((Double) params.get("scale")).floatValue());
+    cameraTargetPlacemark.setIconStyle(iconStyle);
+  }
+
+  private void disableCameraTargetPlacemark() {
+    if (cameraTargetPlacemark != null) {
+      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+      mapObjects.remove(cameraTargetPlacemark);
+      cameraTargetPlacemark = null;
     }
   }
 
@@ -355,6 +397,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         setBounds(call);
         result.success(null);
         break;
+      case "enableCameraTargetPlacemark":
+        enableCameraTargetPlacemark(call);
+        result.success(null);
+        break;
+      case "disableCameraTargetPlacemark":
+        disableCameraTargetPlacemark();
+        result.success(null);
+        break;
       case "addPlacemark":
         addPlacemark(call);
         result.success(null);
@@ -400,6 +450,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
     }
   }
+
+  private final CameraListener cameraListener = new CameraListener() {
+    @Override
+    public void onCameraPositionChanged(com.yandex.mapkit.map.Map map, CameraPosition cameraPosition, CameraUpdateSource cameraUpdateSource, boolean bFinal) {
+      Point point = cameraPosition.getTarget();
+
+      if (cameraTargetPlacemark != null) {
+        cameraTargetPlacemark.setGeometry(point);
+      }
+
+      Map<String, Object> arguments = new HashMap<>();
+      arguments.put("latitude", point.getLatitude());
+      arguments.put("longitude", point.getLongitude());
+      arguments.put("final", bFinal);
+
+      methodChannel.invokeMethod("onCameraPositionChanged", arguments);
+    }
+  };
 
   private class YandexUserLocationObjectListener implements UserLocationObjectListener {
     private PluginRegistry.Registrar pluginRegistrar;

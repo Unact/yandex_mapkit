@@ -28,6 +28,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
+  Function onCameraPositionChanged;
 
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -132,6 +133,18 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  // Does nothing if passed `Placemark` is `null`
+  Future<void> enableCameraTargetPlacemark(Placemark placemark) async {
+    if (placemark != null) {
+      await _channel.invokeMethod<void>('enableCameraTargetPlacemark', _placemarkParams(placemark));
+      placemarks.add(placemark);
+    }
+  }
+
+  Future<void> disableCameraTargetPlacemark() async {
+    await _channel.invokeMethod<void>('disableCameraTargetPlacemark');
+  }
+
   // Does nothing if passed `Placemark` wasn't added before
   Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
@@ -202,6 +215,9 @@ class YandexMapController extends ChangeNotifier {
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
         break;
+      case 'onCameraPositionChanged':
+        _onCameraPositionChanged(call.arguments);
+        break;
       default:
         throw MissingPluginException();
     }
@@ -217,6 +233,12 @@ class YandexMapController extends ChangeNotifier {
 
     if (placemark != null) {
       placemark.onTap(latitude, longitude);
+    }
+  }
+
+  void _onCameraPositionChanged(dynamic arguments) {
+    if (onCameraPositionChanged != null) {
+      onCameraPositionChanged(arguments);
     }
   }
 
