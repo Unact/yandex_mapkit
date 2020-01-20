@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'map_animation.dart';
 import 'placemark.dart';
 import 'point.dart';
+import 'polygon.dart';
 import 'polyline.dart';
 
 class YandexMapController extends ChangeNotifier {
@@ -26,6 +27,7 @@ class YandexMapController extends ChangeNotifier {
 
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
+  final List<Polygon> polygons = <Polygon>[];
 
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -162,6 +164,22 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  // Does nothing if passed `Polygon` is `null`
+  Future<void> addPolygon(Polygon polygon) async {
+    if (polygon != null) {
+      await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
+      polygons.add(polygon);
+    }
+  }
+
+  // Does nothing if passed `Polygon` wasn't added before
+  Future<void> removePolygon(Polygon polygon) async {
+    if (polygons.remove(polygon)) {
+      await _channel.invokeMethod<void>(
+          'removePolygon', <String, dynamic>{'hashCode': polygon.hashCode});
+    }
+  }
+
   Future<void> zoomIn() async {
     await _channel.invokeMethod<void>('zoomIn');
   }
@@ -231,6 +249,18 @@ class YandexMapController extends ChangeNotifier {
       'dashOffset': polyline.dashOffset,
       'gapLength': polyline.gapLength,
       'hashCode': polyline.hashCode
+    };
+  }
+
+  Map<String, dynamic> _polygonParams(Polygon polygon) {
+    final List<Map<String, double>> coordinates = polygon.coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    return <String, dynamic>{
+      'coordinates': coordinates,
+      'strokeColor': polygon.strokeColor.value,
+      'strokeWidth': polygon.strokeWidth,
+      'fillColor': polygon.fillColor.value,
+      'isGeodesic': polygon.isGeodesic,
+      'hashCode': polygon.hashCode
     };
   }
 }

@@ -12,6 +12,9 @@ import android.graphics.PointF;
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.BoundingBox;
+import com.yandex.mapkit.geometry.Geometry;
+import com.yandex.mapkit.geometry.LinearRing;
+import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.layers.ObjectEvent;
@@ -21,6 +24,7 @@ import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.PolylineMapObject;
+import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
@@ -50,6 +54,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private UserLocationLayer userLocationLayer;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
+  private List<PolygonMapObject> polygons = new ArrayList<>();
   private String userLocationIconName;
   private String userArrowIconName;
   private Boolean userArrowOrientation;
@@ -234,6 +239,42 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private void addPolygon(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    List<Map<String, Object>> points = (List<Map<String, Object>>) params.get("coordinates");
+    ArrayList<Point> polygonPoints = new ArrayList<>();
+    for (Map<String, Object> p: points) {
+      Point point = new Point(((Double) p.get("latitude")), ((Double) p.get("longitude")));
+      polygonPoints.add(point);
+    }
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    PolygonMapObject polygon = mapObjects.addPolygon(
+            new Polygon(new LinearRing(polygonPoints), new ArrayList<LinearRing>()));
+    polygon.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
+    polygon.setStrokeColor(((Number) params.get("strokeColor")).intValue());
+    polygon.setFillColor(((Number) params.get("fillColor")).intValue());
+
+    polygon.setUserData(params.get("hashCode"));
+
+    polygons.add(polygon);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void removePolygon(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+    Iterator<PolygonMapObject> iterator = polygons.iterator();
+
+    while (iterator.hasNext()) {
+      PolygonMapObject polygonMapObject = iterator.next();
+      if (polygonMapObject.getUserData().equals(params.get("hashCode"))) {
+        mapObjects.remove(polygonMapObject);
+        iterator.remove();
+      }
+    }
+  }
+
   private void moveToUser() {
     if (!hasLocationPermission()) return;
     
@@ -328,6 +369,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "removePolyline":
         removePolyline(call);
+        result.success(null);
+        break;
+      case "addPolygon":
+        addPolygon(call);
+        result.success(null);
+        break;
+      case "removePolygon":
+        removePolygon(call);
         result.success(null);
         break;
       case "zoomIn":

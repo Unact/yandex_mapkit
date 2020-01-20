@@ -11,6 +11,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var userLocationLayer: YMKUserLocationLayer?
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
+  private var polygons: [YMKPolygonMapObject] = []
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -59,6 +60,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(nil)
     case "removePolyline":
       removePolyline(call)
+      result(nil)
+    case "addPolygon":
+      addPolygon(call)
+      result(nil)
+    case "removePolygon":
+      removePolygon(call)
       result(nil)
     case "zoomIn":
         zoomIn()
@@ -243,6 +250,32 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polyline)
       polylines.remove(at: polylines.firstIndex(of: polyline)!)
+    }
+  }
+
+  public func addPolygon(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let coordinates = params["coordinates"] as! [[String: Any]]
+    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let polylgon = YMKPolygon(outerRing: YMKLinearRing(points: coordinatesPrepared), innerRings: [])
+    let polygonMapObject = mapObjects.addPolygon(with: polylgon)
+    polygonMapObject.userData = params["hashCode"] as! Int
+    polygonMapObject.strokeColor = uiColor(fromInt: params["strokeColor"] as! Int64)
+    polygonMapObject.strokeWidth = params["strokeWidth"] as! Float
+    polygonMapObject.fillColor = uiColor(fromInt: params["fillColor"] as! Int64)
+    polygonMapObject.isGeodesic = params["isGeodesic"] as! Bool
+    polygons.append(polygonMapObject)
+  }
+  
+  public func removePolygon(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let hashCode = params["hashCode"] as! Int
+
+    if let polygon = polygons.first(where: { $0.userData as! Int ==  hashCode}) {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: polygon)
+      polygons.remove(at: polygons.firstIndex(of: polygon)!)
     }
   }
 
