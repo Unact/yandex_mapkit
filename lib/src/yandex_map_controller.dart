@@ -264,18 +264,15 @@ class YandexMapController extends ChangeNotifier {
   void _onSuggestResponseTitles(dynamic arguments) {
     final List<dynamic> suggests = arguments['suggests'];
 
-    final List<SuggestItem> suggestItems = List<SuggestItem>();
-
-    for (dynamic sug in suggests) {
-      final SuggestItem item = SuggestItem(
+    final List<SuggestItem> suggestItems = suggests.map((dynamic sug) {
+      return SuggestItem(
         searchText: sug['searchText'],
         title: sug['title'],
         subtitle: sug['subtitle'],
         tags: sug['tags'],
         type: sug['type'],
       );
-      suggestItems.add(item);
-    }
+    });
 
     if (onSuggestCallback != null) {
       onSuggestCallback(suggestItems);
