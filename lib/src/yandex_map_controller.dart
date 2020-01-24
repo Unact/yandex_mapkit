@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -265,7 +264,7 @@ class YandexMapController extends ChangeNotifier {
   void _onSuggestResponseTitles(dynamic arguments) {
     final List<dynamic> suggests = arguments['suggests'];
 
-    final List<SuggestItem> suggestItems = [];
+    final List<SuggestItem> suggestItems = List<SuggestItem>();
 
     for (dynamic sug in suggests) {
       final SuggestItem item = SuggestItem(
@@ -300,7 +299,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
-    final List<Map<String, double>> coordinates = polyline.coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    final List<Map<String, double>> coordinates = polyline.coordinates.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
     return <String, dynamic>{
       'coordinates': coordinates,
       'strokeColor': polyline.strokeColor.value,
@@ -316,7 +315,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polygonParams(Polygon polygon) {
-    final List<Map<String, double>> coordinates = polygon.coordinates.map((Point p) => {'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    final List<Map<String, double>> coordinates = polygon.coordinates.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
     return <String, dynamic>{
       'coordinates': coordinates,
       'strokeColor': polygon.strokeColor.value,

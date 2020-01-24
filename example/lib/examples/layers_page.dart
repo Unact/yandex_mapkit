@@ -69,10 +69,10 @@ class _LayersExampleState extends State<_LayersExample> {
                       },
                       child: const Text('Move to user')
                     ),
-                    FlatButton(
-                      padding: const EdgeInsets.all(4),
+                    const FlatButton(
+                      padding: EdgeInsets.all(4),
                       onPressed: null,
-                      child: const Text('')
+                      child: Text('')
                     )
                   ],
                 )
