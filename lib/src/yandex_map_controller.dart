@@ -272,7 +272,7 @@ class YandexMapController extends ChangeNotifier {
         tags: sug['tags'],
         type: sug['type'],
       );
-    });
+    }).toList();
 
     if (onSuggestCallback != null) {
       onSuggestCallback(suggestItems);
