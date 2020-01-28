@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/page.dart';
@@ -31,7 +33,6 @@ class _SearchExampleState extends State<_SearchExample> {
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-              controller.onSuggestCallback = suggestionsCallback;
             },
           )
         ),
@@ -75,16 +76,18 @@ class _SearchExampleState extends State<_SearchExample> {
     );
   }
 
-  void suggestionsCallback(List<SuggestItem> suggestItems) {
-    setState(() {
-      response = '';
-      for (SuggestItem item in suggestItems) {
-        response += item.title + '\n';
+  Future<void> querySuggestions(String query) async {
+    final CancelListening cancelListening = await controller.getSuggestions(
+      query, const Point(latitude: 55.5143, longitude: 37.24841), const Point(latitude: 56.0421, longitude: 38.0284), 'GEO', true,
+      (dynamic suggestItems) {
+        setState(() {
+          response = suggestItems.map((SuggestItem item) {
+            return item.title;
+          }).join('\n');
+        });
       }
-    });
-  }
-
-  void querySuggestions(String query) {
-    controller.getSuggestions(const Point(latitude: 55.5143, longitude: 37.24841), const Point(latitude: 56.0421, longitude: 38.0284), query, 'GEO', true);
+    );
+    await Future<dynamic>.delayed(const Duration(seconds: 3));
+    cancelListening();
   }
 }

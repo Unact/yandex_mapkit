@@ -11,6 +11,9 @@ import 'polygon.dart';
 import 'polyline.dart';
 import 'suggest_item.dart';
 
+typedef MultiUseCallback = void Function(dynamic msg);
+typedef CancelListening = void Function();
+
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(MethodChannel channel)
       : _channel = channel {
@@ -28,8 +31,10 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
-  Function onSuggestCallback;
   Function onCameraPositionChanged;
+  
+  int _nextCallbackId = 0;
+  final Map<int, MultiUseCallback> _suggestSessionsById = Map<int, MultiUseCallback>();
 
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -202,19 +207,34 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('zoomOut');
   }
 
-  Future<void> getSuggestions(Point southWestPoint, Point northEastPoint, String address, String suggestType, bool suggestWords) async {
+  Future<CancelListening> getSuggestions(
+    String address,
+    Point southWestPoint,
+    Point northEastPoint,
+    String suggestType,
+    bool suggestWords,
+    MultiUseCallback callback
+  ) async {
+    _channel.setMethodCallHandler(_handleMethodCall);
+
+    final int listenerId = _nextCallbackId++;
+    _suggestSessionsById[listenerId] = callback;
+
     await _channel.invokeMethod<void>(
       'getSuggestions',
       <String, dynamic>{
+        'formattedAddress': address,
         'southWestLatitude': southWestPoint.latitude,
         'southWestLongitude': southWestPoint.longitude,
         'northEastLatitude': northEastPoint.latitude,
         'northEastLongitude': northEastPoint.longitude,
-        'formattedAddress': address,
         'suggestType': suggestType,
-        'suggestWords': suggestWords
+        'suggestWords': suggestWords,
+        'listenerId': listenerId
       }
     );
+
+    return () => _cancelSuggestSession(listenerId);
   }
 
   Future<void> moveToUser() async {
@@ -231,11 +251,14 @@ class YandexMapController extends ChangeNotifier {
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
         break;
-      case 'onSuggestResponseTitles':
-        _onSuggestResponseTitles(call.arguments);
-        break;
       case 'onCameraPositionChanged':
         _onCameraPositionChanged(call.arguments);
+        break;
+      case 'onSuggestListenerResponse':
+        _onSuggestListenerResponse(call.arguments);
+        break;
+      case 'onSuggestListenerRemove':
+        _onSuggestListenerRemove(call.arguments);
         break;
       default:
         throw MissingPluginException();
@@ -261,9 +284,22 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  void _onSuggestResponseTitles(dynamic arguments) {
-    final List<dynamic> suggests = arguments['suggests'];
+  void _onSuggestListenerRemove(dynamic arguments) {
+    _cancelSuggestSession(arguments['listenerId']);
+  }
 
+  Future<void> _cancelSuggestSession(int listenerId) async {
+    await _channel.invokeMethod<void>(
+      'cancelSuggestSession',
+      <String, dynamic>{
+        'listenerId': listenerId
+      }
+    );
+    _suggestSessionsById.remove(listenerId);
+  }
+
+  void _onSuggestListenerResponse(dynamic arguments) {
+    final List<dynamic> suggests = arguments['response'];
     final List<SuggestItem> suggestItems = suggests.map((dynamic sug) {
       return SuggestItem(
         searchText: sug['searchText'],
@@ -273,10 +309,7 @@ class YandexMapController extends ChangeNotifier {
         type: sug['type'],
       );
     }).toList();
-
-    if (onSuggestCallback != null) {
-      onSuggestCallback(suggestItems);
-    }
+    _suggestSessionsById[arguments['listenerId']](suggestItems);
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {

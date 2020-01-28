@@ -1,8 +1,13 @@
 import 'dart:core';
 
 class SuggestItem {
-  SuggestItem(
-      {this.title, this.subtitle, this.searchText, this.type, this.tags});
+  SuggestItem({
+    this.title,
+    this.subtitle,
+    this.searchText,
+    this.type,
+    this.tags
+  });
 
   factory SuggestItem.fromJson(Map<String, dynamic> json) {
     return SuggestItem(
@@ -14,9 +19,9 @@ class SuggestItem {
     );
   }
 
-  String title;
-  String subtitle;
-  String searchText;
-  String type;
-  List<dynamic> tags;
+  final String title;
+  final String subtitle;
+  final String searchText;
+  final String type;
+  final List<dynamic> tags;
 }
