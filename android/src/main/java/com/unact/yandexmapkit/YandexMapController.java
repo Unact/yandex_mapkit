@@ -516,15 +516,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private final CameraListener cameraListener = new CameraListener() {
     @Override
     public void onCameraPositionChanged(com.yandex.mapkit.map.Map map, CameraPosition cameraPosition, CameraUpdateSource cameraUpdateSource, boolean bFinal) {
-      Point point = cameraPosition.getTarget();
-
+      Point targetPoint = cameraPosition.getTarget();
       if (cameraTargetPlacemark != null) {
-        cameraTargetPlacemark.setGeometry(point);
+        cameraTargetPlacemark.setGeometry(targetPoint);
       }
-
       Map<String, Object> arguments = new HashMap<>();
-      arguments.put("latitude", point.getLatitude());
-      arguments.put("longitude", point.getLongitude());
+      arguments.put("latitude", targetPoint.getLatitude());
+      arguments.put("longitude", targetPoint.getLongitude());
+      arguments.put("zoom", cameraPosition.getZoom());
+      arguments.put("tilt", cameraPosition.getTilt());
+      arguments.put("azimuth", cameraPosition.getAzimuth());
       arguments.put("final", bFinal);
 
       methodChannel.invokeMethod("onCameraPositionChanged", arguments);
