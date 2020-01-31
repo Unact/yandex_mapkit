@@ -620,17 +620,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       arguments.put("listenerId", listenerId);
       arguments.put("response", suggests);
       methodChannel.invokeMethod("onSuggestListenerResponse", arguments);
-
-      Map<String, Object> arguments2 = new HashMap<>();
-      arguments2.put("listenerId", listenerId);
-      methodChannel.invokeMethod("onSuggestListenerRemove", arguments2);
     }
 
     @Override
     public void onError(@NonNull Error error) {
       Map<String, Object> arguments = new HashMap<>();
       arguments.put("listenerId", listenerId);
-      methodChannel.invokeMethod("onSuggestListenerRemove", arguments);
+      methodChannel.invokeMethod("onSuggestListenerError", arguments);
     }
   }
 }

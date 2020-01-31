@@ -257,6 +257,9 @@ class YandexMapController extends ChangeNotifier {
       case 'onSuggestListenerResponse':
         _onSuggestListenerResponse(call.arguments);
         break;
+      case 'onSuggestListenerError':
+        _onSuggestListenerError(call.arguments);
+        break;
       case 'onSuggestListenerRemove':
         _onSuggestListenerRemove(call.arguments);
         break;
@@ -289,13 +292,15 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<void> _cancelSuggestSession(int listenerId) async {
-    await _channel.invokeMethod<void>(
-      'cancelSuggestSession',
-      <String, dynamic>{
-        'listenerId': listenerId
-      }
-    );
-    _suggestSessionsById.remove(listenerId);
+    if (_suggestSessionsById.containsKey(listenerId)) {
+      await _channel.invokeMethod<void>(
+        'cancelSuggestSession',
+        <String, dynamic>{
+          'listenerId': listenerId
+        }
+      );
+      _suggestSessionsById.remove(listenerId);
+    }
   }
 
   void _onSuggestListenerResponse(dynamic arguments) {
@@ -309,7 +314,13 @@ class YandexMapController extends ChangeNotifier {
         type: sug['type'],
       );
     }).toList();
-    _suggestSessionsById[arguments['listenerId']](suggestItems);
+    final int listenerId = arguments['listenerId'];
+    _suggestSessionsById[listenerId](suggestItems);
+    _cancelSuggestSession(listenerId);
+  }
+
+  void _onSuggestListenerError(dynamic arguments) {
+    _cancelSuggestSession(arguments['listenerId']);
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
