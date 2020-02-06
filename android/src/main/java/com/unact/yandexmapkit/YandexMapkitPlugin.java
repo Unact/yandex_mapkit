@@ -17,6 +17,8 @@ public class YandexMapkitPlugin {
       "yandex_mapkit/yandex_map",
        new YandexMapFactory(registrar)
     );
+
+    YandexSearch.registerWith(registrar);
   }
 
 }

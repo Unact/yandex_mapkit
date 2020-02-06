@@ -19,7 +19,6 @@ class _SearchExample extends StatefulWidget {
 }
 
 class _SearchExampleState extends State<_SearchExample> {
-  YandexMapController controller;
   TextEditingController queryController = TextEditingController();
   String response = '';
   
@@ -29,13 +28,6 @@ class _SearchExampleState extends State<_SearchExample> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Expanded(
-          child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
-          )
-        ),
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
@@ -77,7 +69,7 @@ class _SearchExampleState extends State<_SearchExample> {
   }
 
   Future<void> querySuggestions(String query) async {
-    final CancelListening cancelListening = await controller.getSuggestions(
+    final CancelListening cancelListening = await YandexSearch().getSuggestions(
       query, const Point(latitude: 55.5143, longitude: 37.24841), const Point(latitude: 56.0421, longitude: 38.0284), 'GEO', true,
       (dynamic suggestItems) {
         setState(() {

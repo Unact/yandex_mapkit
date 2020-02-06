@@ -7,7 +7,6 @@ import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.yandex.mapkit.Animation;
@@ -34,14 +33,7 @@ import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
-import com.yandex.runtime.Error;
-import com.yandex.mapkit.search.SuggestItem;
-import com.yandex.mapkit.search.SuggestType;
-import com.yandex.mapkit.search.SearchFactory;
-import com.yandex.mapkit.search.SearchManagerType;
-import com.yandex.mapkit.search.SuggestOptions;
-import com.yandex.mapkit.search.SearchManager;
-import com.yandex.mapkit.search.SuggestSession;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,8 +48,6 @@ import io.flutter.plugin.platform.PlatformView;
 
 
 public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler {
-  private final SearchManager searchManager;
-  private Map<Integer, SuggestSession> suggestSessionsById = new HashMap<>();
   private final MapView mapView;
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar pluginRegistrar;
@@ -75,8 +65,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
-    SearchFactory.initialize(context);
-    searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
     mapView = new MapView(context);
     mapView.getMap().addCameraListener(cameraListener);
     MapKitFactory.getInstance().onStart();
@@ -329,48 +317,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private void cancelSuggestSession(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    final int listenerId = ((Number) params.get("listenerId")).intValue();
-    suggestSessionsById.remove(listenerId);
-  }
-
-  @SuppressWarnings("unchecked")
-  private void getSuggestions(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    final int listenerId = ((Number) params.get("listenerId")).intValue();
-
-    String formattedAddress = (String) params.get("formattedAddress");
-    BoundingBox boundingBox = new BoundingBox(
-        new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
-        new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
-    );
-    SuggestType suggestType;
-    switch ((String) params.get("suggestType")) {
-      case "GEO":
-        suggestType = SuggestType.GEO;
-        break;
-      case "BIZ":
-        suggestType = SuggestType.BIZ;
-        break;
-      case "TRANSIT":
-        suggestType = SuggestType.TRANSIT;
-        break;
-      default:
-        suggestType = SuggestType.UNSPECIFIED;
-        break;
-    }
-    Boolean suggestWords = ((Boolean) params.get("suggestWords"));
-    SuggestSession suggestSession = searchManager.createSuggestSession();
-    SuggestOptions suggestOptions = new SuggestOptions();
-    suggestOptions.setSuggestTypes(suggestType.value);
-    suggestOptions.setSuggestWords(suggestWords);
-    suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(listenerId));
-    suggestSessionsById.put(listenerId, suggestSession);
-  }
-
   private void moveToUser() {
     if (!hasLocationPermission()) return;
     
@@ -499,14 +445,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         moveToUser();
         result.success(null);
         break;
-      case "getSuggestions":
-        getSuggestions(call);
-        result.success(null);
-        break;
-      case "cancelSuggestSession":
-        cancelSuggestSession(call);
-        result.success(null);
-        break;
       default:
         result.notImplemented();
         break;
@@ -573,60 +511,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       methodChannel.invokeMethod("onMapObjectTap", arguments);
 
       return true;
-    }
-  }
-
-  private class YandexSuggestListener implements SuggestSession.SuggestListener {
-    public YandexSuggestListener(int id) {
-      listenerId = id;
-    }
-    private int listenerId;
-
-    @Override
-    public void onResponse(@NonNull List<SuggestItem> suggestItems) {
-      List<Map<String, Object>> suggests = new ArrayList<>();
-
-      for (SuggestItem suggestItemResult : suggestItems) {
-        Map<String, Object> suggestMap = new HashMap<>();
-        suggestMap.put("title", suggestItemResult.getTitle().getText());
-        if(suggestItemResult.getSubtitle() != null) {
-          suggestMap.put("subtitle", suggestItemResult.getSubtitle().getText());
-        }
-        if(suggestItemResult.getDisplayText() != null) {
-          suggestMap.put("displayText", suggestItemResult.getDisplayText());
-        }
-        suggestMap.put("searchText", suggestItemResult.getSearchText());
-        suggestMap.put("tags", suggestItemResult.getTags());
-        String suggestItemType;
-        switch (suggestItemResult.getType()) {
-          case TOPONYM:
-            suggestItemType = "TOPONYM";
-            break;
-          case BUSINESS:
-            suggestItemType = "BUSINESS";
-            break;
-          case TRANSIT:
-            suggestItemType = "TRANSIT";
-            break;
-          default:
-            suggestItemType = "UNKNOWN";
-            break;
-        }
-        suggestMap.put("type", suggestItemType);
-        suggests.add(suggestMap);
-      }
-
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("listenerId", listenerId);
-      arguments.put("response", suggests);
-      methodChannel.invokeMethod("onSuggestListenerResponse", arguments);
-    }
-
-    @Override
-    public void onError(@NonNull Error error) {
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("listenerId", listenerId);
-      methodChannel.invokeMethod("onSuggestListenerError", arguments);
     }
   }
 }
