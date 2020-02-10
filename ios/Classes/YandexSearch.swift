@@ -10,7 +10,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
 
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "yandex_mapkit/yandex_search", binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(name: "yandex_mapkit/yandex_search",
+                                       binaryMessenger: registrar.messenger())
     let plugin = YandexSearch(channel: channel)
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
@@ -35,10 +36,11 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let listenerId = params["listenerId"] as! Int
     
     let formattedAddress = params["formattedAddress"] as! String
-    let boundingBox = YMKBoundingBox.init(southWest: YMKPoint.init(latitude: params["southWestLatitude"] as! Double,
-                                                                   longitude: params["southWestLongitude"] as! Double),
-                                          northEast: YMKPoint.init(latitude: params["northEastLatitude"] as! Double,
-                                                                   longitude: params["northEastLongitude"] as! Double))
+    let boundingBox = YMKBoundingBox.init(
+      southWest: YMKPoint.init(latitude: params["southWestLatitude"] as! Double,
+                               longitude: params["southWestLongitude"] as! Double),
+      northEast: YMKPoint.init(latitude: params["northEastLatitude"] as! Double,
+                               longitude: params["northEastLongitude"] as! Double))
     let responseHandler = {(searchResponse: [YMKSuggestItem]?, error: Error?) -> Void in
       let thisListenerId = listenerId
       if searchResponse != nil {
@@ -93,10 +95,14 @@ public class YandexSearch: NSObject, FlutterPlugin {
     default:
       suggestType = YMKSuggestType.init(rawValue: 0)
     }
-    let suggestOptions = YMKSuggestOptions.init(suggestTypes: suggestType,
-                                                userPosition: nil,
-                                                suggestWords: params["suggestWords"] as! Bool)
-    suggestSession.suggest(withText: formattedAddress, window: boundingBox, suggestOptions: suggestOptions, responseHandler: responseHandler)
+    let suggestOptions =
+      YMKSuggestOptions.init(suggestTypes: suggestType,
+                             userPosition: nil,
+                             suggestWords: params["suggestWords"] as! Bool)
+    suggestSession.suggest(withText: formattedAddress,
+                           window: boundingBox,
+                           suggestOptions: suggestOptions,
+                           responseHandler: responseHandler)
     self.suggestSessionsById[listenerId] = suggestSession;
   }
   

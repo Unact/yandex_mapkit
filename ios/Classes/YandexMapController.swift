@@ -154,7 +154,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let point = YMKPoint(latitude: params["latitude"] as! Double, longitude: params["longitude"] as! Double)
+    let point = YMKPoint(latitude: params["latitude"] as! Double,
+                         longitude: params["longitude"] as! Double)
     let cameraPosition = YMKCameraPosition(
       target: point,
       zoom: params["zoom"] as! Float,
@@ -195,7 +196,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     
   public func addPlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let point = YMKPoint(latitude: params["latitude"] as! Double, longitude: params["longitude"] as! Double)
+    let point = YMKPoint(latitude: params["latitude"] as! Double,
+                         longitude: params["longitude"] as! Double)
     let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = mapObjects.addPlacemark(with: point)
     let iconName = params["iconName"] as? String
@@ -215,7 +217,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
-    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double), y: (CGFloat)(params["anchorY"] as! Double)))
+    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double),
+                                                y: (CGFloat)(params["anchorY"] as! Double)))
     iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
     iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
     placemark.setIconStyleWith(iconStyle)
@@ -248,7 +251,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     cameraTargetPlacemark!.isDraggable = params["isDraggable"] as! Bool
 
     if (iconName != nil) {
-      cameraTargetPlacemark!.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+      cameraTargetPlacemark!.setIconWith(
+        UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
     }
 
     if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData, 
@@ -257,7 +261,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
-    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double), y: (CGFloat)(params["anchorY"] as! Double)))
+    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double),
+                                                y: (CGFloat)(params["anchorY"] as! Double)))
     iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
     iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
     cameraTargetPlacemark!.setIconStyleWith(iconStyle)
@@ -274,7 +279,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private func addPolyline(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let coordinates = params["coordinates"] as! [[String: Any]]
-    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
+    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double,
+                                                         longitude: $0["longitude"] as! Double)}
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
@@ -304,7 +310,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func addPolygon(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let coordinates = params["coordinates"] as! [[String: Any]]
-    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double, longitude: $0["longitude"] as! Double)}
+    let coordinatesPrepared = coordinates.map { YMKPoint(latitude: $0["latitude"] as! Double,
+                                                         longitude: $0["longitude"] as! Double)}
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polylgon = YMKPolygon(outerRing: YMKLinearRing(points: coordinatesPrepared), innerRings: [])
     let polygonMapObject = mapObjects.addPolygon(with: polylgon)
@@ -339,13 +346,18 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         azimuth: azimuth,
         tilt: tilt
       )
-      mapView.mapWindow.map.move(with: cameraPosition, animationType: YMKAnimation.init(type: YMKAnimationType.smooth, duration: 1), cameraCallback: nil)
+      mapView.mapWindow.map.move(with: cameraPosition,
+                                 animationType: YMKAnimation.init(
+                                  type: YMKAnimationType.smooth,
+                                  duration: 1),
+                                 cameraCallback: nil)
     }
   }
 
   private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
     if (params["animate"] as! Bool) {
-      let type = params["smoothAnimation"] as! Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
+      let type = params["smoothAnimation"] as!
+        Bool ? YMKAnimationType.smooth : YMKAnimationType.linear
       let animationType = YMKAnimation(type: type, duration: params["animationDuration"] as! Float)
 
       mapView.mapWindow.map.move(with: cameraPosition, animationType: animationType)
@@ -383,7 +395,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     private let userArrowOrientation: Bool!
     private let accuracyCircleFillColor: UIColor!
 
-    public required init(pluginRegistrar: FlutterPluginRegistrar, iconName: String, arrowName: String, userArrowOrientation: Bool, accuracyCircleFillColor: UIColor) {
+    public required init(pluginRegistrar: FlutterPluginRegistrar,
+                         iconName: String,
+                         arrowName: String,
+                         userArrowOrientation: Bool,
+                         accuracyCircleFillColor: UIColor)
+    {
       self.pluginRegistrar = pluginRegistrar
       self.iconName = iconName
       self.arrowName = arrowName
@@ -399,13 +416,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         UIImage(named: pluginRegistrar.lookupKey(forAsset: self.arrowName))!
       )
       if (userArrowOrientation) {
-        view.arrow.setIconStyleWith(YMKIconStyle(anchor: nil,
-                                                 rotationType: YMKRotationType.rotate.rawValue as NSNumber,
-                                                 zIndex: nil,
-                                                 flat: nil,
-                                                 visible: nil,
-                                                 scale: nil,
-                                                 tappableArea: nil))
+        view.arrow.setIconStyleWith(
+          YMKIconStyle(anchor: nil,
+                       rotationType: YMKRotationType.rotate.rawValue as NSNumber,
+                       zIndex: nil,
+                       flat: nil,
+                       visible: nil,
+                       scale: nil,
+                       tappableArea: nil))
       }
       view.accuracyCircle.fillColor = accuracyCircleFillColor
     }
@@ -436,7 +454,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 }
 
 extension YandexMapController: YMKMapCameraListener {
-  public func onCameraPositionChanged(with map: YMKMap, cameraPosition: YMKCameraPosition, cameraUpdateSource: YMKCameraUpdateSource, finished: Bool) {
+  public func onCameraPositionChanged(with map: YMKMap,
+                                      cameraPosition: YMKCameraPosition,
+                                      cameraUpdateSource: YMKCameraUpdateSource,
+                                      finished: Bool)
+  {
     let targetPoint = cameraPosition.target
     cameraTargetPlacemark?.geometry = targetPoint
     let arguments: [String:Any?] = [
