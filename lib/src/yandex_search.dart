@@ -72,13 +72,13 @@ class YandexSearch {
 
   Future<void> _cancelSuggestSession(int listenerId) async {
     if (_suggestSessionsById.containsKey(listenerId)) {
+      _suggestSessionsById.remove(listenerId);
       await _channel.invokeMethod<void>(
         'cancelSuggestSession',
         <String, dynamic>{
           'listenerId': listenerId
         }
       );
-      _suggestSessionsById.remove(listenerId);
     }
   }
 

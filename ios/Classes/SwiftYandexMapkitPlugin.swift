@@ -9,6 +9,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
       YandexMapFactory(registrar: registrar),
       withId: "yandex_mapkit/yandex_map"
     )
+    YandexSearch.register(with: registrar)
   }
 
 }
