@@ -80,6 +80,6 @@ class _SearchExampleState extends State<_SearchExample> {
       }
     );
     await Future<dynamic>.delayed(const Duration(seconds: 3));
-    cancelListening();
+    await cancelListening();
   }
 }
