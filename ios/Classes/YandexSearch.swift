@@ -16,8 +16,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
   }
 
   public required init(channel: FlutterMethodChannel) {
-    methodChannel = channel
-    searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
+    self.methodChannel = channel
+    self.searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
     super.init()
     
     self.methodChannel.setMethodCallHandler(self.handle)
@@ -26,7 +26,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
   public func cancelSuggestSession(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let listenerId = params["listenerId"] as! Int
-    suggestSessionsById.removeValue(forKey: listenerId)
+    self.suggestSessionsById.removeValue(forKey: listenerId)
   }
 
   public func getSuggestions(_ call: FlutterMethodCall) {
@@ -81,7 +81,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
       }
     }
 
-    let suggestSession = searchManager?.createSuggestSession()
+    let suggestSession = self.searchManager!.createSuggestSession()
     var suggestType = YMKSuggestType()
     switch params["suggestType"] as! String {
     case "GEO":
@@ -96,8 +96,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let suggestOptions = YMKSuggestOptions.init(suggestTypes: suggestType,
                                                 userPosition: nil,
                                                 suggestWords: params["suggestWords"] as! Bool)
-    suggestSession?.suggest(withText: formattedAddress, window: boundingBox, suggestOptions: suggestOptions, responseHandler: responseHandler)
-    suggestSessionsById[listenerId] = suggestSession;
+    suggestSession.suggest(withText: formattedAddress, window: boundingBox, suggestOptions: suggestOptions, responseHandler: responseHandler)
+    self.suggestSessionsById[listenerId] = suggestSession;
   }
   
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -110,13 +110,6 @@ public class YandexSearch: NSObject, FlutterPlugin {
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
-    }
-  }
-  
-  internal class YandexSuggestSession: YMKSearchSuggestSession {
-    private let pluginRegistrar: FlutterPluginRegistrar!
-    public required init(pluginRegistrar: FlutterPluginRegistrar) {
-      self.pluginRegistrar = pluginRegistrar
     }
   }
 }
