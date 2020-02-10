@@ -44,32 +44,25 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let responseHandler = {(searchResponse: [YMKSuggestItem]?, error: Error?) -> Void in
       let thisListenerId = listenerId
       if searchResponse != nil {
-        var suggestItems = [Any]()
-        for suggestItem in searchResponse! {
+        let suggestItems = searchResponse?.map({ (suggestItem) -> [String : Any] in
           var dict = [String : Any]()
           dict["title"] = suggestItem.title.text
-          if (suggestItem.subtitle != nil) {
-            dict["subtitle"] = suggestItem.subtitle?.text
-          }
-          if (suggestItem.displayText != nil) {
-            dict["displayText"] = suggestItem.displayText
-          }
-          dict["searchText"] = suggestItem.searchText;
-          dict["tags"] = suggestItem.tags;
-          var suggestItemType = String()
+          dict["subtitle"] = suggestItem.subtitle?.text
+          dict["displayText"] = suggestItem.displayText
+          dict["searchText"] = suggestItem.searchText
+          dict["tags"] = suggestItem.tags
           switch suggestItem.type {
           case .toponym:
-              suggestItemType = "TOPONYM"
+            dict["type"] = "TOPONYM"
           case .business:
-              suggestItemType = "BUSINESS"
+            dict["type"] = "BUSINESS"
           case .transit:
-              suggestItemType = "TRANSIT"
+            dict["type"] = "TRANSIT"
           default:
-              suggestItemType = "UNKNOWN"
+            dict["type"] = "UNKNOWN"
           }
-          dict["type"] = suggestItemType;
-          suggestItems.append(dict)
-        }
+          return dict
+        })
         let arguments: [String:Any?] = [
           "listenerId": thisListenerId,
           "response": suggestItems
