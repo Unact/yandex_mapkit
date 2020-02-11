@@ -19,12 +19,6 @@ class _TargetExample extends StatefulWidget {
 class _TargetExampleState extends State<_TargetExample> {
   YandexMapController controller;
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  final Placemark _centerMarker = Placemark(
-    point: _point,
-    opacity: 0.7,
-    iconName: 'lib/assets/place.png',
-    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +30,7 @@ class _TargetExampleState extends State<_TargetExample> {
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
+              controller.onCameraPositionChanged = cameraPositionChanged;
             },
           )
         ),
@@ -50,15 +45,19 @@ class _TargetExampleState extends State<_TargetExample> {
                   children: <Widget>[
                     RaisedButton(
                       onPressed: () async {
-                        await controller.enableCameraTargetPlacemark(_centerMarker);
-                        controller.onCameraPositionChanged = cameraPositionChanged;
+                        await controller.setCameraTargetPlacemark(
+                          Placemark(
+                            point: _point,
+                            opacity: 0.7,
+                            iconName: 'lib/assets/place.png'
+                          )
+                        );
                       },
                       child: const Text('Enable target')
                     ),
                     RaisedButton(
                       onPressed: () async {
-                        await controller.disableCameraTargetPlacemark();
-                        controller.onCameraPositionChanged = null;
+                        await controller.setCameraTargetPlacemark(null);
                       },
                       child: const Text('Disable target')
                     ),

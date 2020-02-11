@@ -8,6 +8,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let mapObjectTapListener: MapObjectTapListener!
+  //private let mapCameraListener: MapCameraListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var cameraTargetPlacemark: YMKPlacemarkMapObject?
@@ -24,10 +25,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       binaryMessenger: registrar.messenger()
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
+    //self.mapCameraListener = MapCameraListener(channel: methodChannel)
     self.userLocationLayer =
                 YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
     
+    //self.mapView.mapWindow.map.addCameraListener(with: self.mapCameraListener)
     self.mapView.mapWindow.map.addCameraListener(with: self)
     
     self.methodChannel.setMethodCallHandler(self.handle)
@@ -54,11 +57,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "setBounds":
       setBounds(call)
       result(nil)
-    case "enableCameraTargetPlacemark":
-      enableCameraTargetPlacemark(call)
-      result(nil)
-    case "disableCameraTargetPlacemark":
-      disableCameraTargetPlacemark()
+    case "setCameraTargetPlacemark":
+      setCameraTargetPlacemark(call)
       result(nil)
     case "addPlacemark":
       addPlacemark(call)
@@ -237,42 +237,42 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
 
-  public func enableCameraTargetPlacemark(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let point = mapView.mapWindow.map.cameraPosition.target;
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    cameraTargetPlacemark = mapObjects.addPlacemark(with: point)
-    
-    let iconName = params["iconName"] as? String
-
-    cameraTargetPlacemark!.addTapListener(with: mapObjectTapListener)
-    cameraTargetPlacemark!.userData = params["hashCode"] as! Int
-    cameraTargetPlacemark!.opacity = (Float)(params["opacity"] as! Double)
-    cameraTargetPlacemark!.isDraggable = params["isDraggable"] as! Bool
-
-    if (iconName != nil) {
-      cameraTargetPlacemark!.setIconWith(
-        UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-    }
-
-    if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData, 
-      let image = UIImage(data: rawImageData.data) {
-      cameraTargetPlacemark!.setIconWith(image)
-    }
-
-    let iconStyle = YMKIconStyle()
-    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double),
-                                                y: (CGFloat)(params["anchorY"] as! Double)))
-    iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
-    iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
-    cameraTargetPlacemark!.setIconStyleWith(iconStyle)
-  }
-
-  public func disableCameraTargetPlacemark() {
+  public func setCameraTargetPlacemark(_ call: FlutterMethodCall) {
     if cameraTargetPlacemark != nil {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: cameraTargetPlacemark!)
       cameraTargetPlacemark = nil
+    }
+    
+    if call.arguments != nil {
+      let params = call.arguments as! [String: Any]
+      let point = mapView.mapWindow.map.cameraPosition.target;
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      cameraTargetPlacemark = mapObjects.addPlacemark(with: point)
+      
+      let iconName = params["iconName"] as? String
+
+      cameraTargetPlacemark!.addTapListener(with: mapObjectTapListener)
+      cameraTargetPlacemark!.userData = params["hashCode"] as! Int
+      cameraTargetPlacemark!.opacity = (Float)(params["opacity"] as! Double)
+      cameraTargetPlacemark!.isDraggable = params["isDraggable"] as! Bool
+
+      if (iconName != nil) {
+        cameraTargetPlacemark!.setIconWith(
+          UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+      }
+
+      if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData,
+        let image = UIImage(data: rawImageData.data) {
+        cameraTargetPlacemark!.setIconWith(image)
+      }
+
+      let iconStyle = YMKIconStyle()
+      iconStyle.anchor = NSValue(cgPoint: CGPoint(x: (CGFloat)(params["anchorX"] as! Double),
+                                                  y: (CGFloat)(params["anchorY"] as! Double)))
+      iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
+      iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
+      cameraTargetPlacemark!.setIconStyleWith(iconStyle)
     }
   }
 
@@ -451,6 +451,34 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       return true
     }
   }
+  
+  /*internal class MapCameraListener: NSObject, YMKMapCameraListener {
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.methodChannel = channel
+    }
+
+    internal func onCameraPositionChanged(with map: YMKMap,
+                                          cameraPosition: YMKCameraPosition,
+                                          cameraUpdateSource: YMKCameraUpdateSource,
+                                          finished: Bool)
+    {
+      let targetPoint = cameraPosition.target
+      
+      cameraTargetPlacemark?.geometry = targetPoint
+      
+      let arguments: [String:Any?] = [
+        "latitude": targetPoint.latitude,
+        "longitude": targetPoint.longitude,
+        "zoom": cameraPosition.zoom,
+        "tilt": cameraPosition.tilt,
+        "azimuth": cameraPosition.azimuth,
+        "final": finished
+      ]
+      methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
+    }
+  }*/
 }
 
 extension YandexMapController: YMKMapCameraListener {

@@ -132,16 +132,10 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  // Does nothing if passed `Placemark` is `null`
-  Future<void> enableCameraTargetPlacemark(Placemark placemark) async {
-    if (placemark != null) {
-      await _channel.invokeMethod<void>('enableCameraTargetPlacemark', _placemarkParams(placemark));
-      placemarks.add(placemark);
-    }
-  }
-
-  Future<void> disableCameraTargetPlacemark() async {
-    await _channel.invokeMethod<void>('disableCameraTargetPlacemark');
+  // Remove current target marker if passed `Placemark` is `null`
+  Future<void> setCameraTargetPlacemark(Placemark placemark) async {
+    await _channel.invokeMethod<void>(
+      'setCameraTargetPlacemark', placemark != null ? _placemarkParams(placemark) : null);
   }
 
   // Does nothing if passed `Placemark` wasn't added before

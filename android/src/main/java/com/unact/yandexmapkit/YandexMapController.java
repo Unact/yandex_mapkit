@@ -198,40 +198,39 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
-  private void enableCameraTargetPlacemark(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-    cameraTargetPlacemark = mapObjects.addPlacemark(point);
-    String iconName = (String) params.get("iconName");
-    byte[] rawImageData = (byte[]) params.get("rawImageData");
-
-    cameraTargetPlacemark.setUserData(params.get("hashCode"));
-    cameraTargetPlacemark.setOpacity(((Double) params.get("opacity")).floatValue());
-    cameraTargetPlacemark.setDraggable((Boolean) params.get("isDraggable"));
-    cameraTargetPlacemark.addTapListener(yandexMapObjectTapListener);
-
-    if (iconName != null) {
-      cameraTargetPlacemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
-    }
-
-    if (rawImageData != null) {
-      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-      cameraTargetPlacemark.setIcon(ImageProvider.fromBitmap(bitmapData));
-    }
-
-    IconStyle iconStyle = new IconStyle();
-    iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
-    iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
-    iconStyle.setScale(((Double) params.get("scale")).floatValue());
-    cameraTargetPlacemark.setIconStyle(iconStyle);
-  }
-
-  private void disableCameraTargetPlacemark() {
+  private void setCameraTargetPlacemark(MethodCall call) {
     if (cameraTargetPlacemark != null) {
       MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
       mapObjects.remove(cameraTargetPlacemark);
       cameraTargetPlacemark = null;
+    }
+
+    if (call.arguments != null) {
+      Map<String, Object> params = ((Map<String, Object>) call.arguments);
+      Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
+      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+      cameraTargetPlacemark = mapObjects.addPlacemark(point);
+      String iconName = (String) params.get("iconName");
+      byte[] rawImageData = (byte[]) params.get("rawImageData");
+      cameraTargetPlacemark.setUserData(params.get("hashCode"));
+      cameraTargetPlacemark.setOpacity(((Double) params.get("opacity")).floatValue());
+      cameraTargetPlacemark.setDraggable((Boolean) params.get("isDraggable"));
+      cameraTargetPlacemark.addTapListener(yandexMapObjectTapListener);
+
+      if (iconName != null) {
+        cameraTargetPlacemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+      }
+
+      if (rawImageData != null) {
+        Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
+        cameraTargetPlacemark.setIcon(ImageProvider.fromBitmap(bitmapData));
+      }
+
+      IconStyle iconStyle = new IconStyle();
+      iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
+      iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
+      iconStyle.setScale(((Double) params.get("scale")).floatValue());
+      cameraTargetPlacemark.setIconStyle(iconStyle);
     }
   }
 
@@ -397,12 +396,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         setBounds(call);
         result.success(null);
         break;
-      case "enableCameraTargetPlacemark":
-        enableCameraTargetPlacemark(call);
-        result.success(null);
-        break;
-      case "disableCameraTargetPlacemark":
-        disableCameraTargetPlacemark();
+      case "setCameraTargetPlacemark":
+        setCameraTargetPlacemark(call);
         result.success(null);
         break;
       case "addPlacemark":

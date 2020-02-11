@@ -85,7 +85,6 @@ public class YandexSearch implements MethodCallHandler {
     suggestOptions.setSuggestWords(suggestWords);
     suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(listenerId));
     suggestSessionsById.put(listenerId, suggestSession);
-    System.out.println("suggestSessionsById.size(): " + suggestSessionsById.size());
   }
 
   @Override
