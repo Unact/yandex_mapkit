@@ -215,8 +215,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
     polylineMapObject.userData = params["hashCode"] as! Int
-    polylineMapObject.strokeColor = uiColor(fromInt: params["strokeColor"] as! Int)
-    polylineMapObject.outlineColor = uiColor(fromInt: params["outlineColor"] as! Int)
+    polylineMapObject.strokeColor = uiColor(fromInt: params["strokeColor"] as! Int64)
+    polylineMapObject.outlineColor = uiColor(fromInt: params["outlineColor"] as! Int64)
     polylineMapObject.outlineWidth = params["outlineWidth"] as! Float
     polylineMapObject.strokeWidth = params["strokeWidth"] as! Float
     polylineMapObject.isGeodesic = params["isGeodesic"] as! Bool
@@ -261,7 +261,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
 
-  private func uiColor(fromInt value: Int) -> UIColor {
+  private func uiColor(fromInt value: Int64) -> UIColor {
     return UIColor(red: CGFloat((value & 0xFF0000) >> 16) / 0xFF, 
                    green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
                    blue: CGFloat(value & 0x0000FF) / 0xFF,
