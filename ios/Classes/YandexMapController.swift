@@ -8,7 +8,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let mapObjectTapListener: MapObjectTapListener!
-  //private let mapCameraListener: MapCameraListener!
+  private var mapCameraListener: MapCameraListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var cameraTargetPlacemark: YMKPlacemarkMapObject?
@@ -25,13 +25,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       binaryMessenger: registrar.messenger()
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
-    //self.mapCameraListener = MapCameraListener(channel: methodChannel)
     self.userLocationLayer =
                 YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
-    
-    //self.mapView.mapWindow.map.addCameraListener(with: self.mapCameraListener)
-    self.mapView.mapWindow.map.addCameraListener(with: self)
+
+    self.mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
     
     self.methodChannel.setMethodCallHandler(self.handle)
   }
@@ -452,11 +450,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
   
-  /*internal class MapCameraListener: NSObject, YMKMapCameraListener {
+  internal class MapCameraListener: NSObject, YMKMapCameraListener {
+    private let yandexMapController: YandexMapController!
     private let methodChannel: FlutterMethodChannel!
 
-    public required init(channel: FlutterMethodChannel) {
+    public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
+      self.yandexMapController = controller
       self.methodChannel = channel
+      super.init()
+      controller.mapView.mapWindow.map.addCameraListener(with: self)
     }
 
     internal func onCameraPositionChanged(with map: YMKMap,
@@ -466,7 +468,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     {
       let targetPoint = cameraPosition.target
       
-      cameraTargetPlacemark?.geometry = targetPoint
+      yandexMapController.cameraTargetPlacemark?.geometry = targetPoint
       
       let arguments: [String:Any?] = [
         "latitude": targetPoint.latitude,
@@ -478,25 +480,5 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       ]
       methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
     }
-  }*/
-}
-
-extension YandexMapController: YMKMapCameraListener {
-  public func onCameraPositionChanged(with map: YMKMap,
-                                      cameraPosition: YMKCameraPosition,
-                                      cameraUpdateSource: YMKCameraUpdateSource,
-                                      finished: Bool)
-  {
-    let targetPoint = cameraPosition.target
-    cameraTargetPlacemark?.geometry = targetPoint
-    let arguments: [String:Any?] = [
-      "latitude": targetPoint.latitude,
-      "longitude": targetPoint.longitude,
-      "zoom": cameraPosition.zoom,
-      "tilt": cameraPosition.tilt,
-      "azimuth": cameraPosition.azimuth,
-      "final": finished
-    ]
-    methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
   }
 }
