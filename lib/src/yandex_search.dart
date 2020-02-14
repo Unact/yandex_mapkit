@@ -9,18 +9,14 @@ typedef MultiUseCallback = void Function(dynamic msg);
 typedef CancelListening = void Function();
 
 class YandexSearch {
-  factory YandexSearch() => _instance;
+  static const String _channelName = 'yandex_mapkit/yandex_search';
 
-  YandexSearch.private(MethodChannel channel) : _channel = channel;
+  static const MethodChannel _channel = MethodChannel(_channelName);
 
-  final MethodChannel _channel;
+  static int _nextCallbackId = 0;
+  static final Map<int, MultiUseCallback> _suggestSessionsById = Map<int, MultiUseCallback>();
 
-  static final YandexSearch _instance = YandexSearch.private(const MethodChannel('yandex_mapkit/yandex_search'));
-
-  int _nextCallbackId = 0;
-  final Map<int, MultiUseCallback> _suggestSessionsById = Map<int, MultiUseCallback>();
-
-  Future<CancelListening> getSuggestions(
+  static Future<CancelListening> getSuggestions(
     String address,
     Point southWestPoint,
     Point northEastPoint,
@@ -50,7 +46,7 @@ class YandexSearch {
     return () => _cancelSuggestSession(listenerId);
   }
 
-  Future<void> _handleMethodCall(MethodCall call) async {
+  static Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onSuggestListenerResponse':
         _onSuggestListenerResponse(call.arguments);
@@ -66,11 +62,11 @@ class YandexSearch {
     }
   }
 
-  void _onSuggestListenerRemove(dynamic arguments) {
+  static void _onSuggestListenerRemove(dynamic arguments) {
     _cancelSuggestSession(arguments['listenerId']);
   }
 
-  Future<void> _cancelSuggestSession(int listenerId) async {
+  static Future<void> _cancelSuggestSession(int listenerId) async {
     if (_suggestSessionsById.containsKey(listenerId)) {
       _suggestSessionsById.remove(listenerId);
       await _channel.invokeMethod<void>(
@@ -82,7 +78,7 @@ class YandexSearch {
     }
   }
 
-  void _onSuggestListenerResponse(dynamic arguments) {
+  static void _onSuggestListenerResponse(dynamic arguments) {
     final List<dynamic> suggests = arguments['response'];
     final List<SuggestItem> suggestItems = suggests.map((dynamic sug) {
       return SuggestItem(
@@ -98,7 +94,7 @@ class YandexSearch {
     _cancelSuggestSession(listenerId);
   }
 
-  void _onSuggestListenerError(dynamic arguments) {
+  static void _onSuggestListenerError(dynamic arguments) {
     _cancelSuggestSession(arguments['listenerId']);
   }
 }

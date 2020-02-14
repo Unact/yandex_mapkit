@@ -69,7 +69,7 @@ class _SearchExampleState extends State<_SearchExample> {
   }
 
   Future<void> querySuggestions(String query) async {
-    final CancelListening cancelListening = await YandexSearch().getSuggestions(
+    final CancelListening cancelListening = await YandexSearch.getSuggestions(
       query,
       const Point(latitude: 55.5143, longitude: 37.24841),
       const Point(latitude: 56.0421, longitude: 38.0284),
