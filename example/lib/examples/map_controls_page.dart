@@ -122,10 +122,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       },
                       child: const Text('Target point')
                     ),
-                    FlatButton(
-                      padding: const EdgeInsets.all(4),
+                    const FlatButton(
+                      padding: EdgeInsets.all(4),
                       onPressed: null,
-                      child: const Text('')
+                      child: Text('')
                     )
                   ],
                 ),
