@@ -1,3 +1,11 @@
+## 0.3.6
+
+* Set minimum flutter version to 1.10.0
+* Update iOS and Android dependencies
+* Fix YandexMap not compiling on iOS
+* Fix YandexMap not showing when `onMapCreated` is not defined [#38, DCrow]
+* Minor fixes
+
 ## 0.3.5
 
 * Add Polyline support [#33, elisar4]
