@@ -45,6 +45,9 @@ class YandexMapState extends State<YandexMap> {
 
   void _onPlatformViewCreated(int id) {
     _controller = YandexMapController.init(id);
-    widget?.onMapCreated(_controller);
+
+    if (widget.onMapCreated != null) {
+      widget?.onMapCreated(_controller);
+    }
   }
 }
