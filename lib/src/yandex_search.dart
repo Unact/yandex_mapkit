@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'point.dart';
 import 'suggest_item.dart';
 
-typedef MultiUseCallback = void Function(dynamic msg);
+typedef SuggestSessionCallback = void Function(List<SuggestItem> msg);
 typedef CancelListening = void Function();
 
 class YandexSearch {
@@ -14,7 +14,7 @@ class YandexSearch {
   static const MethodChannel _channel = MethodChannel(_channelName);
 
   static int _nextCallbackId = 0;
-  static final Map<int, MultiUseCallback> _suggestSessionsById = Map<int, MultiUseCallback>();
+  static final Map<int, SuggestSessionCallback> _suggestSessionsById = Map<int, SuggestSessionCallback>();
 
   static Future<CancelListening> getSuggestions(
     String address,
@@ -22,7 +22,7 @@ class YandexSearch {
     Point northEastPoint,
     String suggestType,
     bool suggestWords,
-    MultiUseCallback callback
+    SuggestSessionCallback callback
   ) async {
     _channel.setMethodCallHandler(_handleMethodCall);
 

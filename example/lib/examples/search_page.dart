@@ -75,7 +75,7 @@ class _SearchExampleState extends State<_SearchExample> {
       const Point(latitude: 56.0421, longitude: 38.0284),
       'GEO',
       true,
-      (dynamic suggestItems) {
+      (List<SuggestItem> suggestItems) {
         setState(() {
           response = suggestItems.map((SuggestItem item) => item.title).join('\n');
         });
