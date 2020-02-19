@@ -6,7 +6,7 @@ import 'point.dart';
 import 'suggest_item.dart';
 
 typedef SuggestSessionCallback = void Function(List<SuggestItem> msg);
-typedef CancelListening = void Function();
+typedef CancelSuggestCallback = void Function();
 
 class YandexSearch {
   static const String _channelName = 'yandex_mapkit/yandex_search';
@@ -16,7 +16,7 @@ class YandexSearch {
   static int _nextCallbackId = 0;
   static final Map<int, SuggestSessionCallback> _suggestSessionsById = Map<int, SuggestSessionCallback>();
 
-  static Future<CancelListening> getSuggestions(
+  static Future<CancelSuggestCallback> getSuggestions(
     String address,
     Point southWestPoint,
     Point northEastPoint,
