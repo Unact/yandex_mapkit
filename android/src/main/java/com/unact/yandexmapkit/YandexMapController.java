@@ -67,7 +67,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
     mapView = new MapView(context);
-    //mapView.getMap().addCameraListener(cameraListener);
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
     pluginRegistrar = registrar;
@@ -223,9 +222,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     if (call.arguments != null) {
       Map<String, Object> params = ((Map<String, Object>) call.arguments);
       
-      //Map<String, Object> placemarkParams = ((Map<String, Object>) params.get("placemark"));
-      //final int listenerId = ((Number) params.get("listenerId")).intValue();
-
       MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
       cameraTarget = mapObjects.addPlacemark(targetPoint);
       String iconName = (String) params.get("iconName");

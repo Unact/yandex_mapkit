@@ -11,10 +11,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var mapCameraListener: MapCameraListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
-  private var cameraTargetPlacemark: YMKPlacemarkMapObject?
+  private var cameraTarget: YMKPlacemarkMapObject?
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
+  private var cameraListenerInUse: Bool!
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -30,6 +31,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     super.init()
 
     self.mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
+    self.cameraListenerInUse = false
     
     self.methodChannel.setMethodCallHandler(self.handle)
   }
@@ -55,8 +57,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "setBounds":
       setBounds(call)
       result(nil)
-    case "setCameraTargetPlacemark":
-      setCameraTargetPlacemark(call)
+    case "enableCameraTracking":
+      let target = enableCameraTracking(call)
+      result(target)
+    case "disableCameraTracking":
+      disableCameraTracking()
       result(nil)
     case "addPlacemark":
       addPlacemark(call)
@@ -234,35 +239,48 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
     }
   }
+  
+  public func disableCameraTracking() {
+    if cameraListenerInUse {
+      mapView.mapWindow.map.removeCameraListener(with: mapCameraListener)
+      cameraListenerInUse = false
+    }
+  }
 
-  public func setCameraTargetPlacemark(_ call: FlutterMethodCall) {
-    if cameraTargetPlacemark != nil {
-      let mapObjects = mapView.mapWindow.map.mapObjects
-      mapObjects.remove(with: cameraTargetPlacemark!)
-      cameraTargetPlacemark = nil
+  public func enableCameraTracking(_ call: FlutterMethodCall) -> [String: Any] {
+    if !cameraListenerInUse {
+      mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
+      cameraListenerInUse = true
     }
     
+    if cameraTarget != nil {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: cameraTarget!)
+      cameraTarget = nil
+    }
+    
+    let targetPoint = mapView.mapWindow.map.cameraPosition.target;
     if call.arguments != nil {
       let params = call.arguments as! [String: Any]
-      let point = mapView.mapWindow.map.cameraPosition.target;
+      
       let mapObjects = mapView.mapWindow.map.mapObjects
-      cameraTargetPlacemark = mapObjects.addPlacemark(with: point)
+      cameraTarget = mapObjects.addPlacemark(with: targetPoint)
       
       let iconName = params["iconName"] as? String
 
-      cameraTargetPlacemark!.addTapListener(with: mapObjectTapListener)
-      cameraTargetPlacemark!.userData = params["hashCode"] as! Int
-      cameraTargetPlacemark!.opacity = (Float)(params["opacity"] as! Double)
-      cameraTargetPlacemark!.isDraggable = params["isDraggable"] as! Bool
+      cameraTarget!.addTapListener(with: mapObjectTapListener)
+      cameraTarget!.userData = params["hashCode"] as! Int
+      cameraTarget!.opacity = (Float)(params["opacity"] as! Double)
+      cameraTarget!.isDraggable = params["isDraggable"] as! Bool
 
       if (iconName != nil) {
-        cameraTargetPlacemark!.setIconWith(
+        cameraTarget!.setIconWith(
           UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
       }
 
       if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData,
         let image = UIImage(data: rawImageData.data) {
-        cameraTargetPlacemark!.setIconWith(image)
+        cameraTarget!.setIconWith(image)
       }
 
       let iconStyle = YMKIconStyle()
@@ -270,8 +288,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
                                                   y: (CGFloat)(params["anchorY"] as! Double)))
       iconStyle.zIndex = NSNumber(value: (Float)(params["zIndex"] as! Double))
       iconStyle.scale = NSNumber(value: (Float)(params["scale"] as! Double))
-      cameraTargetPlacemark!.setIconStyleWith(iconStyle)
+      cameraTarget!.setIconStyleWith(iconStyle)
     }
+    
+    let arguments: [String: Any] = [
+      "hashCode": targetPoint.hashValue,
+      "latitude": targetPoint.latitude,
+      "longitude": targetPoint.longitude
+    ]
+    return arguments
   }
 
   private func addPolyline(_ call: FlutterMethodCall) {
@@ -458,7 +483,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       self.yandexMapController = controller
       self.methodChannel = channel
       super.init()
-      controller.mapView.mapWindow.map.addCameraListener(with: self)
     }
 
     internal func onCameraPositionChanged(with map: YMKMap,
@@ -468,7 +492,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     {
       let targetPoint = cameraPosition.target
       
-      yandexMapController.cameraTargetPlacemark?.geometry = targetPoint
+      yandexMapController.cameraTarget?.geometry = targetPoint
       
       let arguments: [String:Any?] = [
         "latitude": targetPoint.latitude,
