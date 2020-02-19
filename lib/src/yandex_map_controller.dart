@@ -10,6 +10,8 @@ import 'point.dart';
 import 'polygon.dart';
 import 'polyline.dart';
 
+typedef CameraPositionCallback = void Function(dynamic msg);
+
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(MethodChannel channel)
       : _channel = channel {
@@ -27,7 +29,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
-  Function onCameraPositionChanged;
+  final Map<int, CameraPositionCallback> _cameraCallbacksByHash = Map<int, CameraPositionCallback>();
   
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -132,10 +134,24 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  // Remove current target marker if passed `Placemark` is `null`
-  Future<void> setCameraTargetPlacemark(Placemark placemark) async {
-    await _channel.invokeMethod<void>(
-      'setCameraTargetPlacemark', placemark != null ? _placemarkParams(placemark) : null);
+  Future<void> disableCameraTracking() async {
+    await _channel.invokeMethod<void>('disableCameraTracking');
+    // _cameraCallbacksByHash.clear();
+  }
+
+  Future<Point> enableCameraTracking(
+    Placemark placemark,
+    CameraPositionCallback callback
+  ) async {
+    if (callback != null) {
+      _cameraCallbacksByHash[callback.hashCode] = callback;
+    }
+    
+    final dynamic point = await _channel.invokeMethod<dynamic>(
+      'enableCameraTracking',
+      placemark != null ? _placemarkParams(placemark) : null
+    );
+    return Point(latitude: point['latitude'], longitude: point['longitude']);
   }
 
   // Does nothing if passed `Placemark` wasn't added before
@@ -230,9 +246,11 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onCameraPositionChanged(dynamic arguments) {
-    if (onCameraPositionChanged != null) {
-      onCameraPositionChanged(arguments);
-    }
+    _cameraCallbacksByHash.values.forEach(
+      (CameraPositionCallback callback) {
+        callback(arguments);
+      }
+    );
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {

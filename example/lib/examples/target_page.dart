@@ -18,7 +18,6 @@ class _TargetExample extends StatefulWidget {
 
 class _TargetExampleState extends State<_TargetExample> {
   YandexMapController controller;
-  static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,6 @@ class _TargetExampleState extends State<_TargetExample> {
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-              controller.onCameraPositionChanged = cameraPositionChanged;
             },
           )
         ),
@@ -39,27 +37,44 @@ class _TargetExampleState extends State<_TargetExample> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                const Text('Camera marker:'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     RaisedButton(
                       onPressed: () async {
-                        await controller.setCameraTargetPlacemark(
+                        final Point currentTarget = await controller.enableCameraTracking(
                           Placemark(
-                            point: _point,
-                            opacity: 0.7,
-                            iconName: 'lib/assets/place.png'
-                          )
+                            point: const Point(latitude: 0, longitude: 0),
+                            iconName: 'lib/assets/place.png',
+                            opacity: 0.5,
+                          ),
+                          cameraPositionChanged
                         );
+                        addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Enable target')
+                      child: const Text('Tracking')
                     ),
                     RaisedButton(
                       onPressed: () async {
-                        await controller.setCameraTargetPlacemark(null);
+                        final Point currentTarget = await controller.enableCameraTracking(
+                          null,
+                          cameraPositionChanged
+                        );
+                        addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Disable target')
+                      child: const Text('Tracking (without marker)')
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    RaisedButton(
+                      onPressed: () async {
+                        await controller.disableCameraTracking();
+                      },
+                      child: const Text('Disable tracking')
                     ),
                   ],
                 ),
@@ -74,11 +89,18 @@ class _TargetExampleState extends State<_TargetExample> {
   void cameraPositionChanged(dynamic arguments) {
     final bool bFinal = arguments['final'];
     if (bFinal) {
-      controller.addPlacemark(Placemark(
-        point: Point(latitude: arguments['latitude'], longitude: arguments['longitude']),
-        opacity: 0.7,
-        iconName: 'lib/assets/user.png'
+      addUserPlacemark(Point(
+        latitude: arguments['latitude'], 
+        longitude: arguments['longitude']
       ));
     }
+  }
+
+  void addUserPlacemark(Point point) {
+    controller.addPlacemark(Placemark(
+      point: point,
+      iconName: 'lib/assets/user.png',
+      opacity: 0.9,
+    ));
   }
 }
