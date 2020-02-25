@@ -26,10 +26,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       binaryMessenger: registrar.messenger()
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
-    self.userLocationLayer =
-                YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
-
     self.mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
     self.cameraListenerInUse = false
     
@@ -102,16 +99,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     if (!hasLocationPermission()) { return }
 
     let params = call.arguments as! [String: Any]
-    self.userLocationObjectListener = UserLocationObjectListener(
-      pluginRegistrar: pluginRegistrar,
-      iconName: params["iconName"] as! String,
-      arrowName: params["arrowName"] as! String,
-      userArrowOrientation: params["userArrowOrientation"] as! Bool,
-      accuracyCircleFillColor: uiColor(fromInt: params["accuracyCircleFillColor"] as! Int64)
-    )
+
+    if userLocationLayer == nil {
+      userLocationLayer =
+        YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
+      userLocationObjectListener = UserLocationObjectListener(
+        pluginRegistrar: pluginRegistrar,
+        iconName: params["iconName"] as! String,
+        arrowName: params["arrowName"] as! String,
+        userArrowOrientation: params["userArrowOrientation"] as! Bool,
+        accuracyCircleFillColor: uiColor(fromInt: params["accuracyCircleFillColor"] as! Int64)
+      )
+      userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
+      userLocationLayer!.isHeadingEnabled = true
+    }
     userLocationLayer?.setVisibleWithOn(true)
-    userLocationLayer!.isHeadingEnabled = true
-    userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
   }
 
   public func hideUserLayer() {
@@ -449,6 +451,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
                        tappableArea: nil))
       }
       view.accuracyCircle.fillColor = accuracyCircleFillColor
+      methodChannel.invokeMethod("onUserLocationObjectAdded", arguments: nil)
     }
 
     func onObjectRemoved(with view: YMKUserLocationView) {}

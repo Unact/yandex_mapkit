@@ -30,6 +30,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
   final Map<int, CameraPositionCallback> _cameraCallbacksByHash = Map<int, CameraPositionCallback>();
+  Function onUserLocationObjectAdded;
   
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -227,6 +228,9 @@ class YandexMapController extends ChangeNotifier {
       case 'onCameraPositionChanged':
         _onCameraPositionChanged(call.arguments);
         break;
+      case 'onUserLocationObjectAdded':
+        _onUserLocationObjectAdded(call.arguments);
+        break;
       default:
         throw MissingPluginException();
     }
@@ -251,6 +255,12 @@ class YandexMapController extends ChangeNotifier {
         callback(arguments);
       }
     );
+  }
+
+  void _onUserLocationObjectAdded(dynamic arguments) {
+    if (onUserLocationObjectAdded != null) {
+      onUserLocationObjectAdded(arguments);
+    }
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
