@@ -105,6 +105,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
       userLocationObjectListener = UserLocationObjectListener(
         pluginRegistrar: pluginRegistrar,
+        channel: methodChannel,
         iconName: params["iconName"] as! String,
         arrowName: params["arrowName"] as! String,
         userArrowOrientation: params["userArrowOrientation"] as! Bool,
@@ -415,18 +416,22 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!
+    private let methodChannel: FlutterMethodChannel!
+    
     private let iconName: String!
     private let arrowName: String!
     private let userArrowOrientation: Bool!
     private let accuracyCircleFillColor: UIColor!
 
     public required init(pluginRegistrar: FlutterPluginRegistrar,
+                         channel: FlutterMethodChannel,
                          iconName: String,
                          arrowName: String,
                          userArrowOrientation: Bool,
                          accuracyCircleFillColor: UIColor)
     {
       self.pluginRegistrar = pluginRegistrar
+      self.methodChannel = channel
       self.iconName = iconName
       self.arrowName = arrowName
       self.userArrowOrientation = userArrowOrientation
