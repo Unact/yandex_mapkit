@@ -29,7 +29,8 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
-  final Map<int, CameraPositionCallback> _cameraCallbacksByHash = Map<int, CameraPositionCallback>();
+  CameraPositionCallback _cameraPositionCallback;
+
   Function onUserLocationObjectAdded;
   
   static YandexMapController init(int id) {
@@ -136,17 +137,15 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<void> disableCameraTracking() async {
+    _cameraPositionCallback = null;
     await _channel.invokeMethod<void>('disableCameraTracking');
-    // _cameraCallbacksByHash.clear();
   }
 
   Future<Point> enableCameraTracking(
     Placemark placemark,
     CameraPositionCallback callback
   ) async {
-    if (callback != null) {
-      _cameraCallbacksByHash[callback.hashCode] = callback;
-    }
+    _cameraPositionCallback = callback;
     
     final dynamic point = await _channel.invokeMethod<dynamic>(
       'enableCameraTracking',
@@ -250,11 +249,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onCameraPositionChanged(dynamic arguments) {
-    _cameraCallbacksByHash.values.forEach(
-      (CameraPositionCallback callback) {
-        callback(arguments);
-      }
-    );
+    _cameraPositionCallback(arguments);
   }
 
   void _onUserLocationObjectAdded(dynamic arguments) {

@@ -50,7 +50,7 @@ class _TargetExampleState extends State<_TargetExample> {
                           ),
                           cameraPositionChanged
                         );
-                        addUserPlacemark(currentTarget);
+                        await addUserPlacemark(currentTarget);
                       },
                       child: const Text('Tracking')
                     ),
@@ -60,7 +60,7 @@ class _TargetExampleState extends State<_TargetExample> {
                           null,
                           cameraPositionChanged
                         );
-                        addUserPlacemark(currentTarget);
+                        await addUserPlacemark(currentTarget);
                       },
                       child: const Text('Tracking (without marker)')
                     ),
@@ -86,18 +86,18 @@ class _TargetExampleState extends State<_TargetExample> {
     );
   }
 
-  void cameraPositionChanged(dynamic arguments) {
+  Future<void> cameraPositionChanged(dynamic arguments) async {
     final bool bFinal = arguments['final'];
     if (bFinal) {
-      addUserPlacemark(Point(
+      await addUserPlacemark(Point(
         latitude: arguments['latitude'], 
         longitude: arguments['longitude']
       ));
     }
   }
 
-  void addUserPlacemark(Point point) {
-    controller.addPlacemark(Placemark(
+  Future<void> addUserPlacemark(Point point) async {
+    await controller.addPlacemark(Placemark(
       point: point,
       iconName: 'lib/assets/user.png',
       opacity: 0.9,
