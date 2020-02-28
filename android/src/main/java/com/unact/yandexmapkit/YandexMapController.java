@@ -217,7 +217,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private Map<String, Object> enableCameraTracking(MethodCall call) {
     if (yandexCameraListener == null) {
-      yandexCameraListener = new YandexCameraListener(pluginRegistrar);
+      yandexCameraListener = new YandexCameraListener();
       mapView.getMap().addCameraListener(yandexCameraListener);
     }
 
@@ -480,12 +480,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   private class YandexCameraListener implements CameraListener {
-    private PluginRegistry.Registrar pluginRegistrar;
-
-    private YandexCameraListener(PluginRegistry.Registrar pluginRegistrar) {
-      this.pluginRegistrar = pluginRegistrar;
-    }
-
     @Override
     public void onCameraPositionChanged(
             com.yandex.mapkit.map.Map map,
