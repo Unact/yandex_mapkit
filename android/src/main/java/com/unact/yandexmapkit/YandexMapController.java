@@ -52,6 +52,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private final MethodChannel methodChannel;
   private final PluginRegistry.Registrar pluginRegistrar;
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
+  private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
   private UserLocationLayer userLocationLayer = null;
   private PlacemarkMapObject cameraTarget = null;
@@ -62,7 +63,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private String userArrowIconName;
   private Boolean userArrowOrientation;
   private int accuracyCircleFillColor = 0;
-  private Boolean cameraListenerInUse = false;
 
   public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
     MapKitFactory.initialize(context);
@@ -203,17 +203,22 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private void disableCameraTracking(MethodCall call) {
-    if (cameraListenerInUse) {
-      mapView.getMap().removeCameraListener(cameraListener);
-      cameraListenerInUse = false;
+    if (yandexCameraListener != null) {
+      mapView.getMap().removeCameraListener(yandexCameraListener);
+      yandexCameraListener = null;
+      if (cameraTarget != null) {
+        MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+        mapObjects.remove(cameraTarget);
+        cameraTarget = null;
+      }
     }
   }
 
   @SuppressWarnings("unchecked")
   private Map<String, Object> enableCameraTracking(MethodCall call) {
-    if (!cameraListenerInUse) {
-      mapView.getMap().addCameraListener(cameraListener);
-      cameraListenerInUse = true;
+    if (yandexCameraListener == null) {
+      yandexCameraListener = new YandexCameraListener(pluginRegistrar);
+      mapView.getMap().addCameraListener(yandexCameraListener);
     }
 
     if (cameraTarget != null) {
@@ -474,9 +479,20 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
-  private final CameraListener cameraListener = new CameraListener() {
+  private class YandexCameraListener implements CameraListener {
+    private PluginRegistry.Registrar pluginRegistrar;
+
+    private YandexCameraListener(PluginRegistry.Registrar pluginRegistrar) {
+      this.pluginRegistrar = pluginRegistrar;
+    }
+
     @Override
-    public void onCameraPositionChanged(com.yandex.mapkit.map.Map map, CameraPosition cameraPosition, CameraUpdateSource cameraUpdateSource, boolean bFinal) {
+    public void onCameraPositionChanged(
+            com.yandex.mapkit.map.Map map,
+            CameraPosition cameraPosition,
+            CameraUpdateSource cameraUpdateSource,
+            boolean bFinal)
+    {
       Point targetPoint = cameraPosition.getTarget();
       if (cameraTarget != null) {
         cameraTarget.setGeometry(targetPoint);
@@ -491,7 +507,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       methodChannel.invokeMethod("onCameraPositionChanged", arguments);
     }
-  };
+  }
 
   private class YandexUserLocationObjectListener implements UserLocationObjectListener {
     private PluginRegistry.Registrar pluginRegistrar;
