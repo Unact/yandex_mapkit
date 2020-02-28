@@ -15,7 +15,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
-  private var cameraListenerInUse: Bool!
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -27,9 +26,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     super.init()
-    self.mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
-    self.cameraListenerInUse = false
-    
     self.methodChannel.setMethodCallHandler(self.handle)
   }
 
@@ -244,16 +240,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
   
   public func disableCameraTracking() {
-    if cameraListenerInUse {
+    if mapCameraListener != nil {
       mapView.mapWindow.map.removeCameraListener(with: mapCameraListener)
-      cameraListenerInUse = false
+      mapCameraListener = nil
+      if cameraTarget != nil {
+        let mapObjects = mapView.mapWindow.map.mapObjects
+        mapObjects.remove(with: cameraTarget!)
+        cameraTarget = nil
+      }
     }
   }
 
   public func enableCameraTracking(_ call: FlutterMethodCall) -> [String: Any] {
-    if !cameraListenerInUse {
+    if mapCameraListener == nil {
+      mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
       mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
-      cameraListenerInUse = true
     }
     
     if cameraTarget != nil {
