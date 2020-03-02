@@ -264,7 +264,9 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
-    final List<Map<String, double>> coordinates = polyline.coordinates.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    final List<Map<String, double>> coordinates = polyline.coordinates.map(
+      (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
+    ).toList();
     return <String, dynamic>{
       'coordinates': coordinates,
       'strokeColor': polyline.strokeColor.value,
@@ -280,7 +282,9 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polygonParams(Polygon polygon) {
-    final List<Map<String, double>> coordinates = polygon.coordinates.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
+    final List<Map<String, double>> coordinates = polygon.coordinates.map(
+      (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
+    ).toList();
     return <String, dynamic>{
       'coordinates': coordinates,
       'strokeColor': polygon.strokeColor.value,
