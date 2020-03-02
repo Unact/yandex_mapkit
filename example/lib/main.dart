@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/page.dart';
@@ -42,13 +43,25 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('YandexMap examples')),
-      body: ListView.builder(
-        itemCount: _allPages.length,
-        itemBuilder: (_, int index) => ListTile(
-          title: Text(_allPages[index].title),
-          onTap: () => _pushPage(context, _allPages[index]),
-        ),
-      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: const YandexMap()
+            )
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _allPages.length,
+              itemBuilder: (_, int index) => ListTile(
+                title: Text(_allPages[index].title),
+                onTap: () => _pushPage(context, _allPages[index]),
+              ),
+            )
+          )
+        ]
+      )
     );
   }
 }

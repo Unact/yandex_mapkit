@@ -1,6 +1,6 @@
 PODS:
   - Flutter (1.0.0)
-  - permission_handler (3.2.2):
+  - permission_handler (3.3.0):
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
@@ -11,7 +11,7 @@ PODS:
   - YandexRuntime (3.4)
 
 DEPENDENCIES:
-  - Flutter (from `.symlinks/flutter/ios`)
+  - Flutter (from `Flutter`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - yandex_mapkit (from `.symlinks/plugins/yandex_mapkit/ios`)
 
@@ -22,7 +22,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: ".symlinks/flutter/ios"
+    :path: Flutter
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
   yandex_mapkit:
@@ -30,11 +30,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  permission_handler: d59f41439f5bc6c4d1005f3355e98f05ddc68ece
+  permission_handler: 67637977b227d62d46bfbf524f335f8568de5a73
   yandex_mapkit: 8c42a5db8e175e38ebbf1babe071aa7949efc64f
   YandexMapKit: f222923561fe159dd8480d927f61950fc5ff3b8d
   YandexRuntime: 2547d72a3ce4757f16ad188cfbe8a124ae13d806
 
-PODFILE CHECKSUM: e94cb8ccd5420ded8bd2601a44d8af8d412dd12b
+PODFILE CHECKSUM: 9ec0b926d741f3b13993aceabf2687bc78d2468b
 
 COCOAPODS: 1.6.1
