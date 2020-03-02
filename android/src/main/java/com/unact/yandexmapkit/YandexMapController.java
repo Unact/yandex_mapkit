@@ -54,7 +54,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
-  private UserLocationLayer userLocationLayer = null;
+  private UserLocationLayer userLocationLayer;
   private PlacemarkMapObject cameraTarget = null;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
@@ -71,6 +71,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.onStart();
     pluginRegistrar = registrar;
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
+    userLocationLayer =
+            MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
+    yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
     methodChannel = new MethodChannel(registrar.messenger(), "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
   }
@@ -96,22 +99,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     userArrowOrientation = (Boolean) params.get("userArrowOrientation");
     accuracyCircleFillColor = ((Number) params.get("accuracyCircleFillColor")).intValue();
 
-    if (userLocationLayer == null) {
-      userLocationLayer =
-              MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
-      yandexUserLocationObjectListener = new YandexUserLocationObjectListener(pluginRegistrar);
-      userLocationLayer.setObjectListener(yandexUserLocationObjectListener);
-      userLocationLayer.setHeadingEnabled(true);
-    }
     userLocationLayer.setVisible(true);
+    userLocationLayer.setHeadingEnabled(true);
+    userLocationLayer.setObjectListener(yandexUserLocationObjectListener);
   }
 
   private void hideUserLayer() {
     if (!hasLocationPermission()) return;
 
-    if (userLocationLayer != null) {
-      userLocationLayer.setVisible(false);
-    }
+    userLocationLayer.setVisible(false);
   }
 
   @SuppressWarnings("unchecked")
@@ -527,7 +523,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         view.getArrow().setIconStyle(new IconStyle().setRotationType(RotationType.ROTATE));
       }
       view.getAccuracyCircle().setFillColor(accuracyCircleFillColor);
-      methodChannel.invokeMethod("onUserLocationObjectAdded", new HashMap<>());
     }
 
     public void onObjectRemoved(UserLocationView view) {}

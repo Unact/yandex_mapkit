@@ -20,8 +20,6 @@ class _LayersExample extends StatefulWidget {
 class _LayersExampleState extends State<_LayersExample> {
   YandexMapController controller;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
-  bool _userLayerAdded = false;
-  bool _showGpsButton = false;
 
   @override
   void initState() {
@@ -49,12 +47,6 @@ class _LayersExampleState extends State<_LayersExample> {
     );
   }
 
-  void userLocationObjectAdded(dynamic arguments) {
-    setState(() {
-      _userLayerAdded = true;
-    });
-  }
-  
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -64,7 +56,6 @@ class _LayersExampleState extends State<_LayersExample> {
         Expanded(
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
-              yandexMapController.onUserLocationObjectAdded = userLocationObjectAdded;
               controller = yandexMapController;
             },
           )
@@ -85,9 +76,6 @@ class _LayersExampleState extends State<_LayersExample> {
                             arrowName: 'lib/assets/arrow.png',
                             accuracyCircleFillColor: Colors.green.withOpacity(0.5)
                           );
-                          setState(() {
-                            _showGpsButton = true;
-                          });
                         } else {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
@@ -97,9 +85,6 @@ class _LayersExampleState extends State<_LayersExample> {
                     RaisedButton(
                       onPressed: () async {
                         await controller.hideUserLayer();
-                        setState(() {
-                          _showGpsButton = false;
-                        });
                       },
                       child: const Text('Hide user layer')
                     )
@@ -109,22 +94,14 @@ class _LayersExampleState extends State<_LayersExample> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     RaisedButton(
-                      onPressed: _showGpsButton && _userLayerAdded ? () async {
+                      onPressed: () async {
                         if (_permissionStatus == PermissionStatus.granted) {
                           await controller.moveToUser();
                         } else {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
-                      } : () {
-                        _showMessage(context, const Text('User layer is disabled or hidden'));
                       },
-                      child: Text(
-                        'Move to user',
-                        style: TextStyle(
-                          color: _showGpsButton && _userLayerAdded ?
-                            const Color.fromRGBO(0,0,0,1) : const Color.fromRGBO(0,0,0,0.2)
-                        )
-                      )
+                      child: const Text('Move to user')
                     ),
                     const FlatButton(
                       padding: EdgeInsets.all(4),

@@ -25,6 +25,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       binaryMessenger: registrar.messenger()
     )
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
+    self.userLocationLayer =
+                YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
     self.methodChannel.setMethodCallHandler(self.handle)
   }
@@ -96,21 +98,16 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     let params = call.arguments as! [String: Any]
 
-    if userLocationLayer == nil {
-      userLocationLayer =
-        YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
-      userLocationObjectListener = UserLocationObjectListener(
-        pluginRegistrar: pluginRegistrar,
-        channel: methodChannel,
-        iconName: params["iconName"] as! String,
-        arrowName: params["arrowName"] as! String,
-        userArrowOrientation: params["userArrowOrientation"] as! Bool,
-        accuracyCircleFillColor: uiColor(fromInt: params["accuracyCircleFillColor"] as! Int64)
-      )
-      userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
-      userLocationLayer!.isHeadingEnabled = true
-    }
+    self.userLocationObjectListener = UserLocationObjectListener(
+      pluginRegistrar: pluginRegistrar,
+      iconName: params["iconName"] as! String,
+      arrowName: params["arrowName"] as! String,
+      userArrowOrientation: params["userArrowOrientation"] as! Bool,
+      accuracyCircleFillColor: uiColor(fromInt: params["accuracyCircleFillColor"] as! Int64)
+    )
     userLocationLayer?.setVisibleWithOn(true)
+    userLocationLayer!.isHeadingEnabled = true
+    userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
   }
 
   public func hideUserLayer() {
@@ -417,7 +414,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!
-    private let methodChannel: FlutterMethodChannel!
     
     private let iconName: String!
     private let arrowName: String!
@@ -425,14 +421,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     private let accuracyCircleFillColor: UIColor!
 
     public required init(pluginRegistrar: FlutterPluginRegistrar,
-                         channel: FlutterMethodChannel,
                          iconName: String,
                          arrowName: String,
                          userArrowOrientation: Bool,
                          accuracyCircleFillColor: UIColor)
     {
       self.pluginRegistrar = pluginRegistrar
-      self.methodChannel = channel
       self.iconName = iconName
       self.arrowName = arrowName
       self.userArrowOrientation = userArrowOrientation
@@ -457,7 +451,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
                        tappableArea: nil))
       }
       view.accuracyCircle.fillColor = accuracyCircleFillColor
-      methodChannel.invokeMethod("onUserLocationObjectAdded", arguments: nil)
     }
 
     func onObjectRemoved(with view: YMKUserLocationView) {}
