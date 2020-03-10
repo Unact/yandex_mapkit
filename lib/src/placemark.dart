@@ -7,6 +7,9 @@ import 'point.dart';
 class Placemark {
   Placemark({
     @required this.point,
+    this.scale = kScale,
+    this.zIndex = kZIndex,
+    this.iconAnchor = kIconAnchor,
     this.opacity = kOpacity,
     this.isDraggable = false,
     this.onTap = _kOnTap,
@@ -15,6 +18,9 @@ class Placemark {
   });
 
   final Point point;
+  final double scale;
+  final double zIndex;
+  final Point iconAnchor;
   final double opacity;
   final bool isDraggable;
   final String iconName;
@@ -38,6 +44,9 @@ class Placemark {
   /// 
   final Uint8List rawImageData;
 
+  static const double kScale = 1.0;
+  static const double kZIndex = 0.0;
+  static const Point kIconAnchor = Point(latitude: 0.5, longitude: 0.5);
   static const double kOpacity = 0.5;
   static void _kOnTap(double latitude, double longitude) => () { };
 }

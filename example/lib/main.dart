@@ -5,6 +5,9 @@ import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
+import 'package:yandex_mapkit_example/examples/polygon_page.dart';
+import 'package:yandex_mapkit_example/examples/target_page.dart';
+import 'package:yandex_mapkit_example/examples/search_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
@@ -15,6 +18,9 @@ final List<Page> _allPages = <Page>[
   const MapControlsPage(),
   const PlacemarkPage(),
   const PolylinePage(),
+  const PolygonPage(),
+  const TargetPage(),
+  const SearchPage(),
 ];
 
 class MainPage extends StatelessWidget {

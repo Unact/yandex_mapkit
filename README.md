@@ -39,7 +39,7 @@ import YandexMapKit
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` and `implementation 'com.yandex.android:search:3.4.0'` to `android/app/build.gradle`
 2. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 3. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 4. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
@@ -52,6 +52,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.yandex.android:mapkit:3.4.0'
+    implementation 'com.yandex.android:search:3.4.0'
 }
 ```
 
@@ -103,3 +104,5 @@ For usage examples refer to example app
 - [X] Showing current user location
 - [X] Styling the map
 - [X] Adding and removing Polylines
+- [X] Adding and removing Polygons
+- [X] Address suggestion

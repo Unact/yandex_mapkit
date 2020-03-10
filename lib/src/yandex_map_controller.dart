@@ -7,7 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'map_animation.dart';
 import 'placemark.dart';
 import 'point.dart';
+import 'polygon.dart';
 import 'polyline.dart';
+
+typedef CameraPositionCallback = void Function(dynamic msg);
 
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(MethodChannel channel)
@@ -18,12 +21,16 @@ class YandexMapController extends ChangeNotifier {
   static const double kTilt = 0.0;
   static const double kAzimuth = 0.0;
   static const double kZoom = 15.0;
+  static const Color kAccuracyCircleFillColor = Colors.blueGrey;
+  static const bool kUserArrowOrientation = true;
 
   final MethodChannel _channel;
 
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
-
+  final List<Polygon> polygons = <Polygon>[];
+  CameraPositionCallback _cameraPositionCallback;
+  
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
@@ -39,11 +46,18 @@ class YandexMapController extends ChangeNotifier {
   /// `android.permission.ACCESS_FINE_LOCATION`
   ///
   /// Does nothing if these permissions where denied
-  Future<void> showUserLayer({@required String iconName}) async {
+  Future<void> showUserLayer(
+      {@required String iconName,
+      @required String arrowName,
+      bool userArrowOrientation = kUserArrowOrientation,
+      Color accuracyCircleFillColor = kAccuracyCircleFillColor}) async {
     await _channel.invokeMethod<void>(
       'showUserLayer',
       <String, dynamic>{
-        'iconName': iconName
+        'iconName': iconName,
+        'arrowName': arrowName,
+        'userArrowOrientation': userArrowOrientation,
+        'accuracyCircleFillColor': accuracyCircleFillColor.value
       }
     );
   }
@@ -120,6 +134,24 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  Future<void> disableCameraTracking() async {
+    _cameraPositionCallback = null;
+    await _channel.invokeMethod<void>('disableCameraTracking');
+  }
+
+  Future<Point> enableCameraTracking(
+    Placemark placemark,
+    CameraPositionCallback callback
+  ) async {
+    _cameraPositionCallback = callback;
+    
+    final dynamic point = await _channel.invokeMethod<dynamic>(
+      'enableCameraTracking',
+      placemark != null ? _placemarkParams(placemark) : null
+    );
+    return Point(latitude: point['latitude'], longitude: point['longitude']);
+  }
+
   // Does nothing if passed `Placemark` wasn't added before
   Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
@@ -152,12 +184,32 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  // Does nothing if passed `Polygon` is `null`
+  Future<void> addPolygon(Polygon polygon) async {
+    if (polygon != null) {
+      await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
+      polygons.add(polygon);
+    }
+  }
+
+  // Does nothing if passed `Polygon` wasn't added before
+  Future<void> removePolygon(Polygon polygon) async {
+    if (polygons.remove(polygon)) {
+      await _channel.invokeMethod<void>(
+          'removePolygon', <String, dynamic>{'hashCode': polygon.hashCode});
+    }
+  }
+
   Future<void> zoomIn() async {
     await _channel.invokeMethod<void>('zoomIn');
   }
 
   Future<void> zoomOut() async {
     await _channel.invokeMethod<void>('zoomOut');
+  }
+
+  Future<void> moveToUser() async {
+    await _channel.invokeMethod<void>('moveToUser');
   }
 
   Future<Point> getTargetPoint() async {
@@ -169,6 +221,9 @@ class YandexMapController extends ChangeNotifier {
     switch (call.method) {
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
+        break;
+      case 'onCameraPositionChanged':
+        _onCameraPositionChanged(call.arguments);
         break;
       default:
         throw MissingPluginException();
@@ -188,10 +243,18 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  void _onCameraPositionChanged(dynamic arguments) {
+    _cameraPositionCallback(arguments);
+  }
+
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
     return <String, dynamic>{
       'latitude': placemark.point.latitude,
       'longitude': placemark.point.longitude,
+      'anchorX': placemark.iconAnchor.latitude,
+      'anchorY': placemark.iconAnchor.longitude,
+      'scale': placemark.scale,
+      'zIndex' : placemark.zIndex,
       'opacity': placemark.opacity,
       'isDraggable': placemark.isDraggable,
       'iconName': placemark.iconName,
@@ -204,7 +267,6 @@ class YandexMapController extends ChangeNotifier {
     final List<Map<String, double>> coordinates = polyline.coordinates.map(
       (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
     ).toList();
-
     return <String, dynamic>{
       'coordinates': coordinates,
       'strokeColor': polyline.strokeColor.value,
@@ -216,6 +278,20 @@ class YandexMapController extends ChangeNotifier {
       'dashOffset': polyline.dashOffset,
       'gapLength': polyline.gapLength,
       'hashCode': polyline.hashCode
+    };
+  }
+
+  Map<String, dynamic> _polygonParams(Polygon polygon) {
+    final List<Map<String, double>> coordinates = polygon.coordinates.map(
+      (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
+    ).toList();
+    return <String, dynamic>{
+      'coordinates': coordinates,
+      'strokeColor': polygon.strokeColor.value,
+      'strokeWidth': polygon.strokeWidth,
+      'fillColor': polygon.fillColor.value,
+      'isGeodesic': polygon.isGeodesic,
+      'hashCode': polygon.hashCode
     };
   }
 }
