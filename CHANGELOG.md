@@ -1,3 +1,11 @@
+## 0.3.7
+
+* Add Polygon support [#36, umcherrel]
+* Add Placemark options [#36, umcherrel]
+* Add user location options [#36, umcherrel]
+* Implement MapkitSearch [#36, umcherrel]
+* Add camera tracing [#36, umcherrel]
+
 ## 0.3.6
 
 * Set minimum flutter version to 1.10.0
