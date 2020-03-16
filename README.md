@@ -58,6 +58,8 @@ dependencies {
 
 `android/app/src/main/.../MainActivity.java`:
 
+#### Flutter versions prior to 1.12
+
 ```java
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
@@ -69,6 +71,23 @@ public class MainActivity extends FlutterActivity {
     super.onCreate(savedInstanceState);
     MapKitFactory.setApiKey("YOUR_API_KEY");
     GeneratedPluginRegistrant.registerWith(this);
+  }
+}
+```
+
+#### Flutter versions after and including 1.12
+
+```java
+import androidx.annotation.NonNull;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugins.GeneratedPluginRegistrant;
+
+public class MainActivity extends FlutterActivity {
+  @Override
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    MapKitFactory.setApiKey("YOUR_API_KEY");
+    GeneratedPluginRegistrant.registerWith(flutterEngine);
   }
 }
 ```
