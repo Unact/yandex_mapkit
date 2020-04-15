@@ -17,6 +17,8 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
+4. Add `<key>io.flutter.embedded_views_preview</key> <true/>` inside `<dict>` tag in `ios/Runner/Info.plist`
+5. Uncomment `platform :ios, '9.0'` in `ios/Podfile`
 
 `ios/Runner/AppDelegate.swift`:
 
@@ -40,9 +42,19 @@ import YandexMapKit
 ### Initializing for Android
 
 1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` and `implementation 'com.yandex.android:search:3.4.0'` to `android/app/build.gradle`
-2. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
-3. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
-4. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
+2. Add permissions `uses-permission android:name="android.permission.INTERNET`, `uses-permission android:name="android.permission.ACCESS_WIFI_STATE`, `uses-permission android:name="android.permission.ACCESS_NETWORK_STATE` and `uses-permission android:name="android.permission.ACCESS_FINE_LOCATION` to `android/app/src/main/AndroidManifest.xml`
+3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
+4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
+5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
+
+`android/app/src/main/AndroidManifest.xml`:
+
+```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
 
 `android/app/build.gradle`:
 
