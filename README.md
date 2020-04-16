@@ -42,19 +42,11 @@ import YandexMapKit
 ### Initializing for Android
 
 1. Add dependency `implementation 'com.yandex.android:mapkit:3.4.0'` and `implementation 'com.yandex.android:search:3.4.0'` to `android/app/build.gradle`
-2. Add permissions `uses-permission android:name="android.permission.INTERNET`, `uses-permission android:name="android.permission.ACCESS_WIFI_STATE`, `uses-permission android:name="android.permission.ACCESS_NETWORK_STATE` and `uses-permission android:name="android.permission.ACCESS_FINE_LOCATION` to `android/app/src/main/AndroidManifest.xml`
+2. Add permissions `uses-permission android:name="android.permission.INTERNET` and `uses-permission android:name="android.permission.ACCESS_FINE_LOCATION` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
 
-`android/app/src/main/AndroidManifest.xml`:
-
-```xml
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
 
 `android/app/build.gradle`:
 
