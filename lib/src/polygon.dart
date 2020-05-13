@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'point.dart';
 
-class Polygon {
-  Polygon({
+class Polygon extends Equatable{
+  const Polygon({
     @required this.coordinates,
     this.strokeWidth = kStrokeWidth,
     this.strokeColor = kStrokeColor,
@@ -25,4 +26,16 @@ class Polygon {
   static const Color kFillColor = Color(0xFF0066FF);
   static const double kStrokeWidth = 1;
   static const bool kIsGeodesic = false;
+
+  @override
+  List<Object> get props => <Object>[
+    coordinates,
+    fillColor,
+    strokeColor,
+    strokeWidth,
+    isGeodesic
+  ];
+
+  @override
+  bool get stringify => true;
 }

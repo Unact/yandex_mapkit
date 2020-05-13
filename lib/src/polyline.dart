@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 import 'point.dart';
 
-class Polyline {
-  Polyline({
+class Polyline extends Equatable {
+  const Polyline({
     @required this.coordinates,
     this.strokeColor = const Color(0xFF0066FF),
     this.strokeWidth = 5.0,
@@ -30,4 +31,20 @@ class Polyline {
   final double dashLength;
   final double dashOffset;
   final double gapLength;
+
+  @override
+  List<Object> get props => <Object>[
+    coordinates,
+    strokeColor,
+    strokeWidth,
+    outlineColor,
+    outlineWidth,
+    isGeodesic,
+    dashLength,
+    dashOffset,
+    gapLength,
+  ];
+
+  @override
+  bool get stringify => true;
 }

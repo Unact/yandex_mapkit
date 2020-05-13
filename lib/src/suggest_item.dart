@@ -1,7 +1,9 @@
 import 'dart:core';
 
-class SuggestItem {
-  SuggestItem({
+import 'package:equatable/equatable.dart';
+
+class SuggestItem extends Equatable{
+  const SuggestItem({
     this.title,
     this.subtitle,
     this.searchText,
@@ -24,4 +26,16 @@ class SuggestItem {
   final String searchText;
   final String type;
   final List<dynamic> tags;
+
+  @override
+  List<Object> get props => <Object>[
+    title,
+    subtitle,
+    searchText,
+    type,
+    tags
+  ];
+
+  @override
+  bool get stringify => true;
 }
