@@ -1,3 +1,7 @@
+## 0.3.8
+
+* Add support for comparing objects added by YandexMapkit[#46, Goolpe]
+
 ## 0.3.7
 
 * Add Polygon support [#36, umcherrel]
