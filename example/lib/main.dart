@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
-import 'package:yandex_mapkit_example/examples/page.dart';
+import 'package:yandex_mapkit_example/examples/map_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
@@ -13,7 +13,7 @@ void main() {
   runApp(MaterialApp(home: MainPage()));
 }
 
-final List<Page> _allPages = <Page>[
+final List<MapPage> _allPages = <MapPage>[
   const LayersPage(),
   const MapControlsPage(),
   const PlacemarkPage(),
@@ -24,7 +24,7 @@ final List<Page> _allPages = <Page>[
 ];
 
 class MainPage extends StatelessWidget {
-  void _pushPage(BuildContext context, Page page) {
+  void _pushPage(BuildContext context, MapPage page) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (_) =>

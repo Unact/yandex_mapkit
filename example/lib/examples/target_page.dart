@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/page.dart';
+import 'package:yandex_mapkit_example/examples/map_page.dart';
 
-class TargetPage extends Page {
+class TargetPage extends MapPage {
   const TargetPage() : super('Target example');
 
   @override
@@ -90,7 +90,7 @@ class _TargetExampleState extends State<_TargetExample> {
     final bool bFinal = arguments['final'];
     if (bFinal) {
       await addUserPlacemark(Point(
-        latitude: arguments['latitude'], 
+        latitude: arguments['latitude'],
         longitude: arguments['longitude']
       ));
     }

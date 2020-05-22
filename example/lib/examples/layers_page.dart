@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/page.dart';
+import 'package:yandex_mapkit_example/examples/map_page.dart';
 
-class LayersPage extends Page {
+class LayersPage extends MapPage {
   const LayersPage() : super('Layers example');
 
   @override

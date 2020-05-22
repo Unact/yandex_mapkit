@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/page.dart';
+import 'package:yandex_mapkit_example/examples/map_page.dart';
 
-class MapControlsPage extends Page {
+class MapControlsPage extends MapPage {
   const MapControlsPage() : super('Map controls example');
 
   @override

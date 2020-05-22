@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/page.dart';
+import 'package:yandex_mapkit_example/examples/map_page.dart';
 
-class SearchPage extends Page {
+class SearchPage extends MapPage {
   const SearchPage() : super('Search example');
 
   @override
@@ -21,7 +21,7 @@ class _SearchExample extends StatefulWidget {
 class _SearchExampleState extends State<_SearchExample> {
   TextEditingController queryController = TextEditingController();
   String response = '';
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
