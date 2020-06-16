@@ -1,3 +1,8 @@
+## 0.3.9
+
+* Update and lock YandexMapkit version to 3.5 for iOS and Android
+* Fix example not working on newer flutter versions
+
 ## 0.3.8
 
 * Add support for comparing objects added by YandexMapkit[#46, Goolpe]
