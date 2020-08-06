@@ -22,6 +22,8 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 
 `ios/Runner/AppDelegate.swift`:
 
+For Swift 4.0 and lesser  
+
 ```swift
 import UIKit
 import Flutter
@@ -37,6 +39,27 @@ import YandexMapKit
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+}
+```
+
+For Swift 4.2 and greater  
+
+```swift
+import UIKit
+import Flutter
+import YandexMapKit
+
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    YMKMapKit.setApiKey("YOUR_API_KEY")
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
 ```
 
 ### Initializing for Android
@@ -46,7 +69,6 @@ import YandexMapKit
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
-
 
 `android/app/build.gradle`:
 
