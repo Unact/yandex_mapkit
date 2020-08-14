@@ -10,8 +10,10 @@ public class YandexSearch: NSObject, FlutterPlugin {
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
 
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "yandex_mapkit/yandex_search",
-                                       binaryMessenger: registrar.messenger())
+    let channel = FlutterMethodChannel(
+      name: "yandex_mapkit/yandex_search",
+      binaryMessenger: registrar.messenger()
+    )
     let plugin = YandexSearch(channel: channel)
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
@@ -26,31 +28,36 @@ public class YandexSearch: NSObject, FlutterPlugin {
   
   public func cancelSuggestSession(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let listenerId = params["listenerId"] as! Int
+    let listenerId = (params["listenerId"] as! NSNumber).intValue
     self.suggestSessionsById.removeValue(forKey: listenerId)
   }
 
   public func getSuggestions(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    
-    let listenerId = params["listenerId"] as! Int
-    
+    let listenerId = (params["listenerId"] as! NSNumber).intValue
     let formattedAddress = params["formattedAddress"] as! String
     let boundingBox = YMKBoundingBox.init(
-      southWest: YMKPoint.init(latitude: params["southWestLatitude"] as! Double,
-                               longitude: params["southWestLongitude"] as! Double),
-      northEast: YMKPoint.init(latitude: params["northEastLatitude"] as! Double,
-                               longitude: params["northEastLongitude"] as! Double))
+      southWest: YMKPoint.init(
+        latitude: (params["southWestLatitude"] as! NSNumber).doubleValue,
+        longitude: (params["southWestLongitude"] as! NSNumber).doubleValue
+      ),
+      northEast: YMKPoint.init(
+        latitude: (params["northEastLatitude"] as! NSNumber).doubleValue,
+        longitude: (params["northEastLongitude"] as! NSNumber).doubleValue
+      )
+    )
     let responseHandler = {(searchResponse: [YMKSuggestItem]?, error: Error?) -> Void in
       let thisListenerId = listenerId
       if searchResponse != nil {
         let suggestItems = searchResponse?.map({ (suggestItem) -> [String : Any] in
           var dict = [String : Any]()
+
           dict["title"] = suggestItem.title.text
           dict["subtitle"] = suggestItem.subtitle?.text
           dict["displayText"] = suggestItem.displayText
           dict["searchText"] = suggestItem.searchText
           dict["tags"] = suggestItem.tags
+
           switch suggestItem.type {
           case .toponym:
             dict["type"] = "TOPONYM"
@@ -88,14 +95,18 @@ public class YandexSearch: NSObject, FlutterPlugin {
     default:
       suggestType = YMKSuggestType.init(rawValue: 0)
     }
-    let suggestOptions =
-      YMKSuggestOptions.init(suggestTypes: suggestType,
-                             userPosition: nil,
-                             suggestWords: params["suggestWords"] as! Bool)
-    suggestSession.suggest(withText: formattedAddress,
-                           window: boundingBox,
-                           suggestOptions: suggestOptions,
-                           responseHandler: responseHandler)
+
+    let suggestOptions = YMKSuggestOptions.init(
+      suggestTypes: suggestType,
+      userPosition: nil,
+      suggestWords: (params["suggestWords"] as! NSNumber).boolValue
+    )
+    suggestSession.suggest(
+      withText: formattedAddress,
+      window: boundingBox,
+      suggestOptions: suggestOptions,
+      responseHandler: responseHandler
+    )
     self.suggestSessionsById[listenerId] = suggestSession;
   }
   
