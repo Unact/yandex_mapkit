@@ -22,11 +22,12 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   final String emptyStyle = '''
     [
       {
-        "featureType": "all",
+        "tags": {
+          "all": ["landscape"]
+        },
         "stylers": {
-          "hue": "0",
-          "saturation": "0",
-          "lightness": "0"
+          "saturation": 0,
+          "lightness": 0
         }
       }
     ]
@@ -34,11 +35,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   final String nonEmptyStyle = '''
     [
       {
-        "featureType": "all",
+        "tags": {
+          "all": ["landscape"]
+        },
         "stylers": {
-          "hue": "0.5",
-          "saturation": "0.5",
-          "lightness": "0.5"
+          "color": "f00",
+          "saturation": 0.5,
+          "lightness": 0.5
         }
       }
     ]
