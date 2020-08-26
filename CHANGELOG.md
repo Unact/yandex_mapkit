@@ -1,3 +1,7 @@
+## 0.3.10
+
+* Fix Dart int, bool, double, float data conversion in Swift
+
 ## 0.3.9
 
 * Update and lock YandexMapkit version to 3.5 for iOS and Android
