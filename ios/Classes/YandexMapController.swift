@@ -28,7 +28,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     self.userLocationLayer =
                 YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
-    self.methodChannel.setMethodCallHandler(self.handle)
+
+    weak var weakSelf = self
+    self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
   }
 
   public func view() -> UIView {
