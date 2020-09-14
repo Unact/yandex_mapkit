@@ -1,3 +1,7 @@
+## 0.3.11
+
+* Fix memory leak on iOS
+
 ## 0.3.10
 
 * Fix Dart int, bool, double, float data conversion in Swift
