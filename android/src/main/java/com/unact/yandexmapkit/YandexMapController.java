@@ -34,23 +34,22 @@ import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.platform.PlatformView;
+import io.flutter.view.FlutterMain;
 
 
 public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler {
   private final MapView mapView;
   private final MethodChannel methodChannel;
-  private final PluginRegistry.Registrar pluginRegistrar;
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
@@ -64,17 +63,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private Boolean userArrowOrientation;
   private int accuracyCircleFillColor = 0;
 
-  public YandexMapController(int id, Context context, PluginRegistry.Registrar registrar) {
+  public YandexMapController(int id, Context context, BinaryMessenger messenger) {
     MapKitFactory.initialize(context);
     mapView = new MapView(context);
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
-    pluginRegistrar = registrar;
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
     userLocationLayer =
             MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
-    yandexUserLocationObjectListener = new YandexUserLocationObjectListener(registrar);
-    methodChannel = new MethodChannel(registrar.messenger(), "yandex_mapkit/yandex_map_" + id);
+    yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
+    methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
   }
 
@@ -91,6 +89,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private void showUserLayer(MethodCall call) {
+
     if (!hasLocationPermission()) return;
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
@@ -156,7 +155,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemark.addTapListener(yandexMapObjectTapListener);
 
     if (iconName != null) {
-      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
     }
 
     if (rawImageData != null) {
@@ -237,7 +236,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       cameraTarget.addTapListener(yandexMapObjectTapListener);
 
       if (iconName != null) {
-        cameraTarget.setIcon(ImageProvider.fromAsset(mapView.getContext(), pluginRegistrar.lookupKeyForAsset(iconName)));
+        cameraTarget.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
       }
 
       if (rawImageData != null) {
@@ -500,24 +499,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   private class YandexUserLocationObjectListener implements UserLocationObjectListener {
-    private PluginRegistry.Registrar pluginRegistrar;
-
-    private YandexUserLocationObjectListener(PluginRegistry.Registrar pluginRegistrar) {
-      this.pluginRegistrar = pluginRegistrar;
-    }
-
     public void onObjectAdded(UserLocationView view) {
       view.getPin().setIcon(
-          ImageProvider.fromAsset(
-              pluginRegistrar.activity(),
-              pluginRegistrar.lookupKeyForAsset(userLocationIconName)
-          )
+        ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(userLocationIconName))
       );
       view.getArrow().setIcon(
-          ImageProvider.fromAsset(
-              pluginRegistrar.activity(),
-              pluginRegistrar.lookupKeyForAsset(userArrowIconName)
-          )
+        ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(userArrowIconName))
       );
       if (userArrowOrientation) {
         view.getArrow().setIconStyle(new IconStyle().setRotationType(RotationType.ROTATE));

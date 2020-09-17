@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.search.SuggestItem;
@@ -21,28 +20,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-public class YandexSearch implements MethodCallHandler {
+public class YandexSearchHandlerImpl implements MethodCallHandler {
   private MethodChannel methodChannel;
   private Map<Integer, SuggestSession> suggestSessionsById = new HashMap<>();
   private final SearchManager searchManager;
 
-  public YandexSearch(Context context, MethodChannel channel) {
+  public YandexSearchHandlerImpl(Context context, MethodChannel channel) {
     SearchFactory.initialize(context);
-    MapKitFactory.getInstance().onStart();
     methodChannel = channel;
     searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
-  }
-
-  public static void registerWith(Registrar registrar) {
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "yandex_mapkit/yandex_search");
-    channel.setMethodCallHandler(new YandexSearch(registrar.activity(), channel));
   }
 
   @SuppressWarnings("unchecked")
@@ -60,8 +51,8 @@ public class YandexSearch implements MethodCallHandler {
 
     String formattedAddress = (String) params.get("formattedAddress");
     BoundingBox boundingBox = new BoundingBox(
-        new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
-        new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
+      new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
+      new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
     );
     SuggestType suggestType;
     switch ((String) params.get("suggestType")) {

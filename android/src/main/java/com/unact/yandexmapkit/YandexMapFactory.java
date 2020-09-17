@@ -1,22 +1,21 @@
 package com.unact.yandexmapkit;
 
 import android.content.Context;
-
-import static io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
 
 public class YandexMapFactory extends PlatformViewFactory {
-  private final Registrar pluginRegistrar;
+  private final BinaryMessenger messenger;
 
-  public YandexMapFactory(Registrar registrar) {
+  public YandexMapFactory(BinaryMessenger messenger) {
     super(StandardMessageCodec.INSTANCE);
-    pluginRegistrar = registrar;
+    this.messenger = messenger;
   }
 
   @Override
   public PlatformView create(Context context, int id, Object o) {
-    return new YandexMapController(id, context, pluginRegistrar);
+    return new YandexMapController(id, context, messenger);
   }
 }

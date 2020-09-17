@@ -1,15 +1,17 @@
 package com.unact.yandexmapkitexample;
 
-import android.os.Bundle;
-import io.flutter.app.FlutterActivity;
+import androidx.annotation.NonNull;
+
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;
+
 import com.yandex.mapkit.MapKitFactory;
 
 public class MainActivity extends FlutterActivity {
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
     MapKitFactory.setApiKey("YOUR_API_KEY");
-    GeneratedPluginRegistrant.registerWith(this);
+    GeneratedPluginRegistrant.registerWith(flutterEngine);
   }
 }
