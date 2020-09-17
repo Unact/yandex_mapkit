@@ -39,6 +39,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "toggleNightMode":
+      toggleNightMode(call)
+      result(nil)
     case "showUserLayer":
       showUserLayer(call)
       result(nil)
@@ -93,6 +96,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  public func toggleNightMode(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    mapView.mapWindow.map.isNightModeEnabled = (params["enabled"] as! NSNumber).boolValue
   }
 
   public func showUserLayer(_ call: FlutterMethodCall) {

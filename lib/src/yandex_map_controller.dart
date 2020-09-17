@@ -30,11 +30,21 @@ class YandexMapController extends ChangeNotifier {
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
   CameraPositionCallback _cameraPositionCallback;
-  
+
   static YandexMapController init(int id) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
     return YandexMapController._(methodChannel);
+  }
+
+  /// Toggles night mode for YMKMap/com.yandex.mapkit.map
+  Future<void> toggleDarkMode({@required bool enabled}) async {
+    await _channel.invokeMethod<void>(
+      'toggleNightMode',
+      <String, dynamic>{
+        'enabled': enabled
+      }
+    );
   }
 
   /// Shows an icon at current user location
@@ -144,7 +154,7 @@ class YandexMapController extends ChangeNotifier {
     CameraPositionCallback callback
   ) async {
     _cameraPositionCallback = callback;
-    
+
     final dynamic point = await _channel.invokeMethod<dynamic>(
       'enableCameraTracking',
       placemark != null ? _placemarkParams(placemark) : null

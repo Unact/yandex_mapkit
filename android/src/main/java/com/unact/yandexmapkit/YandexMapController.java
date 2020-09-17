@@ -88,6 +88,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private void toggleNightMode(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    mapView.getMap().setNightModeEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
   private void showUserLayer(MethodCall call) {
 
     if (!hasLocationPermission()) return;
@@ -225,7 +232,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Point targetPoint =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
     if (call.arguments != null) {
       Map<String, Object> params = ((Map<String, Object>) call.arguments);
-      
+
       MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
       cameraTarget = mapObjects.addPlacemark(targetPoint);
       String iconName = (String) params.get("iconName");
@@ -342,7 +349,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   private void moveToUser() {
     if (!hasLocationPermission()) return;
-    
+
     float currentZoom = mapView.getMap().getCameraPosition().getZoom();
     float tilt = mapView.getMap().getCameraPosition().getTilt();
     float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
@@ -400,6 +407,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
+      case "toggleNightMode":
+        toggleNightMode(call);
+        result.success(null);
+        break;
       case "showUserLayer":
         showUserLayer(call);
         result.success(null);

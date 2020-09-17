@@ -18,6 +18,7 @@ class _MapControlsExample extends StatefulWidget {
 
 class _MapControlsExampleState extends State<_MapControlsExample> {
   YandexMapController controller;
+  bool isNightModeEnabled = false;
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   final String emptyStyle = '''
     [
@@ -148,6 +149,24 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         await controller.setMapStyle(style: emptyStyle);
                       },
                       child: const Text('Remove style')
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    RaisedButton(
+                      padding: const EdgeInsets.all(4),
+                      onPressed: () async {
+                        isNightModeEnabled = !isNightModeEnabled;
+                        await controller.toggleDarkMode(enabled: isNightModeEnabled);
+                      },
+                      child: const Text('Night mode')
+                    ),
+                    const FlatButton(
+                      padding: EdgeInsets.all(4),
+                      onPressed: null,
+                      child: Text('')
                     )
                   ],
                 ),
