@@ -1,3 +1,11 @@
+## 0.4.0
+
+* Add support for v2 android embedder
+* Add night mode toggle for `YandexMapController`
+* Add `onMapTap` and `onMapLongTap` callbacks to `YandexMap`
+* **Breaking change**. Callback signature for `Placemark.onTap` has been changed.
+Instead of returning latitude and longitude, it now returns a `Point`
+
 ## 0.3.11
 
 * Fix memory leak on iOS
