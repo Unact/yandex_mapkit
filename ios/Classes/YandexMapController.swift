@@ -7,6 +7,7 @@ import YandexMapKitSearch
 public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
+  private let mapTapListener: MapTapListener!
   private let mapObjectTapListener: MapObjectTapListener!
   private var mapCameraListener: MapCameraListener!
   private var userLocationObjectListener: UserLocationObjectListener?
@@ -24,6 +25,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.mapTapListener = MapTapListener(channel: methodChannel)
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     self.userLocationLayer =
                 YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
@@ -31,6 +33,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
+    self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
   }
 
   public func view() -> UIView {
@@ -513,7 +516,31 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       ]
       methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
 
-      return true
+      return false
+    }
+  }
+
+  internal class MapTapListener: NSObject, YMKMapInputListener {
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.methodChannel = channel
+    }
+
+    func onMapTap(with map: YMKMap, point: YMKPoint) {
+      let arguments: [String:Any?] = [
+        "latitude": point.latitude,
+        "longitude": point.longitude
+      ]
+      methodChannel.invokeMethod("onMapTap", arguments: arguments)
+    }
+
+    func onMapLongTap(with map: YMKMap, point: YMKPoint) {
+      let arguments: [String:Any?] = [
+        "latitude": point.latitude,
+        "longitude": point.longitude
+      ]
+      methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
     }
   }
   

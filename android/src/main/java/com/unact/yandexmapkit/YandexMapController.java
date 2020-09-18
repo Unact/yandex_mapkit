@@ -18,6 +18,7 @@ import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
@@ -53,6 +54,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
+  private YandexMapInputListener yandexMapInputListener;
   private UserLocationLayer userLocationLayer;
   private PlacemarkMapObject cameraTarget = null;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
@@ -69,11 +71,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
+    yandexMapInputListener = new YandexMapInputListener();
     userLocationLayer =
             MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
+    mapView.getMap().addInputListener(yandexMapInputListener);
   }
 
   @Override
@@ -537,7 +541,25 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       methodChannel.invokeMethod("onMapObjectTap", arguments);
 
-      return true;
+      return false;
+    }
+  }
+
+  private class YandexMapInputListener implements InputListener {
+    public void onMapTap(com.yandex.mapkit.map.Map map, Point point) {
+      Map<String, Object> arguments = new HashMap<>();
+      arguments.put("latitude", point.getLatitude());
+      arguments.put("longitude", point.getLongitude());
+
+      methodChannel.invokeMethod("onMapTap", arguments);
+    }
+
+    public void onMapLongTap(com.yandex.mapkit.map.Map map, Point point) {
+      Map<String, Object> arguments = new HashMap<>();
+      arguments.put("latitude", point.getLatitude());
+      arguments.put("longitude", point.getLongitude());
+
+      methodChannel.invokeMethod("onMapLongTap", arguments);
     }
   }
 }

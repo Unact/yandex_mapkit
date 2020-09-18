@@ -1,8 +1,8 @@
-import 'package:equatable/equatable.dart';
+part of yandex_mapkit;
 
 class MapAnimation extends Equatable {
   const MapAnimation({
-    this.smooth = true, 
+    this.smooth = true,
     this.duration = kAnimationDuration
   });
 

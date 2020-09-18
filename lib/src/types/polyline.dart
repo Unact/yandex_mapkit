@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-
-import 'point.dart';
+part of yandex_mapkit;
 
 class Polyline extends Equatable {
   const Polyline({

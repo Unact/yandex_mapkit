@@ -59,6 +59,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
             },
+            onMapTap: (Point point) => print('Tapped map at ${point.latitude},${point.longitude}'),
+            onMapLongTap: (Point point) => print('Long tapped map at ${point.latitude},${point.longitude}')
           )
         ),
         const SizedBox(height: 20),

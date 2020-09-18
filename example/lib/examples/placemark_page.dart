@@ -24,14 +24,14 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
     point: _point,
     opacity: 0.7,
     iconName: 'lib/assets/place.png',
-    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
+    onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
   );
 
   final Placemark _placemarkWithDynamicIcon = Placemark(
     point: const Point(latitude: 30.320045, longitude: 59.945933),
     opacity: 0.95,
     rawImageData: rawImageData,
-    onTap: (double latitude, double longitude) => print('Tapped me at $latitude,$longitude'),
+    onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
   );
 
   @override

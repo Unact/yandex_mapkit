@@ -1,6 +1,4 @@
-import 'dart:core';
-
-import 'package:equatable/equatable.dart';
+part of yandex_mapkit;
 
 class SuggestItem extends Equatable{
   const SuggestItem({

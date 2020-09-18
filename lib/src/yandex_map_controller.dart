@@ -1,20 +1,7 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
-import 'map_animation.dart';
-import 'placemark.dart';
-import 'point.dart';
-import 'polygon.dart';
-import 'polyline.dart';
-
-typedef CameraPositionCallback = void Function(dynamic msg);
+part of yandex_mapkit;
 
 class YandexMapController extends ChangeNotifier {
-  YandexMapController._(MethodChannel channel)
-      : _channel = channel {
+  YandexMapController._(this._channel, this._yandexMapState) {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
 
@@ -25,16 +12,17 @@ class YandexMapController extends ChangeNotifier {
   static const bool kUserArrowOrientation = true;
 
   final MethodChannel _channel;
+  final _YandexMapState _yandexMapState;
 
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
   CameraPositionCallback _cameraPositionCallback;
 
-  static YandexMapController init(int id) {
+  static YandexMapController init(int id, _YandexMapState yandexMapState) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
-    return YandexMapController._(methodChannel);
+    return YandexMapController._(methodChannel, yandexMapState);
   }
 
   /// Toggles night mode for YMKMap/com.yandex.mapkit.map
@@ -229,6 +217,12 @@ class YandexMapController extends ChangeNotifier {
 
   Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
+      case 'onMapTap':
+        _onMapTap(call.arguments);
+        break;
+      case 'onMapLongTap':
+        _onMapLongTap(call.arguments);
+        break;
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
         break;
@@ -240,16 +234,23 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  void _onMapTap(dynamic arguments) {
+    _yandexMapState.onMapTap(Point(latitude: arguments['latitude'], longitude: arguments['longitude']));
+  }
+
+  void _onMapLongTap(dynamic arguments) {
+    _yandexMapState.onMapLongTap(Point(latitude: arguments['latitude'], longitude: arguments['longitude']));
+  }
+
   void _onMapObjectTap(dynamic arguments) {
     final int hashCode = arguments['hashCode'];
-    final double latitude = arguments['latitude'];
-    final double longitude = arguments['longitude'];
+    final Point point = Point(latitude: arguments['latitude'], longitude: arguments['longitude']);
 
     final Placemark placemark = placemarks.
       firstWhere((Placemark placemark) => placemark.hashCode == hashCode, orElse: () => null);
 
     if (placemark != null) {
-      placemark.onTap(latitude, longitude);
+      placemark.onTap(point);
     }
   }
 

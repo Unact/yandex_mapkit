@@ -1,9 +1,4 @@
-import 'dart:ui';
-
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-
-import 'point.dart';
+part of yandex_mapkit;
 
 class Polygon extends Equatable{
   const Polygon({
@@ -15,7 +10,7 @@ class Polygon extends Equatable{
   });
 
   final List<Point> coordinates;
-  
+
   final Color fillColor;
   final Color strokeColor;
   final double strokeWidth;

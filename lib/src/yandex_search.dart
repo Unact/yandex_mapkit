@@ -1,12 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/services.dart';
-
-import 'point.dart';
-import 'suggest_item.dart';
-
-typedef SuggestSessionCallback = void Function(List<SuggestItem> msg);
-typedef CancelSuggestCallback = void Function();
+part of yandex_mapkit;
 
 class YandexSearch {
   static const String _channelName = 'yandex_mapkit/yandex_search';

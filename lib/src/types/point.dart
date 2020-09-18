@@ -1,9 +1,8 @@
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+part of yandex_mapkit;
 
 class Point extends Equatable{
   const Point({
-    @required this.latitude, 
+    @required this.latitude,
     @required this.longitude
   });
 

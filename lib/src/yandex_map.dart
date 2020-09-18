@@ -1,25 +1,33 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-
-import 'yandex_map_controller.dart';
+part of yandex_mapkit;
 
 class YandexMap extends StatefulWidget {
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
     Key key,
-    this.onMapCreated
+    this.onMapCreated,
+    this.onMapTap,
+    this.onMapLongTap
   }) : super(key: key);
 
   static const String viewType = 'yandex_mapkit/yandex_map';
 
-  final Function onMapCreated;
+  /// Callback method for when the map is ready to be used.
+  ///
+  /// Pass to [YandexMap.onMapCreated] to receive a [YandexMapController] when the
+  /// map is created.
+  final MapCreatedCallback onMapCreated;
+
+  /// Called every time a [YandexMap] is tapped.
+  final ArgumentCallback<Point> onMapTap;
+
+  /// Called every time a [YandexMap] is long tapped.
+  final ArgumentCallback<Point> onMapLongTap;
 
   @override
-  YandexMapState createState() => YandexMapState();
+  _YandexMapState createState() => _YandexMapState();
 }
 
-class YandexMapState extends State<YandexMap> {
+class _YandexMapState extends State<YandexMap> {
   YandexMapController _controller;
 
   @override
@@ -44,10 +52,22 @@ class YandexMapState extends State<YandexMap> {
   }
 
   void _onPlatformViewCreated(int id) {
-    _controller = YandexMapController.init(id);
+    _controller = YandexMapController.init(id, this);
 
     if (widget.onMapCreated != null) {
       widget?.onMapCreated(_controller);
+    }
+  }
+
+  void onMapTap(Point point) {
+    if (widget.onMapTap != null) {
+      widget.onMapTap(point);
+    }
+  }
+
+  void onMapLongTap(Point point) {
+    if (widget.onMapLongTap != null) {
+      widget.onMapLongTap(point);
     }
   }
 }
