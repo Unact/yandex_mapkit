@@ -26,7 +26,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Toggles night mode for YMKMap/com.yandex.mapkit.map
-  Future<void> toggleDarkMode({@required bool enabled}) async {
+  Future<void> toggleNightMode({@required bool enabled}) async {
     await _channel.invokeMethod<void>(
       'toggleNightMode',
       <String, dynamic>{

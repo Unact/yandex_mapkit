@@ -161,7 +161,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       padding: const EdgeInsets.all(4),
                       onPressed: () async {
                         isNightModeEnabled = !isNightModeEnabled;
-                        await controller.toggleDarkMode(enabled: isNightModeEnabled);
+                        await controller.toggleNightMode(enabled: isNightModeEnabled);
                       },
                       child: const Text('Night mode')
                     ),
