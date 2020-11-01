@@ -34,6 +34,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
+
+    
   }
 
   public func view() -> UIView {
@@ -45,6 +47,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "toggleNightMode":
       toggleNightMode(call)
       result(nil)
+    case "toggleMapRotation":
+      toggleMapRotation(call)
+      result(nil)  
     case "showUserLayer":
       showUserLayer(call)
       result(nil)
@@ -99,6 +104,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  public func toggleMapRotation(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    mapView.mapWindow.map.isRotateGesturesEnabled = (params["enabled"] as! NSNumber).boolValue
   }
 
   public func toggleNightMode(_ call: FlutterMethodCall) {
@@ -221,6 +231,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemark.userData = (params["hashCode"] as! NSNumber).intValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
+    if !(params["direction"] is NSNull) {
+      placemark.direction = (params["direction"] as! NSNumber).floatValue
+    }
 
     if (iconName != nil) {
       placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
@@ -232,6 +245,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
+    if let rotationType = params["rotationType"] as? String {
+      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber);
+    }
     iconStyle.anchor = NSValue(cgPoint:
       CGPoint(
         x: (params["anchorX"] as! NSNumber).doubleValue,

@@ -11,6 +11,8 @@ class Placemark {
     this.onTap = _kOnTap,
     this.iconName,
     this.rawImageData,
+    this.rotationType,
+    this.direction,
   });
 
   final Point point;
@@ -20,7 +22,10 @@ class Placemark {
   final double opacity;
   final bool isDraggable;
   final String iconName;
+  // rotate or none
+  final String rotationType;
   final ArgumentCallback<Point> onTap;
+  final double direction;
 
   /// Provides ability to use binary image data as Placemark icon.
   ///
