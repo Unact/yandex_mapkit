@@ -8,7 +8,7 @@ import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
 import 'package:yandex_mapkit_example/examples/target_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
-import 'package:yandex_mapkit_example/examples/rotate_page.dart';
+import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
@@ -22,7 +22,7 @@ final List<MapPage> _allPages = <MapPage>[
   const PolygonPage(),
   const TargetPage(),
   const SearchPage(),
-  const RotatePage(),
+  const RotationPage(),
 ];
 
 class MainPage extends StatelessWidget {

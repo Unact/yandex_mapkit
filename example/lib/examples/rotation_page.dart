@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/map_page.dart';
 
-class RotatePage extends MapPage {
-  const RotatePage() : super('Rotate example');
+class RotationPage extends MapPage {
+  const RotationPage() : super('Rotation example');
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _RotateExampleState extends State<_RotateExample> {
       opacity: 0.7,
       iconName: 'lib/assets/place.png',
       onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      rotationType: 'rotate',
+      rotationType: 'rotate'
     );
     controller.addPlacemark(placemark);
   }
