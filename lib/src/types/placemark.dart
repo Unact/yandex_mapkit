@@ -12,7 +12,7 @@ class Placemark {
     this.iconName,
     this.rawImageData,
     this.rotationType,
-    this.direction,
+    this.direction = kDirection,
   });
 
   final Point point;
@@ -49,5 +49,6 @@ class Placemark {
   static const double kZIndex = 0.0;
   static const Point kIconAnchor = Point(latitude: 0.5, longitude: 0.5);
   static const double kOpacity = 0.5;
+  static const double kDirection = 0;
   static void _kOnTap(Point point) => () { };
 }
