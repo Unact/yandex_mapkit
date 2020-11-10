@@ -104,7 +104,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
   }
 
-
   @SuppressWarnings("unchecked")
   private void showUserLayer(MethodCall call) {
 
@@ -170,7 +169,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDraggable((Boolean) params.get("isDraggable"));
-    placemark.setDirection(((Double) params.get("opacity")).floatValue());
+    placemark.setDirection(((Double) params.get("direction")).floatValue());
     placemark.addTapListener(yandexMapObjectTapListener);
 
     if (iconName != null) {
