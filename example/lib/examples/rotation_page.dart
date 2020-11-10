@@ -28,7 +28,8 @@ class _RotateExampleState extends State<_RotateExample> {
       opacity: 0.7,
       iconName: 'lib/assets/place.png',
       onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      rotationType: 'rotate'
+      rotationType: 'rotate',
+      direction: 90,
     );
     controller.addPlacemark(placemark);
   }
@@ -73,5 +74,3 @@ class _RotateExampleState extends State<_RotateExample> {
   }
 
 }
-
-
