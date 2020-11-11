@@ -241,7 +241,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
-    if let rotationType = params["rotationType"] as? String {
+    let rotationType = params["rotationType"] as? String;
+    if (rotationType == "RotationType.ROTATE") {
       iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber);
     }
     iconStyle.anchor = NSValue(cgPoint:
@@ -250,7 +251,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         y: (params["anchorY"] as! NSNumber).doubleValue
       )
     )
-
     iconStyle.zIndex = (params["zIndex"] as! NSNumber)
     iconStyle.scale = (params["scale"] as! NSNumber)
     placemark.setIconStyleWith(iconStyle)
