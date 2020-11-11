@@ -185,9 +185,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
     iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
     iconStyle.setScale(((Double) params.get("scale")).floatValue());
-    if (params.get("rotationType") != null) {
+
+    String rotationType = (String) params.get("rotationType");
+    if (rotationType.equals("RotationType.ROTATE")) {
       iconStyle.setRotationType(RotationType.ROTATE);
     }
+    
     placemark.setIconStyle(iconStyle);
 
     placemarks.add(placemark);
@@ -577,3 +580,4 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 }
+

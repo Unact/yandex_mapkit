@@ -21,6 +21,19 @@ class _RotateExampleState extends State<_RotateExample> {
   YandexMapController controller;
   bool rotationBlocked = false;
 
+  void _addPlacemarkPinnedRotated() {
+    const Point point = Point(latitude: 59.945933, longitude: 30.320045);
+    final Placemark placemark = Placemark(
+      point: point,
+      opacity: 0.7,
+      iconName: 'lib/assets/place.png',
+      onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      rotationType: RotationType.ROTATE,
+      direction: 90,
+    );
+    controller.addPlacemark(placemark);
+  }
+
   void _addPlacemarkPinned() {
     const Point point = Point(latitude: 59.945933, longitude: 30.320045);
     final Placemark placemark = Placemark(
@@ -28,8 +41,6 @@ class _RotateExampleState extends State<_RotateExample> {
       opacity: 0.7,
       iconName: 'lib/assets/place.png',
       onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      rotationType: 'rotate',
-      direction: 90,
     );
     controller.addPlacemark(placemark);
   }
@@ -60,6 +71,10 @@ class _RotateExampleState extends State<_RotateExample> {
                 RaisedButton(
                   child: const Text('Add placemark with pinned direction'),
                   onPressed: _addPlacemarkPinned,
+                ),
+                RaisedButton(
+                  child: const Text('Add placemark with pinned direction (Rotated)'),
+                  onPressed: _addPlacemarkPinnedRotated,
                 ),
                 RaisedButton(
                   child: Text('Toggle camera rotation: ${rotationBlocked ? 'ON' : 'OFF'}'),

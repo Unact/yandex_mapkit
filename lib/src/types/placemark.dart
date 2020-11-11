@@ -11,9 +11,9 @@ class Placemark {
     this.onTap = _kOnTap,
     this.iconName,
     this.rawImageData,
-    this.rotationType,
     this.direction = kDirection,
-  });
+    RotationType rotationType,
+  }) : rotationType = rotationType.toString();
 
   final Point point;
   final double scale;
@@ -22,7 +22,6 @@ class Placemark {
   final double opacity;
   final bool isDraggable;
   final String iconName;
-  // rotate or none
   final String rotationType;
   final ArgumentCallback<Point> onTap;
   final double direction;
