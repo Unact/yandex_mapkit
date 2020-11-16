@@ -580,4 +580,3 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 }
-

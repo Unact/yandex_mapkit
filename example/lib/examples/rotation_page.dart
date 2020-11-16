@@ -87,5 +87,4 @@ class _RotateExampleState extends State<_RotateExample> {
       ],
     );
   }
-
 }
