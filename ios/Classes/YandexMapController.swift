@@ -34,8 +34,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
-
-    
   }
 
   public func view() -> UIView {
@@ -231,9 +229,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemark.userData = (params["hashCode"] as! NSNumber).intValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
-    if !(params["direction"] is NSNull) {
-      placemark.direction = (params["direction"] as! NSNumber).floatValue
-    }
+    placemark.direction = (params["direction"] as! NSNumber).floatValue
 
     if (iconName != nil) {
       placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
@@ -245,7 +241,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
-    if let rotationType = params["rotationType"] as? String {
+    let rotationType = params["rotationType"] as? String;
+    if (rotationType == "RotationType.ROTATE") {
       iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber);
     }
     iconStyle.anchor = NSValue(cgPoint:
@@ -254,7 +251,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         y: (params["anchorY"] as! NSNumber).doubleValue
       )
     )
-
     iconStyle.zIndex = (params["zIndex"] as! NSNumber)
     iconStyle.scale = (params["scale"] as! NSNumber)
     placemark.setIconStyleWith(iconStyle)
