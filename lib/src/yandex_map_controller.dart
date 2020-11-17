@@ -35,6 +35,16 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
+  /// Toggles rotation of map for YMKMap/com.yandex.mapkit.map
+  Future<void> toggleMapRotation({@required bool enabled}) async {
+    await _channel.invokeMethod<void>(
+      'toggleMapRotation',
+      <String, dynamic>{
+        'enabled': enabled
+      }
+    );
+  }
+
   /// Shows an icon at current user location
   ///
   /// Requires location permissions:
@@ -270,7 +280,9 @@ class YandexMapController extends ChangeNotifier {
       'isDraggable': placemark.isDraggable,
       'iconName': placemark.iconName,
       'rawImageData': placemark.rawImageData,
-      'hashCode': placemark.hashCode
+      'hashCode': placemark.hashCode,
+      'rotationType': placemark.rotationType,
+      'direction': placemark.direction
     };
   }
 

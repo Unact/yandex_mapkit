@@ -99,6 +99,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private void toggleMapRotation(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
   private void showUserLayer(MethodCall call) {
 
     if (!hasLocationPermission()) return;
@@ -163,6 +169,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDraggable((Boolean) params.get("isDraggable"));
+    placemark.setDirection(((Double) params.get("direction")).floatValue());
     placemark.addTapListener(yandexMapObjectTapListener);
 
     if (iconName != null) {
@@ -178,6 +185,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
     iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
     iconStyle.setScale(((Double) params.get("scale")).floatValue());
+
+    String rotationType = (String) params.get("rotationType");
+    if (rotationType.equals("RotationType.ROTATE")) {
+      iconStyle.setRotationType(RotationType.ROTATE);
+    }
+    
     placemark.setIconStyle(iconStyle);
 
     placemarks.add(placemark);
@@ -413,6 +426,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     switch (call.method) {
       case "toggleNightMode":
         toggleNightMode(call);
+        result.success(null);
+        break;
+      case "toggleMapRotation":
+        toggleMapRotation(call);
         result.success(null);
         break;
       case "showUserLayer":

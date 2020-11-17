@@ -11,7 +11,9 @@ class Placemark {
     this.onTap = _kOnTap,
     this.iconName,
     this.rawImageData,
-  });
+    this.direction = kDirection,
+    RotationType rotationType,
+  }) : rotationType = rotationType.toString();
 
   final Point point;
   final double scale;
@@ -20,7 +22,9 @@ class Placemark {
   final double opacity;
   final bool isDraggable;
   final String iconName;
+  final String rotationType;
   final ArgumentCallback<Point> onTap;
+  final double direction;
 
   /// Provides ability to use binary image data as Placemark icon.
   ///
@@ -44,5 +48,6 @@ class Placemark {
   static const double kZIndex = 0.0;
   static const Point kIconAnchor = Point(latitude: 0.5, longitude: 0.5);
   static const double kOpacity = 0.5;
+  static const double kDirection = 0;
   static void _kOnTap(Point point) => () { };
 }
