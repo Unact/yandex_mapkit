@@ -1,3 +1,8 @@
+## 0.4.1
+
+* Add Placemark direction and rotationType [#68, ryufitreet]
+* Add Map rotation toggle [#68, ryufitreet]
+
 ## 0.4.0
 
 * Add support for v2 android embedder
