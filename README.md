@@ -17,12 +17,12 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
-4. Add `<key>io.flutter.embedded_views_preview</key> <true/>` inside `<dict>` tag in `ios/Runner/Info.plist`
+4. For Flutter version less than 1.22 add `<key>io.flutter.embedded_views_preview</key> <true/>` inside `<dict>` tag in `ios/Runner/Info.plist`
 5. Uncomment `platform :ios, '9.0'` in `ios/Podfile`
 
 `ios/Runner/AppDelegate.swift`:
 
-For Swift 4.0 and lesser  
+For Swift 4.0 and lesser
 
 ```swift
 import UIKit
@@ -42,7 +42,7 @@ import YandexMapKit
 }
 ```
 
-For Swift 4.2 and greater  
+For Swift 4.2 and greater
 
 ```swift
 import UIKit
@@ -65,7 +65,7 @@ import YandexMapKit
 ### Initializing for Android
 
 1. Add dependency `implementation 'com.yandex.android:mapkit:3.5.0'` and `implementation 'com.yandex.android:search:3.5.0'` to `android/app/build.gradle`
-2. Add permissions `uses-permission android:name="android.permission.INTERNET` and `uses-permission android:name="android.permission.ACCESS_FINE_LOCATION` to `android/app/src/main/AndroidManifest.xml`
+2. Add permissions `<uses-permission android:name="android.permission.INTERNET/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
 5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`
@@ -130,24 +130,20 @@ void main() async {
 }
 ```
 
-You can use a `YandexMap` which resizes itself to its parent size
+For usage examples refer to example [app](https://github.com/Unact/yandex_mapkit/tree/master/example)
 
-```dart
-Expanded(child: YandexMap())
-```
-
-For usage examples refer to example app
+![image](https://user-images.githubusercontent.com/8961745/100362969-26e23880-300d-11eb-9529-6ab36beffa51.png)
 
 ### Features
 
 - [X] iOS Support
 - [X] Android Support
 - [X] Adding and removing Placemarks
-- [X] Receive Placemark tap events
+- [X] Receiving Placemark tap events
 - [X] Moving around the map
 - [X] Setting map bounds
 - [X] Showing current user location
 - [X] Styling the map
 - [X] Adding and removing Polylines
 - [X] Adding and removing Polygons
-- [X] Address suggestion
+- [X] Address suggestions
