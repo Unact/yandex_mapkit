@@ -64,7 +64,7 @@ import YandexMapKit
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:mapkit:3.5.0'` and `implementation 'com.yandex.android:search:3.5.0'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:mapkit:3.5.0'`, `implementation 'com.yandex.android:search:3.5.0'` and `implementation 'com.yandex.android:directions:3.5.0'` to `android/app/build.gradle`
 2. Add permissions `<uses-permission android:name="android.permission.INTERNET/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
@@ -79,6 +79,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.yandex.android:mapkit:3.5.0'
     implementation 'com.yandex.android:search:3.5.0'
+    implementation 'com.yandex.android:directions:3.5.0'
 }
 ```
 

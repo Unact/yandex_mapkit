@@ -3,6 +3,7 @@ import Flutter
 import UIKit
 import YandexMapKit
 import YandexMapKitSearch
+import YandexMapKitDirections
 
 public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
@@ -13,10 +14,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var cameraTarget: YMKPlacemarkMapObject?
+  private var drivingSession: YMKDrivingSession?
+  private var locationManager: YMKLocationManager!
+  private var yandexMapLocationListener: YandexMapLocationListener!
+  private var currentLocation: YMKPoint!
+  private var drivingFromLocation: YMKPoint!
+  private var drivingToLocation: YMKPoint!
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
+  private var drivingPolylines: [YMKPolylineMapObject] = []
+  private var drivingPolyline: [String: Any] = [:]
   public let mapView: YMKMapView
+
+  public var PLACEMARK_CURRENT_LOCATION = "PLACEMARK_CURRENT_LOCATION"
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
@@ -34,6 +45,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
+
+    self.locationManager = YMKMapKit.sharedInstance().createLocationManager()
+    self.yandexMapLocationListener = YandexMapLocationListener(controller: self, channel: methodChannel)
+    self.locationManager.subscribeForLocationUpdates(withDesiredAccuracy: 0, minTime: 0, minDistance: 50, allowUseInBackground: false, filteringMode: .off, locationListener: yandexMapLocationListener)
   }
 
   public func view() -> UIView {
@@ -98,6 +113,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(targetPoint)
     case "moveToUser":
       moveToUser()
+      result(nil)
+    case "routeToLocation":
+      routeToLocation(call)
+      result(nil)
+    case "cancelRoute":
+      cancelRoute()
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -206,7 +227,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
     
   public func getTargetPoint() -> [String: Any] {
-    let targetPoint = mapView.mapWindow.map.cameraPosition.target;
+    let targetPoint = mapView.mapWindow.map.cameraPosition.target
     let arguments: [String: Any] = [
         "hashCode": targetPoint.hashValue,
         "latitude": targetPoint.latitude,
@@ -241,9 +262,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let iconStyle = YMKIconStyle()
-    let rotationType = params["rotationType"] as? String;
+    let rotationType = params["rotationType"] as? String
     if (rotationType == "RotationType.ROTATE") {
-      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber);
+      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
     }
     iconStyle.anchor = NSValue(cgPoint:
       CGPoint(
@@ -294,7 +315,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       cameraTarget = nil
     }
     
-    let targetPoint = mapView.mapWindow.map.cameraPosition.target;
+    let targetPoint = mapView.mapWindow.map.cameraPosition.target
     if call.arguments != nil {
       let params = call.arguments as! [String: Any]
       
@@ -359,8 +380,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     polylineMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polylineMapObject.dashLength = (params["dashLength"] as! NSNumber).floatValue
     polylineMapObject.dashOffset = (params["dashOffset"] as! NSNumber).floatValue
-
-
     polylineMapObject.gapLength = (params["gapLength"] as! NSNumber).floatValue
     polylines.append(polylineMapObject)
   }
@@ -438,6 +457,174 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     } else {
       mapView.mapWindow.map.move(with: cameraPosition)
     }
+  }
+
+  public func routeToLocation(_ call: FlutterMethodCall) {
+    if (!hasLocationPermission()) { return }
+    
+    if (drivingSession != nil) {
+      cancelRoute()
+    }
+
+    let params = call.arguments as! [String: Any]
+    let coordsTo = params["to"] as! [String: Any]
+    let polyline = params["polyline"] as! [String: Any]
+    let placemarkParams = params["placemark"] as! [String: Any]
+    let pointTo = YMKPoint(
+        latitude: (coordsTo["latitude"] as! NSNumber).doubleValue,
+        longitude: (coordsTo["longitude"] as! NSNumber).doubleValue
+      )
+      
+    drivingFromLocation = currentLocation
+    drivingToLocation = pointTo
+    drivingPolyline = polyline
+
+    let box = YMKBoundingBox(southWest: drivingFromLocation, northEast: drivingToLocation)
+
+    mapView.mapWindow.map.move(with: mapView.mapWindow.map.cameraPosition(with: box))
+    zoomOut()
+
+    setDrivingSession()
+    
+    if (placemarkParams.count > 0){
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      let placemark = mapObjects.addPlacemark(with: drivingFromLocation)
+      let iconName = placemarkParams["iconName"] as? String
+
+      placemark.addTapListener(with: mapObjectTapListener)
+      placemark.userData = PLACEMARK_CURRENT_LOCATION
+      placemark.opacity = (placemarkParams["opacity"] as! NSNumber).floatValue
+      placemark.isDraggable = (placemarkParams["isDraggable"] as! NSNumber).boolValue
+      placemark.direction = (placemarkParams["direction"] as! NSNumber).floatValue
+
+      if (iconName != nil) {
+        placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+      }
+
+      if let rawImageData = placemarkParams["rawImageData"] as? FlutterStandardTypedData, 
+        let image = UIImage(data: rawImageData.data) {
+          placemark.setIconWith(image)
+      }
+
+      let iconStyle = YMKIconStyle()
+      let rotationType = placemarkParams["rotationType"] as? String
+      if (rotationType == "RotationType.ROTATE") {
+        iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
+      }
+      iconStyle.anchor = NSValue(cgPoint:
+        CGPoint(
+          x: (placemarkParams["anchorX"] as! NSNumber).doubleValue,
+          y: (placemarkParams["anchorY"] as! NSNumber).doubleValue
+        )
+      )
+      iconStyle.zIndex = (placemarkParams["zIndex"] as! NSNumber)
+      iconStyle.scale = (placemarkParams["scale"] as! NSNumber)
+      placemark.setIconStyleWith(iconStyle)
+
+      placemarks.append(placemark)
+    }
+  }
+
+  public func setDrivingSession() {
+    let requestPoints : [YMKRequestPoint] = [
+        YMKRequestPoint(point: drivingFromLocation, type: .waypoint, pointContext: nil),
+        YMKRequestPoint(point: drivingToLocation, type: .waypoint, pointContext: nil),
+        ]
+    
+    let responseHandler = {(routesResponse: [YMKDrivingRoute]?, error: Error?) -> Void in
+        if let routes = routesResponse {
+            self.onRoutesReceived(routes)
+        } else {
+            self.onRoutesError(error!)
+        }
+    }
+    
+    let drivingOptions = YMKDrivingDrivingOptions()
+    drivingOptions.alternativeCount = 1
+    let drivingRouter = YMKDirections.sharedInstance().createDrivingRouter()
+    drivingSession = drivingRouter.requestRoutes(
+        with: requestPoints,
+        drivingOptions: YMKDrivingDrivingOptions(),
+        routeHandler: responseHandler)
+  }
+
+  public func cancelRoute() {
+    if (drivingSession != nil) {
+      drivingSession!.cancel()
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      for polyline in drivingPolylines {
+        mapObjects.remove(with: polyline)
+      }
+      drivingPolylines = []
+
+      let placemark = placemarks.first(where: { $0.userData as! String == PLACEMARK_CURRENT_LOCATION })
+
+      if (placemark != nil) {
+        mapObjects.remove(with: placemark!)
+        placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
+      }
+    }
+
+    drivingSession = nil
+  }
+     
+  func onRoutesReceived(_ routes: [YMKDrivingRoute]) {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      for route in routes {
+
+          let drivingRouteMetadata = route.metadata;
+          let weight = drivingRouteMetadata.weight;
+          let distance = weight.distance;
+          let time = weight.time;
+          let timeWithTraffic = weight.timeWithTraffic;
+
+          let arguments: [String:Any?] = [
+            "distance": distance.text,
+            "time": time.text,
+            "timeWithTraffic": timeWithTraffic.text
+          ]
+          methodChannel.invokeMethod("onDrivingRoutes", arguments: arguments)
+
+          if (drivingPolylines.count > 0){
+            for polyline in drivingPolylines {
+              polyline.geometry = route.geometry
+            }
+
+            let placemark = placemarks.first(where: { $0.userData as! String == PLACEMARK_CURRENT_LOCATION })
+
+            if (placemark != nil) {
+              placemark!.geometry = route.geometry.points.first!
+            }
+          }
+          else{
+            let polylineMapObject = mapObjects.addPolyline(with: route.geometry)
+
+            polylineMapObject.strokeColor = uiColor(fromInt: (drivingPolyline["strokeColor"] as! NSNumber).int64Value)
+            polylineMapObject.outlineColor = uiColor(fromInt: (drivingPolyline["outlineColor"] as! NSNumber).int64Value)
+            polylineMapObject.outlineWidth = (drivingPolyline["outlineWidth"] as! NSNumber).floatValue
+            polylineMapObject.strokeWidth = (drivingPolyline["strokeWidth"] as! NSNumber).floatValue
+            polylineMapObject.isGeodesic = (drivingPolyline["isGeodesic"] as! NSNumber).boolValue
+            polylineMapObject.dashLength = (drivingPolyline["dashLength"] as! NSNumber).floatValue
+            polylineMapObject.dashOffset = (drivingPolyline["dashOffset"] as! NSNumber).floatValue
+            polylineMapObject.gapLength = (drivingPolyline["gapLength"] as! NSNumber).floatValue
+
+            drivingPolylines.append(polylineMapObject)
+          }
+      }
+  }
+  
+  func onRoutesError(_ error: Error) {
+      let routingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as! YRTError
+      var errorMessage = "Unknown error"
+      if routingError.isKind(of: YRTNetworkError.self) {
+          errorMessage = "Network error"
+      } else if routingError.isKind(of: YRTRemoteError.self) {
+          errorMessage = "Remote server error"
+      }
+      let arguments: [String:Any?] = [
+        "error": errorMessage
+      ]
+      methodChannel.invokeMethod("onDrivingRoutesError", arguments: arguments)
   }
 
   private func hasLocationPermission() -> Bool {
@@ -585,6 +772,35 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         "final": finished
       ]
       methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
+    }
+  }
+
+  internal class YandexMapLocationListener: NSObject, YMKLocationDelegate  {
+    private let yandexMapController: YandexMapController!
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
+      self.yandexMapController = controller
+      self.methodChannel = channel
+      super.init()
+    }
+
+    func onLocationUpdated(with location: YMKLocation) {
+        yandexMapController.currentLocation = YMKPoint(latitude: location.position.latitude, longitude: location.position.longitude)
+      if (yandexMapController.drivingSession != nil && yandexMapController.currentLocation != yandexMapController.drivingFromLocation) {
+        yandexMapController.drivingFromLocation = yandexMapController.currentLocation
+        yandexMapController.setDrivingSession()
+      }
+    }
+    
+    func onLocationStatusUpdated(with status: YMKLocationStatus) {
+      if (status == YMKLocationStatus.notAvailable) {
+        let arguments: [String:Any?] = [
+          "status": "NOT_AVAILABLE"
+        ]
+        methodChannel.invokeMethod("onLocationStatusUpdated", arguments: arguments)
+      }
+
     }
   }
 }

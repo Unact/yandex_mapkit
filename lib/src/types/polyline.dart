@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 class Polyline extends Equatable {
   const Polyline({
-    @required this.coordinates,
+    this.coordinates,
     this.strokeColor = const Color(0xFF0066FF),
     this.strokeWidth = 5.0,
     this.outlineColor = const Color(0x00000000),

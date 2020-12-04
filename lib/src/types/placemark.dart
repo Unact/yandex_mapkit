@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 class Placemark {
   Placemark({
-    @required this.point,
+    this.point,
     this.scale = kScale,
     this.zIndex = kZIndex,
     this.iconAnchor = kIconAnchor,
@@ -49,5 +49,5 @@ class Placemark {
   static const Point kIconAnchor = Point(latitude: 0.5, longitude: 0.5);
   static const double kOpacity = 0.5;
   static const double kDirection = 0;
-  static void _kOnTap(Point point) => () { };
+  static void _kOnTap(Point point) => () {};
 }
