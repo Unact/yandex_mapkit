@@ -20,6 +20,8 @@ class _RoutingExample extends StatefulWidget {
 class _RoutingExampleState extends State<_RoutingExample> {
   YandexMapController controller;
   PermissionStatus _permissionStatus = PermissionStatus.unknown;
+  final Point destinationPoint =
+      const Point(latitude: 54.763562684662965, longitude: 83.09243331767586);
 
   String routesInfo = '';
 
@@ -62,14 +64,9 @@ class _RoutingExampleState extends State<_RoutingExample> {
                   onPressed: () async {
                     if (_permissionStatus == PermissionStatus.granted) {
                       await controller.routeToLocation(
-                          pointTo: const Point(
-                              latitude: 66.42989, longitude: 112.4021),
-                          placemark: Placemark(
-                            opacity: 0.7,
-                            iconName: 'lib/assets/place.png',
-                            onTap: (Point point) => print(
-                                'Tapped me at ${point.latitude},${point.longitude}'),
-                          ),
+                          destination: destinationPoint,
+                          placemarkStyle: PlacemarkStyle(
+                              opacity: 0.7, iconName: 'lib/assets/place.png'),
                           drivingRoutesCallback: (dynamic msg) {
                             setState(() {
                               routesInfo =
@@ -95,7 +92,8 @@ class _RoutingExampleState extends State<_RoutingExample> {
             ),
             Row(
               children: [
-                Flexible(child: Text(
+                Flexible(
+                    child: Text(
                   routesInfo,
                   style: const TextStyle(color: Colors.black),
                 ))

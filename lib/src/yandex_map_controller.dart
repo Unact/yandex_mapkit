@@ -193,20 +193,20 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<void> routeToLocation(
-      {@required Point pointTo,
-      Polyline polyline = const Polyline(),
-      Placemark placemark,
+      {@required Point destination,
+      PolylineStyle polylineStyle = const PolylineStyle(),
+      PlacemarkStyle placemarkStyle,
       DrivingRoutesCallback drivingRoutesCallback,
       DrivingRoutesErrorCallback errorCallback}) async {
     _drivingRoutesCallback = drivingRoutesCallback;
     _drivingRoutesErrorCallback = errorCallback;
     await _channel.invokeMethod<void>('routeToLocation', <String, dynamic>{
-      'to': <String, dynamic>{
-        'latitude': pointTo.latitude,
-        'longitude': pointTo.longitude,
+      'destination': <String, dynamic>{
+        'latitude': destination.latitude,
+        'longitude': destination.longitude,
       },
-      'polyline': _polylineParams(polyline),
-      'placemark': _placemarkParams(placemark)
+      'polylineStyle': _polylineStyleParams(polylineStyle),
+      'startingPointStyle': _placemarkStyleParams(placemarkStyle)
     });
   }
 
@@ -296,17 +296,26 @@ class YandexMapController extends ChangeNotifier {
     return <String, dynamic>{
       'latitude': placemark.point?.latitude,
       'longitude': placemark.point?.longitude,
-      'anchorX': placemark.iconAnchor.latitude,
-      'anchorY': placemark.iconAnchor.longitude,
-      'scale': placemark.scale,
-      'zIndex': placemark.zIndex,
-      'opacity': placemark.opacity,
-      'isDraggable': placemark.isDraggable,
-      'iconName': placemark.iconName,
-      'rawImageData': placemark.rawImageData,
       'hashCode': placemark.hashCode,
-      'rotationType': placemark.rotationType,
-      'direction': placemark.direction
+      ..._placemarkStyleParams(placemark)
+    };
+  }
+
+  Map<String, dynamic> _placemarkStyleParams(PlacemarkStyle placemarkStyle) {
+    if (placemarkStyle == null) {
+      return null;
+    }
+    return <String, dynamic>{
+      'anchorX': placemarkStyle.iconAnchor.latitude,
+      'anchorY': placemarkStyle.iconAnchor.longitude,
+      'scale': placemarkStyle.scale,
+      'zIndex': placemarkStyle.zIndex,
+      'opacity': placemarkStyle.opacity,
+      'isDraggable': placemarkStyle.isDraggable,
+      'iconName': placemarkStyle.iconName,
+      'rawImageData': placemarkStyle.rawImageData,
+      'rotationType': placemarkStyle.rotationType,
+      'direction': placemarkStyle.direction
     };
   }
 
@@ -321,15 +330,21 @@ class YandexMapController extends ChangeNotifier {
         : null;
     return <String, dynamic>{
       'coordinates': coordinates,
-      'strokeColor': polyline.strokeColor.value,
-      'strokeWidth': polyline.strokeWidth,
-      'outlineColor': polyline.outlineColor.value,
-      'outlineWidth': polyline.outlineWidth,
-      'isGeodesic': polyline.isGeodesic,
-      'dashLength': polyline.dashLength,
-      'dashOffset': polyline.dashOffset,
-      'gapLength': polyline.gapLength,
-      'hashCode': polyline.hashCode
+      'hashCode': polyline.hashCode,
+      ..._polylineStyleParams(polyline)
+    };
+  }
+
+  Map<String, dynamic> _polylineStyleParams(PolylineStyle polylineStyle) {
+    return <String, dynamic>{
+      'strokeColor': polylineStyle.strokeColor.value,
+      'strokeWidth': polylineStyle.strokeWidth,
+      'outlineColor': polylineStyle.outlineColor.value,
+      'outlineWidth': polylineStyle.outlineWidth,
+      'isGeodesic': polylineStyle.isGeodesic,
+      'dashLength': polylineStyle.dashLength,
+      'dashOffset': polylineStyle.dashOffset,
+      'gapLength': polylineStyle.gapLength
     };
   }
 

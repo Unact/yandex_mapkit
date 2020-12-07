@@ -83,6 +83,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private List<PolygonMapObject> polygons = new ArrayList<>();
   private List<PolylineMapObject> drivingPolylines = new ArrayList<>();
+  private PlacemarkMapObject drivingStartingPlacemark;
   private String userLocationIconName;
   private String userArrowIconName;
   private Boolean userArrowOrientation;
@@ -90,7 +91,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   private DrivingRouter drivingRouter;
   private DrivingSession drivingSession;
-  private YandexMapPolyline drivingPolyline;
+  private YandexMapPolylineStyle drivingPolylineStyle;
 
   private LocationManager locationManager;
   private YandexMapLocationListener yandexMapLocationListener;
@@ -102,7 +103,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private static final long MINIMAL_TIME = 0;
   private static final double MINIMAL_DISTANCE = 50;
   private static final boolean USE_IN_BACKGROUND = false;
-  public static final String PLACEMARK_CURRENT_LOCATION = "PLACEMARK_CURRENT_LOCATION";
 
   public YandexMapController(int id, Context context, BinaryMessenger messenger) {
     MapKitFactory.initialize(context);
@@ -122,7 +122,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     
     drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
     drivingRouter.setVehicleType(VehicleType.DEFAULT);
-    drivingPolyline = new YandexMapPolyline();
+    drivingPolylineStyle = new YandexMapPolylineStyle();
 
     locationManager = MapKitFactory.getInstance().createLocationManager();
     yandexMapLocationListener = new YandexMapLocationListener();
@@ -210,12 +210,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void addPlacemark(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
+    PlacemarkMapObject placemark = preparePlacemark(point, params);
+    placemark.setUserData(params.get("hashCode"));
+    placemarks.add(placemark);
+  }
+
+  private PlacemarkMapObject preparePlacemark(Point point, Map<String, Object> params) {
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
     String iconName = (String) params.get("iconName");
     byte[] rawImageData = (byte[]) params.get("rawImageData");
 
-    placemark.setUserData(params.get("hashCode"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDraggable((Boolean) params.get("isDraggable"));
     placemark.setDirection(((Double) params.get("direction")).floatValue());
@@ -242,7 +247,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     
     placemark.setIconStyle(iconStyle);
 
-    placemarks.add(placemark);
+    return placemark;
   }
 
   private Map<String, Object> getTargetPoint() {
@@ -299,29 +304,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     if (call.arguments != null) {
       Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-      cameraTarget = mapObjects.addPlacemark(targetPoint);
-      String iconName = (String) params.get("iconName");
-      byte[] rawImageData = (byte[]) params.get("rawImageData");
+      PlacemarkMapObject cameraTarget = preparePlacemark(targetPoint, params);
       cameraTarget.setUserData(params.get("hashCode"));
-      cameraTarget.setOpacity(((Double) params.get("opacity")).floatValue());
-      cameraTarget.setDraggable((Boolean) params.get("isDraggable"));
-      cameraTarget.addTapListener(yandexMapObjectTapListener);
-
-      if (iconName != null) {
-        cameraTarget.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
-      }
-
-      if (rawImageData != null) {
-        Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-        cameraTarget.setIcon(ImageProvider.fromBitmap(bitmapData));
-      }
-
-      IconStyle iconStyle = new IconStyle();
-      iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
-      iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
-      iconStyle.setScale(((Double) params.get("scale")).floatValue());
-      cameraTarget.setIconStyle(iconStyle);
     }
 
     Map<String, Object> arguments = new HashMap<>();
@@ -474,76 +458,46 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void routeToLocation(MethodCall call) {
     if (!hasLocationPermission()) return;
 
-    if (drivingSession != null) {
-      cancelRoute();
-    }
+    cancelRoute();
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> coordsTo = (Map<String, Object>)params.get("to");
-    Map<String, Object> polyline = (Map<String, Object>)params.get("polyline");
-    Map<String, Object> placemarkParams = (Map<String, Object>)params.get("placemark");
+    Map<String, Object> destination = (Map<String, Object>)params.get("destination");
+    Map<String, Object> polylineStyle = (Map<String, Object>)params.get("polylineStyle");
+    Map<String, Object> startingPointStyle = (Map<String, Object>)params.get("startingPointStyle");
 
-    Point pointTo = new Point(((Double) coordsTo.get("latitude")), ((Double) coordsTo.get("longitude")));
+    Point destinationPoint = new Point(((Double) destination.get("latitude")), ((Double) destination.get("longitude")));
 
     drivingFromLocation = currentLocation;
-    drivingToLocation = pointTo;
+    drivingToLocation = destinationPoint;
 
     BoundingBox boundingBox = new BoundingBox(drivingFromLocation, drivingToLocation);
     CameraPosition cameraPosition = mapView.getMap().cameraPosition(boundingBox);
     mapView.getMap().move(cameraPosition);
     zoomOut();
 
-    String outlineColorString = String.valueOf(polyline.get("outlineColor"));
-    Long outlineColorLong = Long.parseLong(outlineColorString);
-    String strokeColorString = String.valueOf(polyline.get("strokeColor"));
-    Long strokeColorLong = Long.parseLong(strokeColorString);
-
-    drivingPolyline.outlineColor = outlineColorLong.intValue();
-    drivingPolyline.outlineWidth = ((Double)polyline.get("outlineWidth")).floatValue();
-    drivingPolyline.strokeColor = strokeColorLong.intValue();
-    drivingPolyline.strokeWidth = ((Double)polyline.get("strokeWidth")).floatValue();
-    drivingPolyline.isGeodesic = (boolean)polyline.get("isGeodesic");
-    drivingPolyline.dashLength = ((Double)polyline.get("dashLength")).floatValue();
-    drivingPolyline.dashOffset = ((Double)polyline.get("dashOffset")).floatValue();
-    drivingPolyline.gapLength = ((Double)polyline.get("gapLength")).floatValue();
+    setDrivingPolylineStyle(polylineStyle);
 
     setDrivingSession();
 
-    if (placemarkParams != null && placemarkParams.size() != 0) {
-      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-      PlacemarkMapObject placemark = mapObjects.addPlacemark(drivingFromLocation);
-      String iconName = (String) placemarkParams.get("iconName");
-      byte[] rawImageData = (byte[]) placemarkParams.get("rawImageData");
-
-      placemark.setUserData(PLACEMARK_CURRENT_LOCATION);
-      placemark.setOpacity(((Double) placemarkParams.get("opacity")).floatValue());
-      placemark.setDraggable((Boolean) placemarkParams.get("isDraggable"));
-      placemark.setDirection(((Double) placemarkParams.get("direction")).floatValue());
-      placemark.addTapListener(yandexMapObjectTapListener);
-
-      if (iconName != null) {
-        placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
-      }
-
-      if (rawImageData != null) {
-        Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-        placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
-      }
-
-      IconStyle iconStyle = new IconStyle();
-      iconStyle.setAnchor(new PointF(((Double) placemarkParams.get("anchorX")).floatValue(), ((Double) placemarkParams.get("anchorY")).floatValue()));
-      iconStyle.setZIndex(((Double) placemarkParams.get("zIndex")).floatValue());
-      iconStyle.setScale(((Double) placemarkParams.get("scale")).floatValue());
-
-      String rotationType = (String) placemarkParams.get("rotationType");
-      if (rotationType.equals("RotationType.ROTATE")) {
-        iconStyle.setRotationType(RotationType.ROTATE);
-      }
-
-      placemark.setIconStyle(iconStyle);
-
-      placemarks.add(placemark);
+    if (startingPointStyle != null && startingPointStyle.size() != 0) {
+      drivingStartingPlacemark = preparePlacemark(drivingFromLocation, startingPointStyle);
     }
+  }
+
+  private void setDrivingPolylineStyle(Map<String, Object> polylineStyle){
+    String outlineColorString = String.valueOf(polylineStyle.get("outlineColor"));
+    Long outlineColorLong = Long.parseLong(outlineColorString);
+    String strokeColorString = String.valueOf(polylineStyle.get("strokeColor"));
+    Long strokeColorLong = Long.parseLong(strokeColorString);
+
+    drivingPolylineStyle.outlineColor = outlineColorLong.intValue();
+    drivingPolylineStyle.outlineWidth = ((Double)polylineStyle.get("outlineWidth")).floatValue();
+    drivingPolylineStyle.strokeColor = strokeColorLong.intValue();
+    drivingPolylineStyle.strokeWidth = ((Double)polylineStyle.get("strokeWidth")).floatValue();
+    drivingPolylineStyle.isGeodesic = (boolean)polylineStyle.get("isGeodesic");
+    drivingPolylineStyle.dashLength = ((Double)polylineStyle.get("dashLength")).floatValue();
+    drivingPolylineStyle.dashOffset = ((Double)polylineStyle.get("dashOffset")).floatValue();
+    drivingPolylineStyle.gapLength = ((Double)polylineStyle.get("gapLength")).floatValue();
   }
 
   private void setDrivingSession(){
@@ -572,14 +526,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         polylinesIterator.remove();
       }
 
-      Iterator<PlacemarkMapObject> placemarksIterator = placemarks.iterator();
-
-      while (placemarksIterator.hasNext()) {
-        PlacemarkMapObject placemarkMapObject = placemarksIterator.next();
-        if (placemarkMapObject.getUserData().equals(PLACEMARK_CURRENT_LOCATION)) {
-          placemarkMapObject.getParent().remove(placemarkMapObject);
-          placemarksIterator.remove();
-        }
+      if (drivingStartingPlacemark != null){
+        drivingStartingPlacemark.getParent().remove(drivingStartingPlacemark);
       }
     }
 
@@ -755,7 +703,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
-  private class YandexMapPolyline
+  private class YandexMapPolylineStyle
   {
     public int outlineColor;
     public Float outlineWidth;
@@ -774,6 +722,33 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         MapObjectCollection mapObjects = mapView.getMap().getMapObjects().addCollection();
         for (DrivingRoute route : routes) {
 
+          if (drivingPolylines.size() > 0) {
+            Iterator<PolylineMapObject> polylinesIterator = drivingPolylines.iterator();
+
+            while (polylinesIterator.hasNext()) {
+              PolylineMapObject polylineMapObject = polylinesIterator.next();
+              polylineMapObject.setGeometry(route.getGeometry());
+            }
+
+            if (drivingStartingPlacemark != null){
+              drivingStartingPlacemark.setGeometry(route.getGeometry().getPoints().get(0));
+            }
+          }
+          else{
+            PolylineMapObject polyline = mapObjects.addPolyline(route.getGeometry());
+
+            polyline.setOutlineColor(drivingPolylineStyle.outlineColor);
+            polyline.setOutlineWidth(drivingPolylineStyle.outlineWidth);
+            polyline.setStrokeColor(drivingPolylineStyle.strokeColor);
+            polyline.setStrokeWidth(drivingPolylineStyle.strokeWidth);
+            polyline.setGeodesic(drivingPolylineStyle.isGeodesic);
+            polyline.setDashLength(drivingPolylineStyle.dashLength);
+            polyline.setDashOffset(drivingPolylineStyle.dashOffset);
+            polyline.setGapLength(drivingPolylineStyle.gapLength);
+
+            drivingPolylines.add(polyline);
+          }
+
           DrivingRouteMetadata drivingRouteMetadata =  route.getMetadata();
           Weight weight = drivingRouteMetadata.getWeight();
           LocalizedValue distance = weight.getDistance();
@@ -785,37 +760,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
           arguments.put("time", time.getText());
           arguments.put("timeWithTraffic", timeWithTraffic.getText());
           methodChannel.invokeMethod("onDrivingRoutes", arguments);
-
-          if (drivingPolylines.size() > 0) {
-            Iterator<PolylineMapObject> polylinesIterator = drivingPolylines.iterator();
-
-            while (polylinesIterator.hasNext()) {
-              PolylineMapObject polylineMapObject = polylinesIterator.next();
-              polylineMapObject.setGeometry(route.getGeometry());
-            }
-
-            Iterator<PlacemarkMapObject> placemarksIterator = placemarks.iterator();
-            while (placemarksIterator.hasNext()) {
-              PlacemarkMapObject placemarkMapObject = placemarksIterator.next();
-              if (placemarkMapObject.getUserData().equals(PLACEMARK_CURRENT_LOCATION)) {
-                placemarkMapObject.setGeometry(route.getGeometry().getPoints().get(0));
-              }
-            }
-          }
-          else{
-            PolylineMapObject polyline = mapObjects.addPolyline(route.getGeometry());
-
-            polyline.setOutlineColor(drivingPolyline.outlineColor);
-            polyline.setOutlineWidth(drivingPolyline.outlineWidth);
-            polyline.setStrokeColor(drivingPolyline.strokeColor);
-            polyline.setStrokeWidth(drivingPolyline.strokeWidth);
-            polyline.setGeodesic(drivingPolyline.isGeodesic);
-            polyline.setDashLength(drivingPolyline.dashLength);
-            polyline.setDashOffset(drivingPolyline.dashOffset);
-            polyline.setGapLength(drivingPolyline.gapLength);
-
-            drivingPolylines.add(polyline);
-          }
         }
     }
 

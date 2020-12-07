@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.dependency 'Flutter'
   s.dependency 'YandexMapKit', '3.5.0'
   s.dependency 'YandexRuntime', '3.5.0'
-  s.dependency 'YandexMapKitSearch', '3.5.0' 
+  s.dependency 'YandexMapKitSearch', '3.5.0'
   s.dependency 'YandexMapKitDirections', '3.5.0'
 
   s.ios.deployment_target = '9.0'

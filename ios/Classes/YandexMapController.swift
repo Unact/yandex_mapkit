@@ -21,13 +21,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var drivingFromLocation: YMKPoint!
   private var drivingToLocation: YMKPoint!
   private var placemarks: [YMKPlacemarkMapObject] = []
+  private var drivingStartingPlacemark: YMKPlacemarkMapObject!
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
   private var drivingPolylines: [YMKPolylineMapObject] = []
-  private var drivingPolyline: [String: Any] = [:]
+  private var drivingPolylineStyle: [String: Any] = [:]
   public let mapView: YMKMapView
 
-  public var PLACEMARK_CURRENT_LOCATION = "PLACEMARK_CURRENT_LOCATION"
+  private static let DESIRED_ACCURACY: Double = 0
+  private static let MINIMAL_TIME: Int64 = 0
+  private static let MINIMAL_DISTANCE: Double = 50
+  private static let USE_IN_BACKGROUND: Bool = false
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
@@ -48,7 +52,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     self.locationManager = YMKMapKit.sharedInstance().createLocationManager()
     self.yandexMapLocationListener = YandexMapLocationListener(controller: self, channel: methodChannel)
-    self.locationManager.subscribeForLocationUpdates(withDesiredAccuracy: 0, minTime: 0, minDistance: 50, allowUseInBackground: false, filteringMode: .off, locationListener: yandexMapLocationListener)
+    self.locationManager.subscribeForLocationUpdates(withDesiredAccuracy: YandexMapController.DESIRED_ACCURACY, minTime: YandexMapController.MINIMAL_TIME, minDistance: YandexMapController.MINIMAL_DISTANCE, allowUseInBackground: YandexMapController.USE_IN_BACKGROUND, filteringMode: .off, locationListener: yandexMapLocationListener)
   }
 
   public func view() -> UIView {
@@ -242,12 +246,18 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       latitude: (params["latitude"] as! NSNumber).doubleValue,
       longitude: (params["longitude"] as! NSNumber).doubleValue
     )
+
+    let placemark = preparePlacemark(point: point, params: params)
+    placemark.userData = (params["hashCode"] as! NSNumber).intValue
+    placemarks.append(placemark)
+  }
+
+  public func preparePlacemark(point: YMKPoint, params: [String: Any]) -> YMKPlacemarkMapObject {
     let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = mapObjects.addPlacemark(with: point)
     let iconName = params["iconName"] as? String
 
     placemark.addTapListener(with: mapObjectTapListener)
-    placemark.userData = (params["hashCode"] as! NSNumber).intValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.direction = (params["direction"] as! NSNumber).floatValue
@@ -276,8 +286,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     iconStyle.scale = (params["scale"] as! NSNumber)
     placemark.setIconStyleWith(iconStyle)
 
-    placemarks.append(placemark)
+    return placemark
   }
+
 
   public func removePlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
@@ -319,37 +330,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     if call.arguments != nil {
       let params = call.arguments as! [String: Any]
       
-      let mapObjects = mapView.mapWindow.map.mapObjects
-      cameraTarget = mapObjects.addPlacemark(with: targetPoint)
-      
-      let iconName = params["iconName"] as? String
-
-      cameraTarget!.addTapListener(with: mapObjectTapListener)
+      cameraTarget = preparePlacemark(point: targetPoint, params: params)
       cameraTarget!.userData = (params["hashCode"] as! NSNumber).intValue
-      cameraTarget!.opacity = (params["opacity"] as! NSNumber).floatValue
-      cameraTarget!.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
-
-      if (iconName != nil) {
-        cameraTarget!.setIconWith(
-          UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-      }
-
-      if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData,
-        let image = UIImage(data: rawImageData.data) {
-        cameraTarget!.setIconWith(image)
-      }
-
-      let iconStyle = YMKIconStyle()
-      iconStyle.anchor = NSValue(cgPoint:
-        CGPoint(
-          x: (params["anchorX"] as! NSNumber).doubleValue,
-          y: (params["anchorY"] as! NSNumber).doubleValue
-        )
-      )
-
-      iconStyle.zIndex = (params["zIndex"] as! NSNumber)
-      iconStyle.scale = (params["scale"] as! NSNumber)
-      cameraTarget!.setIconStyleWith(iconStyle)
     }
     
     let arguments: [String: Any] = [
@@ -462,22 +444,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func routeToLocation(_ call: FlutterMethodCall) {
     if (!hasLocationPermission()) { return }
     
-    if (drivingSession != nil) {
-      cancelRoute()
-    }
+    cancelRoute()
 
     let params = call.arguments as! [String: Any]
-    let coordsTo = params["to"] as! [String: Any]
-    let polyline = params["polyline"] as! [String: Any]
-    let placemarkParams = params["placemark"] as! [String: Any]
-    let pointTo = YMKPoint(
-        latitude: (coordsTo["latitude"] as! NSNumber).doubleValue,
-        longitude: (coordsTo["longitude"] as! NSNumber).doubleValue
+    let destination = params["destination"] as! [String: Any]
+    let polylineStyle = params["polylineStyle"] as! [String: Any]
+    let startingPointStyle = params["startingPointStyle"] as! [String: Any]
+    let destinationPoint = YMKPoint(
+        latitude: (destination["latitude"] as! NSNumber).doubleValue,
+        longitude: (destination["longitude"] as! NSNumber).doubleValue
       )
       
     drivingFromLocation = currentLocation
-    drivingToLocation = pointTo
-    drivingPolyline = polyline
+    drivingToLocation = destinationPoint
+    drivingPolylineStyle = polylineStyle
 
     let box = YMKBoundingBox(southWest: drivingFromLocation, northEast: drivingToLocation)
 
@@ -486,42 +466,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     setDrivingSession()
     
-    if (placemarkParams.count > 0){
-      let mapObjects = mapView.mapWindow.map.mapObjects
-      let placemark = mapObjects.addPlacemark(with: drivingFromLocation)
-      let iconName = placemarkParams["iconName"] as? String
-
-      placemark.addTapListener(with: mapObjectTapListener)
-      placemark.userData = PLACEMARK_CURRENT_LOCATION
-      placemark.opacity = (placemarkParams["opacity"] as! NSNumber).floatValue
-      placemark.isDraggable = (placemarkParams["isDraggable"] as! NSNumber).boolValue
-      placemark.direction = (placemarkParams["direction"] as! NSNumber).floatValue
-
-      if (iconName != nil) {
-        placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-      }
-
-      if let rawImageData = placemarkParams["rawImageData"] as? FlutterStandardTypedData, 
-        let image = UIImage(data: rawImageData.data) {
-          placemark.setIconWith(image)
-      }
-
-      let iconStyle = YMKIconStyle()
-      let rotationType = placemarkParams["rotationType"] as? String
-      if (rotationType == "RotationType.ROTATE") {
-        iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
-      }
-      iconStyle.anchor = NSValue(cgPoint:
-        CGPoint(
-          x: (placemarkParams["anchorX"] as! NSNumber).doubleValue,
-          y: (placemarkParams["anchorY"] as! NSNumber).doubleValue
-        )
-      )
-      iconStyle.zIndex = (placemarkParams["zIndex"] as! NSNumber)
-      iconStyle.scale = (placemarkParams["scale"] as! NSNumber)
-      placemark.setIconStyleWith(iconStyle)
-
-      placemarks.append(placemark)
+    if (startingPointStyle.count > 0){
+      drivingStartingPlacemark = preparePlacemark(point: drivingFromLocation, params: startingPointStyle)
     }
   }
 
@@ -557,11 +503,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       }
       drivingPolylines = []
 
-      let placemark = placemarks.first(where: { $0.userData as! String == PLACEMARK_CURRENT_LOCATION })
-
-      if (placemark != nil) {
-        mapObjects.remove(with: placemark!)
-        placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
+      if (drivingStartingPlacemark != nil) {
+        mapObjects.remove(with: drivingStartingPlacemark!)
+        drivingStartingPlacemark = nil;
       }
     }
 
@@ -571,6 +515,29 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   func onRoutesReceived(_ routes: [YMKDrivingRoute]) {
       let mapObjects = mapView.mapWindow.map.mapObjects
       for route in routes {
+          if (drivingPolylines.count > 0){
+            for polyline in drivingPolylines {
+              polyline.geometry = route.geometry
+            }
+
+            if (drivingStartingPlacemark != nil) {
+              drivingStartingPlacemark!.geometry = route.geometry.points.first!
+            }
+          }
+          else{
+            let polylineMapObject = mapObjects.addPolyline(with: route.geometry)
+
+            polylineMapObject.strokeColor = uiColor(fromInt: (drivingPolylineStyle["strokeColor"] as! NSNumber).int64Value)
+            polylineMapObject.outlineColor = uiColor(fromInt: (drivingPolylineStyle["outlineColor"] as! NSNumber).int64Value)
+            polylineMapObject.outlineWidth = (drivingPolylineStyle["outlineWidth"] as! NSNumber).floatValue
+            polylineMapObject.strokeWidth = (drivingPolylineStyle["strokeWidth"] as! NSNumber).floatValue
+            polylineMapObject.isGeodesic = (drivingPolylineStyle["isGeodesic"] as! NSNumber).boolValue
+            polylineMapObject.dashLength = (drivingPolylineStyle["dashLength"] as! NSNumber).floatValue
+            polylineMapObject.dashOffset = (drivingPolylineStyle["dashOffset"] as! NSNumber).floatValue
+            polylineMapObject.gapLength = (drivingPolylineStyle["gapLength"] as! NSNumber).floatValue
+
+            drivingPolylines.append(polylineMapObject)
+          }
 
           let drivingRouteMetadata = route.metadata;
           let weight = drivingRouteMetadata.weight;
@@ -584,32 +551,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
             "timeWithTraffic": timeWithTraffic.text
           ]
           methodChannel.invokeMethod("onDrivingRoutes", arguments: arguments)
-
-          if (drivingPolylines.count > 0){
-            for polyline in drivingPolylines {
-              polyline.geometry = route.geometry
-            }
-
-            let placemark = placemarks.first(where: { $0.userData as! String == PLACEMARK_CURRENT_LOCATION })
-
-            if (placemark != nil) {
-              placemark!.geometry = route.geometry.points.first!
-            }
-          }
-          else{
-            let polylineMapObject = mapObjects.addPolyline(with: route.geometry)
-
-            polylineMapObject.strokeColor = uiColor(fromInt: (drivingPolyline["strokeColor"] as! NSNumber).int64Value)
-            polylineMapObject.outlineColor = uiColor(fromInt: (drivingPolyline["outlineColor"] as! NSNumber).int64Value)
-            polylineMapObject.outlineWidth = (drivingPolyline["outlineWidth"] as! NSNumber).floatValue
-            polylineMapObject.strokeWidth = (drivingPolyline["strokeWidth"] as! NSNumber).floatValue
-            polylineMapObject.isGeodesic = (drivingPolyline["isGeodesic"] as! NSNumber).boolValue
-            polylineMapObject.dashLength = (drivingPolyline["dashLength"] as! NSNumber).floatValue
-            polylineMapObject.dashOffset = (drivingPolyline["dashOffset"] as! NSNumber).floatValue
-            polylineMapObject.gapLength = (drivingPolyline["gapLength"] as! NSNumber).floatValue
-
-            drivingPolylines.append(polylineMapObject)
-          }
       }
   }
   

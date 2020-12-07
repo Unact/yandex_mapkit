@@ -1,44 +1,41 @@
 part of yandex_mapkit;
 
-class Polyline extends Equatable {
+class Polyline extends PolylineStyle with EquatableMixin {
   const Polyline({
-    this.coordinates,
-    this.strokeColor = const Color(0xFF0066FF),
-    this.strokeWidth = 5.0,
-    this.outlineColor = const Color(0x00000000),
-    this.outlineWidth = 0.0,
-    this.isGeodesic = false,
-    this.dashLength = 0.0,
-    this.dashOffset = 0.0,
-    this.gapLength = 0.0,
-  });
+    @required this.coordinates,
+    Color strokeColor = PolylineStyle.kStrokeColor,
+    double strokeWidth = PolylineStyle.kStrokeWidth,
+    Color outlineColor = PolylineStyle.kOutlineColor,
+    double outlineWidth = PolylineStyle.kOutlineWidth,
+    bool isGeodesic = false,
+    double dashLength = PolylineStyle.kDashLength,
+    double dashOffset = PolylineStyle.kDashOffset,
+    double gapLength = PolylineStyle.kGapLength,
+  }) : super(
+          strokeColor: strokeColor,
+          strokeWidth: strokeWidth,
+          outlineColor: outlineColor,
+          outlineWidth: outlineWidth,
+          isGeodesic: isGeodesic,
+          dashLength: dashLength,
+          dashOffset: dashOffset,
+          gapLength: gapLength,
+        );
 
   final List<Point> coordinates;
 
-  final Color strokeColor;
-  final double strokeWidth;
-
-  final Color outlineColor;
-  final double outlineWidth;
-
-  final bool isGeodesic;
-
-  final double dashLength;
-  final double dashOffset;
-  final double gapLength;
-
   @override
   List<Object> get props => <Object>[
-    coordinates,
-    strokeColor,
-    strokeWidth,
-    outlineColor,
-    outlineWidth,
-    isGeodesic,
-    dashLength,
-    dashOffset,
-    gapLength,
-  ];
+        coordinates,
+        strokeColor,
+        strokeWidth,
+        outlineColor,
+        outlineWidth,
+        isGeodesic,
+        dashLength,
+        dashOffset,
+        gapLength,
+      ];
 
   @override
   bool get stringify => true;
