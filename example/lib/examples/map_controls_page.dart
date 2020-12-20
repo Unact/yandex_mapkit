@@ -65,88 +65,90 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
         ),
         const SizedBox(height: 20),
         Expanded(
-          child: Table(
-            children: [
-              TableRow(children: [
-                _button(
-                  onPressed: () async {
-                    await controller.setBounds(
-                      southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
-                      northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
-                    );
-                  },
-                  title: 'Set bounds'
-                ),
-                _button(
-                  onPressed: () async {
-                    await controller.move(
-                      point: _point,
-                      animation: const MapAnimation(smooth: true, duration: 2.0)
-                    );
-                  },
-                  title: 'Move'
-                ),
-              ]),
-              TableRow(children: [
-                _button(
-                  onPressed: () => controller.zoomIn(),
-                  title: 'Zoom in'
-                ),
-                _button(
-                  onPressed: () => controller.zoomOut(),
-                  title: 'Zoom out'
-                ),
-              ]),
-              TableRow(children: [
-                _button(
-                  onPressed: () async {
-                    await controller.addPlacemark(
-                      Placemark(
-                        point: await controller.getTargetPoint(),
-                        opacity: 0.7,
-                        iconName: 'lib/assets/place.png'
-                      )
-                    );
-                  },
-                  title: 'Target point'
-                ),
-                _button(
-                  onPressed: () async {
-                    await controller.logoAlignment(
-                      horizontal: HorizontalAlignment.center,
-                      vertical: VerticalAlignment.bottom
-                    );
-                  },
-                  title: 'Logo position'
-                ),
-              ]),
-              TableRow(children: [
-                _button(
-                  onPressed: () async {
-                    await controller.setMapStyle(style: nonEmptyStyle);
-                  },
-                  title: 'Set Style'
-                ),
-                _button(
-                  onPressed: () async {
-                    await controller.setMapStyle(style: emptyStyle);
-                  },
-                  title: 'Remove style'
-                ),
-              ]),
-              TableRow(children: [
-                _button(
-                  onPressed: () async {
-                    isNightModeEnabled = !isNightModeEnabled;
-                    await controller.toggleNightMode(enabled: isNightModeEnabled);
-                  },
-                  title: 'Night mode'
-                ),
-                Text('')
-              ])
-            ],
+          child: SingleChildScrollView(
+            child: Table(
+              children: <TableRow>[
+                TableRow(children: [
+                  _button(
+                    onPressed: () async {
+                      await controller.setBounds(
+                        southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
+                        northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
+                      );
+                    },
+                    title: 'Set bounds'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.move(
+                        point: _point,
+                        animation: const MapAnimation(smooth: true, duration: 2.0)
+                      );
+                    },
+                    title: 'Move'
+                  ),
+                ]),
+                TableRow(children: [
+                  _button(
+                    onPressed: () => controller.zoomIn(),
+                    title: 'Zoom in'
+                  ),
+                  _button(
+                    onPressed: () => controller.zoomOut(),
+                    title: 'Zoom out'
+                  ),
+                ]),
+                TableRow(children: [
+                  _button(
+                    onPressed: () async {
+                      await controller.addPlacemark(
+                        Placemark(
+                          point: await controller.getTargetPoint(),
+                          opacity: 0.7,
+                          iconName: 'lib/assets/place.png'
+                        )
+                      );
+                    },
+                    title: 'Target point'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.logoAlignment(
+                        horizontal: HorizontalAlignment.center,
+                        vertical: VerticalAlignment.bottom
+                      );
+                    },
+                    title: 'Logo position'
+                  ),
+                ]),
+                TableRow(children: [
+                  _button(
+                    onPressed: () async {
+                      await controller.setMapStyle(style: nonEmptyStyle);
+                    },
+                    title: 'Set Style'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.setMapStyle(style: emptyStyle);
+                    },
+                    title: 'Remove style'
+                  ),
+                ]),
+                TableRow(children: [
+                  _button(
+                    onPressed: () async {
+                      isNightModeEnabled = !isNightModeEnabled;
+                      await controller.toggleNightMode(enabled: isNightModeEnabled);
+                    },
+                    title: 'Night mode'
+                  ),
+                  const SizedBox.shrink()
+                ])
+              ],
+            ),
           ),
-        ),
+        )
       ]
     );
   }
