@@ -169,8 +169,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       padding: const EdgeInsets.all(4),
                       onPressed: () async {
                         await controller.logoAlignment(
-                          horizontal: HorizontalAlignment.LEFT,
-                          vertical: VerticalAlignment.TOP
+                          horizontal: HorizontalAlignment.right,
+                          vertical: VerticalAlignment.top
                         );
                       },
                       child: const Text('Yandex logo position')

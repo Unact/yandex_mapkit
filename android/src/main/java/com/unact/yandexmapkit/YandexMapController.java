@@ -111,8 +111,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void logoAlignment(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     mapView.getMap().getLogo().setAlignment(new Alignment(
-            HorizontalAlignment.valueOf((String) params.get("x")),
-            VerticalAlignment.valueOf((String) params.get("y"))));
+            HorizontalAlignment.values()[(Integer) params.get("x")],
+            VerticalAlignment.values()[(Integer) params.get("y")]));
   }
 
   @SuppressWarnings("unchecked")

@@ -33,8 +33,8 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>(
       'logoAlignment',
       <String, dynamic>{
-        'x': describeEnum(horizontal),
-        'y': describeEnum(vertical),
+        'x': horizontal.index,
+        'y': vertical.index,
       }
     );
   }
