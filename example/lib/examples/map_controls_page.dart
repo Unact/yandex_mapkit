@@ -165,11 +165,16 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       },
                       child: const Text('Night mode')
                     ),
-                    const FlatButton(
-                      padding: EdgeInsets.all(4),
-                      onPressed: null,
-                      child: Text('')
-                    )
+                    RaisedButton(
+                      padding: const EdgeInsets.all(4),
+                      onPressed: () async {
+                        await controller.logoAlignment(
+                          horizontal: HorizontalAlignment.LEFT,
+                          vertical: VerticalAlignment.TOP
+                        );
+                      },
+                      child: const Text('Yandex logo position')
+                    ),
                   ],
                 ),
               ]

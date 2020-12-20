@@ -25,6 +25,20 @@ class YandexMapController extends ChangeNotifier {
     return YandexMapController._(methodChannel, yandexMapState);
   }
 
+  /// Set Yandex logo position
+  Future<void> logoAlignment({
+    @required HorizontalAlignment horizontal,
+    @required VerticalAlignment vertical
+  }) async {
+    await _channel.invokeMethod<void>(
+      'logoAlignment',
+      <String, dynamic>{
+        'x': describeEnum(horizontal),
+        'y': describeEnum(vertical),
+      }
+    );
+  }
+
   /// Toggles night mode for YMKMap/com.yandex.mapkit.map
   Future<void> toggleNightMode({@required bool enabled}) async {
     await _channel.invokeMethod<void>(
