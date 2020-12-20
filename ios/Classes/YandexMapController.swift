@@ -42,6 +42,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "logoAlignment":
+      logoAlignment(call)
+      result(nil)
     case "toggleNightMode":
       toggleNightMode(call)
       result(nil)
@@ -112,6 +115,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func toggleNightMode(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     mapView.mapWindow.map.isNightModeEnabled = (params["enabled"] as! NSNumber).boolValue
+  }
+
+  public func logoAlignment(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    mapView.mapWindow.map.logo.setAlignmentWith(YMKLogoAlignment(
+        horizontalAlignment: YMKLogoHorizontalAlignment(rawValue : params["x"] as! UInt) ?? YMKLogoHorizontalAlignment.right,
+        verticalAlignment: YMKLogoVerticalAlignment(rawValue : params["y"] as! UInt) ?? YMKLogoVerticalAlignment.bottom
+    ))
   }
 
   public func showUserLayer(_ call: FlutterMethodCall) {

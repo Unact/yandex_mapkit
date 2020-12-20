@@ -14,15 +14,15 @@ void main() {
   runApp(MaterialApp(home: MainPage()));
 }
 
-final List<MapPage> _allPages = <MapPage>[
-  const LayersPage(),
-  const MapControlsPage(),
-  const PlacemarkPage(),
-  const PolylinePage(),
-  const PolygonPage(),
-  const TargetPage(),
-  const SearchPage(),
-  const RotationPage(),
+const List<MapPage> _allPages = <MapPage>[
+  LayersPage(),
+  MapControlsPage(),
+  PlacemarkPage(),
+  PolylinePage(),
+  PolygonPage(),
+  TargetPage(),
+  SearchPage(),
+  RotationPage(),
 ];
 
 class MainPage extends StatelessWidget {
