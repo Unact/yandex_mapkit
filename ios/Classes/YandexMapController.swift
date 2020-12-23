@@ -119,10 +119,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func logoAlignment(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    mapView.mapWindow.map.logo.setAlignmentWith(YMKLogoAlignment(
-        horizontalAlignment: YMKLogoHorizontalAlignment(rawValue : params["x"] as! UInt) ?? YMKLogoHorizontalAlignment.right,
-        verticalAlignment: YMKLogoVerticalAlignment(rawValue : params["y"] as! UInt) ?? YMKLogoVerticalAlignment.bottom
-    ))
+    let logoPosition = YMKLogoAlignment(
+      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue : params["x"] as! UInt)!,
+      verticalAlignment: YMKLogoVerticalAlignment(rawValue : params["y"] as! UInt)!
+    )
+    mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
 
   public func showUserLayer(_ call: FlutterMethodCall) {

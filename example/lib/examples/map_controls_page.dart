@@ -68,7 +68,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
           child: SingleChildScrollView(
             child: Table(
               children: <TableRow>[
-                TableRow(children: [
+                TableRow(children: <Widget>[
                   _button(
                     onPressed: () async {
                       await controller.setBounds(
@@ -88,7 +88,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Move'
                   ),
                 ]),
-                TableRow(children: [
+                TableRow(children: <Widget>[
                   _button(
                     onPressed: () => controller.zoomIn(),
                     title: 'Zoom in'
@@ -98,7 +98,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Zoom out'
                   ),
                 ]),
-                TableRow(children: [
+                TableRow(children: <Widget>[
                   _button(
                     onPressed: () async {
                       await controller.addPlacemark(
@@ -121,7 +121,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Logo position'
                   ),
                 ]),
-                TableRow(children: [
+                TableRow(children: <Widget>[
                   _button(
                     onPressed: () async {
                       await controller.setMapStyle(style: nonEmptyStyle);
@@ -135,7 +135,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Remove style'
                   ),
                 ]),
-                TableRow(children: [
+                TableRow(children: <Widget>[
                   _button(
                     onPressed: () async {
                       isNightModeEnabled = !isNightModeEnabled;
