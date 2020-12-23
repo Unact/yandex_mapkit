@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+part 'src/types/alignment.dart';
 part 'src/types/callbacks.dart';
 part 'src/types/map_animation.dart';
 part 'src/types/rotation_type.dart';

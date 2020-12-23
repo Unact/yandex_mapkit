@@ -66,117 +66,103 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.setBounds(
-                          southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
-                          northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
-                        );
-                      },
-                      child: const Text('Set bounds')
-                    ),
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.move(
-                          point: _point,
-                          animation: const MapAnimation(smooth: true, duration: 2.0)
-                        );
-                      },
-                      child: const Text('Move')
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.zoomIn();
-                      },
-                      child: const Text('Zoom in')
-                    ),
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.zoomOut();
-                      },
-                      child: const Text('Zoom out')
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.addPlacemark(
-                          Placemark(
-                            point: await controller.getTargetPoint(),
-                            opacity: 0.7,
-                            iconName: 'lib/assets/place.png'
-                          )
-                        );
-                      },
-                      child: const Text('Target point')
-                    ),
-                    const FlatButton(
-                      padding: EdgeInsets.all(4),
-                      onPressed: null,
-                      child: Text('')
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.setMapStyle(style: nonEmptyStyle);
-                      },
-                      child: const Text('Set Style')
-                    ),
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        await controller.setMapStyle(style: emptyStyle);
-                      },
-                      child: const Text('Remove style')
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    RaisedButton(
-                      padding: const EdgeInsets.all(4),
-                      onPressed: () async {
-                        isNightModeEnabled = !isNightModeEnabled;
-                        await controller.toggleNightMode(enabled: isNightModeEnabled);
-                      },
-                      child: const Text('Night mode')
-                    ),
-                    const FlatButton(
-                      padding: EdgeInsets.all(4),
-                      onPressed: null,
-                      child: Text('')
-                    )
-                  ],
-                ),
-              ]
-            )
-          )
+            child: Table(
+              children: <TableRow>[
+                TableRow(children: <Widget>[
+                  _button(
+                    onPressed: () async {
+                      await controller.setBounds(
+                        southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
+                        northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
+                      );
+                    },
+                    title: 'Set bounds'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.move(
+                        point: _point,
+                        animation: const MapAnimation(smooth: true, duration: 2.0)
+                      );
+                    },
+                    title: 'Move'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  _button(
+                    onPressed: () => controller.zoomIn(),
+                    title: 'Zoom in'
+                  ),
+                  _button(
+                    onPressed: () => controller.zoomOut(),
+                    title: 'Zoom out'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  _button(
+                    onPressed: () async {
+                      await controller.addPlacemark(
+                        Placemark(
+                          point: await controller.getTargetPoint(),
+                          opacity: 0.7,
+                          iconName: 'lib/assets/place.png'
+                        )
+                      );
+                    },
+                    title: 'Target point'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.logoAlignment(
+                        horizontal: HorizontalAlignment.center,
+                        vertical: VerticalAlignment.bottom
+                      );
+                    },
+                    title: 'Logo position'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  _button(
+                    onPressed: () async {
+                      await controller.setMapStyle(style: nonEmptyStyle);
+                    },
+                    title: 'Set Style'
+                  ),
+                  _button(
+                    onPressed: () async {
+                      await controller.setMapStyle(style: emptyStyle);
+                    },
+                    title: 'Remove style'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  _button(
+                    onPressed: () async {
+                      isNightModeEnabled = !isNightModeEnabled;
+                      await controller.toggleNightMode(enabled: isNightModeEnabled);
+                    },
+                    title: 'Night mode'
+                  ),
+                  const SizedBox.shrink()
+                ])
+              ],
+            ),
+          ),
         )
       ]
+    );
+  }
+
+  Widget _button({
+    @required Function() onPressed,
+    @required String title
+  }){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: RaisedButton(
+        child: Text(title),
+        onPressed: onPressed
+      ),
     );
   }
 }

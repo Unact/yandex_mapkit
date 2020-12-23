@@ -17,6 +17,9 @@ import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.layers.ObjectEvent;
+import com.yandex.mapkit.logo.Alignment;
+import com.yandex.mapkit.logo.HorizontalAlignment;
+import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;
@@ -102,6 +105,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void toggleMapRotation(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void logoAlignment(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Alignment logoPosition = new Alignment(
+        HorizontalAlignment.values()[(Integer) params.get("x")],
+        VerticalAlignment.values()[(Integer) params.get("y")]
+    );
+    mapView.getMap().getLogo().setAlignment(logoPosition);
   }
 
   @SuppressWarnings("unchecked")
@@ -424,6 +437,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
+      case "logoAlignment":
+        logoAlignment(call);
+        result.success(null);
+        break;
       case "toggleNightMode":
         toggleNightMode(call);
         result.success(null);
