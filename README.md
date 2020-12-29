@@ -1,6 +1,6 @@
 # yandex_mapkit
 
-A flutter plugin for displaying yandex maps on iOS and Android. Now fully integrated with flutters widget tree.
+A flutter plugin for displaying yandex maps on iOS and Android.
 
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
 When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc/mapkit/3.x/concepts/conditions-docpage/)
@@ -82,26 +82,9 @@ dependencies {
 }
 ```
 
+#### For Java projects
+
 `android/app/src/main/.../MainActivity.java`:
-
-#### Flutter versions prior to 1.12
-
-```java
-import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
-import com.yandex.mapkit.MapKitFactory;
-
-public class MainActivity extends FlutterActivity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    MapKitFactory.setApiKey("YOUR_API_KEY");
-    GeneratedPluginRegistrant.registerWith(this);
-  }
-}
-```
-
-#### Flutter versions after and including 1.12
 
 ```java
 import androidx.annotation.NonNull;
@@ -119,17 +102,26 @@ public class MainActivity extends FlutterActivity {
 }
 ```
 
-### Usage
+#### For Kotlin projects
 
-Example:
+`android/app/src/main/.../MainActivity.kt`
 
-```dart
-import 'package:yandex_mapkit/yandex_mapkit.dart';
+```kotlin
+import androidx.annotation.NonNull
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugins.GeneratedPluginRegistrant
+import com.yandex.mapkit.MapKitFactory
 
-void main() async {
-  runApp(MyApp());
+class MainActivity: FlutterActivity() {
+  override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+    MapKitFactory.setApiKey("YOUR_API_KEY")
+    super.configureFlutterEngine(flutterEngine)
+  }
 }
 ```
+
+### Usage
 
 For usage examples refer to example [app](https://github.com/Unact/yandex_mapkit/tree/master/example)
 
