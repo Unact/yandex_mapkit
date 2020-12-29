@@ -1,3 +1,7 @@
+## 0.4.2
+
+* Add support for changing yandex logo position [#79, Goolpe]
+
 ## 0.4.1
 
 * Add Placemark direction and rotationType [#68, ryufitreet]
