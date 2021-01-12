@@ -1,6 +1,6 @@
 import Flutter
 import UIKit
-import YandexMapKit
+import YandexMapsMobile
 
 public class YandexMapFactory: NSObject, FlutterPlatformViewFactory {
   private let pluginRegistrar: FlutterPluginRegistrar!

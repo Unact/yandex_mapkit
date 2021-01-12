@@ -14,7 +14,7 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 
 ### Initializing for iOS
 
-1. Add `import YandexMapKit` to `ios/Runner/AppDelegate.swift`
+1. Add `import YandexMapsMobile` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
 4. For Flutter version less than 1.22 add `<key>io.flutter.embedded_views_preview</key> <true/>` inside `<dict>` tag in `ios/Runner/Info.plist`
@@ -27,7 +27,7 @@ For Swift 4.0 and lesser
 ```swift
 import UIKit
 import Flutter
-import YandexMapKit
+import YandexMapsMobile
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -47,7 +47,7 @@ For Swift 4.2 and greater
 ```swift
 import UIKit
 import Flutter
-import YandexMapKit
+import YandexMapsMobile
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -64,7 +64,7 @@ import YandexMapKit
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:mapkit:3.5.0'` and `implementation 'com.yandex.android:search:3.5.0'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.0.0-full'` to `android/app/build.gradle`
 2. Add permissions `<uses-permission android:name="android.permission.INTERNET/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`
 4. Add `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`
@@ -77,8 +77,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
-    implementation 'com.yandex.android:mapkit:3.5.0'
-    implementation 'com.yandex.android:search:3.5.0'
+    implementation 'com.yandex.android:maps.mobile:4.0.0-full'
 }
 ```
 

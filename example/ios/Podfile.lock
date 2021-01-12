@@ -4,15 +4,8 @@ PODS:
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapKit (= 3.5.0)
-    - YandexMapKitSearch (= 3.5.0)
-    - YandexRuntime (= 3.5.0)
-  - YandexMapKit (3.5.0):
-    - YandexRuntime (= 3.5.0)
-  - YandexMapKitSearch (3.5.0):
-    - YandexMapKit (= 3.5.0)
-    - YandexRuntime (= 3.5.0)
-  - YandexRuntime (3.5.0)
+    - YandexMapsMobile (= 4.0.0-full)
+  - YandexMapsMobile (4.0.0-full)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -21,9 +14,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - YandexMapKit
-    - YandexMapKitSearch
-    - YandexRuntime
+    - YandexMapsMobile
 
 EXTERNAL SOURCES:
   Flutter:
@@ -36,11 +27,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   permission_handler: 67637977b227d62d46bfbf524f335f8568de5a73
-  yandex_mapkit: 808e1857438445c61e2789a9e4374b230a0a97ca
-  YandexMapKit: ecd4b78de34a35df63d066ac299e6fd0fe46d1ba
-  YandexMapKitSearch: b46ddd1c80e2e35d006cdfc4ab88070a50cebeda
-  YandexRuntime: 2d55244d06267106cf9b00c25a1e63f72a73b6fd
+  yandex_mapkit: 0454ffe6e303a299e9a4414b53a006ab4e15bce7
+  YandexMapsMobile: 0f3d8c92fad685dc33d07f83eed4eb0166089743
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0

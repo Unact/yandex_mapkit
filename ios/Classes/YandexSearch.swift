@@ -1,8 +1,7 @@
 import CoreLocation
 import Flutter
 import UIKit
-import YandexMapKit
-import YandexMapKitSearch
+import YandexMapsMobile
 
 public class YandexSearch: NSObject, FlutterPlugin {
   private let methodChannel: FlutterMethodChannel!

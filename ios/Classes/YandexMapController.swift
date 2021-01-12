@@ -1,8 +1,7 @@
 import CoreLocation
 import Flutter
 import UIKit
-import YandexMapKit
-import YandexMapKitSearch
+import YandexMapsMobile
 
 public class YandexMapController: NSObject, FlutterPlatformView {
   private let methodChannel: FlutterMethodChannel!
@@ -581,7 +580,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     internal func onCameraPositionChanged(
       with map: YMKMap,
       cameraPosition: YMKCameraPosition,
-      cameraUpdateSource: YMKCameraUpdateSource,
+      cameraUpdateReason: YMKCameraUpdateReason,
       finished: Bool
     ) {
       let targetPoint = cameraPosition.target

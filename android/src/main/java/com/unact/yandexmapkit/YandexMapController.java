@@ -29,7 +29,7 @@ import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
-import com.yandex.mapkit.map.CameraUpdateSource;
+import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.mapview.MapView;
@@ -528,7 +528,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     public void onCameraPositionChanged(
             com.yandex.mapkit.map.Map map,
             CameraPosition cameraPosition,
-            CameraUpdateSource cameraUpdateSource,
+            CameraUpdateReason cameraUpdateReason,
             boolean bFinal)
     {
       Point targetPoint = cameraPosition.getTarget();

@@ -34,6 +34,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.yandex.android:mapkit:3.5.0'
-    implementation 'com.yandex.android:search:3.5.0'
+    implementation 'com.yandex.android:maps.mobile:4.0.0-full'
 }
