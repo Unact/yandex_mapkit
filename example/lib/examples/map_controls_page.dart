@@ -47,6 +47,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       }
     ]
   ''';
+  double _height = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +60,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
             },
+            onMapRendered: () => print('Map rendered'),
+            onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
             onMapTap: (Point point) => print('Tapped map at ${point.latitude},${point.longitude}'),
             onMapLongTap: (Point point) => print('Long tapped map at ${point.latitude},${point.longitude}')
           )
         ),
+        SizedBox(height: _height),
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
@@ -143,8 +147,15 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Night mode'
                   ),
-                  const SizedBox.shrink()
-                ])
+                  _button(
+                    onPressed: () async {
+                      setState(() {
+                        _height = _height == 0 ? 10 : 0;
+                      });
+                    },
+                    title: 'Change size'
+                  )
+                ]),
               ],
             ),
           ),

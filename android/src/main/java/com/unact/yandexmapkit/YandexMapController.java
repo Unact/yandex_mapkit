@@ -32,6 +32,7 @@ import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.RotationType;
+import com.yandex.mapkit.map.SizeChangedListener;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -58,6 +59,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
   private YandexMapInputListener yandexMapInputListener;
+  private YandexMapSizeChangedListener yandexMapSizeChangedListener;
   private UserLocationLayer userLocationLayer;
   private PlacemarkMapObject cameraTarget = null;
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
@@ -75,12 +77,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.onStart();
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
     yandexMapInputListener = new YandexMapInputListener();
+    yandexMapSizeChangedListener = new YandexMapSizeChangedListener();
     userLocationLayer =
             MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
     mapView.getMap().addInputListener(yandexMapInputListener);
+    mapView.getMapWindow().addSizeChangedListener(yandexMapSizeChangedListener);
   }
 
   @Override
@@ -203,7 +207,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     if (rotationType.equals("RotationType.ROTATE")) {
       iconStyle.setRotationType(RotationType.ROTATE);
     }
-    
+
     placemark.setIconStyle(iconStyle);
 
     placemarks.add(placemark);
@@ -594,6 +598,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       arguments.put("longitude", point.getLongitude());
 
       methodChannel.invokeMethod("onMapLongTap", arguments);
+    }
+  }
+
+  private class YandexMapSizeChangedListener implements SizeChangedListener {
+    public void onMapWindowSizeChanged(com.yandex.mapkit.map.MapWindow mapWindow, int newWidth, int newHeight) {
+      Map<String, Object> arguments = new HashMap<>();
+      arguments.put("width", newWidth);
+      arguments.put("height", newHeight);
+
+      methodChannel.invokeMethod("onMapSizeChanged", arguments);
     }
   }
 }

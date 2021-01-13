@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart';
 part 'src/types/alignment.dart';
 part 'src/types/callbacks.dart';
 part 'src/types/map_animation.dart';
+part 'src/types/map_size.dart';
 part 'src/types/rotation_type.dart';
 part 'src/types/placemark.dart';
 part 'src/types/point.dart';

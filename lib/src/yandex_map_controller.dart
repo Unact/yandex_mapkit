@@ -14,6 +14,9 @@ class YandexMapController extends ChangeNotifier {
   final MethodChannel _channel;
   final _YandexMapState _yandexMapState;
 
+  /// Did flutter size and paint the undrelying YandexMap native view
+  bool _viewRendered = false;
+
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
@@ -250,6 +253,9 @@ class YandexMapController extends ChangeNotifier {
       case 'onMapObjectTap':
         _onMapObjectTap(call.arguments);
         break;
+      case 'onMapSizeChanged':
+        _onMapSizeChanged(call.arguments);
+        break;
       case 'onCameraPositionChanged':
         _onCameraPositionChanged(call.arguments);
         break;
@@ -276,6 +282,15 @@ class YandexMapController extends ChangeNotifier {
     if (placemark != null) {
       placemark.onTap(point);
     }
+  }
+
+  void _onMapSizeChanged(dynamic arguments) {
+    if (!_viewRendered) {
+      _viewRendered = true;
+      _yandexMapState.onMapRendered();
+    }
+
+    _yandexMapState.onMapSizeChanged(MapSize(width: arguments['width'], height: arguments['height']));
   }
 
   void _onCameraPositionChanged(dynamic arguments) {

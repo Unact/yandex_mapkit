@@ -9,6 +9,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private let mapTapListener: MapTapListener!
   private let mapObjectTapListener: MapObjectTapListener!
   private var mapCameraListener: MapCameraListener!
+  private let mapSizeChangedListener: MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   private var userLocationLayer: YMKUserLocationLayer?
   private var cameraTarget: YMKPlacemarkMapObject?
@@ -26,13 +27,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     )
     self.mapTapListener = MapTapListener(channel: methodChannel)
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
+    self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
     self.userLocationLayer =
                 YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
     super.init()
 
+    self.mapView.layoutIfNeeded()
+
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
+    self.mapView.mapWindow.addSizeChangedListener(with: mapSizeChangedListener)
   }
 
   public func view() -> UIView {
@@ -49,7 +54,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(nil)
     case "toggleMapRotation":
       toggleMapRotation(call)
-      result(nil)  
+      result(nil)
     case "showUserLayer":
       showUserLayer(call)
       result(nil)
@@ -155,15 +160,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let map = mapView.mapWindow.map
     map.setMapStyleWithStyle(params["style"] as! String)
   }
-    
+
   public func zoomIn() {
       zoom(1)
   }
-  
+
   public func zoomOut() {
       zoom(-1)
   }
-  
+
   private func zoom(_ step: Float) {
       let point = mapView.mapWindow.map.cameraPosition.target
       let zoom = mapView.mapWindow.map.cameraPosition.zoom
@@ -215,7 +220,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     moveWithParams(params, cameraPosition)
   }
-    
+
   public func getTargetPoint() -> [String: Any] {
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
     let arguments: [String: Any] = [
@@ -225,7 +230,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     ]
     return arguments
   }
-    
+
   public func addPlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let point = YMKPoint(
@@ -246,7 +251,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
     }
 
-    if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData, 
+    if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData,
       let image = UIImage(data: rawImageData.data) {
         placemark.setIconWith(image)
     }
@@ -280,7 +285,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
     }
   }
-  
+
   public func disableCameraTracking() {
     if mapCameraListener != nil {
       mapView.mapWindow.map.removeCameraListener(with: mapCameraListener)
@@ -298,20 +303,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
       mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
     }
-    
+
     if cameraTarget != nil {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: cameraTarget!)
       cameraTarget = nil
     }
-    
+
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
     if call.arguments != nil {
       let params = call.arguments as! [String: Any]
-      
+
       let mapObjects = mapView.mapWindow.map.mapObjects
       cameraTarget = mapObjects.addPlacemark(with: targetPoint)
-      
+
       let iconName = params["iconName"] as? String
 
       cameraTarget!.addTapListener(with: mapObjectTapListener)
@@ -341,7 +346,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       iconStyle.scale = (params["scale"] as! NSNumber)
       cameraTarget!.setIconStyleWith(iconStyle)
     }
-    
+
     let arguments: [String: Any] = [
       "hashCode": targetPoint.hashValue,
       "latitude": targetPoint.latitude,
@@ -408,7 +413,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     polygons.append(polygonMapObject)
   }
-  
+
   public func removePolygon(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let hashCode = (params["hashCode"] as! NSNumber).intValue
@@ -476,7 +481,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!
-    
+
     private let iconName: String!
     private let arrowName: String!
     private let userArrowOrientation: Bool!
@@ -566,7 +571,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
     }
   }
-  
+
   internal class MapCameraListener: NSObject, YMKMapCameraListener {
     private let yandexMapController: YandexMapController!
     private let methodChannel: FlutterMethodChannel!
@@ -584,9 +589,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       finished: Bool
     ) {
       let targetPoint = cameraPosition.target
-      
+
       yandexMapController.cameraTarget?.geometry = targetPoint
-      
+
       let arguments: [String:Any?] = [
         "latitude": targetPoint.latitude,
         "longitude": targetPoint.longitude,
@@ -596,6 +601,23 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         "final": finished
       ]
       methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
+    }
+  }
+
+  internal class MapSizeChangedListener: NSObject, YMKMapSizeChangedListener {
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.methodChannel = channel
+    }
+
+    func onMapWindowSizeChanged(with mapWindow: YMKMapWindow, newWidth: Int, newHeight: Int) {
+      let arguments: [String:Any?] = [
+        "width": newWidth,
+        "height": newHeight
+      ]
+
+      methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
     }
   }
 }
