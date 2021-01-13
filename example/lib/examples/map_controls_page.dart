@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class MapControlsPage extends MapPage {
   const MapControlsPage() : super('Map controls example');
@@ -73,7 +74,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             child: Table(
               children: <TableRow>[
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setBounds(
                         southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
@@ -82,7 +83,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Set bounds'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.move(
                         point: _point,
@@ -93,17 +94,17 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () => controller.zoomIn(),
                     title: 'Zoom in'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () => controller.zoomOut(),
                     title: 'Zoom out'
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.addPlacemark(
                         Placemark(
@@ -117,7 +118,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Target point'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.logoAlignment(
                         horizontal: HorizontalAlignment.center,
@@ -128,13 +129,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setMapStyle(style: nonEmptyStyle);
                     },
                     title: 'Set Style'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setMapStyle(style: emptyStyle);
                     },
@@ -142,14 +143,14 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       isNightModeEnabled = !isNightModeEnabled;
                       await controller.toggleNightMode(enabled: isNightModeEnabled);
                     },
                     title: 'Night mode'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       setState(() {
                         _height = _height == 0 ? 10 : 0;
@@ -163,19 +164,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
           ),
         )
       ]
-    );
-  }
-
-  Widget _button({
-    @required Function() onPressed,
-    @required String title
-  }){
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: RaisedButton(
-        child: Text(title),
-        onPressed: onPressed
-      ),
     );
   }
 }

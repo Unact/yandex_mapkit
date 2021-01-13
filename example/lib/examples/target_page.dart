@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class TargetPage extends MapPage {
   const TargetPage() : super('Target example');
@@ -40,7 +41,7 @@ class _TargetExampleState extends State<_TargetExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         final Point currentTarget = await controller.enableCameraTracking(
                           const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
@@ -48,9 +49,9 @@ class _TargetExampleState extends State<_TargetExample> {
                         );
                         await addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Tracking')
+                      title: 'Tracking'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         final Point currentTarget = await controller.enableCameraTracking(
                           null,
@@ -58,7 +59,7 @@ class _TargetExampleState extends State<_TargetExample> {
                         );
                         await addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Tracking (without marker)')
+                      title: 'Tracking (without marker)'
                     ),
                   ],
                 ),
@@ -66,11 +67,11 @@ class _TargetExampleState extends State<_TargetExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.disableCameraTracking();
                       },
-                      child: const Text('Disable tracking')
+                      title: 'Disable tracking'
                     ),
                   ],
                 ),

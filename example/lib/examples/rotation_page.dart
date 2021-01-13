@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class RotationPage extends MapPage {
   const RotationPage() : super('Rotation example');
@@ -72,17 +73,17 @@ class _RotateExampleState extends State<_RotateExample> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                RaisedButton(
-                  child: const Text('Add placemark with pinned direction'),
+                ControlButton(
                   onPressed: _addPlacemarkPinned,
+                  title: 'Add placemark with pinned direction'
                 ),
-                RaisedButton(
-                  child: const Text('Add placemark with pinned direction (Rotated)'),
+                ControlButton(
                   onPressed: _addPlacemarkPinnedRotated,
+                  title: 'Add placemark with pinned direction (Rotated)'
                 ),
-                RaisedButton(
-                  child: Text('Toggle camera rotation: ${rotationBlocked ? 'ON' : 'OFF'}'),
+                ControlButton(
                   onPressed: _blockCameraRotate,
+                  title: 'Toggle camera rotation: ${rotationBlocked ? 'ON' : 'OFF'}'
                 )
               ],
             ),

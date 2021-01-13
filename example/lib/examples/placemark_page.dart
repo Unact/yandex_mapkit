@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
 import 'package:yandex_mapkit_example/examples/data/dummy_image.dart' show rawImageData;
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PlacemarkPage extends MapPage {
   const PlacemarkPage() : super('Placemark example');
@@ -60,17 +61,17 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPlacemark(_placemark);
                       },
-                      child: const Text('Add')
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePlacemark(_placemark);
                       },
-                      child: const Text('Remove')
+                      title: 'Remove'
                     ),
                   ],
                 ),
@@ -78,17 +79,17 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPlacemark(_placemarkWithDynamicIcon);
                       },
-                      child: const Text('Add')
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePlacemark(_placemarkWithDynamicIcon);
                       },
-                      child: const Text('Remove')
+                      title: 'Remove'
                     ),
                   ],
                 )
