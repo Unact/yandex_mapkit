@@ -43,11 +43,7 @@ class _TargetExampleState extends State<_TargetExample> {
                     RaisedButton(
                       onPressed: () async {
                         final Point currentTarget = await controller.enableCameraTracking(
-                          Placemark(
-                            point: const Point(latitude: 0, longitude: 0),
-                            iconName: 'lib/assets/place.png',
-                            opacity: 0.5,
-                          ),
+                          const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                           cameraPositionChanged
                         );
                         await addUserPlacemark(currentTarget);
@@ -99,8 +95,10 @@ class _TargetExampleState extends State<_TargetExample> {
   Future<void> addUserPlacemark(Point point) async {
     await controller.addPlacemark(Placemark(
       point: point,
-      iconName: 'lib/assets/user.png',
-      opacity: 0.9,
+      style: const PlacemarkStyle(
+        iconName: 'lib/assets/user.png',
+        opacity: 0.9,
+      ),
     ));
   }
 }

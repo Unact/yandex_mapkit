@@ -1,6 +1,6 @@
 part of yandex_mapkit;
 
-class MapSize extends Equatable{
+class MapSize extends Equatable {
   const MapSize({
     @required this.width,
     @required this.height

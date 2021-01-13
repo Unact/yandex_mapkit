@@ -75,14 +75,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView = new MapView(context);
     MapKitFactory.getInstance().onStart();
     mapView.onStart();
+
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
     yandexMapInputListener = new YandexMapInputListener();
     yandexMapSizeChangedListener = new YandexMapSizeChangedListener();
-    userLocationLayer =
-            MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
+    userLocationLayer = MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
+
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
+
     mapView.getMap().addInputListener(yandexMapInputListener);
     mapView.getMapWindow().addSizeChangedListener(yandexMapSizeChangedListener);
   }
@@ -108,6 +110,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void toggleMapRotation(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
     mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
   }
 
@@ -115,8 +118,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void logoAlignment(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Alignment logoPosition = new Alignment(
-        HorizontalAlignment.values()[(Integer) params.get("x")],
-        VerticalAlignment.values()[(Integer) params.get("y")]
+      HorizontalAlignment.values()[(Integer) params.get("x")],
+      VerticalAlignment.values()[(Integer) params.get("y")]
     );
     mapView.getMap().getLogo().setAlignment(logoPosition);
   }
@@ -152,12 +155,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void move(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
+    Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
+    Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
     CameraPosition cameraPosition = new CameraPosition(
-        point,
-        ((Double) params.get("zoom")).floatValue(),
-        ((Double) params.get("azimuth")).floatValue(),
-        ((Double) params.get("tilt")).floatValue()
+      point,
+      ((Double) params.get("zoom")).floatValue(),
+      ((Double) params.get("azimuth")).floatValue(),
+      ((Double) params.get("tilt")).floatValue()
     );
 
     moveWithParams(params, cameraPosition);
@@ -166,9 +170,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void setBounds(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> paramsSouthWestPoint = ((Map<String, Object>) params.get("southWestPoint"));
+    Map<String, Object> paramsNorthEastPoint = ((Map<String, Object>) params.get("northEastPoint"));
     BoundingBox boundingBox = new BoundingBox(
-        new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
-        new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
+      new Point(((Double) paramsSouthWestPoint.get("latitude")), ((Double) paramsSouthWestPoint.get("longitude"))),
+      new Point(((Double) paramsNorthEastPoint.get("latitude")), ((Double) paramsNorthEastPoint.get("longitude")))
     );
 
     moveWithParams(params, mapView.getMap().cameraPosition(boundingBox));
@@ -177,16 +183,18 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void addPlacemark(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Point point = new Point(((Double) params.get("latitude")), ((Double) params.get("longitude")));
+    Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
+    Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
+    Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
-    String iconName = (String) params.get("iconName");
-    byte[] rawImageData = (byte[]) params.get("rawImageData");
+    String iconName = (String) paramsStyle.get("iconName");
+    byte[] rawImageData = (byte[]) paramsStyle.get("rawImageData");
 
     placemark.setUserData(params.get("hashCode"));
-    placemark.setOpacity(((Double) params.get("opacity")).floatValue());
-    placemark.setDraggable((Boolean) params.get("isDraggable"));
-    placemark.setDirection(((Double) params.get("direction")).floatValue());
+    placemark.setOpacity(((Double) paramsStyle.get("opacity")).floatValue());
+    placemark.setDraggable((Boolean) paramsStyle.get("isDraggable"));
+    placemark.setDirection(((Double) paramsStyle.get("direction")).floatValue());
     placemark.addTapListener(yandexMapObjectTapListener);
 
     if (iconName != null) {
@@ -199,12 +207,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
 
     IconStyle iconStyle = new IconStyle();
-    iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
-    iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
-    iconStyle.setScale(((Double) params.get("scale")).floatValue());
+    iconStyle.setAnchor(
+      new PointF(
+        ((Double) paramsStyle.get("anchorX")).floatValue(),
+        ((Double) paramsStyle.get("anchorY")).floatValue()
+      )
+    );
+    iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
+    iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
 
-    String rotationType = (String) params.get("rotationType");
-    if (rotationType.equals("RotationType.ROTATE")) {
+    int rotationType = ((Number) paramsStyle.get("rotationType")).intValue();
+    if (rotationType == RotationType.ROTATE.ordinal()) {
       iconStyle.setRotationType(RotationType.ROTATE);
     }
 
@@ -216,7 +229,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private Map<String, Object> getTargetPoint() {
     Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("hashCode", point.hashCode());
     arguments.put("latitude", point.getLatitude());
     arguments.put("longitude", point.getLongitude());
     return arguments;
@@ -266,14 +278,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Point targetPoint =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
     if (call.arguments != null) {
       Map<String, Object> params = ((Map<String, Object>) call.arguments);
+      Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
 
       MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
       cameraTarget = mapObjects.addPlacemark(targetPoint);
-      String iconName = (String) params.get("iconName");
-      byte[] rawImageData = (byte[]) params.get("rawImageData");
-      cameraTarget.setUserData(params.get("hashCode"));
-      cameraTarget.setOpacity(((Double) params.get("opacity")).floatValue());
-      cameraTarget.setDraggable((Boolean) params.get("isDraggable"));
+      String iconName = (String) paramsStyle.get("iconName");
+      byte[] rawImageData = (byte[]) paramsStyle.get("rawImageData");
+      cameraTarget.setOpacity(((Double) paramsStyle.get("opacity")).floatValue());
+      cameraTarget.setDraggable((Boolean) paramsStyle.get("isDraggable"));
       cameraTarget.addTapListener(yandexMapObjectTapListener);
 
       if (iconName != null) {
@@ -286,46 +298,51 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       }
 
       IconStyle iconStyle = new IconStyle();
-      iconStyle.setAnchor(new PointF(((Double) params.get("anchorX")).floatValue(), ((Double) params.get("anchorY")).floatValue()));
-      iconStyle.setZIndex(((Double) params.get("zIndex")).floatValue());
-      iconStyle.setScale(((Double) params.get("scale")).floatValue());
+      iconStyle.setAnchor(
+        new PointF(
+          ((Double) paramsStyle.get("anchorX")).floatValue(),
+          ((Double) paramsStyle.get("anchorY")).floatValue()
+        )
+      );
+      iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
+      iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
       cameraTarget.setIconStyle(iconStyle);
     }
 
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("hashCode", targetPoint.hashCode());
     arguments.put("latitude", targetPoint.getLatitude());
     arguments.put("longitude", targetPoint.getLongitude());
     return arguments;
   }
 
   @SuppressWarnings("unchecked")
-  private void addPolyline(MethodCall cell) {
-    Map<String, Object> params = (Map<String, Object>)cell.arguments;
-    List<Map<String, Object>> coordinates = (List<Map<String, Object>>)params.get("coordinates");
+  private void addPolyline(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
+    List<Map<String, Object>> paramsCoordinates = (List<Map<String, Object>>) params.get("coordinates");
     ArrayList<Point> polylineCoordinates = new ArrayList<>();
-    for (Map<String, Object> c: coordinates) {
+    for (Map<String, Object> c: paramsCoordinates) {
       Point p = new Point((Double) c.get("latitude"), (Double) c.get("longitude"));
       polylineCoordinates.add(p);
     }
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
 
-    String outlineColorString = String.valueOf(params.get("outlineColor"));
+    String outlineColorString = String.valueOf(paramsStyle.get("outlineColor"));
     Long outlineColorLong = Long.parseLong(outlineColorString);
 
-    String strokeColorString = String.valueOf(params.get("strokeColor"));
+    String strokeColorString = String.valueOf(paramsStyle.get("strokeColor"));
     Long strokeColorLong = Long.parseLong(strokeColorString);
 
     polyline.setUserData(params.get("hashCode"));
     polyline.setOutlineColor(outlineColorLong.intValue());
-    polyline.setOutlineWidth(((Double)params.get("outlineWidth")).floatValue());
+    polyline.setOutlineWidth(((Double) paramsStyle.get("outlineWidth")).floatValue());
     polyline.setStrokeColor(strokeColorLong.intValue());
-    polyline.setStrokeWidth(((Double)params.get("strokeWidth")).floatValue());
-    polyline.setGeodesic((boolean)params.get("isGeodesic"));
-    polyline.setDashLength(((Double)params.get("dashLength")).floatValue());
-    polyline.setDashOffset(((Double)params.get("dashOffset")).floatValue());
-    polyline.setGapLength(((Double)params.get("gapLength")).floatValue());
+    polyline.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
+    polyline.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
+    polyline.setDashLength(((Double) paramsStyle.get("dashLength")).floatValue());
+    polyline.setDashOffset(((Double) paramsStyle.get("dashOffset")).floatValue());
+    polyline.setGapLength(((Double) paramsStyle.get("gapLength")).floatValue());
 
     polylines.add(polyline);
   }
@@ -348,20 +365,22 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void addPolygon(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    List<Map<String, Object>> points = (List<Map<String, Object>>) params.get("coordinates");
+    Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
+    List<Map<String, Object>> paramsCoordinates = (List<Map<String, Object>>) params.get("coordinates");
     ArrayList<Point> polygonPoints = new ArrayList<>();
-    for (Map<String, Object> p: points) {
-      Point point = new Point(((Double) p.get("latitude")), ((Double) p.get("longitude")));
+    for (Map<String, Object> c: paramsCoordinates) {
+      Point point = new Point(((Double) c.get("latitude")), ((Double) c.get("longitude")));
       polygonPoints.add(point);
     }
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolygonMapObject polygon = mapObjects.addPolygon(
-            new Polygon(new LinearRing(polygonPoints), new ArrayList<LinearRing>()));
-    polygon.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
-    polygon.setStrokeColor(((Number) params.get("strokeColor")).intValue());
-    polygon.setFillColor(((Number) params.get("fillColor")).intValue());
+      new Polygon(new LinearRing(polygonPoints), new ArrayList<LinearRing>())
+    );
 
     polygon.setUserData(params.get("hashCode"));
+    polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
+    polygon.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
+    polygon.setFillColor(((Number) paramsStyle.get("fillColor")).intValue());
 
     polygons.add(polygon);
   }
@@ -391,17 +410,21 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       CameraPosition cameraPosition = userLocationLayer.cameraPosition();
       if (cameraPosition != null) {
         mapView.getMap().move(
-                new CameraPosition(cameraPosition.getTarget(), currentZoom, azimuth, tilt),
-                new Animation(Animation.Type.SMOOTH, 1),
-                null);
+          new CameraPosition(cameraPosition.getTarget(), currentZoom, azimuth, tilt),
+          new Animation(Animation.Type.SMOOTH, 1),
+          null
+        );
       }
     }
   }
 
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
-    if (((Boolean) params.get("animate"))) {
-      Animation.Type type = ((Boolean) params.get("smoothAnimation")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
-      Animation animation = new Animation(type, ((Double) params.get("animationDuration")).floatValue());
+    Map<String, Object> paramsAnimation = ((Map<String, Object>) params.get("animation"));
+    if (((Boolean) paramsAnimation.get("animate"))) {
+      Animation.Type type = ((Boolean) paramsAnimation.get("smoothAnimation")) ?
+        Animation.Type.SMOOTH :
+        Animation.Type.LINEAR;
+      Animation animation = new Animation(type, ((Double) paramsAnimation.get("animationDuration")).floatValue());
 
       mapView.getMap().move(cameraPosition, animation, null);
     } else {
@@ -410,7 +433,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   private boolean hasLocationPermission() {
-    int permissionState = ActivityCompat.checkSelfPermission(mapView.getContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+    int permissionState = ActivityCompat.checkSelfPermission(
+      mapView.getContext(),
+      Manifest.permission.ACCESS_FINE_LOCATION
+    );
     return permissionState == PackageManager.PERMISSION_GRANTED;
   }
 
@@ -428,14 +454,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     float tilt = mapView.getMap().getCameraPosition().getTilt();
     float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
     mapView.getMap().move(
-            new CameraPosition(
-                zoomPoint,
-                currentZoom+step,
-                tilt,
-                azimuth
-            ),
-            new Animation(Animation.Type.SMOOTH, 1),
-            null);
+      new CameraPosition(
+        zoomPoint,
+        currentZoom + step,
+        tilt,
+        azimuth
+      ),
+      new Animation(Animation.Type.SMOOTH, 1),
+      null
+    );
   }
 
   @Override
@@ -530,11 +557,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private class YandexCameraListener implements CameraListener {
     @Override
     public void onCameraPositionChanged(
-            com.yandex.mapkit.map.Map map,
-            CameraPosition cameraPosition,
-            CameraUpdateReason cameraUpdateReason,
-            boolean bFinal)
-    {
+      com.yandex.mapkit.map.Map map,
+      CameraPosition cameraPosition,
+      CameraUpdateReason cameraUpdateReason,
+      boolean bFinal
+    ) {
       Point targetPoint = cameraPosition.getTarget();
       if (cameraTarget != null) {
         cameraTarget.setGeometry(targetPoint);

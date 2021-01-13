@@ -1,12 +1,12 @@
 part of yandex_mapkit;
 
-enum HorizontalAlignment{
+enum HorizontalAlignment {
   left,
   center,
   right
 }
 
-enum VerticalAlignment{
+enum VerticalAlignment {
   top,
   bottom
 }

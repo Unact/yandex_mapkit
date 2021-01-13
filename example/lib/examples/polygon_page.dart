@@ -24,9 +24,11 @@ class _PolygonExampleState extends State<_PolygonExample> {
       Point(latitude: 70.12669, longitude: 98.97399),
       Point(latitude: 56.04956, longitude: 125.07751),
     ],
-    strokeColor: Colors.orange[700],
-    strokeWidth: 3.0,
-    fillColor: Colors.yellow[200],
+    style: PolygonStyle(
+      strokeColor: Colors.orange[700],
+      strokeWidth: 3.0,
+      fillColor: Colors.yellow[200],
+    ),
   );
 
   @override
