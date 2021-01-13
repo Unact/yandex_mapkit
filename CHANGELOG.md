@@ -1,3 +1,11 @@
+## 0.5.0
+
+* Update and lock YandexMapkit version to 4.0.0-full for iOS and Android
+* Add `onMapRendered` and `onMapSizeChanged` callbacks to `YandexMap`
+* **Breaking change**. `YandexMapController.enableCameraTracking` now uses `PlacemarkStyle` instead of `Placemark` for styling tracking marker.
+* **Breaking change**. `Placemark`, `Polyline`, `Polygon` constructors have been changed.
+Styling now requires an instance of `PlacemarkStyle`/`PolylineStyle`/`PolygonStyle`.
+
 ## 0.4.2
 
 * Add support for changing yandex logo position [#79, Goolpe]
