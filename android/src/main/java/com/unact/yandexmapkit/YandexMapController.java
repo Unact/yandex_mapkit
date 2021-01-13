@@ -219,6 +219,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private Map<String, Object> getVisibleRegion() {
+    VisibleRegion region = mapView.getMap().getVisibleRegion();
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("bottomLeft", region.getBottomLeft());
+    arguments.put("bottomRight", region.getBottomRight());
+    arguments.put("topLeft", region.getTopLeft());
+    arguments.put("topRight", region.getTopRight());
+    return arguments;
+  }
+
+  @SuppressWarnings("unchecked")
   private void removePlacemark(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
@@ -512,6 +523,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "getTargetPoint":
         Map<String, Object> point = getTargetPoint();
         result.success(point);
+        break;
+      case "getVisibleRegion":
+        Map<String, Object> region = getVisibleRegion();
+        result.success(region);
         break;
       case "moveToUser":
         moveToUser();
