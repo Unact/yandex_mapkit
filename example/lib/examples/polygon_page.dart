@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PolygonPage extends MapPage {
   const PolygonPage() : super('Polygon example');
@@ -24,9 +25,11 @@ class _PolygonExampleState extends State<_PolygonExample> {
       Point(latitude: 70.12669, longitude: 98.97399),
       Point(latitude: 56.04956, longitude: 125.07751),
     ],
-    strokeColor: Colors.orange[700],
-    strokeWidth: 3.0,
-    fillColor: Colors.yellow[200],
+    style: PolygonStyle(
+      strokeColor: Colors.orange[700],
+      strokeWidth: 3.0,
+      fillColor: Colors.yellow[200],
+    ),
   );
 
   @override
@@ -50,17 +53,17 @@ class _PolygonExampleState extends State<_PolygonExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPolygon(polygon);
                       },
-                      child: const Text('Add'),
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePolygon(polygon);
                       },
-                      child: const Text('Remove'),
+                      title: 'Remove'
                     )
                   ],
                 )

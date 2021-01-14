@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PolylinePage extends MapPage {
   const PolylinePage() : super('Polyline example');
@@ -38,10 +39,12 @@ class _PolylineExampleState extends State<_PolylineExample> {
       Point(latitude: 55.0415, longitude: 82.9346),
       Point(latitude: 66.42989, longitude: 112.4021),
     ],
-    strokeColor: Colors.orange[700],
-    strokeWidth: 7.5, // <- default value 5.0, this will be a little bold
-    outlineColor: Colors.yellow[200],
-    outlineWidth: 2.0,
+    style: PolylineStyle(
+      strokeColor: Colors.orange[700],
+      strokeWidth: 7.5, // <- default value 5.0, this will be a little bold
+      outlineColor: Colors.yellow[200],
+      outlineWidth: 2.0,
+    ),
   );
 
   @override
@@ -65,17 +68,17 @@ class _PolylineExampleState extends State<_PolylineExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPolyline(polyline);
                       },
-                      child: const Text('Add'),
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePolyline(polyline);
                       },
-                      child: const Text('Remove'),
+                      title: 'Remove'
                     )
                   ],
                 )

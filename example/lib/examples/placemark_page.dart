@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
 import 'package:yandex_mapkit_example/examples/data/dummy_image.dart' show rawImageData;
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PlacemarkPage extends MapPage {
   const PlacemarkPage() : super('Placemark example');
@@ -22,16 +23,20 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   final Placemark _placemark = Placemark(
     point: _point,
-    opacity: 0.7,
-    iconName: 'lib/assets/place.png',
     onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    style: const PlacemarkStyle(
+      opacity: 0.7,
+      iconName: 'lib/assets/place.png',
+    ),
   );
 
   final Placemark _placemarkWithDynamicIcon = Placemark(
     point: const Point(latitude: 30.320045, longitude: 59.945933),
-    opacity: 0.95,
-    rawImageData: rawImageData,
     onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    style: PlacemarkStyle(
+      opacity: 0.95,
+      rawImageData: rawImageData,
+    ),
   );
 
   @override
@@ -56,17 +61,17 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPlacemark(_placemark);
                       },
-                      child: const Text('Add')
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePlacemark(_placemark);
                       },
-                      child: const Text('Remove')
+                      title: 'Remove'
                     ),
                   ],
                 ),
@@ -74,17 +79,17 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.addPlacemark(_placemarkWithDynamicIcon);
                       },
-                      child: const Text('Add')
+                      title: 'Add'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.removePlacemark(_placemarkWithDynamicIcon);
                       },
-                      child: const Text('Remove')
+                      title: 'Remove'
                     ),
                   ],
                 )

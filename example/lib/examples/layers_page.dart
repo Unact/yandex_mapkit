@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class LayersPage extends MapPage {
   const LayersPage() : super('Layers example');
@@ -68,7 +69,7 @@ class _LayersExampleState extends State<_LayersExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         if (_permissionStatus == PermissionStatus.granted) {
                           await controller.showUserLayer(
@@ -80,20 +81,20 @@ class _LayersExampleState extends State<_LayersExample> {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
                       },
-                      child: const Text('Show user layer')
+                      title:'Show user layer'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.hideUserLayer();
                       },
-                      child: const Text('Hide user layer')
+                      title:'Hide user layer'
                     )
                   ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         if (_permissionStatus == PermissionStatus.granted) {
                           await controller.moveToUser();
@@ -101,7 +102,7 @@ class _LayersExampleState extends State<_LayersExample> {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
                       },
-                      child: const Text('Move to user')
+                      title:'Move to user'
                     ),
                     const FlatButton(
                       padding: EdgeInsets.all(4),

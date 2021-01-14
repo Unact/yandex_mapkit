@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class SearchPage extends MapPage {
   const SearchPage() : super('Search example');
@@ -42,11 +43,11 @@ class _SearchExampleState extends State<_SearchExample> {
                         controller: queryController,
                       ),
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () {
                         querySuggestions(queryController.text);
                       },
-                      child: const Text('Query')
+                      title: 'Query'
                     ),
                   ],
                 ),

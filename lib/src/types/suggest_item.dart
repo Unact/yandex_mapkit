@@ -1,6 +1,6 @@
 part of yandex_mapkit;
 
-class SuggestItem extends Equatable{
+class SuggestItem extends Equatable {
   const SuggestItem({
     this.title,
     this.subtitle,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class MapControlsPage extends MapPage {
   const MapControlsPage() : super('Map controls example');
@@ -47,6 +48,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       }
     ]
   ''';
+  double _height = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -59,17 +61,20 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
             },
+            onMapRendered: () => print('Map rendered'),
+            onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
             onMapTap: (Point point) => print('Tapped map at ${point.latitude},${point.longitude}'),
             onMapLongTap: (Point point) => print('Long tapped map at ${point.latitude},${point.longitude}')
           )
         ),
+        SizedBox(height: _height),
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Table(
               children: <TableRow>[
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setBounds(
                         southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
@@ -78,7 +83,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Set bounds'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.move(
                         point: _point,
@@ -89,29 +94,31 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () => controller.zoomIn(),
                     title: 'Zoom in'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () => controller.zoomOut(),
                     title: 'Zoom out'
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.addPlacemark(
                         Placemark(
                           point: await controller.getTargetPoint(),
-                          opacity: 0.7,
-                          iconName: 'lib/assets/place.png'
+                          style: const PlacemarkStyle(
+                            opacity: 0.7,
+                            iconName: 'lib/assets/place.png'
+                          ),
                         )
                       );
                     },
                     title: 'Target point'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.logoAlignment(
                         horizontal: HorizontalAlignment.center,
@@ -122,13 +129,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setMapStyle(style: nonEmptyStyle);
                     },
                     title: 'Set Style'
                   ),
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       await controller.setMapStyle(style: emptyStyle);
                     },
@@ -136,33 +143,27 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                 ]),
                 TableRow(children: <Widget>[
-                  _button(
+                  ControlButton(
                     onPressed: () async {
                       isNightModeEnabled = !isNightModeEnabled;
                       await controller.toggleNightMode(enabled: isNightModeEnabled);
                     },
                     title: 'Night mode'
                   ),
-                  const SizedBox.shrink()
-                ])
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        _height = _height == 0 ? 10 : 0;
+                      });
+                    },
+                    title: 'Change size'
+                  )
+                ]),
               ],
             ),
           ),
         )
       ]
-    );
-  }
-
-  Widget _button({
-    @required Function() onPressed,
-    @required String title
-  }){
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: RaisedButton(
-        child: Text(title),
-        onPressed: onPressed
-      ),
     );
   }
 }

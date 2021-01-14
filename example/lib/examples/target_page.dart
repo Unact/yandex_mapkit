@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class TargetPage extends MapPage {
   const TargetPage() : super('Target example');
@@ -40,21 +41,17 @@ class _TargetExampleState extends State<_TargetExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         final Point currentTarget = await controller.enableCameraTracking(
-                          Placemark(
-                            point: const Point(latitude: 0, longitude: 0),
-                            iconName: 'lib/assets/place.png',
-                            opacity: 0.5,
-                          ),
+                          const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                           cameraPositionChanged
                         );
                         await addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Tracking')
+                      title: 'Tracking'
                     ),
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         final Point currentTarget = await controller.enableCameraTracking(
                           null,
@@ -62,7 +59,7 @@ class _TargetExampleState extends State<_TargetExample> {
                         );
                         await addUserPlacemark(currentTarget);
                       },
-                      child: const Text('Tracking (without marker)')
+                      title: 'Tracking (without marker)'
                     ),
                   ],
                 ),
@@ -70,11 +67,11 @@ class _TargetExampleState extends State<_TargetExample> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    RaisedButton(
+                    ControlButton(
                       onPressed: () async {
                         await controller.disableCameraTracking();
                       },
-                      child: const Text('Disable tracking')
+                      title: 'Disable tracking'
                     ),
                   ],
                 ),
@@ -99,8 +96,10 @@ class _TargetExampleState extends State<_TargetExample> {
   Future<void> addUserPlacemark(Point point) async {
     await controller.addPlacemark(Placemark(
       point: point,
-      iconName: 'lib/assets/user.png',
-      opacity: 0.9,
+      style: const PlacemarkStyle(
+        iconName: 'lib/assets/user.png',
+        opacity: 0.9,
+      ),
     ));
   }
 }

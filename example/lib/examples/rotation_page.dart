@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/map_page.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
+import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class RotationPage extends MapPage {
   const RotationPage() : super('Rotation example');
@@ -25,11 +26,13 @@ class _RotateExampleState extends State<_RotateExample> {
     const Point point = Point(latitude: 59.945933, longitude: 30.320045);
     final Placemark placemark = Placemark(
       point: point,
-      opacity: 0.7,
-      iconName: 'lib/assets/place.png',
       onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      rotationType: RotationType.ROTATE,
-      direction: 90,
+      style: const PlacemarkStyle(
+        opacity: 0.7,
+        iconName: 'lib/assets/place.png',
+        rotationType: RotationType.rotate,
+        direction: 90,
+      ),
     );
     controller.addPlacemark(placemark);
   }
@@ -38,9 +41,11 @@ class _RotateExampleState extends State<_RotateExample> {
     const Point point = Point(latitude: 59.945933, longitude: 30.320045);
     final Placemark placemark = Placemark(
       point: point,
-      opacity: 0.7,
-      iconName: 'lib/assets/place.png',
       onTap: (Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      style: const PlacemarkStyle(
+        opacity: 0.7,
+        iconName: 'lib/assets/place.png',
+      )
     );
     controller.addPlacemark(placemark);
   }
@@ -68,17 +73,17 @@ class _RotateExampleState extends State<_RotateExample> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                RaisedButton(
-                  child: const Text('Add placemark with pinned direction'),
+                ControlButton(
                   onPressed: _addPlacemarkPinned,
+                  title: 'Add placemark with pinned direction'
                 ),
-                RaisedButton(
-                  child: const Text('Add placemark with pinned direction (Rotated)'),
+                ControlButton(
                   onPressed: _addPlacemarkPinnedRotated,
+                  title: 'Add placemark with pinned direction (Rotated)'
                 ),
-                RaisedButton(
-                  child: Text('Toggle camera rotation: ${rotationBlocked ? 'ON' : 'OFF'}'),
+                ControlButton(
                   onPressed: _blockCameraRotate,
+                  title: 'Toggle camera rotation: ${rotationBlocked ? 'ON' : 'OFF'}'
                 )
               ],
             ),
