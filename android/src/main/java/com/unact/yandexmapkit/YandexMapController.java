@@ -221,12 +221,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private Map<String, Object> getVisibleRegion() {
-    VisibleRegion region = mapView.getMap().getVisibleRegion();
+    final VisibleRegion region = mapView.getMap().getVisibleRegion();
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("bottomLeft", region.getBottomLeft());
-    arguments.put("bottomRight", region.getBottomRight());
-    arguments.put("topLeft", region.getTopLeft());
-    arguments.put("topRight", region.getTopRight());
+    arguments.put("bottomLeft", new HashMap<String, Double>() {{
+      put("latitude", region.getBottomLeft().getLatitude());
+      put("longitude", region.getBottomLeft().getLongitude());
+    }});
+    arguments.put("bottomRight", new HashMap<String, Double>() {{
+      put("latitude", region.getBottomRight().getLatitude());
+      put("longitude", region.getBottomRight().getLongitude());
+    }});
+    arguments.put("topLeft", new HashMap<String, Double>() {{
+      put("latitude", region.getTopLeft().getLatitude());
+      put("longitude", region.getTopLeft().getLongitude());
+    }});
+    arguments.put("topRight", new HashMap<String, Double>() {{
+      put("latitude", region.getTopRight().getLatitude());
+      put("longitude", region.getTopRight().getLongitude());
+    }});
     return arguments;
   }
 

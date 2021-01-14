@@ -243,11 +243,19 @@ class YandexMapController extends ChangeNotifier {
   Future<Map<String, Point>> getVisibleRegion() async {
     final dynamic region =
         await _channel.invokeMethod<dynamic>('getVisibleRegion');
-    return Map<String, Point>.of({
-      'bottomLeft': region['bottomLeft'],
-      'bottomRight': region['bottomRight'],
-      'topLeft': region['topLeft'],
-      'topRight': region['topRight']
+    return Map<String, Point>.of(<String, Point>{
+      'bottomLeft': Point(
+          latitude: region['bottomLeft']['latitude'],
+          longitude: region['bottomLeft']['longitude']),
+      'bottomRight': Point(
+          latitude: region['bottomRight']['latitude'],
+          longitude: region['bottomRight']['longitude']),
+      'topLeft': Point(
+          latitude: region['topLeft']['latitude'],
+          longitude: region['topLeft']['longitude']),
+      'topRight': Point(
+          latitude: region['topRight']['latitude'],
+          longitude: region['topRight']['longitude'])
     });
   }
 
