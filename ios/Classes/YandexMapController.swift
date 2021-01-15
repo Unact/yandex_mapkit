@@ -102,6 +102,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getTargetPoint":
       let targetPoint = getTargetPoint()
       result(targetPoint)
+    case "getVisibleRegion":
+      let region: [String: Any] = getVisibleRegion()
+      result(region)
     case "moveToUser":
       moveToUser()
       result(nil)
@@ -275,6 +278,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemark.setIconStyleWith(iconStyle)
 
     placemarks.append(placemark)
+  }
+
+  public func getVisibleRegion() -> [String: Any] {
+    let region = mapView.mapWindow.map.visibleRegion
+    var arguments = [String: Any]()
+    arguments["bottomLeft"] = ["latitude": region.bottomLeft.latitude, "longitude": region.bottomLeft.longitude]
+    arguments["bottomRight"] = ["latitude": region.bottomRight.latitude, "longitude": region.bottomRight.longitude]
+    arguments["topLeft"] = ["latitude": region.topLeft.latitude, "longitude": region.topLeft.longitude]
+    arguments["topRight"] = ["latitude": region.topRight.latitude, "longitude": region.topRight.longitude]
+    print(arguments)
+    return arguments
   }
 
   public func removePlacemark(_ call: FlutterMethodCall) {
