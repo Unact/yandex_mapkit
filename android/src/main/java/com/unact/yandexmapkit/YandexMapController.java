@@ -239,19 +239,19 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private Map<String, Object> getVisibleRegion() {
     final VisibleRegion region = mapView.getMap().getVisibleRegion();
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("bottomLeft", new HashMap<String, Double>() {{
+    arguments.put("bottomLeftPoint", new HashMap<String, Double>() {{
       put("latitude", region.getBottomLeft().getLatitude());
       put("longitude", region.getBottomLeft().getLongitude());
     }});
-    arguments.put("bottomRight", new HashMap<String, Double>() {{
+    arguments.put("bottomRightPoint", new HashMap<String, Double>() {{
       put("latitude", region.getBottomRight().getLatitude());
       put("longitude", region.getBottomRight().getLongitude());
     }});
-    arguments.put("topLeft", new HashMap<String, Double>() {{
+    arguments.put("topLeftPoint", new HashMap<String, Double>() {{
       put("latitude", region.getTopLeft().getLatitude());
       put("longitude", region.getTopLeft().getLongitude());
     }});
-    arguments.put("topRight", new HashMap<String, Double>() {{
+    arguments.put("topRightPoint", new HashMap<String, Double>() {{
       put("latitude", region.getTopRight().getLatitude());
       put("longitude", region.getTopRight().getLongitude());
     }});
