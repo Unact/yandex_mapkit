@@ -283,11 +283,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func getVisibleRegion() -> [String: Any] {
     let region = mapView.mapWindow.map.visibleRegion
     var arguments = [String: Any]()
-    arguments["bottomLeft"] = ["latitude": region.bottomLeft.latitude, "longitude": region.bottomLeft.longitude]
-    arguments["bottomRight"] = ["latitude": region.bottomRight.latitude, "longitude": region.bottomRight.longitude]
-    arguments["topLeft"] = ["latitude": region.topLeft.latitude, "longitude": region.topLeft.longitude]
-    arguments["topRight"] = ["latitude": region.topRight.latitude, "longitude": region.topRight.longitude]
-    print(arguments)
+    arguments["bottomLeftPoint"] = ["latitude": region.bottomLeft.latitude, "longitude": region.bottomLeft.longitude]
+    arguments["bottomRightPoint"] = ["latitude": region.bottomRight.latitude, "longitude": region.bottomRight.longitude]
+    arguments["topLeftPoint"] = ["latitude": region.topLeft.latitude, "longitude": region.topLeft.longitude]
+    arguments["topRightPoint"] = ["latitude": region.topRight.latitude, "longitude": region.topRight.longitude]
     return arguments
   }
 
