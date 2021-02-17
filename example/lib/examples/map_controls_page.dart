@@ -160,23 +160,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   )
                 ]),
                 TableRow(
-                    children: <Widget>[
-                      ControlButton(
-                        onPressed: () async {
-                          final Map<String, Point> region =
-                              await controller.getVisibleRegion();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  'TopLeft: ${region['topLeftPoint']},\nBottomRight: ${region['bottomRightPoint']}'),
-                            ),
-                          );
-                        },
-                        title: 'Visible map region'),
-                      const TextButton(onPressed: null, child: Text(''))
-                    ],
-                  ),
-                ],
+                  children: <Widget>[
+                    ControlButton(
+                      onPressed: () async {
+                        final Map<String, Point> region =
+                            await controller.getVisibleRegion();
+                        print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
+                      },
+                      title: 'Visible map region'),
+                    const TextButton(onPressed: null, child: Text(''))
+                  ],
+                ),
+              ],
             ),
           ),
         )
