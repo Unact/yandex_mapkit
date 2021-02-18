@@ -159,6 +159,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Change size'
                   )
                 ]),
+                TableRow(
+                  children: <Widget>[
+                    ControlButton(
+                      onPressed: () async {
+                        final Map<String, Point> region =
+                            await controller.getVisibleRegion();
+                        print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
+                      },
+                      title: 'Visible map region'),
+                    const TextButton(onPressed: null, child: Text(''))
+                  ],
+                ),
               ],
             ),
           ),

@@ -228,6 +228,26 @@ class YandexMapController extends ChangeNotifier {
     return Point(latitude: point['latitude'], longitude: point['longitude']);
   }
 
+  /// Get bounds of visible map area
+  Future<Map<String, Point>> getVisibleRegion() async {
+    final dynamic region =
+        await _channel.invokeMethod<dynamic>('getVisibleRegion');
+    return Map<String, Point>.of(<String, Point>{
+      'bottomLeftPoint': Point(
+          latitude: region['bottomLeftPoint']['latitude'],
+          longitude: region['bottomLeftPoint']['longitude']),
+      'bottomRightPoint': Point(
+          latitude: region['bottomRightPoint']['latitude'],
+          longitude: region['bottomRightPoint']['longitude']),
+      'topLeftPoint': Point(
+          latitude: region['topLeftPoint']['latitude'],
+          longitude: region['topLeftPoint']['longitude']),
+      'topRightPoint': Point(
+          latitude: region['topRightPoint']['latitude'],
+          longitude: region['topRightPoint']['longitude'])
+    });
+  }
+
   Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onMapTap':

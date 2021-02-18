@@ -32,6 +32,7 @@ import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.RotationType;
+import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.map.SizeChangedListener;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
@@ -231,6 +232,29 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Map<String, Object> arguments = new HashMap<>();
     arguments.put("latitude", point.getLatitude());
     arguments.put("longitude", point.getLongitude());
+    return arguments;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> getVisibleRegion() {
+    final VisibleRegion region = mapView.getMap().getVisibleRegion();
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("bottomLeftPoint", new HashMap<String, Double>() {{
+      put("latitude", region.getBottomLeft().getLatitude());
+      put("longitude", region.getBottomLeft().getLongitude());
+    }});
+    arguments.put("bottomRightPoint", new HashMap<String, Double>() {{
+      put("latitude", region.getBottomRight().getLatitude());
+      put("longitude", region.getBottomRight().getLongitude());
+    }});
+    arguments.put("topLeftPoint", new HashMap<String, Double>() {{
+      put("latitude", region.getTopLeft().getLatitude());
+      put("longitude", region.getTopLeft().getLongitude());
+    }});
+    arguments.put("topRightPoint", new HashMap<String, Double>() {{
+      put("latitude", region.getTopRight().getLatitude());
+      put("longitude", region.getTopRight().getLongitude());
+    }});
     return arguments;
   }
 
@@ -543,6 +567,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "getTargetPoint":
         Map<String, Object> point = getTargetPoint();
         result.success(point);
+        break;
+      case "getVisibleRegion":
+        Map<String, Object> region = getVisibleRegion();
+        result.success(region);
         break;
       case "moveToUser":
         moveToUser();
