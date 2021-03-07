@@ -8,10 +8,13 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 public class YandexMapkitPlugin implements FlutterPlugin {
   private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
-  private static final String CHANNEL_ID = "yandex_mapkit/yandex_search";
+  private static final String SEARCH_CHANNEL_ID = "yandex_mapkit/yandex_search";
+  private static final String DRIVING_CHANNEL_ID = "yandex_mapkit/yandex_driving";
 
-  private MethodChannel methodChannel;
-  private YandexSearchHandlerImpl handler;
+  private MethodChannel methodChannelSearch;
+  private YandexSearchHandlerImpl handlerSearch;
+
+  private MethodChannel methodChannelDrivingRouter;
 
   public static void registerWith(Registrar registrar) {
     if (registrar.activity() == null) {
@@ -39,14 +42,22 @@ public class YandexMapkitPlugin implements FlutterPlugin {
   }
 
   private void setupYandexSearchChannel(BinaryMessenger messenger, Context context) {
-    methodChannel = new MethodChannel(messenger, CHANNEL_ID);
-    handler = new YandexSearchHandlerImpl(context, methodChannel);
-    methodChannel.setMethodCallHandler(handler);
+    methodChannelSearch = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
+    handlerSearch = new YandexSearchHandlerImpl(context, methodChannelSearch);
+    methodChannelSearch.setMethodCallHandler(handlerSearch);
+
+    methodChannelDrivingRouter = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
+    YandexDrivingRouterImpl handlerDrivingRouter = new YandexDrivingRouterImpl(context);
+    methodChannelDrivingRouter.setMethodCallHandler(handlerDrivingRouter);
+
   }
 
   private void teardownYandexSearchChannel() {
-    methodChannel.setMethodCallHandler(null);
-    handler = null;
-    methodChannel = null;
+    methodChannelSearch.setMethodCallHandler(null);
+    handlerSearch = null;
+    methodChannelSearch = null;
+
+    methodChannelDrivingRouter.setMethodCallHandler(null);
+    methodChannelDrivingRouter = null;
   }
 }
