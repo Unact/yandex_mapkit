@@ -1,4 +1,4 @@
-import '../../../yandex_mapkit.dart';
+part of yandex_mapkit;
 
 class DrivingRoute {
   const DrivingRoute(this.geometry);

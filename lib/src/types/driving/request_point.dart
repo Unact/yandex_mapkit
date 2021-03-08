@@ -1,4 +1,4 @@
-import '../../../yandex_mapkit.dart';
+part of yandex_mapkit;
 
 class RequestPoint {
   const RequestPoint(this.point, this.requestPointType);
