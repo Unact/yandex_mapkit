@@ -1,3 +1,7 @@
+## 0.5.1
+
+* Add visible region retrieval for `YandexMapController`
+
 ## 0.5.0
 
 * Update and lock YandexMapkit version to 4.0.0-full for iOS and Android
