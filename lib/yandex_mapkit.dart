@@ -19,6 +19,8 @@ part 'src/types/map_size.dart';
 part 'src/types/rotation_type.dart';
 part 'src/types/placemark_style.dart';
 part 'src/types/placemark.dart';
+part 'src/types/placemark_collection.dart';
+part 'src/types/clusterized_placemark_collection.dart';
 part 'src/types/point.dart';
 part 'src/types/polygon_style.dart';
 part 'src/types/polygon.dart';

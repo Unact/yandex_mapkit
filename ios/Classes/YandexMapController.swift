@@ -11,11 +11,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var mapCameraListener: MapCameraListener!
   private let mapSizeChangedListener: MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
+  private var clusterListener: ClusterListener!
+  private var clusterTapListener: ClusterTapListener!
+  private var clusterizedCollectionPlacemarkTapListener: ClusterizedCollectionPlacemarkTapListener!
   private var userLocationLayer: YMKUserLocationLayer?
   private var cameraTarget: YMKPlacemarkMapObject?
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
+  private var clusterizedPlacemarkCollection: YMKClusterizedPlacemarkCollection?
+  private var clusterIconImage: UIImage?
+  private var clusterIconStyle: YMKIconStyle?
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -25,15 +31,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
+
     self.mapTapListener = MapTapListener(channel: methodChannel)
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
+    self.clusterTapListener = ClusterTapListener(channel: methodChannel)
+    self.clusterizedCollectionPlacemarkTapListener =
+      ClusterizedCollectionPlacemarkTapListener(channel: methodChannel)
     self.userLocationLayer = YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
 
     super.init()
 
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
+
+    self.clusterListener = ClusterListener(controller: self, channel: methodChannel)
 
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
     self.mapView.mapWindow.addSizeChangedListener(with: mapSizeChangedListener)
@@ -107,6 +119,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       result(region)
     case "moveToUser":
       moveToUser()
+      result(nil)
+    case "addClusterizedPlacemarkCollection":
+      addClusterizedPlacemarkCollection(call)
+      result(nil)
+    case "removeClusterizedPlacemarkCollection":
+      removeClusterizedPlacemarkCollection(call)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -258,8 +276,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-      let image = UIImage(data: rawImageData.data) {
-        placemark.setIconWith(image)
+       let image = UIImage(data: rawImageData.data) {
+      placemark.setIconWith(image)
     }
 
     let iconStyle = YMKIconStyle()
@@ -346,7 +364,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       }
 
       if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-        let image = UIImage(data: rawImageData.data) {
+         let image = UIImage(data: rawImageData.data) {
         cameraTarget!.setIconWith(image)
       }
 
@@ -458,6 +476,108 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         animationType: YMKAnimation.init(type: YMKAnimationType.smooth, duration: 1),
         cameraCallback: nil
       )
+    }
+  }
+
+  public func addClusterizedPlacemarkCollection(_ call: FlutterMethodCall) {
+    let mapObjects = mapView.mapWindow.map.mapObjects
+
+    let collection = mapObjects.addClusterizedPlacemarkCollection(with: clusterListener)
+    clusterizedPlacemarkCollection = collection
+
+    let params = call.arguments as! [String: Any]
+    let paramsPlacemarks = params["placemarks"] as! [[String: Any]]
+
+    for placemarksItem in paramsPlacemarks {
+      var placemarks: [YMKPlacemarkMapObject]!
+
+      let items = (placemarksItem["items"] as! [[String: Any]])
+
+      let points = items.map { item -> YMKPoint in
+        let point = (item["point"] as! [String: Any])
+        return YMKPoint(
+          latitude: (point["latitude"] as! NSNumber).doubleValue,
+          longitude: (point["longitude"] as! NSNumber).doubleValue)
+      }
+
+      let ids = items.map { $0["id"] }
+
+      let style = placemarksItem["style"] as! [String: Any]
+
+      var iconImage: UIImage?
+      if let iconName = style["iconName"] as? String {
+        iconImage = UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))
+      } else if let rawImageData = style["rawImageData"] as? FlutterStandardTypedData {
+        iconImage = UIImage(data: rawImageData.data)
+      }
+
+      if let iconImage = iconImage {
+        let iconStyle = YMKIconStyle()
+        let rotationType = (style["rotationType"] as! NSNumber).intValue
+        if (rotationType == YMKRotationType.rotate.rawValue) {
+          iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
+        }
+        iconStyle.anchor = NSValue(cgPoint:
+                                    CGPoint(
+                                      x: (style["anchorX"] as! NSNumber).doubleValue,
+                                      y: (style["anchorY"] as! NSNumber).doubleValue
+                                    )
+        )
+        iconStyle.zIndex = (style["zIndex"] as! NSNumber)
+        iconStyle.scale = (style["scale"] as! NSNumber)
+        placemarks = collection.addPlacemarks(with: points, image: iconImage, style: iconStyle)
+      } else {
+        placemarks = collection.addEmptyPlacemarks(with: points)
+      }
+
+      let opacity = (style["opacity"] as! NSNumber).floatValue
+      let isDraggable = (style["isDraggable"] as! NSNumber).boolValue
+      let direction = (style["direction"] as! NSNumber).floatValue
+
+      zip(placemarks, ids).forEach { (placemark, id) in
+        placemark.opacity = opacity
+        placemark.isDraggable = isDraggable
+        placemark.direction = direction
+        placemark.userData = id
+        placemark.addTapListener(with: clusterizedCollectionPlacemarkTapListener)
+      }
+    }
+
+    let paramsClusterStyle = params["clusterStyle"] as! [String: Any]
+
+    if let iconName = paramsClusterStyle["iconName"] as? String {
+      clusterIconImage = UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))
+    } else if let rawImageData = paramsClusterStyle["rawImageData"] as? FlutterStandardTypedData {
+      clusterIconImage = UIImage(data: rawImageData.data)
+    }
+
+    let iconStyle = YMKIconStyle()
+    iconStyle.anchor = NSValue(cgPoint:
+                                CGPoint(
+                                  x: (paramsClusterStyle["anchorX"] as! NSNumber).doubleValue,
+                                  y: (paramsClusterStyle["anchorY"] as! NSNumber).doubleValue
+                                )
+    )
+    iconStyle.zIndex = (paramsClusterStyle["zIndex"] as! NSNumber)
+    iconStyle.scale = (paramsClusterStyle["scale"] as! NSNumber)
+
+    clusterIconStyle = iconStyle
+
+    let clusterRadius = (params["clusterRadius"] as! NSNumber).doubleValue
+
+    let minZoom = (params["minZoom"] as! NSNumber).uintValue
+
+    collection.clusterPlacemarks(withClusterRadius: clusterRadius, minZoom: minZoom)
+  }
+
+  public func removeClusterizedPlacemarkCollection(_ call: FlutterMethodCall) {
+    if let collection = clusterizedPlacemarkCollection {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: collection)
+
+      clusterizedPlacemarkCollection = nil
+      clusterIconImage = nil
+      clusterIconStyle = nil
     }
   }
 
@@ -597,7 +717,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   internal class MapCameraListener: NSObject, YMKMapCameraListener {
-    private let yandexMapController: YandexMapController!
+    private weak var yandexMapController: YandexMapController!
     private let methodChannel: FlutterMethodChannel!
 
     public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
@@ -642,6 +762,60 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       ]
 
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
+    }
+  }
+
+  internal class ClusterListener: NSObject, YMKClusterListener {
+    private weak var yandexMapController: YandexMapController!
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
+      self.yandexMapController = controller
+      self.methodChannel = channel
+    }
+
+    func onClusterAdded(with cluster: YMKCluster) {
+      if let image = yandexMapController.clusterIconImage {
+        cluster.appearance.setIconWith(image)
+      }
+      if let style = yandexMapController.clusterIconStyle {
+        cluster.appearance.setIconStyleWith(style)
+      }
+      cluster.addClusterTapListener(with: yandexMapController.clusterTapListener)
+    }
+  }
+
+  internal class ClusterTapListener: NSObject, YMKClusterTapListener {
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.methodChannel = channel
+    }
+
+    func onClusterTap(with cluster: YMKCluster) -> Bool {
+      let arguments: [String:Any?] = [
+        "placemarks": cluster.placemarks.map { $0.userData },
+      ]
+      methodChannel.invokeMethod("onClusterTap", arguments: arguments)
+
+      return false
+    }
+  }
+
+  internal class ClusterizedCollectionPlacemarkTapListener: NSObject, YMKMapObjectTapListener {
+    private let methodChannel: FlutterMethodChannel!
+
+    public required init(channel: FlutterMethodChannel) {
+      self.methodChannel = channel
+    }
+
+    func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+      let arguments: [String:Any?] = [
+        "id": mapObject.userData,
+      ]
+      methodChannel.invokeMethod("onClusterizedCollectionPlacemarkTap", arguments: arguments)
+
+      return false
     }
   }
 }
