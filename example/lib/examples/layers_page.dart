@@ -19,33 +19,12 @@ class _LayersExample extends StatefulWidget {
 }
 
 class _LayersExampleState extends State<_LayersExample> {
-  YandexMapController controller;
-  PermissionStatus _permissionStatus = PermissionStatus.unknown;
+  YandexMapController? controller;
 
-  @override
-  void initState() {
-    super.initState();
-    _requestPermission();
-  }
-
-  Future<void> _requestPermission() async {
-    final List<PermissionGroup> permissions = <PermissionGroup>[PermissionGroup.location];
-    final Map<PermissionGroup, PermissionStatus> permissionRequestResult =
-        await PermissionHandler().requestPermissions(permissions);
-    setState(() {
-      _permissionStatus = permissionRequestResult[PermissionGroup.location];
-    });
-  }
+  Future<bool> get locationPermissionGranted async => await Permission.location.request().isGranted;
 
   void _showMessage(BuildContext context, Text text) {
-    final ScaffoldState scaffold = Scaffold.of(context);
-    scaffold.showSnackBar(
-      SnackBar(
-        content: text,
-        action: SnackBarAction(
-            label: 'OK', onPressed: scaffold.hideCurrentSnackBar),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: text));
   }
 
   @override
@@ -71,8 +50,8 @@ class _LayersExampleState extends State<_LayersExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (_permissionStatus == PermissionStatus.granted) {
-                          await controller.showUserLayer(
+                        if (await locationPermissionGranted) {
+                          await controller!.showUserLayer(
                             iconName: 'lib/assets/user.png',
                             arrowName: 'lib/assets/arrow.png',
                             accuracyCircleFillColor: Colors.green.withOpacity(0.5)
@@ -85,7 +64,7 @@ class _LayersExampleState extends State<_LayersExample> {
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller.hideUserLayer();
+                        await controller!.hideUserLayer();
                       },
                       title:'Hide user layer'
                     )
@@ -96,18 +75,13 @@ class _LayersExampleState extends State<_LayersExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (_permissionStatus == PermissionStatus.granted) {
-                          await controller.moveToUser();
+                        if (await locationPermissionGranted) {
+                          await controller!.moveToUser();
                         } else {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
                       },
-                      title:'Move to user'
-                    ),
-                    const FlatButton(
-                      padding: EdgeInsets.all(4),
-                      onPressed: null,
-                      child: Text('')
+                      title: 'Move to user'
                     )
                   ],
                 )

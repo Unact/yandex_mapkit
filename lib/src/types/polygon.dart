@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 class Polygon extends Equatable{
   const Polygon({
-    @required this.coordinates,
+    required this.coordinates,
     this.style = const PolygonStyle()
   });
 

@@ -2,11 +2,11 @@ part of yandex_mapkit;
 
 class SuggestItem extends Equatable {
   const SuggestItem({
-    this.title,
-    this.subtitle,
-    this.searchText,
-    this.type,
-    this.tags
+    required this.title,
+    required this.subtitle,
+    required this.searchText,
+    required this.type,
+    required this.tags
   });
 
   factory SuggestItem.fromJson(Map<String, dynamic> json) {

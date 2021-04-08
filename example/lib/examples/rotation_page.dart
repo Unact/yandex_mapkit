@@ -19,7 +19,7 @@ class _RotateExample extends StatefulWidget {
 
 class _RotateExampleState extends State<_RotateExample> {
 
-  YandexMapController controller;
+  YandexMapController? controller;
   bool rotationBlocked = false;
 
   void _addPlacemarkPinnedRotated() {
@@ -34,7 +34,7 @@ class _RotateExampleState extends State<_RotateExample> {
         direction: 90,
       ),
     );
-    controller.addPlacemark(placemark);
+    controller!.addPlacemark(placemark);
   }
 
   void _addPlacemarkPinned() {
@@ -47,12 +47,12 @@ class _RotateExampleState extends State<_RotateExample> {
         iconName: 'lib/assets/place.png',
       )
     );
-    controller.addPlacemark(placemark);
+    controller!.addPlacemark(placemark);
   }
 
   void _blockCameraRotate() {
     setState(() => rotationBlocked = !rotationBlocked);
-    controller.toggleMapRotation(enabled: !rotationBlocked);
+    controller!.toggleMapRotation(enabled: !rotationBlocked);
   }
 
   @override

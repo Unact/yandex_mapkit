@@ -3,7 +3,7 @@ part of yandex_mapkit;
 class YandexMap extends StatefulWidget {
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
-    Key key,
+    Key? key,
     this.onMapCreated,
     this.onMapTap,
     this.onMapLongTap,
@@ -17,7 +17,7 @@ class YandexMap extends StatefulWidget {
   ///
   /// Pass to [YandexMap.onMapCreated] to receive a [YandexMapController] when the
   /// map is created.
-  final MapCreatedCallback onMapCreated;
+  final MapCreatedCallback? onMapCreated;
 
   /// Called once when [YandexMap] is first rendered on screen.
   ///
@@ -26,23 +26,23 @@ class YandexMap extends StatefulWidget {
   ///
   /// This happens because native view creation is asynchronous.
   /// Our widget is created before flutter sizes and paints the corresponding native view.
-  final GenericCallback onMapRendered;
+  final GenericCallback? onMapRendered;
 
   /// Called every time a [YandexMap] is resized.
-  final ArgumentCallback<MapSize> onMapSizeChanged;
+  final ArgumentCallback<MapSize>? onMapSizeChanged;
 
   /// Called every time a [YandexMap] is tapped.
-  final ArgumentCallback<Point> onMapTap;
+  final ArgumentCallback<Point>? onMapTap;
 
   /// Called every time a [YandexMap] is long tapped.
-  final ArgumentCallback<Point> onMapLongTap;
+  final ArgumentCallback<Point>? onMapLongTap;
 
   @override
   _YandexMapState createState() => _YandexMapState();
 }
 
 class _YandexMapState extends State<YandexMap> {
-  YandexMapController _controller;
+  YandexMapController? _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -69,31 +69,31 @@ class _YandexMapState extends State<YandexMap> {
     _controller = YandexMapController.init(id, this);
 
     if (widget.onMapCreated != null) {
-      widget?.onMapCreated(_controller);
+      widget.onMapCreated!(_controller!);
     }
   }
 
   void onMapRendered() {
     if (widget.onMapRendered != null) {
-      widget.onMapRendered();
+      widget.onMapRendered!();
     }
   }
 
   void onMapSizeChanged(MapSize size) {
     if (widget.onMapSizeChanged != null) {
-      widget.onMapSizeChanged(size);
+      widget.onMapSizeChanged!(size);
     }
   }
 
   void onMapTap(Point point) {
     if (widget.onMapTap != null) {
-      widget.onMapTap(point);
+      widget.onMapTap!(point);
     }
   }
 
   void onMapLongTap(Point point) {
     if (widget.onMapLongTap != null) {
-      widget.onMapLongTap(point);
+      widget.onMapLongTap!(point);
     }
   }
 }

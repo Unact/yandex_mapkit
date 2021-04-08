@@ -20,7 +20,8 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
-  CameraPositionCallback _cameraPositionCallback;
+
+  CameraPositionCallback? _cameraPositionCallback;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
     final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -30,19 +31,19 @@ class YandexMapController extends ChangeNotifier {
 
   /// Set Yandex logo position
   Future<void> logoAlignment({
-    @required HorizontalAlignment horizontal,
-    @required VerticalAlignment vertical
+    required HorizontalAlignment horizontal,
+    required VerticalAlignment vertical
   }) async {
     await _channel.invokeMethod<void>('logoAlignment', <String, int>{'x': horizontal.index, 'y': vertical.index,});
   }
 
   /// Toggles night mode
-  Future<void> toggleNightMode({@required bool enabled}) async {
+  Future<void> toggleNightMode({required bool enabled}) async {
     await _channel.invokeMethod<void>('toggleNightMode', <String, dynamic>{'enabled': enabled});
   }
 
   /// Toggles rotation of map
-  Future<void> toggleMapRotation({@required bool enabled}) async {
+  Future<void> toggleMapRotation({required bool enabled}) async {
     await _channel.invokeMethod<void>('toggleMapRotation', <String, dynamic>{'enabled': enabled});
   }
 
@@ -55,11 +56,12 @@ class YandexMapController extends ChangeNotifier {
   /// `android.permission.ACCESS_FINE_LOCATION`
   ///
   /// Does nothing if these permissions where denied
-  Future<void> showUserLayer(
-      {@required String iconName,
-      @required String arrowName,
-      bool userArrowOrientation = kUserArrowOrientation,
-      Color accuracyCircleFillColor = kAccuracyCircleFillColor}) async {
+  Future<void> showUserLayer({
+    required String iconName,
+    required String arrowName,
+    bool userArrowOrientation = kUserArrowOrientation,
+    Color accuracyCircleFillColor = kAccuracyCircleFillColor
+  }) async {
     await _channel.invokeMethod<void>(
       'showUserLayer',
       <String, dynamic>{
@@ -85,17 +87,17 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Applies styling to the map
-  Future<void> setMapStyle({@required String style}) async {
+  Future<void> setMapStyle({required String style}) async {
     await _channel.invokeMethod<void>('setMapStyle', <String, dynamic>{'style': style});
   }
 
   /// Moves camera to specified [point]
   Future<void> move({
-    @required Point point,
+    required Point point,
     double zoom = kZoom,
     double azimuth = kAzimuth,
     double tilt = kTilt,
-    MapAnimation animation
+    MapAnimation? animation
   }) async {
     await _channel.invokeMethod<void>(
       'move',
@@ -118,9 +120,9 @@ class YandexMapController extends ChangeNotifier {
 
   /// Moves map to include area inside [southWestPoint] and [northEastPoint]
   Future<void> setBounds({
-    @required Point southWestPoint,
-    @required Point northEastPoint,
-    MapAnimation animation
+    required Point southWestPoint,
+    required Point northEastPoint,
+    MapAnimation? animation
   }) async {
     await _channel.invokeMethod<void>(
       'setBounds',
@@ -142,12 +144,9 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
-  /// Does nothing if passed `Placemark` is `null`
   Future<void> addPlacemark(Placemark placemark) async {
-    if (placemark != null) {
-      await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
-      placemarks.add(placemark);
-    }
+    await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
+    placemarks.add(placemark);
   }
 
   /// Disables listening for map camera updates
@@ -158,7 +157,7 @@ class YandexMapController extends ChangeNotifier {
 
   /// Enables listening for map camera updates
   Future<Point> enableCameraTracking(
-    PlacemarkStyle placemarkStyle,
+    PlacemarkStyle? placemarkStyle,
     CameraPositionCallback callback
   ) async {
     _cameraPositionCallback = callback;
@@ -177,12 +176,9 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  /// Does nothing if passed `Polyline` is `null`
   Future<void> addPolyline(Polyline polyline) async {
-    if (polyline != null) {
-      await _channel.invokeMethod<void>('addPolyline', _polylineParams(polyline));
-      polylines.add(polyline);
-    }
+    await _channel.invokeMethod<void>('addPolyline', _polylineParams(polyline));
+    polylines.add(polyline);
   }
 
   /// Does nothing if passed `Polyline` wasn't added before
@@ -192,12 +188,9 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  /// Does nothing if passed `Polygon` is `null`
   Future<void> addPolygon(Polygon polygon) async {
-    if (polygon != null) {
-      await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
-      polygons.add(polygon);
-    }
+    await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
+    polygons.add(polygon);
   }
 
   /// Does nothing if passed `Polygon` wasn't added before
@@ -281,12 +274,10 @@ class YandexMapController extends ChangeNotifier {
   void _onMapObjectTap(dynamic arguments) {
     final int hashCode = arguments['hashCode'];
     final Point point = Point(latitude: arguments['latitude'], longitude: arguments['longitude']);
+    final Placemark placemark = placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode);
 
-    final Placemark placemark = placemarks.
-      firstWhere((Placemark placemark) => placemark.hashCode == hashCode, orElse: () => null);
-
-    if (placemark != null && placemark.onTap != null) {
-      placemark.onTap(point);
+    if (placemark.onTap != null) {
+      placemark.onTap!(point);
     }
   }
 
@@ -300,7 +291,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onCameraPositionChanged(dynamic arguments) {
-    _cameraPositionCallback(arguments);
+    _cameraPositionCallback!(arguments);
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {

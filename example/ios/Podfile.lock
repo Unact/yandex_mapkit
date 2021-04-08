@@ -1,6 +1,6 @@
 PODS:
   - Flutter (1.0.0)
-  - permission_handler (3.3.0):
+  - "permission_handler (5.1.0+2)":
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
@@ -25,8 +25,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/yandex_mapkit/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  permission_handler: 67637977b227d62d46bfbf524f335f8568de5a73
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   yandex_mapkit: 0454ffe6e303a299e9a4414b53a006ab4e15bce7
   YandexMapsMobile: 0f3d8c92fad685dc33d07f83eed4eb0166089743
 

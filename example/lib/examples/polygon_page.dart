@@ -18,7 +18,7 @@ class _PolygonExample extends StatefulWidget {
 }
 
 class _PolygonExampleState extends State<_PolygonExample> {
-  YandexMapController controller;
+  YandexMapController? controller;
   final Polygon polygon = Polygon(
     coordinates: const <Point>[
       Point(latitude: 56.34295, longitude: 74.62829),
@@ -26,9 +26,9 @@ class _PolygonExampleState extends State<_PolygonExample> {
       Point(latitude: 56.04956, longitude: 125.07751),
     ],
     style: PolygonStyle(
-      strokeColor: Colors.orange[700],
+      strokeColor: Colors.orange[700]!,
       strokeWidth: 3.0,
-      fillColor: Colors.yellow[200],
+      fillColor: Colors.yellow[200]!,
     ),
   );
 
@@ -55,13 +55,13 @@ class _PolygonExampleState extends State<_PolygonExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller.addPolygon(polygon);
+                        await controller!.addPolygon(polygon);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller.removePolygon(polygon);
+                        await controller!.removePolygon(polygon);
                       },
                       title: 'Remove'
                     )

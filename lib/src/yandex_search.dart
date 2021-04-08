@@ -82,7 +82,7 @@ class YandexSearch {
       );
     }).toList();
     final int listenerId = arguments['listenerId'];
-    _suggestSessionsById[listenerId](suggestItems);
+    _suggestSessionsById[listenerId]!(suggestItems);
     _cancelSuggestSession(listenerId);
   }
 

@@ -18,7 +18,7 @@ class _MapControlsExample extends StatefulWidget {
 }
 
 class _MapControlsExampleState extends State<_MapControlsExample> {
-  YandexMapController controller;
+  YandexMapController? controller;
   bool isNightModeEnabled = false;
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   final String emptyStyle = '''
@@ -76,7 +76,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.setBounds(
+                      await controller!.setBounds(
                         southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
                         northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
                       );
@@ -85,7 +85,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.move(
+                      await controller!.move(
                         point: _point,
                         animation: const MapAnimation(smooth: true, duration: 2.0)
                       );
@@ -95,20 +95,20 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
-                    onPressed: () => controller.zoomIn(),
+                    onPressed: () => controller!.zoomIn(),
                     title: 'Zoom in'
                   ),
                   ControlButton(
-                    onPressed: () => controller.zoomOut(),
+                    onPressed: () => controller!.zoomOut(),
                     title: 'Zoom out'
                   ),
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.addPlacemark(
+                      await controller!.addPlacemark(
                         Placemark(
-                          point: await controller.getTargetPoint(),
+                          point: await controller!.getTargetPoint(),
                           style: const PlacemarkStyle(
                             opacity: 0.7,
                             iconName: 'lib/assets/place.png'
@@ -120,7 +120,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.logoAlignment(
+                      await controller!.logoAlignment(
                         horizontal: HorizontalAlignment.center,
                         vertical: VerticalAlignment.bottom
                       );
@@ -131,13 +131,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.setMapStyle(style: nonEmptyStyle);
+                      await controller!.setMapStyle(style: nonEmptyStyle);
                     },
                     title: 'Set Style'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.setMapStyle(style: emptyStyle);
+                      await controller!.setMapStyle(style: emptyStyle);
                     },
                     title: 'Remove style'
                   ),
@@ -146,7 +146,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       isNightModeEnabled = !isNightModeEnabled;
-                      await controller.toggleNightMode(enabled: isNightModeEnabled);
+                      await controller!.toggleNightMode(enabled: isNightModeEnabled);
                     },
                     title: 'Night mode'
                   ),
@@ -164,7 +164,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     ControlButton(
                       onPressed: () async {
                         final Map<String, Point> region =
-                            await controller.getVisibleRegion();
+                            await controller!.getVisibleRegion();
                         print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
                       },
                       title: 'Visible map region'),
