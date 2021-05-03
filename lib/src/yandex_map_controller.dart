@@ -17,6 +17,7 @@ class YandexMapController extends ChangeNotifier {
   /// Has the native view been rendered
   bool _viewRendered = false;
 
+  final Map<String, Tappable> tappables = HashMap<String, Tappable>();
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
@@ -169,6 +170,7 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>(
         'addPlacemark', _placemarkParams(placemark));
     placemarks.add(placemark);
+    tappables.putIfAbsent(placemark.key, () => placemark);
   }
 
   /// Disables listening for map camera updates
@@ -194,7 +196,7 @@ class YandexMapController extends ChangeNotifier {
   Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod<void>(
-          'removePlacemark', <String, dynamic>{'hashCode': placemark.hashCode});
+          'removePlacemark', <String, dynamic>{'key': placemark.key});
     }
   }
 
@@ -207,20 +209,21 @@ class YandexMapController extends ChangeNotifier {
   Future<void> removePolyline(Polyline polyline) async {
     if (polylines.remove(polyline)) {
       await _channel.invokeMethod<void>(
-          'removePolyline', <String, dynamic>{'hashCode': polyline.hashCode});
+          'removePolyline', <String, dynamic>{'key': polyline.key});
     }
   }
 
   Future<void> addPolygon(Polygon polygon) async {
     await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
     polygons.add(polygon);
+    tappables.putIfAbsent(polygon.key, () => polygon);
   }
 
   /// Does nothing if passed `Polygon` wasn't added before
   Future<void> removePolygon(Polygon polygon) async {
     if (polygons.remove(polygon)) {
       await _channel.invokeMethod<void>(
-          'removePolygon', <String, dynamic>{'hashCode': polygon.hashCode});
+          'removePolygon', <String, dynamic>{'key': polygon.key});
     }
   }
 
@@ -305,15 +308,12 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onMapObjectTap(dynamic arguments) {
-    final int hashCode = arguments['hashCode'];
+    final String key = arguments['key'];
+    final Tappable? tappable = tappables[key];
     final Point point = Point(
         latitude: arguments['latitude'], longitude: arguments['longitude']);
-    final Tappable tappable = (placemarks as List<Tappable>).firstWhere(
-        (placemark) => placemark.hashCode == hashCode,
-        orElse: () =>
-            polygons.firstWhere((polygon) => polygon.hashCode == hashCode));
-    if (tappable.onTap != null) {
-      tappable.onTap!(tappable, point);
+    if (tappable?.onTap != null) {
+      tappable!.onTap!(tappable, point);
     }
   }
 
@@ -333,7 +333,7 @@ class YandexMapController extends ChangeNotifier {
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
     return <String, dynamic>{
-      'hashCode': placemark.hashCode,
+      'key': placemark.key,
       'point': <String, dynamic>{
         'latitude': placemark.point.latitude,
         'longitude': placemark.point.longitude,
@@ -365,7 +365,7 @@ class YandexMapController extends ChangeNotifier {
         .toList();
 
     return <String, dynamic>{
-      'hashCode': polyline.hashCode,
+      'key': polyline.key,
       'coordinates': coordinates
     }..addAll(_polylineStyleParams(polyline.style));
   }
@@ -396,7 +396,7 @@ class YandexMapController extends ChangeNotifier {
     ).toList();
 
     return <String, dynamic>{
-      'hashCode': polygon.hashCode,
+      'key': polygon.key,
       'outerRingCoordinates': outerRingCoordinates,
       'innerRingsCoordinates': innerRingsCoordinates
     }..addAll(_polygonStyleParams(polygon.style));

@@ -1,6 +1,7 @@
 library yandex_mapkit;
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:core';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -32,3 +33,4 @@ part 'src/yandex_map.dart';
 part 'src/yandex_map_controller.dart';
 part 'src/yandex_search.dart';
 part 'src/types/tappable.dart';
+part 'src/types/with_key.dart';
