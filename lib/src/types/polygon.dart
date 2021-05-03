@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 class Polygon extends Equatable implements Tappable {
   const Polygon({
-    required this.key,
+    this.keyValue,
     required this.outerRingCoordinates,
     this.innerRingsCoordinates = const <List<Point>>[],
     this.style = const PolygonStyle(),
@@ -13,9 +13,14 @@ class Polygon extends Equatable implements Tappable {
   final List<List<Point>> innerRingsCoordinates;
   final PolygonStyle style;
   @override
-  final ArgumentCallback<Tappable, Point>? onTap;
+  final TapCallback<Tappable, Point>? onTap;
+  final String? keyValue;
+
   @override
-  final String key;
+  String getKey() {
+    return keyValue != null ? keyValue! : hashCode.toString();
+  }
+
 
   @override
   List<Object> get props => <Object>[

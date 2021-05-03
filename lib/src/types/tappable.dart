@@ -2,6 +2,6 @@ part of yandex_mapkit;
 
 abstract class Tappable extends WithKey {
 
-  ArgumentCallback<Point>? get onTap => null;
+  TapCallback<Tappable, Point>? get onTap => null;
 
 }

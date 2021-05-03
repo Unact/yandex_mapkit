@@ -170,7 +170,7 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>(
         'addPlacemark', _placemarkParams(placemark));
     placemarks.add(placemark);
-    tappables.putIfAbsent(placemark.key, () => placemark);
+    tappables.putIfAbsent(placemark.getKey(), () => placemark);
   }
 
   /// Disables listening for map camera updates
@@ -196,7 +196,7 @@ class YandexMapController extends ChangeNotifier {
   Future<void> removePlacemark(Placemark placemark) async {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod<void>(
-          'removePlacemark', <String, dynamic>{'key': placemark.key});
+          'removePlacemark', <String, dynamic>{'key': placemark.getKey()});
     }
   }
 
@@ -209,21 +209,21 @@ class YandexMapController extends ChangeNotifier {
   Future<void> removePolyline(Polyline polyline) async {
     if (polylines.remove(polyline)) {
       await _channel.invokeMethod<void>(
-          'removePolyline', <String, dynamic>{'key': polyline.key});
+          'removePolyline', <String, dynamic>{'key': polyline.getKey()});
     }
   }
 
   Future<void> addPolygon(Polygon polygon) async {
     await _channel.invokeMethod<void>('addPolygon', _polygonParams(polygon));
     polygons.add(polygon);
-    tappables.putIfAbsent(polygon.key, () => polygon);
+    tappables.putIfAbsent(polygon.getKey(), () => polygon);
   }
 
   /// Does nothing if passed `Polygon` wasn't added before
   Future<void> removePolygon(Polygon polygon) async {
     if (polygons.remove(polygon)) {
       await _channel.invokeMethod<void>(
-          'removePolygon', <String, dynamic>{'key': polygon.key});
+          'removePolygon', <String, dynamic>{'key': polygon.getKey()});
     }
   }
 
@@ -333,7 +333,7 @@ class YandexMapController extends ChangeNotifier {
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
     return <String, dynamic>{
-      'key': placemark.key,
+      'key': placemark.getKey(),
       'point': <String, dynamic>{
         'latitude': placemark.point.latitude,
         'longitude': placemark.point.longitude,
@@ -365,7 +365,7 @@ class YandexMapController extends ChangeNotifier {
         .toList();
 
     return <String, dynamic>{
-      'key': polyline.key,
+      'key': polyline.getKey(),
       'coordinates': coordinates
     }..addAll(_polylineStyleParams(polyline.style));
   }
@@ -396,7 +396,7 @@ class YandexMapController extends ChangeNotifier {
     ).toList();
 
     return <String, dynamic>{
-      'key': polygon.key,
+      'key': polygon.getKey(),
       'outerRingCoordinates': outerRingCoordinates,
       'innerRingsCoordinates': innerRingsCoordinates
     }..addAll(_polygonStyleParams(polygon.style));
