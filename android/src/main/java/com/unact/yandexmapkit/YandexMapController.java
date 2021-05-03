@@ -447,7 +447,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
     polygon.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
     polygon.setFillColor(((Number) paramsStyle.get("fillColor")).intValue());
-
+    polygon.addTapListener(yandexMapObjectTapListener);
     polygons.add(polygon);
   }
 

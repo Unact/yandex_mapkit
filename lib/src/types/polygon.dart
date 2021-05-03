@@ -1,15 +1,18 @@
 part of yandex_mapkit;
 
-class Polygon extends Equatable{
+class Polygon extends Equatable implements Tappable {
   const Polygon({
     required this.outerRingCoordinates,
     this.innerRingsCoordinates = const <List<Point>>[],
-    this.style = const PolygonStyle()
+    this.style = const PolygonStyle(),
+    this.onTap
   });
 
   final List<Point> outerRingCoordinates;
   final List<List<Point>> innerRingsCoordinates;
   final PolygonStyle style;
+  @override
+  final ArgumentCallback<Tappable, Point>? onTap;
 
   @override
   List<Object> get props => <Object>[
@@ -20,4 +23,5 @@ class Polygon extends Equatable{
 
   @override
   bool get stringify => true;
+
 }
