@@ -171,6 +171,25 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     const TextButton(onPressed: null, child: Text(''))
                   ],
                 ),
+                TableRow(
+                  children: <Widget>[
+                    ControlButton(
+                      onPressed: () async {
+                        await controller!.setFocusRect(
+                          topLeft: const ScreenPoint(x: 200, y: 200),
+                          bottomRight: const ScreenPoint(x: 600, y: 600),
+                        );
+                      },
+                      title: 'Focus rect'
+                    ),
+                    ControlButton(
+                      onPressed: () async {
+                        await controller!.clearFocusRect();
+                      },
+                      title: 'Clear focus rect'
+                    )
+                  ],
+                ),
               ],
             ),
           ),

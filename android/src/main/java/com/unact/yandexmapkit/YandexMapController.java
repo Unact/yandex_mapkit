@@ -11,6 +11,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.ScreenPoint;
+import com.yandex.mapkit.ScreenRect;
 import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Polygon;
@@ -26,6 +28,7 @@ import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
@@ -113,6 +116,31 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
     mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void setFocusRect(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> paramsTopLeftScreenPoint = ((Map<String, Object>) params.get("topLeftScreenPoint"));
+    Map<String, Object> paramsBottomRightScreenPoint = ((Map<String, Object>) params.get("bottomRightScreenPoint"));
+    ScreenRect screenRect = new ScreenRect(
+      new ScreenPoint(
+        ((Double) paramsTopLeftScreenPoint.get("x")).floatValue(),
+        ((Double) paramsTopLeftScreenPoint.get("y")).floatValue()
+      ),
+      new ScreenPoint(
+        ((Double) paramsBottomRightScreenPoint.get("x")).floatValue(),
+        ((Double) paramsBottomRightScreenPoint.get("y")).floatValue()
+      )
+    );
+
+    mapView.setFocusRect(screenRect);
+    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
+  }
+
+  private void clearFocusRect() {
+    mapView.setFocusRect(null);
+    mapView.setPointOfView(PointOfView.SCREEN_CENTER);
   }
 
   @SuppressWarnings("unchecked")
@@ -538,6 +566,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "setBounds":
         setBounds(call);
+        result.success(null);
+        break;
+      case "setFocusRect":
+        setFocusRect(call);
+        result.success(null);
+        break;
+      case "clearFocusRect":
+        clearFocusRect();
         result.success(null);
         break;
       case "enableCameraTracking":

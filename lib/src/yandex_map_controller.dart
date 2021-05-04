@@ -144,6 +144,33 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
+  /// Allows to set map focus to a certain rectangle instead of the whole map
+  /// For more info refer to [YMKMapWindow.focusRect](https://yandex.ru/dev/maps/archive/doc/mapkit/3.0/concepts/ios/mapkit/ref/YMKMapWindow.html#property_detail__property_focusRect)
+  Future<void> setFocusRect({
+    required ScreenPoint bottomRight,
+    required ScreenPoint topLeft
+  }) async {
+    await _channel.invokeMethod<void>(
+      'setFocusRect',
+      <String, dynamic>{
+        'bottomRightScreenPoint': <String, dynamic>{
+          'x': bottomRight.x,
+          'y': bottomRight.y,
+        },
+        'topLeftScreenPoint': <String, dynamic>{
+          'x': topLeft.x,
+          'y': topLeft.y,
+        }
+      }
+    );
+  }
+
+  /// Clears focusRect set by `YandexMapController.setFocusRect`
+  Future<void> clearFocusRect() async {
+    await _channel.invokeMethod<void>('clearFocusRect');
+  }
+
+  /// Does nothing if passed `Placemark` is `null`
   Future<void> addPlacemark(Placemark placemark) async {
     await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
     placemarks.add(placemark);

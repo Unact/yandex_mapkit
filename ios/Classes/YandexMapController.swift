@@ -69,6 +69,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "setBounds":
       setBounds(call)
       result(nil)
+    case "setFocusRect":
+      setFocusRect(call)
+      result(nil)
+    case "clearFocusRect":
+      clearFocusRect()
+      result(nil)
     case "enableCameraTracking":
       let target = enableCameraTracking(call)
       result(target)
@@ -121,6 +127,30 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func toggleNightMode(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     mapView.mapWindow.map.isNightModeEnabled = (params["enabled"] as! NSNumber).boolValue
+  }
+
+  public func setFocusRect(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let topLeftScreenPoint = params["topLeftScreenPoint"] as? [String: Any]
+    let bottomRightScreenPoint = params["bottomRightScreenPoint"] as? [String: Any]
+    let screenRect = YMKScreenRect(
+      topLeft: YMKScreenPoint(
+        x: (topLeftScreenPoint!["x"]  as! NSNumber).floatValue,
+        y: (topLeftScreenPoint!["y"]  as! NSNumber).floatValue
+      ),
+      bottomRight: YMKScreenPoint(
+        x: (bottomRightScreenPoint!["x"]  as! NSNumber).floatValue,
+        y: (bottomRightScreenPoint!["y"]  as! NSNumber).floatValue
+      )
+    )
+
+    mapView.mapWindow.focusRect = screenRect
+    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
+  }
+
+  public func clearFocusRect() {
+    mapView.mapWindow.focusRect = nil
+    mapView.mapWindow.pointOfView = YMKPointOfView.screenCenter
   }
 
   public func logoAlignment(_ call: FlutterMethodCall) {
