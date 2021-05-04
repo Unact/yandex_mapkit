@@ -105,9 +105,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getVisibleRegion":
       let region: [String: Any] = getVisibleRegion()
       result(region)
-    case "moveToUser":
-      moveToUser()
-      result(nil)
+    case "getUserTargetPoint":
+      let userTargetPoint = getUserTargetPoint()
+      result(userTargetPoint)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -233,6 +233,22 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       "longitude": targetPoint.longitude
     ]
     return arguments
+  }
+
+
+  public func getUserTargetPoint() -> [String: Any]? {
+    if (!hasLocationPermission()) { return nil }
+
+    if let targetPoint = userLocationLayer?.cameraPosition()?.target {
+      let arguments: [String: Any] = [
+        "latitude": targetPoint.latitude,
+        "longitude": targetPoint.longitude
+      ]
+
+      return arguments
+    }
+
+    return nil
   }
 
   public func addPlacemark(_ call: FlutterMethodCall) {
@@ -449,26 +465,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polygon)
       polygons.remove(at: polygons.firstIndex(of: polygon)!)
-    }
-  }
-
-  public func moveToUser() {
-    if (!hasLocationPermission()) { return }
-    let zoom = mapView.mapWindow.map.cameraPosition.zoom
-    let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
-    let tilt = mapView.mapWindow.map.cameraPosition.tilt
-    if let target = userLocationLayer?.cameraPosition()?.target {
-      let cameraPosition = YMKCameraPosition(
-        target: target,
-        zoom: zoom,
-        azimuth: azimuth,
-        tilt: tilt
-      )
-      mapView.mapWindow.map.move(
-        with: cameraPosition,
-        animationType: YMKAnimation.init(type: YMKAnimationType.smooth, duration: 1),
-        cameraCallback: nil
-      )
     }
   }
 

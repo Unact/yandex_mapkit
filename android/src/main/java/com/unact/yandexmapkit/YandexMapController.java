@@ -438,22 +438,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
-  private void moveToUser() {
-    if (!hasLocationPermission()) return;
+  private Map<String, Object> getUserTargetPoint() {
+    if (!hasLocationPermission()) return null;
 
-    float currentZoom = mapView.getMap().getCameraPosition().getZoom();
-    float tilt = mapView.getMap().getCameraPosition().getTilt();
-    float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
     if (userLocationLayer != null) {
       CameraPosition cameraPosition = userLocationLayer.cameraPosition();
+
       if (cameraPosition != null) {
-        mapView.getMap().move(
-          new CameraPosition(cameraPosition.getTarget(), currentZoom, azimuth, tilt),
-          new Animation(Animation.Type.SMOOTH, 1),
-          null
-        );
+        Point point =  cameraPosition.getTarget();
+        Map<String, Object> arguments = new HashMap<>();
+
+        arguments.put("latitude", point.getLatitude());
+        arguments.put("longitude", point.getLongitude());
+
+        return arguments;
       }
     }
+
+    return null;
   }
 
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
@@ -579,16 +581,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(null);
         break;
       case "getTargetPoint":
-        Map<String, Object> point = getTargetPoint();
-        result.success(point);
+        Map<String, Object> targetPoint = getTargetPoint();
+        result.success(targetPoint);
         break;
       case "getVisibleRegion":
         Map<String, Object> region = getVisibleRegion();
         result.success(region);
         break;
-      case "moveToUser":
-        moveToUser();
-        result.success(null);
+      case "getUserTargetPoint":
+        Map<String, Object> userTargetPoint = getUserTargetPoint();
+        result.success(userTargetPoint);
         break;
       default:
         result.notImplemented();

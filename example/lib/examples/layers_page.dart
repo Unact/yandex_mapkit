@@ -76,12 +76,12 @@ class _LayersExampleState extends State<_LayersExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionGranted) {
-                          await controller!.moveToUser();
+                          print(await controller!.getUserTargetPoint());
                         } else {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }
                       },
-                      title: 'Move to user'
+                      title: 'Get user point'
                     )
                   ],
                 )

@@ -210,9 +210,15 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('zoomOut');
   }
 
-  /// Moves camera to user position
-  Future<void> moveToUser() async {
-    await _channel.invokeMethod<void>('moveToUser');
+  /// Returns current user position point only if user layer is visible
+  Future<Point?> getUserTargetPoint() async {
+    final dynamic point = await _channel.invokeMethod<dynamic>('getUserTargetPoint');
+
+    if (point != null) {
+      return Point(latitude: point['latitude'], longitude: point['longitude']);
+    }
+
+    return null;
   }
 
   /// Returns current camera position point
