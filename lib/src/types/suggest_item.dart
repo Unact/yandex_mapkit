@@ -4,6 +4,7 @@ class SuggestItem extends Equatable {
   const SuggestItem({
     required this.title,
     required this.subtitle,
+    required this.displayText,
     required this.searchText,
     required this.type,
     required this.tags
@@ -13,16 +14,18 @@ class SuggestItem extends Equatable {
     return SuggestItem(
       title: json['title'],
       subtitle: json['subtitle'],
+      displayText: json['displayText'],
       searchText: json['searchText'],
-      type: json['type'],
+      type: SuggestItemType.values[json['type']],
       tags: json['tags'],
     );
   }
 
   final String title;
   final String subtitle;
+  final String displayText;
   final String searchText;
-  final String type;
+  final SuggestItemType type;
   final List<dynamic> tags;
 
   @override
