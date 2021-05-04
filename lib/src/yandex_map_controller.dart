@@ -283,7 +283,7 @@ class YandexMapController extends ChangeNotifier {
     final Placemark placemark = placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode);
 
     if (placemark.onTap != null) {
-      placemark.onTap!(point);
+      placemark.onTap!(placemark, point);
     }
   }
 

@@ -9,5 +9,5 @@ class Placemark {
 
   final Point point;
   final PlacemarkStyle style;
-  final ArgumentCallback<Point>? onTap;
+  final TapCallback<Placemark, Point>? onTap;
 }
