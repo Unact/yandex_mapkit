@@ -390,16 +390,30 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void addPolygon(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
-    List<Map<String, Object>> paramsCoordinates = (List<Map<String, Object>>) params.get("coordinates");
-    ArrayList<Point> polygonPoints = new ArrayList<>();
-    for (Map<String, Object> c: paramsCoordinates) {
+    List<Map<String, Object>> paramsOuterRingCoordinates =
+      (List<Map<String, Object>>) params.get("outerRingCoordinates");
+    List<List<Map<String, Object>>> paramsInnerRingsCoordinates =
+      (List<List<Map<String, Object>>>) params.get("innerRingsCoordinates");
+    ArrayList<Point> outerRingPolygonPoints = new ArrayList<>();
+    ArrayList<LinearRing> innerRings = new ArrayList<>();
+
+    for (Map<String, Object> c: paramsOuterRingCoordinates) {
       Point point = new Point(((Double) c.get("latitude")), ((Double) c.get("longitude")));
-      polygonPoints.add(point);
+      outerRingPolygonPoints.add(point);
     }
+    for (List<Map<String, Object>> cl: paramsInnerRingsCoordinates) {
+      ArrayList<Point> innerRingPolygonPoints = new ArrayList<>();
+
+      for (Map<String, Object> c: cl) {
+        Point point = new Point(((Double) c.get("latitude")), ((Double) c.get("longitude")));
+        innerRingPolygonPoints.add(point);
+      }
+
+      innerRings.add(new LinearRing(innerRingPolygonPoints));
+    }
+
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-    PolygonMapObject polygon = mapObjects.addPolygon(
-      new Polygon(new LinearRing(polygonPoints), new ArrayList<LinearRing>())
-    );
+    PolygonMapObject polygon = mapObjects.addPolygon(new Polygon(new LinearRing(outerRingPolygonPoints), innerRings));
 
     polygon.setUserData(params.get("hashCode"));
     polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());

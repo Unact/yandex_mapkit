@@ -20,10 +20,17 @@ class _PolygonExample extends StatefulWidget {
 class _PolygonExampleState extends State<_PolygonExample> {
   YandexMapController? controller;
   final Polygon polygon = Polygon(
-    coordinates: const <Point>[
+    outerRingCoordinates: const <Point>[
       Point(latitude: 56.34295, longitude: 74.62829),
       Point(latitude: 70.12669, longitude: 98.97399),
       Point(latitude: 56.04956, longitude: 125.07751),
+    ],
+    innerRingsCoordinates: const <List<Point>>[
+      <Point>[
+        Point(latitude: 57.34295, longitude: 78.62829),
+        Point(latitude: 69.12669, longitude: 98.97399),
+        Point(latitude: 57.04956, longitude: 121.07751),
+      ]
     ],
     style: PolygonStyle(
       strokeColor: Colors.orange[700]!,

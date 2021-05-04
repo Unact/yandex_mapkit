@@ -348,13 +348,19 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polygonParams(Polygon polygon) {
-    final List<Map<String, double>> coordinates = polygon.coordinates.map(
+    final List<Map<String, double>> outerRingCoordinates = polygon.outerRingCoordinates.map(
       (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
+    ).toList();
+    final List<List<Map<String, double>>> innerRingsCoordinates = polygon.innerRingsCoordinates.map(
+      (List<Point> list) {
+        return list.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
+      }
     ).toList();
 
     return <String, dynamic>{
       'hashCode': polygon.hashCode,
-      'coordinates': coordinates,
+      'outerRingCoordinates': outerRingCoordinates,
+      'innerRingsCoordinates': innerRingsCoordinates
     }..addAll(_polygonStyleParams(polygon.style));
   }
 

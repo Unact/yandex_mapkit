@@ -409,16 +409,27 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func addPolygon(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsCoordinates = params["coordinates"] as! [[String: Any]]
+    let paramsOuterRingCoordinates = params["outerRingCoordinates"] as! [[String: Any]]
+    let paramsInnerRingsCoordinates = params["innerRingsCoordinates"] as! [[[String: Any]]]
     let paramsStyle = params["style"] as! [String: Any]
-    let coordinatesPrepared = paramsCoordinates.map {
-      YMKPoint(
-        latitude: ($0["latitude"] as! NSNumber).doubleValue,
-        longitude: ($0["longitude"] as! NSNumber).doubleValue
+    let outerRing = YMKLinearRing(points: paramsOuterRingCoordinates.map {
+        YMKPoint(
+          latitude: ($0["latitude"] as! NSNumber).doubleValue,
+          longitude: ($0["longitude"] as! NSNumber).doubleValue
+        )
+      }
+    )
+    let innerRings = paramsInnerRingsCoordinates.map {
+      YMKLinearRing(points: $0.map {
+          YMKPoint(
+            latitude: ($0["latitude"] as! NSNumber).doubleValue,
+            longitude: ($0["longitude"] as! NSNumber).doubleValue
+          )
+        }
       )
     }
     let mapObjects = mapView.mapWindow.map.mapObjects
-    let polylgon = YMKPolygon(outerRing: YMKLinearRing(points: coordinatesPrepared), innerRings: [])
+    let polylgon = YMKPolygon(outerRing: outerRing, innerRings: innerRings)
     let polygonMapObject = mapObjects.addPolygon(with: polylgon)
 
     polygonMapObject.userData = (params["hashCode"] as! NSNumber).intValue
