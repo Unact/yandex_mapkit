@@ -23,8 +23,8 @@ class _RotateExampleState extends State<_RotateExample> {
   bool rotationBlocked = false;
 
   void _addPlacemarkPinnedRotated() {
-    const Point point = Point(latitude: 59.945933, longitude: 30.320045);
-    final Placemark placemark = Placemark(
+    const point = Point(latitude: 59.945933, longitude: 30.320045);
+    final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
       style: const PlacemarkStyle(
@@ -38,8 +38,8 @@ class _RotateExampleState extends State<_RotateExample> {
   }
 
   void _addPlacemarkPinned() {
-    const Point point = Point(latitude: 59.945933, longitude: 30.320045);
-    final Placemark placemark = Placemark(
+    const point = Point(latitude: 59.945933, longitude: 30.320045);
+    final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
       style: const PlacemarkStyle(

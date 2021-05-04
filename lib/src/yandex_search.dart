@@ -6,7 +6,7 @@ class YandexSearch {
   static const MethodChannel _channel = MethodChannel(_channelName);
 
   static int _nextCallbackId = 0;
-  static final Map<int, SuggestSessionCallback> _suggestSessionsById = Map<int, SuggestSessionCallback>();
+  static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
 
   static Future<CancelSuggestCallback> getSuggestions({
     required String address,
@@ -18,7 +18,7 @@ class YandexSearch {
   }) async {
     _channel.setMethodCallHandler(_handleMethodCall);
 
-    final int listenerId = _nextCallbackId++;
+    final listenerId = _nextCallbackId++;
     _suggestSessionsById[listenerId] = onSuggest;
 
     await _channel.invokeMethod<void>(
@@ -72,7 +72,7 @@ class YandexSearch {
 
   static void _onSuggestListenerResponse(dynamic arguments) {
     final List<dynamic> suggests = arguments['response'];
-    final List<SuggestItem> suggestItems = suggests.map((dynamic sug) {
+    final suggestItems = suggests.map((dynamic sug) {
       return SuggestItem(
         title: sug['title'],
         subtitle: sug['subtitle'],

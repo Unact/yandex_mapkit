@@ -50,17 +50,17 @@ class _YandexMapState extends State<YandexMap> {
       return AndroidView(
         viewType: YandexMap.viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        gestureRecognizers: {
           Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
-        ].toSet(),
+        },
       );
     } else {
       return UiKitView(
         viewType: YandexMap.viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>[
+        gestureRecognizers: {
           Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
-        ].toSet(),
+        },
       );
     }
   }

@@ -163,8 +163,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        final Map<String, Point> region =
-                            await controller!.getVisibleRegion();
+                        final region = await controller!.getVisibleRegion();
                         print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
                       },
                       title: 'Visible map region'),

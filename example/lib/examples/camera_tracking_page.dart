@@ -43,7 +43,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        final Point currentCameraTracking = await controller!.enableCameraTracking(
+                        final currentCameraTracking = await controller!.enableCameraTracking(
                           onCameraPositionChange: cameraPositionChanged,
                           style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                         );
@@ -53,7 +53,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                     ),
                     ControlButton(
                       onPressed: () async {
-                        final Point currentCameraTracking = await controller!.enableCameraTracking(
+                        final currentCameraTracking = await controller!.enableCameraTracking(
                           onCameraPositionChange: cameraPositionChanged
                         );
                         await addPlacemark(currentCameraTracking);

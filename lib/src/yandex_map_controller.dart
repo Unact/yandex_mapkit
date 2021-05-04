@@ -24,7 +24,7 @@ class YandexMapController extends ChangeNotifier {
   CameraPositionCallback? _cameraPositionCallback;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
-    final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
+    final methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
     return YandexMapController._(methodChannel, yandexMapState);
   }
@@ -306,8 +306,8 @@ class YandexMapController extends ChangeNotifier {
 
   void _onMapObjectTap(dynamic arguments) {
     final int hashCode = arguments['hashCode'];
-    final Point point = Point(latitude: arguments['latitude'], longitude: arguments['longitude']);
-    final Placemark placemark = placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode);
+    final point = Point(latitude: arguments['latitude'], longitude: arguments['longitude']);
+    final placemark = placemarks.firstWhere((Placemark placemark) => placemark.hashCode == hashCode);
 
     if (placemark.onTap != null) {
       placemark.onTap!(placemark, point);
@@ -355,7 +355,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
-    final List<Map<String, double>> coordinates = polyline.coordinates.map(
+    final coordinates = polyline.coordinates.map(
       (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
     ).toList();
 
@@ -381,10 +381,10 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _polygonParams(Polygon polygon) {
-    final List<Map<String, double>> outerRingCoordinates = polygon.outerRingCoordinates.map(
+    final outerRingCoordinates = polygon.outerRingCoordinates.map(
       (Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}
     ).toList();
-    final List<List<Map<String, double>>> innerRingsCoordinates = polygon.innerRingsCoordinates.map(
+    final innerRingsCoordinates = polygon.innerRingsCoordinates.map(
       (List<Point> list) {
         return list.map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude}).toList();
       }
