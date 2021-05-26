@@ -1,3 +1,14 @@
+## 1.0.0
+
+* Migrate to null-safety
+* Add the ability to create `Polygon` with different inner shapes.
+* Add the ability to get users current point
+* Add the ability to set focus rectangle
+* **Breaking change**. Removed `YandexMapController.moveToUser`.
+* **Breaking change**. `YandexSearch.getSuggestions` method signature has been drastically changed.
+* **Breaking change**. `Placemark.onTap` callback signature has been changed. Now also returns `Placemark` on which this callback has been called.
+* **Breaking change**. `YandexMapController.enableCameraTracking` method signature has been changed.
+
 ## 0.5.1
 
 * Add visible region retrieval for `YandexMapController`
