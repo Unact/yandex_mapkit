@@ -634,7 +634,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   internal class MapCameraListener: NSObject, YMKMapCameraListener {
-    private let yandexMapController: YandexMapController!
+    weak private var yandexMapController: YandexMapController!
     private let methodChannel: FlutterMethodChannel!
 
     public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
