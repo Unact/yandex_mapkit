@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Fix memory leak on iOS #107
+
 ## 1.0.0
 
 * Migrate to null-safety
