@@ -20,6 +20,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
+  final List<Circle> circles = <Circle>[];
 
   CameraPositionCallback? _cameraPositionCallback;
 
@@ -227,6 +228,18 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
+  Future<void> addCircle(Circle circle) async {
+    await _channel.invokeMethod<void>('addCircle', _circleParams(circle));
+    circles.add(circle);
+  }
+
+  /// Does nothing if passed `Circle` wasn't added before
+  Future<void> removeCircle(Circle circle) async {
+    if (circles.remove(circle)) {
+      await _channel.invokeMethod<void>('removeCircle', <String, dynamic>{'hashCode': circle.hashCode});
+    }
+  }
+
   /// Increases current zoom by 1
   Future<void> zoomIn() async {
     await _channel.invokeMethod<void>('zoomIn');
@@ -404,6 +417,28 @@ class YandexMapController extends ChangeNotifier {
         'strokeWidth': style.strokeWidth,
         'fillColor': style.fillColor.value,
         'isGeodesic': style.isGeodesic,
+      }
+    };
+  }
+
+  Map<String, dynamic> _circleParams(Circle circle) {
+
+    final center = {'latitude': circle.center.latitude, 'longitude': circle.center.longitude};
+
+    return <String, dynamic>{
+      'hashCode': circle.hashCode,
+      'center': center,
+      'radius': circle.radius,
+    }..addAll(_circleStyleParams(circle.style));
+  }
+
+  Map<String, dynamic> _circleStyleParams(CircleStyle style) {
+    return <String, dynamic>{
+      'style': <String, dynamic>{
+        'strokeColor': style.strokeColor.value,
+        'strokeWidth': style.strokeWidth,
+        'fillColor':   style.fillColor.value,
+        'isGeodesic':  style.isGeodesic,
       }
     };
   }
