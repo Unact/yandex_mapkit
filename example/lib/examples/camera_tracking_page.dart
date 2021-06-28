@@ -3,22 +3,22 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class TargetPage extends MapPage {
-  const TargetPage() : super('Target example');
+class CameraTrackingPage extends MapPage {
+  const CameraTrackingPage() : super('Camera tracking example');
 
   @override
   Widget build(BuildContext context) {
-    return _TargetExample();
+    return _CameraTrackingExample();
   }
 }
 
-class _TargetExample extends StatefulWidget {
+class _CameraTrackingExample extends StatefulWidget {
   @override
-  _TargetExampleState createState() => _TargetExampleState();
+  _CameraTrackingExampleState createState() => _CameraTrackingExampleState();
 }
 
-class _TargetExampleState extends State<_TargetExample> {
-  YandexMapController controller;
+class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
+  YandexMapController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -43,21 +43,20 @@ class _TargetExampleState extends State<_TargetExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        final Point currentTarget = await controller.enableCameraTracking(
-                          const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
-                          cameraPositionChanged
+                        final currentCameraTracking = await controller!.enableCameraTracking(
+                          onCameraPositionChange: cameraPositionChanged,
+                          style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                         );
-                        await addUserPlacemark(currentTarget);
+                        await addPlacemark(currentCameraTracking);
                       },
                       title: 'Tracking'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        final Point currentTarget = await controller.enableCameraTracking(
-                          null,
-                          cameraPositionChanged
+                        final currentCameraTracking = await controller!.enableCameraTracking(
+                          onCameraPositionChange: cameraPositionChanged
                         );
-                        await addUserPlacemark(currentTarget);
+                        await addPlacemark(currentCameraTracking);
                       },
                       title: 'Tracking (without marker)'
                     ),
@@ -69,7 +68,7 @@ class _TargetExampleState extends State<_TargetExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller.disableCameraTracking();
+                        await controller!.disableCameraTracking();
                       },
                       title: 'Disable tracking'
                     ),
@@ -86,15 +85,12 @@ class _TargetExampleState extends State<_TargetExample> {
   Future<void> cameraPositionChanged(dynamic arguments) async {
     final bool bFinal = arguments['final'];
     if (bFinal) {
-      await addUserPlacemark(Point(
-        latitude: arguments['latitude'],
-        longitude: arguments['longitude']
-      ));
+      await addPlacemark(Point(latitude: arguments['latitude'], longitude: arguments['longitude']));
     }
   }
 
-  Future<void> addUserPlacemark(Point point) async {
-    await controller.addPlacemark(Placemark(
+  Future<void> addPlacemark(Point point) async {
+    await controller!.addPlacemark(Placemark(
       point: point,
       style: const PlacemarkStyle(
         iconName: 'lib/assets/user.png',

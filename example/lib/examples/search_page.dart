@@ -70,13 +70,13 @@ class _SearchExampleState extends State<_SearchExample> {
   }
 
   Future<void> querySuggestions(String query) async {
-    final CancelSuggestCallback cancelListening = await YandexSearch.getSuggestions(
-      query,
-      const Point(latitude: 55.5143, longitude: 37.24841),
-      const Point(latitude: 56.0421, longitude: 38.0284),
-      'GEO',
-      true,
-      (List<SuggestItem> suggestItems) {
+    final cancelListening = await YandexSearch.getSuggestions(
+      address: query,
+      southWestPoint: const Point(latitude: 55.5143, longitude: 37.24841),
+      northEastPoint: const Point(latitude: 56.0421, longitude: 38.0284),
+      suggestType: SuggestType.geo,
+      suggestWords: true,
+      onSuggest: (List<SuggestItem> suggestItems) {
         setState(() {
           response = suggestItems.map((SuggestItem item) => item.title).join('\n');
         });

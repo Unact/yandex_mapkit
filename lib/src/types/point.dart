@@ -2,8 +2,8 @@ part of yandex_mapkit;
 
 class Point extends Equatable{
   const Point({
-    @required this.latitude,
-    @required this.longitude
+    required this.latitude,
+    required this.longitude
   });
 
   final double latitude;

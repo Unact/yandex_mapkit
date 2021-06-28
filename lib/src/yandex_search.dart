@@ -6,20 +6,20 @@ class YandexSearch {
   static const MethodChannel _channel = MethodChannel(_channelName);
 
   static int _nextCallbackId = 0;
-  static final Map<int, SuggestSessionCallback> _suggestSessionsById = Map<int, SuggestSessionCallback>();
+  static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
 
-  static Future<CancelSuggestCallback> getSuggestions(
-    String address,
-    Point southWestPoint,
-    Point northEastPoint,
-    String suggestType,
-    bool suggestWords,
-    SuggestSessionCallback callback
-  ) async {
+  static Future<CancelSuggestCallback> getSuggestions({
+    required String address,
+    required Point southWestPoint,
+    required Point northEastPoint,
+    required SuggestType suggestType,
+    required bool suggestWords,
+    required SuggestSessionCallback onSuggest
+  }) async {
     _channel.setMethodCallHandler(_handleMethodCall);
 
-    final int listenerId = _nextCallbackId++;
-    _suggestSessionsById[listenerId] = callback;
+    final listenerId = _nextCallbackId++;
+    _suggestSessionsById[listenerId] = onSuggest;
 
     await _channel.invokeMethod<void>(
       'getSuggestions',
@@ -29,7 +29,7 @@ class YandexSearch {
         'southWestLongitude': southWestPoint.longitude,
         'northEastLatitude': northEastPoint.latitude,
         'northEastLongitude': northEastPoint.longitude,
-        'suggestType': suggestType,
+        'suggestType': suggestType.index,
         'suggestWords': suggestWords,
         'listenerId': listenerId
       }
@@ -72,17 +72,19 @@ class YandexSearch {
 
   static void _onSuggestListenerResponse(dynamic arguments) {
     final List<dynamic> suggests = arguments['response'];
-    final List<SuggestItem> suggestItems = suggests.map((dynamic sug) {
+    final suggestItems = suggests.map((dynamic sug) {
       return SuggestItem(
-        searchText: sug['searchText'],
         title: sug['title'],
         subtitle: sug['subtitle'],
+        displayText: sug['displayText'],
+        searchText: sug['searchText'],
+        type: SuggestItemType.values[sug['type']],
         tags: sug['tags'],
-        type: sug['type'],
       );
     }).toList();
     final int listenerId = arguments['listenerId'];
-    _suggestSessionsById[listenerId](suggestItems);
+
+    _suggestSessionsById[listenerId]!(suggestItems);
     _cancelSuggestSession(listenerId);
   }
 

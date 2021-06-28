@@ -18,7 +18,7 @@ class PlacemarkStyle extends Equatable {
   final Point iconAnchor;
   final double opacity;
   final bool isDraggable;
-  final String iconName;
+  final String? iconName;
   final RotationType rotationType;
   final double direction;
 
@@ -36,7 +36,7 @@ class PlacemarkStyle extends Equatable {
   /// //apply size/color transformations to data, and use it afterwards
   /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
   ///
-  final Uint8List rawImageData;
+  final Uint8List? rawImageData;
 
   static const double kScale = 1.0;
   static const double kZIndex = 0.0;
@@ -51,7 +51,6 @@ class PlacemarkStyle extends Equatable {
     iconAnchor,
     opacity,
     isDraggable,
-    iconName,
     rotationType,
     direction
   ];

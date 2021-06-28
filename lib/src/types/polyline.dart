@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 class Polyline extends Equatable {
   const Polyline({
-    @required this.coordinates,
+    required this.coordinates,
     this.style = const PolylineStyle(),
   });
 

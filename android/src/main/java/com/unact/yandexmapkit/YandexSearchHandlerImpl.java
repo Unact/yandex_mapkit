@@ -40,40 +40,25 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
   private void cancelSuggestSession(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     final int listenerId = ((Number) params.get("listenerId")).intValue();
+
     suggestSessionsById.remove(listenerId);
   }
 
   @SuppressWarnings("unchecked")
   private void getSuggestions(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
     final int listenerId = ((Number) params.get("listenerId")).intValue();
-
     String formattedAddress = (String) params.get("formattedAddress");
     BoundingBox boundingBox = new BoundingBox(
       new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
       new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
     );
-    SuggestType suggestType;
-    switch ((String) params.get("suggestType")) {
-      case "GEO":
-        suggestType = SuggestType.GEO;
-        break;
-      case "BIZ":
-        suggestType = SuggestType.BIZ;
-        break;
-      case "TRANSIT":
-        suggestType = SuggestType.TRANSIT;
-        break;
-      default:
-        suggestType = SuggestType.UNSPECIFIED;
-        break;
-    }
     Boolean suggestWords = ((Boolean) params.get("suggestWords"));
     SuggestSession suggestSession = searchManager.createSuggestSession();
     SuggestOptions suggestOptions = new SuggestOptions();
-    suggestOptions.setSuggestTypes(suggestType.value);
+    suggestOptions.setSuggestTypes(((Number) params.get("suggestType")).intValue());
     suggestOptions.setSuggestWords(suggestWords);
+
     suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(listenerId));
     suggestSessionsById.put(listenerId, suggestSession);
   }
@@ -115,29 +100,16 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
           suggestMap.put("displayText", suggestItemResult.getDisplayText());
         }
         suggestMap.put("searchText", suggestItemResult.getSearchText());
+        suggestMap.put("type", suggestItemResult.getType().ordinal());
         suggestMap.put("tags", suggestItemResult.getTags());
-        String suggestItemType;
-        switch (suggestItemResult.getType()) {
-          case TOPONYM:
-            suggestItemType = "TOPONYM";
-            break;
-          case BUSINESS:
-            suggestItemType = "BUSINESS";
-            break;
-          case TRANSIT:
-            suggestItemType = "TRANSIT";
-            break;
-          default:
-            suggestItemType = "UNKNOWN";
-            break;
-        }
-        suggestMap.put("type", suggestItemType);
+
         suggests.add(suggestMap);
       }
 
       Map<String, Object> arguments = new HashMap<>();
       arguments.put("listenerId", listenerId);
       arguments.put("response", suggests);
+
       methodChannel.invokeMethod("onSuggestListenerResponse", arguments);
     }
 

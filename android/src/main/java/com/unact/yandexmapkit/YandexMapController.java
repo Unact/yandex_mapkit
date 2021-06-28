@@ -11,6 +11,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
+import com.yandex.mapkit.ScreenPoint;
+import com.yandex.mapkit.ScreenRect;
 import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Polygon;
@@ -26,6 +28,7 @@ import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
+import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.PolylineMapObject;
 import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
@@ -113,6 +116,31 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
     mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void setFocusRect(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> paramsTopLeftScreenPoint = ((Map<String, Object>) params.get("topLeftScreenPoint"));
+    Map<String, Object> paramsBottomRightScreenPoint = ((Map<String, Object>) params.get("bottomRightScreenPoint"));
+    ScreenRect screenRect = new ScreenRect(
+      new ScreenPoint(
+        ((Double) paramsTopLeftScreenPoint.get("x")).floatValue(),
+        ((Double) paramsTopLeftScreenPoint.get("y")).floatValue()
+      ),
+      new ScreenPoint(
+        ((Double) paramsBottomRightScreenPoint.get("x")).floatValue(),
+        ((Double) paramsBottomRightScreenPoint.get("y")).floatValue()
+      )
+    );
+
+    mapView.setFocusRect(screenRect);
+    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
+  }
+
+  private void clearFocusRect() {
+    mapView.setFocusRect(null);
+    mapView.setPointOfView(PointOfView.SCREEN_CENTER);
   }
 
   @SuppressWarnings("unchecked")
@@ -390,16 +418,30 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private void addPolygon(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
-    List<Map<String, Object>> paramsCoordinates = (List<Map<String, Object>>) params.get("coordinates");
-    ArrayList<Point> polygonPoints = new ArrayList<>();
-    for (Map<String, Object> c: paramsCoordinates) {
+    List<Map<String, Object>> paramsOuterRingCoordinates =
+      (List<Map<String, Object>>) params.get("outerRingCoordinates");
+    List<List<Map<String, Object>>> paramsInnerRingsCoordinates =
+      (List<List<Map<String, Object>>>) params.get("innerRingsCoordinates");
+    ArrayList<Point> outerRingPolygonPoints = new ArrayList<>();
+    ArrayList<LinearRing> innerRings = new ArrayList<>();
+
+    for (Map<String, Object> c: paramsOuterRingCoordinates) {
       Point point = new Point(((Double) c.get("latitude")), ((Double) c.get("longitude")));
-      polygonPoints.add(point);
+      outerRingPolygonPoints.add(point);
     }
+    for (List<Map<String, Object>> cl: paramsInnerRingsCoordinates) {
+      ArrayList<Point> innerRingPolygonPoints = new ArrayList<>();
+
+      for (Map<String, Object> c: cl) {
+        Point point = new Point(((Double) c.get("latitude")), ((Double) c.get("longitude")));
+        innerRingPolygonPoints.add(point);
+      }
+
+      innerRings.add(new LinearRing(innerRingPolygonPoints));
+    }
+
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-    PolygonMapObject polygon = mapObjects.addPolygon(
-      new Polygon(new LinearRing(polygonPoints), new ArrayList<LinearRing>())
-    );
+    PolygonMapObject polygon = mapObjects.addPolygon(new Polygon(new LinearRing(outerRingPolygonPoints), innerRings));
 
     polygon.setUserData(params.get("hashCode"));
     polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
@@ -424,22 +466,24 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
   }
 
-  private void moveToUser() {
-    if (!hasLocationPermission()) return;
+  private Map<String, Object> getUserTargetPoint() {
+    if (!hasLocationPermission()) return null;
 
-    float currentZoom = mapView.getMap().getCameraPosition().getZoom();
-    float tilt = mapView.getMap().getCameraPosition().getTilt();
-    float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
     if (userLocationLayer != null) {
       CameraPosition cameraPosition = userLocationLayer.cameraPosition();
+
       if (cameraPosition != null) {
-        mapView.getMap().move(
-          new CameraPosition(cameraPosition.getTarget(), currentZoom, azimuth, tilt),
-          new Animation(Animation.Type.SMOOTH, 1),
-          null
-        );
+        Point point =  cameraPosition.getTarget();
+        Map<String, Object> arguments = new HashMap<>();
+
+        arguments.put("latitude", point.getLatitude());
+        arguments.put("longitude", point.getLongitude());
+
+        return arguments;
       }
     }
+
+    return null;
   }
 
   private void moveWithParams(Map<String, Object> params, CameraPosition cameraPosition) {
@@ -524,6 +568,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         setBounds(call);
         result.success(null);
         break;
+      case "setFocusRect":
+        setFocusRect(call);
+        result.success(null);
+        break;
+      case "clearFocusRect":
+        clearFocusRect();
+        result.success(null);
+        break;
       case "enableCameraTracking":
         Map<String, Object> target = enableCameraTracking(call);
         result.success(target);
@@ -565,16 +617,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(null);
         break;
       case "getTargetPoint":
-        Map<String, Object> point = getTargetPoint();
-        result.success(point);
+        Map<String, Object> targetPoint = getTargetPoint();
+        result.success(targetPoint);
         break;
       case "getVisibleRegion":
         Map<String, Object> region = getVisibleRegion();
         result.success(region);
         break;
-      case "moveToUser":
-        moveToUser();
-        result.success(null);
+      case "getUserTargetPoint":
+        Map<String, Object> userTargetPoint = getUserTargetPoint();
+        result.success(userTargetPoint);
         break;
       default:
         result.notImplemented();

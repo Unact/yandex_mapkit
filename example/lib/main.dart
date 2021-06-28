@@ -2,29 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/router_page.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
+import 'package:yandex_mapkit_example/examples/camera_tracking_page.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
-import 'package:yandex_mapkit_example/examples/target_page.dart';
-import 'package:yandex_mapkit_example/examples/search_page.dart';
 import 'package:yandex_mapkit_example/examples/rotation_page.dart';
+import 'package:yandex_mapkit_example/examples/search_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
 }
 
 const List<MapPage> _allPages = <MapPage>[
+  CameraTrackingPage(),
   RouterPage(),
   LayersPage(),
   MapControlsPage(),
   PlacemarkPage(),
   PolylinePage(),
   PolygonPage(),
-  TargetPage(),
-  SearchPage(),
   RotationPage(),
+  SearchPage(),
 ];
 
 class MainPage extends StatelessWidget {

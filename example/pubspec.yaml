@@ -3,18 +3,19 @@ description: Demonstrates how to use the yandex_mapkit plugin.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=1.12.0"
 
 dependencies:
+  cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
-  cupertino_icons: ^0.1.2
-  permission_handler: ^3.2.2
+  permission_handler: ^6.1.1
 
 dev_dependencies:
+  pedantic: ^1.11.0
   flutter_test:
     sdk: flutter
-
   yandex_mapkit:
     path: ../
 
