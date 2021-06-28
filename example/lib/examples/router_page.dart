@@ -18,9 +18,9 @@ class _RouterExample extends StatefulWidget {
 }
 
 class _RouterExampleState extends State<_RouterExample> {
-  YandexMapController _controller;
-  Polyline _route;
-  DrivingSession _result;
+  YandexMapController? _controller;
+  Polyline? _route;
+  DrivingSession? _result;
   bool _progress = false;
 
   @override
@@ -45,14 +45,16 @@ class _RouterExampleState extends State<_RouterExample> {
                       ControlButton(
                         onPressed: () async {
                           if (_route != null) {
-                            await _controller.removePolyline(_route);
+                            await _controller?.removePolyline(_route!);
                           }
                           _result = await _buildRoutes();
                           setState(() {
                             _progress = true;
                           });
-                          _route = await _polyline(_result);
-                          await _controller.addPolyline(_route);
+                          try {
+                            _route = await _polyline(_result!);
+                            await _controller?.addPolyline(_route!);
+                          } catch (_) {}
                           setState(() {
                             _progress = false;
                           });
@@ -63,7 +65,7 @@ class _RouterExampleState extends State<_RouterExample> {
                       ControlButton(
                         onPressed: () async {
                           if (_route != null) {
-                            await _controller.removePolyline(_route);
+                            await _controller?.removePolyline(_route!);
                           }
                         },
                         title: 'Remove',
@@ -83,7 +85,7 @@ class _RouterExampleState extends State<_RouterExample> {
             icon: const CircularProgressIndicator(),
             label: const Text('Cancel'),
             onPressed: () {
-              _result.cancelSession();
+              _result?.cancelSession();
               setState(() {
                 _progress = false;
               });
@@ -93,7 +95,7 @@ class _RouterExampleState extends State<_RouterExample> {
   }
 
   Future<Polyline> _polyline(DrivingSession result) async {
-    final List<DrivingRoute> routes = await result.routes;
+    final routes = await result.routes;
 
     return Polyline(
       coordinates: routes[0].geometry,

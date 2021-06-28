@@ -9,9 +9,9 @@ class YandexDrivingRouter {
 
   static Future<DrivingSession> requestRoutes(
       List<RequestPoint> points) async {
-    final int sessionId = _nextSessionId++;
+    final sessionId = _nextSessionId++;
 
-    final List<Map<String, dynamic>> pointsRequest = points
+    final  pointsRequest = points
         .map((RequestPoint requestPoint) => <String, dynamic>{
               'requestPointType':
                   requestPoint.requestPointType.toString().split('.').last,
@@ -21,17 +21,19 @@ class YandexDrivingRouter {
               }
             })
         .toList();
-    final Map<String, dynamic> request = <String, dynamic>{
+    final request = <String, dynamic>{
       'points': pointsRequest,
       'sessionId': sessionId,
     };
 
-    final Future<List<DrivingRoute>> futureRoutes = _channel
+    final futureRoutes = _channel
         .invokeListMethod<dynamic>('requestRoutes', request)
-        .then((List<dynamic> resultRoutes) {
-      return resultRoutes.map((dynamic map) {
+        .then((List<dynamic>? resultRoutes) {
+
+      return resultRoutes!.map((dynamic map) {
+
         final List<dynamic> resultPoints = map['geometry'];
-        final List<Point> points = resultPoints
+        final points = resultPoints
             .map((dynamic resultPoint) => Point(
                   latitude: resultPoint['latitude'],
                   longitude: resultPoint['longitude'],
