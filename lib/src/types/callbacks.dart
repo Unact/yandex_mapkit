@@ -6,3 +6,4 @@ typedef CancelSuggestCallback = void Function();
 typedef GenericCallback = void Function();
 typedef ArgumentCallback<T> = void Function(T argument);
 typedef MapCreatedCallback = void Function(YandexMapController controller);
+typedef CancelDrivingSessionCallback = void Function();

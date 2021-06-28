@@ -27,6 +27,7 @@ part 'src/types/polyline.dart';
 part 'src/types/suggest_item.dart';
 part 'src/types/driving/driving_route.dart';
 part 'src/types/driving/request_point.dart';
+part 'src/types/driving/driving_session.dart';
 part 'src/yandex_map.dart';
 part 'src/yandex_map_controller.dart';
 part 'src/yandex_search.dart';

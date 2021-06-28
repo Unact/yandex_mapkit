@@ -5,29 +5,47 @@ class YandexDrivingRouter {
 
   static const MethodChannel _channel = MethodChannel(_channelName);
 
-  static Future<List<DrivingRoute>> requestRoutes(List<RequestPoint> points) async {
+  static int _nextSessionId = 0;
+
+  static Future<DrivingSession> requestRoutes(
+      List<RequestPoint> points) async {
+    final int sessionId = _nextSessionId++;
+
     final List<Map<String, dynamic>> pointsRequest = points
         .map((RequestPoint requestPoint) => <String, dynamic>{
-              'requestPointType': requestPoint.requestPointType.toString().split('.').last,
+              'requestPointType':
+                  requestPoint.requestPointType.toString().split('.').last,
               'point': <String, dynamic>{
                 'latitude': requestPoint.point.latitude,
                 'longitude': requestPoint.point.longitude,
               }
             })
         .toList();
-    final Map<String, dynamic> request = <String, dynamic>{'points': pointsRequest};
-    final List<dynamic> resultRoutes = await _channel.invokeListMethod<dynamic>('requestRoutes', request);
-    final List<DrivingRoute> routes = resultRoutes.map((dynamic map) {
-      List<dynamic> resultPoints = map['geometry'];
-      final List<Point> points = resultPoints
-          .map((dynamic resultPoint) => Point(
-                latitude: resultPoint['latitude'],
-                longitude: resultPoint['longitude'],
-              ))
-          .toList();
-      return DrivingRoute(points);
-    }).toList();
+    final Map<String, dynamic> request = <String, dynamic>{
+      'points': pointsRequest,
+      'sessionId': sessionId,
+    };
 
-    return routes;
+    final Future<List<DrivingRoute>> futureRoutes = _channel
+        .invokeListMethod<dynamic>('requestRoutes', request)
+        .then((List<dynamic> resultRoutes) {
+      return resultRoutes.map((dynamic map) {
+        final List<dynamic> resultPoints = map['geometry'];
+        final List<Point> points = resultPoints
+            .map((dynamic resultPoint) => Point(
+                  latitude: resultPoint['latitude'],
+                  longitude: resultPoint['longitude'],
+                ))
+            .toList();
+        return DrivingRoute(points);
+      }).toList();
+    });
+
+    return DrivingSession(futureRoutes, () => _cancelSession(sessionId));
+  }
+
+  static Future<void> _cancelSession(int sessionId) async {
+    await _channel.invokeMethod<void>(
+        'cancelDrivingSession', <String, dynamic>{'sessionId': sessionId});
   }
 }

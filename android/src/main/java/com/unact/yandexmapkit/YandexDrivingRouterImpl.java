@@ -11,6 +11,7 @@ import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingOptions;
 import com.yandex.mapkit.directions.driving.DrivingRoute;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
+import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.DrivingSession.DrivingRouteListener;
 import com.yandex.mapkit.directions.driving.VehicleOptions;
 import com.yandex.mapkit.geometry.Point;
@@ -28,6 +29,8 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexDrivingRouterImpl implements MethodCallHandler {
     private final DrivingRouter drivingRouter;
 
+    private final Map<Integer, DrivingSession> sessions = new HashMap<>();
+
     public YandexDrivingRouterImpl(Context context) {
         DirectionsFactory.initialize(context);
         final Directions directions = DirectionsFactory.getInstance();
@@ -40,6 +43,9 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
             case "requestRoutes":
                 requestRoutes(call, result);
                 break;
+            case "cancelDrivingSession":
+                cancelDrivingSession(call, result);
+                break;
             default:
                 result.notImplemented();
                 break;
@@ -47,21 +53,22 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void requestRoutes(MethodCall call, final Result result) {
+    private void requestRoutes(final MethodCall call, final Result result) {
         final Map<String, Object> params = (Map<String, Object>) call.arguments;
         final List<Map<String, Object>> pointsParams = (List<Map<String, Object>>) params.get("points");
+        final Integer sessionId = (Integer) params.get("sessionId");
         final List<RequestPoint> points = new ArrayList<RequestPoint>();
         for (final Map<String, Object> pointParams : pointsParams) {
             points.add(requestPoint(pointParams));
         }
-        drivingRouter.requestRoutes(
+        final DrivingSession session = drivingRouter.requestRoutes(
                 points,
                 new DrivingOptions(),
                 new VehicleOptions(),
                 new DrivingRouteListener() {
-
                     @Override
                     public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
+                        sessions.remove(sessionId);
                         List<Map<String, Object>> resultRoutes = new ArrayList<>();
                         for (DrivingRoute route : list) {
                             Map<String, Object> resultRoute = new HashMap<>();
@@ -80,12 +87,12 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
 
                     @Override
                     public void onDrivingRoutesError(@NonNull Error error) {
+                        sessions.remove(sessionId);
                         result.error("onDrivingRoutesError", null, null);
                     }
                 }
-
-
         );
+        sessions.put(sessionId, session);
     }
 
     @SuppressWarnings("unchecked")
@@ -97,5 +104,17 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
         final RequestPointType pointType = RequestPointType.valueOf(pointTypeParams);
 
         return new RequestPoint(point, pointType, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void cancelDrivingSession(final MethodCall call, final Result result) {
+        final Map<String, Object> params = (Map<String, Object>) call.arguments;
+        final Integer sessionId = (Integer) params.get("sessionId");
+        final DrivingSession session = sessions.get(sessionId);
+        if (session != null) {
+            session.cancel();
+            sessions.remove(sessionId);
+        }
+        result.success(null);
     }
 }
