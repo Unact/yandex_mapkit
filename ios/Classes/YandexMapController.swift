@@ -533,6 +533,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value))
 
     circleMapObject.userData = (params["hashCode"] as! NSNumber).intValue
+    circleMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
     
     circles.append(circleMapObject)
   }
