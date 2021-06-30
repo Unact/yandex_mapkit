@@ -7,6 +7,8 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
     private var router: YMKDrivingRouter?
     private var session: YMKDrivingSession?
     
+    private var sessions = [Int:YMKDrivingSession]()
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
             name: "yandex_mapkit/yandex_driving",
@@ -27,6 +29,9 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         case "requestRoutes":
             requestRoutes(call, result)
             break
+        case "cancelDrivingSession":
+            cancelDrivingSession(call, result)
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -36,13 +41,15 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         router = router ?? YMKDirections.sharedInstance().createDrivingRouter()
         let params = call.arguments as! [String: Any]
         let pointsParams = params["points"] as! [[String: Any]]
+        let sessionId = params["sessionId"] as! Int
         let requestPoints = pointsParams.map { (pointParams) ->YMKRequestPoint in
             requestPoint(pointParams)
         }
         let drivingOptions = YMKDrivingDrivingOptions()
         let vehicleOptions = YMKDrivingVehicleOptions()
-
-        session = router!.requestRoutes(with: requestPoints, drivingOptions: drivingOptions, vehicleOptions: vehicleOptions) { (routes, error) in
+        
+        sessions[sessionId] = router!.requestRoutes(with: requestPoints, drivingOptions: drivingOptions, vehicleOptions: vehicleOptions) { (routes, error) in
+            self.sessions.removeValue(forKey: sessionId)
             guard let routes: [YMKDrivingRoute] = routes else {
                 if(error != nil){
                     result(error)
@@ -61,17 +68,27 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         }
     }
     
+    private func cancelDrivingSession(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let params = call.arguments as! [String: Any]
+        let sessionId = params["sessionId"] as! Int
+        if let session = sessions[sessionId] {
+            session.cancel()
+            sessions.removeValue(forKey: sessionId)
+        }
+        result(nil)
+    }
+    
     private func requestPoint(_ data: [String: Any]) -> YMKRequestPoint {
         let paramsPoint = data["point"] as! [String: Any]
         let point = YMKPoint(latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue, longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue)
         let pointType: YMKRequestPointType
         switch data["requestPointType"] as! String {
-            case "VIAPOINT":
-                pointType = YMKRequestPointType.viapoint
-            case "WAYPOINT":
-                pointType = YMKRequestPointType.waypoint
-            default:
-                pointType = YMKRequestPointType.waypoint
+        case "VIAPOINT":
+            pointType = YMKRequestPointType.viapoint
+        case "WAYPOINT":
+            pointType = YMKRequestPointType.waypoint
+        default:
+            pointType = YMKRequestPointType.waypoint
         }
         return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
     }
