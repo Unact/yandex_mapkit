@@ -383,16 +383,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
 
-    String outlineColorString = String.valueOf(paramsStyle.get("outlineColor"));
-    Long outlineColorLong = Long.parseLong(outlineColorString);
-
-    String strokeColorString = String.valueOf(paramsStyle.get("strokeColor"));
-    Long strokeColorLong = Long.parseLong(strokeColorString);
-
     polyline.setUserData(params.get("hashCode"));
-    polyline.setOutlineColor(outlineColorLong.intValue());
+    polyline.setOutlineColor(((Number) paramsStyle.get("outlineColor")).intValue());
     polyline.setOutlineWidth(((Double) paramsStyle.get("outlineWidth")).floatValue());
-    polyline.setStrokeColor(strokeColorLong.intValue());
+    polyline.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
     polyline.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
     polyline.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
     polyline.setDashLength(((Double) paramsStyle.get("dashLength")).floatValue());
@@ -483,15 +477,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
 
-    String strokeColorString = String.valueOf(paramsStyle.get("strokeColor"));
-    Long strokeColorLong = Long.parseLong(strokeColorString);
-
-    String fillColorString = String.valueOf(paramsStyle.get("fillColor"));
-    Long fillColorLong = Long.parseLong(fillColorString);
-
-    Float strokeWidth = ((Double) paramsStyle.get("strokeWidth")).floatValue();
-
-    CircleMapObject circle = mapObjects.addCircle(new Circle(circleCenter, circleRadius), strokeColorLong.intValue(), strokeWidth, fillColorLong.intValue());
+    CircleMapObject circle = mapObjects.addCircle(
+      new Circle(circleCenter, circleRadius),
+      ((Number) paramsStyle.get("strokeColor")).intValue(),
+      ((Double) paramsStyle.get("strokeWidth")).floatValue(),
+      ((Number) paramsStyle.get("fillColor")).intValue());
 
     circle.setUserData(params.get("hashCode"));
     circle.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
