@@ -14,6 +14,7 @@ import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.ScreenRect;
 import com.yandex.mapkit.geometry.BoundingBox;
+import com.yandex.mapkit.geometry.Circle;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Point;
@@ -23,6 +24,7 @@ import com.yandex.mapkit.logo.Alignment;
 import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.CircleMapObject;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
@@ -69,6 +71,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private List<PolygonMapObject> polygons = new ArrayList<>();
+  private List<CircleMapObject> circles = new ArrayList<>();
   private String userLocationIconName;
   private String userArrowIconName;
   private Boolean userArrowOrientation;
@@ -380,16 +383,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
 
-    String outlineColorString = String.valueOf(paramsStyle.get("outlineColor"));
-    Long outlineColorLong = Long.parseLong(outlineColorString);
-
-    String strokeColorString = String.valueOf(paramsStyle.get("strokeColor"));
-    Long strokeColorLong = Long.parseLong(strokeColorString);
-
     polyline.setUserData(params.get("hashCode"));
-    polyline.setOutlineColor(outlineColorLong.intValue());
+    polyline.setOutlineColor(((Number) paramsStyle.get("outlineColor")).intValue());
     polyline.setOutlineWidth(((Double) paramsStyle.get("outlineWidth")).floatValue());
-    polyline.setStrokeColor(strokeColorLong.intValue());
+    polyline.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
     polyline.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
     polyline.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
     polyline.setDashLength(((Double) paramsStyle.get("dashLength")).floatValue());
@@ -461,6 +458,50 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       PolygonMapObject polygonMapObject = iterator.next();
       if (polygonMapObject.getUserData().equals(params.get("hashCode"))) {
         mapObjects.remove(polygonMapObject);
+        iterator.remove();
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void addCircle(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Map<String, Object> paramsCenter = (Map<String, Object>) params.get("center");
+    Double paramsRadius = (Double) params.get("radius");
+    Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
+
+    Point circleCenter = new Point((Double) paramsCenter.get("latitude"), (Double) paramsCenter.get("longitude"));
+    Float circleRadius = paramsRadius.floatValue();
+
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
+    CircleMapObject circle = mapObjects.addCircle(
+      new Circle(circleCenter, circleRadius),
+      ((Number) paramsStyle.get("strokeColor")).intValue(),
+      ((Double) paramsStyle.get("strokeWidth")).floatValue(),
+      ((Number) paramsStyle.get("fillColor")).intValue());
+
+    circle.setUserData(params.get("hashCode"));
+    circle.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
+
+    circles.add(circle);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void removeCircle(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
+    Iterator<CircleMapObject> iterator = circles.iterator();
+
+    while (iterator.hasNext()) {
+      CircleMapObject circleMapObject = iterator.next();
+      if (circleMapObject.getUserData().equals(params.get("hashCode"))) {
+        mapObjects.remove(circleMapObject);
         iterator.remove();
       }
     }
@@ -606,6 +647,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "removePolygon":
         removePolygon(call);
+        result.success(null);
+        break;
+      case "addCircle":
+        addCircle(call);
+        result.success(null);
+        break;
+      case "removeCircle":
+        removeCircle(call);
         result.success(null);
         break;
       case "zoomIn":

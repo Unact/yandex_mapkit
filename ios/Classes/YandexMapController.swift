@@ -16,6 +16,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
+  private var circles: [YMKCircleMapObject] = []
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -99,6 +100,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "removePolygon":
       removePolygon(call)
       result(nil)
+    case "addCircle":
+      addCircle(call)
+      result(nil)
+      break;
+    case "removeCircle":
+      removeCircle(call)
+      result(nil)
+      break;
     case "zoomIn":
       zoomIn()
       result(nil)
@@ -495,6 +504,49 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polygon)
       polygons.remove(at: polygons.firstIndex(of: polygon)!)
+    }
+  }
+
+  private func addCircle(_ call: FlutterMethodCall) {
+
+    let params = call.arguments as! [String: Any]
+
+    let paramsCenter = params["center"] as! [String: Any]
+    let paramsRadius = params["radius"] as! NSNumber
+    let paramsStyle = params["style"] as! [String: Any]
+
+    let centerPrepared = YMKPoint(
+      latitude: (paramsCenter["latitude"] as! NSNumber).doubleValue,
+      longitude: (paramsCenter["longitude"] as! NSNumber).doubleValue
+    )
+  
+    let radiusPrepared = paramsRadius.floatValue
+
+    let mapObjects = mapView.mapWindow.map.mapObjects
+
+    let circle = YMKCircle(center: centerPrepared, radius: radiusPrepared)
+  
+    let circleMapObject = mapObjects.addCircle(
+      with: circle,
+      stroke: uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value),
+      strokeWidth: (paramsStyle["strokeWidth"] as! NSNumber).floatValue,
+      fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value))
+
+    circleMapObject.userData = (params["hashCode"] as! NSNumber).intValue
+    circleMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
+    
+    circles.append(circleMapObject)
+  }
+
+  private func removeCircle(_ call: FlutterMethodCall) {
+        
+    let params = call.arguments as! [String: Any]
+    let hashCode = (params["hashCode"] as! NSNumber).intValue
+
+    if let circle = circles.first(where: { $0.userData as! Int == hashCode}) {
+      let mapObjects = mapView.mapWindow.map.mapObjects
+      mapObjects.remove(with: circle)
+      circles.remove(at: circles.firstIndex(of: circle)!)
     }
   }
 
