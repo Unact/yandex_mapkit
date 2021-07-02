@@ -222,24 +222,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     zoom(-1)
   }
   
-  public func isZoomGesturesEnabled() -> Bool {
-    return mapView.mapWindow.map.isZoomGesturesEnabled
-  }
-  
-  public func setZoomGesturesEnabled(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let enabled = params["enabled"] as! Bool
-    mapView.mapWindow.map.isZoomGesturesEnabled = enabled
-  }
-  
-  public func getMinZoom() -> Float {
-    return mapView.mapWindow.map.getMinZoom()
-  }
-  
-  public func getMaxZoom() -> Float {
-    return mapView.mapWindow.map.getMaxZoom()
-  }
-
   private func zoom(_ step: Float) {
     let point = mapView.mapWindow.map.cameraPosition.target
     let zoom = mapView.mapWindow.map.cameraPosition.zoom
@@ -256,6 +238,24 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1),
       cameraCallback: nil
     )
+  }
+  
+  public func isZoomGesturesEnabled() -> Bool {
+    return mapView.mapWindow.map.isZoomGesturesEnabled
+  }
+  
+  public func setZoomGesturesEnabled(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let enabled = params["enabled"] as! Bool
+    mapView.mapWindow.map.isZoomGesturesEnabled = enabled
+  }
+  
+  public func getMinZoom() -> Float {
+    return mapView.mapWindow.map.getMinZoom()
+  }
+  
+  public func getMaxZoom() -> Float {
+    return mapView.mapWindow.map.getMaxZoom()
   }
 
   public func move(_ call: FlutterMethodCall) {

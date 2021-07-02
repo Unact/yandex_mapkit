@@ -574,6 +574,27 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     );
   }
 
+  private boolean isZoomGesturesEnabled() {
+    return mapView.getMap().isZoomGesturesEnabled();
+  }
+
+  public void setZoomGesturesEnabled(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    boolean enabled = (Boolean) params.get("enabled");
+
+    mapView.getMap().setZoomGesturesEnabled(enabled);
+  }
+
+  public float getMinZoom() {
+    return mapView.getMap().getMinZoom();
+  }
+
+  public float getMaxZoom() {
+    return mapView.getMap().getMaxZoom();
+  }
+
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -665,6 +686,18 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         zoomOut();
         result.success(null);
         break;
+      case "isZoomGesturesEnabled":
+        boolean isZoomGesturesEnabled = isZoomGesturesEnabled();
+        result.success(isZoomGesturesEnabled);
+      case "setZoomGesturesEnabled":
+        setZoomGesturesEnabled(call);
+        result.success(null);
+      case "getMinZoom":
+        float minZoom = getMinZoom();
+        result.success(minZoom);
+      case "getMaxZoom":
+        float maxZoom = getMaxZoom();
+        result.success(maxZoom);
       case "getTargetPoint":
         Map<String, Object> targetPoint = getTargetPoint();
         result.success(targetPoint);
