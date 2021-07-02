@@ -250,6 +250,29 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('zoomOut');
   }
 
+  // Returns min available zoom for visible map region
+  Future<bool> isZoomGesturesEnabled() async {
+    final bool value = await _channel.invokeMethod<dynamic>('isZoomGesturesEnabled');
+    return value;
+  }
+
+  /// Toggles isZoomGesturesEnabled (enable/disable zoom gestures)
+  Future<void> setZoomGesturesEnabled({required bool enabled}) async {
+    await _channel.invokeMethod<void>('setZoomGesturesEnabled', <String, dynamic>{'enabled': enabled});
+  }
+
+  // Returns min available zoom for visible map region
+  Future<double> getMinZoom() async {
+    final double minZoom = await _channel.invokeMethod<dynamic>('getMinZoom');
+    return minZoom;
+  }
+
+  // Returns max available zoom for visible map region
+  Future<double> getMaxZoom() async {
+    final double maxZoom = await _channel.invokeMethod<dynamic>('getMaxZoom');
+    return maxZoom;
+  }
+
   /// Returns current user position point only if user layer is visible
   Future<Point?> getUserTargetPoint() async {
     final dynamic point = await _channel.invokeMethod<dynamic>('getUserTargetPoint');

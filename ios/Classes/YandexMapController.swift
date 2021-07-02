@@ -114,6 +114,18 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "zoomOut":
       zoomOut()
       result(nil)
+    case "isZoomGesturesEnabled":
+      let isZoomGesturesEnabled = isZoomGesturesEnabled()
+      result(isZoomGesturesEnabled)
+    case "setZoomGesturesEnabled":
+      setZoomGesturesEnabled(call)
+      result(nil)
+    case "getMinZoom":
+      let minZoom = getMinZoom()
+      result(minZoom)
+    case "getMaxZoom":
+      let maxZoom = getMaxZoom()
+      result(maxZoom)
     case "getTargetPoint":
       let targetPoint = getTargetPoint()
       result(targetPoint)
@@ -208,6 +220,24 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func zoomOut() {
     zoom(-1)
+  }
+  
+  public func isZoomGesturesEnabled() -> Bool {
+    return mapView.mapWindow.map.isZoomGesturesEnabled
+  }
+  
+  public func setZoomGesturesEnabled(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let enabled = params["enabled"] as! Bool
+    mapView.mapWindow.map.isZoomGesturesEnabled = enabled
+  }
+  
+  public func getMinZoom() -> Float {
+    return mapView.mapWindow.map.getMinZoom()
+  }
+  
+  public func getMaxZoom() -> Float {
+    return mapView.mapWindow.map.getMaxZoom()
   }
 
   private func zoom(_ step: Float) {
