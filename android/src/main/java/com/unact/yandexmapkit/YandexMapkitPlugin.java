@@ -45,7 +45,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
     methodChannelSearch.setMethodCallHandler(handlerSearch);
 
     methodChannelDrivingRouter = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
-    YandexDrivingRouterImpl handlerDrivingRouter = new YandexDrivingRouterImpl(context);
+    YandexDrivingRouterHandlerImpl handlerDrivingRouter = new YandexDrivingRouterHandlerImpl(context);
     methodChannelDrivingRouter.setMethodCallHandler(handlerDrivingRouter);
 
   }

@@ -38,6 +38,7 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
     }
     
     private func requestRoutes(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        // createDrivingRouter hangs if we try to call in the constructor
         router = router ?? YMKDirections.sharedInstance().createDrivingRouter()
         let params = call.arguments as! [String: Any]
         let pointsParams = params["points"] as! [[String: Any]]

@@ -26,12 +26,12 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-public class YandexDrivingRouterImpl implements MethodCallHandler {
+public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
     private final DrivingRouter drivingRouter;
 
     private final Map<Integer, DrivingSession> sessions = new HashMap<>();
 
-    public YandexDrivingRouterImpl(Context context) {
+    public YandexDrivingRouterHandlerImpl(Context context) {
         DirectionsFactory.initialize(context);
         final Directions directions = DirectionsFactory.getInstance();
         drivingRouter = directions.createDrivingRouter();
