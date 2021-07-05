@@ -83,9 +83,9 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         let point = YMKPoint(latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue, longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue)
         let pointType: YMKRequestPointType
         switch data["requestPointType"] as! String {
-        case "VIAPOINT":
+        case "viaPoint":
             pointType = YMKRequestPointType.viapoint
-        case "WAYPOINT":
+        case "wayPoint":
             pointType = YMKRequestPointType.waypoint
         default:
             pointType = YMKRequestPointType.waypoint

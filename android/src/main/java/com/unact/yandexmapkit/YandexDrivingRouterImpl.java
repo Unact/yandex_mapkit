@@ -101,7 +101,7 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
         Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
 
         final String pointTypeParams = (String) data.get("requestPointType");
-        final RequestPointType pointType = RequestPointType.valueOf(pointTypeParams);
+        final RequestPointType pointType = RequestPointType.valueOf(pointTypeParams.toUpperCase());
 
         return new RequestPoint(point, pointType, null);
     }

@@ -68,7 +68,7 @@ class _RouterExampleState extends State<_RouterExample> {
                             await _controller?.removePolyline(_route!);
                           }
                         },
-                        title: 'Remove',
+                        title: 'Remove route',
                       )
                     ],
                   ),
@@ -110,11 +110,11 @@ class _RouterExampleState extends State<_RouterExample> {
     return await YandexDrivingRouter.requestRoutes(
       <RequestPoint>[
         const RequestPoint(Point(latitude: 55.7558, longitude: 37.6173),
-            RequestPointType.WAYPOINT),
+            RequestPointType.wayPoint),
         const RequestPoint(Point(latitude: 45.0360, longitude: 38.9746),
-            RequestPointType.VIAPOINT),
+            RequestPointType.viaPoint),
         const RequestPoint(Point(latitude: 48.4814, longitude: 135.0721),
-            RequestPointType.WAYPOINT),
+            RequestPointType.wayPoint),
       ],
     );
   }

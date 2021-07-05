@@ -7,4 +7,4 @@ class RequestPoint {
   final RequestPointType requestPointType;
 }
 
-enum RequestPointType { WAYPOINT, VIAPOINT }
+enum RequestPointType { wayPoint, viaPoint }
