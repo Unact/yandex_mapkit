@@ -57,10 +57,8 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
         final Map<String, Object> params = (Map<String, Object>) call.arguments;
         final List<Map<String, Object>> pointsParams = (List<Map<String, Object>>) params.get("points");
         final Integer sessionId = (Integer) params.get("sessionId");
-        final List<RequestPoint> points = new ArrayList<RequestPoint>();
-        for (final Map<String, Object> pointParams : pointsParams) {
-            points.add(requestPoint(pointParams));
-        }
+        final List<RequestPoint> points = requestPoints(pointsParams);
+
         final DrivingSession session = drivingRouter.requestRoutes(
                 points,
                 new DrivingOptions(),
@@ -104,6 +102,14 @@ public class YandexDrivingRouterImpl implements MethodCallHandler {
         final RequestPointType pointType = RequestPointType.valueOf(pointTypeParams.toUpperCase());
 
         return new RequestPoint(point, pointType, null);
+    }
+
+    private List<RequestPoint> requestPoints(List<Map<String, Object>> pointsParams) {
+        final List<RequestPoint> points = new ArrayList<>();
+        for (final Map<String, Object> pointParams : pointsParams) {
+            points.add(requestPoint(pointParams));
+        }
+        return points;
     }
 
     @SuppressWarnings("unchecked")

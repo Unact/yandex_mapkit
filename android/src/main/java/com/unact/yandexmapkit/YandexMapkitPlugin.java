@@ -12,8 +12,6 @@ public class YandexMapkitPlugin implements FlutterPlugin {
   private static final String DRIVING_CHANNEL_ID = "yandex_mapkit/yandex_driving";
 
   private MethodChannel methodChannelSearch;
-  private YandexSearchHandlerImpl handlerSearch;
-
   private MethodChannel methodChannelDrivingRouter;
 
   public static void registerWith(Registrar registrar) {
@@ -25,7 +23,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
     registrar.platformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(registrar.messenger()));
 
-    new YandexMapkitPlugin().setupYandexSearchChannel(registrar.messenger(), registrar.context());
+    new YandexMapkitPlugin().setupChannels(registrar.messenger(), registrar.context());
   }
 
   @Override
@@ -33,17 +31,17 @@ public class YandexMapkitPlugin implements FlutterPlugin {
     BinaryMessenger messenger = binding.getBinaryMessenger();
     binding.getPlatformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(messenger));
 
-    setupYandexSearchChannel(messenger, binding.getApplicationContext());
+    setupChannels(messenger, binding.getApplicationContext());
   }
 
   @Override
   public void onDetachedFromEngine(FlutterPluginBinding binding) {
-    teardownYandexSearchChannel();
+    teardownChannels();
   }
 
-  private void setupYandexSearchChannel(BinaryMessenger messenger, Context context) {
+  private void setupChannels(BinaryMessenger messenger, Context context) {
     methodChannelSearch = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
-    handlerSearch = new YandexSearchHandlerImpl(context, methodChannelSearch);
+    YandexSearchHandlerImpl handlerSearch = new YandexSearchHandlerImpl(context, methodChannelSearch);
     methodChannelSearch.setMethodCallHandler(handlerSearch);
 
     methodChannelDrivingRouter = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
@@ -52,9 +50,8 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
   }
 
-  private void teardownYandexSearchChannel() {
+  private void teardownChannels() {
     methodChannelSearch.setMethodCallHandler(null);
-    handlerSearch = null;
     methodChannelSearch = null;
 
     methodChannelDrivingRouter.setMethodCallHandler(null);
