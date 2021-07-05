@@ -595,6 +595,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     return mapView.getMap().getMaxZoom();
   }
 
+  public float getZoom() {
+    return mapView.getMap().getCameraPosition().getZoom();
+  }
+
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -698,6 +702,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "getMaxZoom":
         float maxZoom = getMaxZoom();
         result.success(maxZoom);
+      case "getZoom":
+        float zoom = getZoom();
+        result.success(zoom);
       case "getTargetPoint":
         Map<String, Object> targetPoint = getTargetPoint();
         result.success(targetPoint);

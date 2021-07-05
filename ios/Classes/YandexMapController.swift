@@ -126,6 +126,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getMaxZoom":
       let maxZoom = getMaxZoom()
       result(maxZoom)
+    case "getZoom":
+      let zoom = getZoom()
+      result(zoom)
     case "getTargetPoint":
       let targetPoint = getTargetPoint()
       result(targetPoint)
@@ -258,6 +261,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     return mapView.mapWindow.map.getMaxZoom()
   }
 
+  public func getZoom() -> Float {
+    return mapView.mapWindow.map.cameraPosition.zoom
+  }
+
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let paramsPoint = params["point"] as! [String: Any]
@@ -303,7 +310,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     ]
     return arguments
   }
-
 
   public func getUserTargetPoint() -> [String: Any]? {
     if (!hasLocationPermission()) { return nil }

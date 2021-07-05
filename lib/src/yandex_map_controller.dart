@@ -273,6 +273,12 @@ class YandexMapController extends ChangeNotifier {
     return maxZoom;
   }
 
+  /// Returns current camera position point
+  Future<double> getZoom() async {
+    final double zoom = await _channel.invokeMethod<dynamic>('getZoom');
+    return zoom;
+  }
+
   /// Returns current user position point only if user layer is visible
   Future<Point?> getUserTargetPoint() async {
     final dynamic point = await _channel.invokeMethod<dynamic>('getUserTargetPoint');
