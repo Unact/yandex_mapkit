@@ -1,12 +1,37 @@
 part of yandex_mapkit;
 
 class YandexSearch {
+
   static const String _channelName = 'yandex_mapkit/yandex_search';
 
   static const MethodChannel _channel = MethodChannel(_channelName);
 
   static int _nextCallbackId = 0;
   static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
+
+  static SearchSessionCallback? _searchSessionCallback;
+
+  static Future<void> _handleMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case 'onSuggestListenerResponse':
+        _onSuggestListenerResponse(call.arguments);
+        break;
+      case 'onSuggestListenerError':
+        _onSuggestListenerError(call.arguments);
+        break;
+      case 'onSuggestListenerRemove':
+        _onSuggestListenerRemove(call.arguments);
+        break;
+      case 'onSearchListenerResponse':
+        _onSearchListenerResponse(call.arguments);
+        break;
+      case 'onSearchListenerError':
+        _onSearchListenerError(call.arguments);
+        break;
+      default:
+        throw MissingPluginException();
+    }
+  }
 
   static Future<CancelSuggestCallback> getSuggestions({
     required String address,
@@ -36,22 +61,6 @@ class YandexSearch {
     );
 
     return () => _cancelSuggestSession(listenerId);
-  }
-
-  static Future<void> _handleMethodCall(MethodCall call) async {
-    switch (call.method) {
-      case 'onSuggestListenerResponse':
-        _onSuggestListenerResponse(call.arguments);
-        break;
-      case 'onSuggestListenerError':
-        _onSuggestListenerError(call.arguments);
-        break;
-      case 'onSuggestListenerRemove':
-        _onSuggestListenerRemove(call.arguments);
-        break;
-      default:
-        throw MissingPluginException();
-    }
   }
 
   static void _onSuggestListenerRemove(dynamic arguments) {
@@ -90,5 +99,58 @@ class YandexSearch {
 
   static void _onSuggestListenerError(dynamic arguments) {
     _cancelSuggestSession(arguments['listenerId']);
+  }
+
+  static Future<void> searchByText({
+    required  String                searchText,
+    required  SearchType            searchType,
+    required  bool                  geometry,
+    required  SearchSessionCallback onSearchResponse,
+              bool                  suggestWords = false,
+              bool                  disableSpellingCorrection = false,
+              int?                  resultPageSize,
+              Point?                userPosition}) async {
+
+    _channel.setMethodCallHandler(_handleMethodCall);
+
+    _searchSessionCallback = onSearchResponse;
+
+    var params = {
+      'searchText':                 searchText,
+      'searchType':                 searchType.index,
+      'snippets':                   [],
+      'experimentalSnippets':       [],
+      'geometry':                   geometry,
+      'suggestWords':               suggestWords,
+      'disableSpellingCorrection':  disableSpellingCorrection,
+    };
+
+    if (resultPageSize != null) {
+      params['resultPageSize'] = resultPageSize;
+    }
+
+    if (userPosition != null) {
+      params['userPosition'] = userPosition;
+    }
+
+    await _channel.invokeMethod<void>(
+        'searchByText',
+        params
+    );
+  }
+
+  static void _onSearchListenerResponse(dynamic arguments) {
+
+    final Map<dynamic, dynamic> response = arguments['response'];
+
+   final respObj = SearchResponse.fromJson(response);
+
+    if (_searchSessionCallback != null) {
+      _searchSessionCallback!(respObj);
+    }
+  }
+
+  static void _onSearchListenerError(dynamic arguments) {
+    //_cancelSuggestSession(arguments['listenerId']);
   }
 }
