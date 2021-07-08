@@ -76,7 +76,18 @@ class _SearchExampleState extends State<_SearchExample> {
 
   Future<void> search(String query) async {
 
-    await YandexSearch.searchByText(searchText: query, searchType: SearchType.geo, geometry: false, onSearchResponse: (SearchResponse res) {
+    await YandexSearch.searchByText(
+      searchText: query,
+      geometry: Geometry(boundingBox: BoundingBox(
+        southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
+        northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
+      )),
+      searchOptions: SearchOptions(
+        searchType: SearchType.geo,
+        geometry: false,
+      ),
+      onSearchResponse: (SearchResponse res) {
+
       setState(() {
         response = res.toString();
       });
