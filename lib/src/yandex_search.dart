@@ -103,39 +103,62 @@ class YandexSearch {
 
   static Future<void> searchByText({
     required  String                searchText,
-    required  SearchType            searchType,
-    required  bool                  geometry,
-    required  SearchSessionCallback onSearchResponse,
-              bool                  suggestWords = false,
-              bool                  disableSpellingCorrection = false,
-              int?                  resultPageSize,
-              Point?                userPosition}) async {
+    required  Geometry              geometry,
+    required  SearchOptions         searchOptions,
+    required  SearchSessionCallback onSearchResponse}) async {
 
     _channel.setMethodCallHandler(_handleMethodCall);
 
     _searchSessionCallback = onSearchResponse;
 
-    var params = {
-      'searchText':                 searchText,
-      'searchType':                 searchType.index,
+    var geometryParam = {};
+
+    if (geometry.point != null) {
+      geometryParam['point'] = {
+        'latitude': geometry.point!.latitude,
+        'longitude': geometry.point!.longitude,
+      };
+    } else if (geometry.boundingBox != null) {
+      geometryParam['boundingBox'] = {
+        'southWest': {
+          'latitude': geometry.boundingBox!.southWest.latitude,
+          'longitude': geometry.boundingBox!.southWest.longitude,
+        },
+        'northEast': {
+          'latitude': geometry.boundingBox!.northEast.latitude,
+          'longitude': geometry.boundingBox!.northEast.longitude,
+        },
+      };
+    } else {
+      throw('geometry is invalid: point or boundingBox required');
+    }
+
+    var options = {
+      'searchType':                 searchOptions.searchType.index,
       'snippets':                   [],
       'experimentalSnippets':       [],
-      'geometry':                   geometry,
-      'suggestWords':               suggestWords,
-      'disableSpellingCorrection':  disableSpellingCorrection,
+      'geometry':                   searchOptions.geometry,
+      'suggestWords':               searchOptions.suggestWords,
+      'disableSpellingCorrection':  searchOptions.disableSpellingCorrection,
     };
 
-    if (resultPageSize != null) {
-      params['resultPageSize'] = resultPageSize;
+    if (searchOptions.resultPageSize != null) {
+      options['resultPageSize'] = searchOptions.resultPageSize!;
     }
 
-    if (userPosition != null) {
-      params['userPosition'] = userPosition;
+    if (searchOptions.userPosition != null) {
+      options['userPosition'] = searchOptions.userPosition!;
     }
+
+    var params = {
+      'searchText': searchText,
+      'geometry': geometryParam,
+      'options': options,
+    };
 
     await _channel.invokeMethod<void>(
-        'searchByText',
-        params
+      'searchByText',
+      params
     );
   }
 

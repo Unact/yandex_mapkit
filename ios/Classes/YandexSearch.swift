@@ -126,51 +126,86 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let params = call.arguments as! [String: Any]
     
     let searchText = params["searchText"] as! String
+    let geometry   = params["geometry"] as! [String:Any]
+    let options    = params["options"] as! [String:Any]
     
-    let searchTypeParam           = (params["searchType"] as! NSNumber).uintValue
-    let resultPageSizeParam       = params["resultPageSize"] as? NSNumber
-    let snippetsParam             = params["snippets"] as! [NSNumber]
-    let experimentalSnippetsParam = params["experimentalSnippets"] as! [String]
-    let userPositionParam         = params["userPosition"] as? [String:Any]
+    var geometryObj: YMKGeometry
     
-    let searchType = YMKSearchType.init(rawValue: searchTypeParam)
+    if let geometryPoint = geometry["point"] as? [String:Any] {
+      
+      geometryObj = YMKGeometry(
+        point: YMKPoint(
+          latitude: (geometryPoint["latitude"] as! NSNumber).doubleValue,
+          longitude: (geometryPoint["longitude"] as! NSNumber).doubleValue
+        )
+      )
+      
+    } else if
+      let geometryBoundingBox = geometry["boundingBox"] as? [String:Any],
+      let southWest = geometryBoundingBox["southWest"] as? [String:Any],
+      let northEast = geometryBoundingBox["northEast"] as? [String:Any] {
+      
+      geometryObj = YMKGeometry(
+        boundingBox: YMKBoundingBox(
+          southWest: YMKPoint(
+            latitude: (southWest["latitude"] as! NSNumber).doubleValue,
+            longitude: (southWest["longitude"] as! NSNumber).doubleValue
+          ),
+          northEast: YMKPoint(
+            latitude: (northEast["latitude"] as! NSNumber).doubleValue,
+            longitude: (northEast["longitude"] as! NSNumber).doubleValue
+          )
+        )
+      )
+    } else {
+      onSearchError(NSError())
+      return
+    }
+    
+    let searchTypeOption           = (options["searchType"] as! NSNumber).uintValue
+    let resultPageSizeOption       = options["resultPageSize"] as? NSNumber
+    let snippetsOption             = options["snippets"] as! [NSNumber]
+    let experimentalSnippetsOption = options["experimentalSnippets"] as! [String]
+    let userPositionOption         = options["userPosition"] as? [String:Any]
+    
+    let searchType = YMKSearchType.init(rawValue: searchTypeOption)
     
     let snippet = YMKSearchSnippet(
-      rawValue: snippetsParam
+      rawValue: snippetsOption
         .map({ val in
           return val.uintValue
         })
         .reduce(0, |)
     )
     
-    let userPosition = userPositionParam != nil
+    let userPosition = userPositionOption != nil
       ? YMKPoint.init(
-          latitude: (userPositionParam!["latitude"] as! NSNumber).doubleValue,
-          longitude: (userPositionParam!["longitude"] as! NSNumber).doubleValue
+          latitude: (userPositionOption!["latitude"] as! NSNumber).doubleValue,
+          longitude: (userPositionOption!["longitude"] as! NSNumber).doubleValue
         )
       : nil
       
-    let origin                    = params["origin"] as? String
-    let directPageId              = params["directPageId"] as? String
-    let appleCtx                  = params["appleCtx"] as? String
-    let geometry                  = (params["geometry"] as! NSNumber).boolValue
-    let advertPageId              = params["advertPageId"] as? String
-    let suggestWords              = (params["suggestWords"] as! NSNumber).boolValue
-    let disableSpellingCorrection = (params["disableSpellingCorrection"] as! NSNumber).boolValue
+    let originOption                    = options["origin"] as? String
+    let directPageIdOption              = options["directPageId"] as? String
+    let appleCtxOption                  = options["appleCtx"] as? String
+    let geometryOption                  = (options["geometry"] as! NSNumber).boolValue
+    let advertPageIdOption              = options["advertPageId"] as? String
+    let suggestWordsOption              = (options["suggestWords"] as! NSNumber).boolValue
+    let disableSpellingCorrectionOption = (options["disableSpellingCorrection"] as! NSNumber).boolValue
     
     let searchOptions = YMKSearchOptions.init(
       searchTypes: searchType,
-      resultPageSize: resultPageSizeParam,
+      resultPageSize: resultPageSizeOption,
       snippets: snippet,
-      experimentalSnippets: experimentalSnippetsParam,
+      experimentalSnippets: experimentalSnippetsOption,
       userPosition: userPosition,
-      origin: origin,
-      directPageId: directPageId,
-      appleCtx: appleCtx,
-      geometry: geometry,
-      advertPageId: advertPageId,
-      suggestWords: suggestWords,
-      disableSpellingCorrection: disableSpellingCorrection
+      origin: originOption,
+      directPageId: directPageIdOption,
+      appleCtx: appleCtxOption,
+      geometry: geometryOption,
+      advertPageId: advertPageIdOption,
+      suggestWords: suggestWordsOption,
+      disableSpellingCorrection: disableSpellingCorrectionOption
     )
     
     let responseHandler = {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
@@ -180,10 +215,10 @@ public class YandexSearch: NSObject, FlutterPlugin {
           self.onSearchError(error!)
       }
     }
-  
+    
     searchSession = searchManager.submit(
       withText: searchText,
-      geometry: YMKGeometry(point: YMKPoint(latitude: 55.716216, longitude: 37.470412)),
+      geometry: geometryObj,
       searchOptions: searchOptions,
       responseHandler: responseHandler)
   }

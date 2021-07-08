@@ -1,7 +1,7 @@
 part of yandex_mapkit;
 
 enum SearchType {
-  // none,
+  none,
   geo,
   biz,
   // transit,
@@ -16,8 +16,8 @@ extension SearchTypeExtension on SearchType {
 
   int get value {
     switch (this) {
-      // case SearchType.none:
-      //   return 0;
+      case SearchType.none:
+        return 0;
       case SearchType.geo:
         return 1;
       case SearchType.biz:
