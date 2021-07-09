@@ -10,6 +10,7 @@ class YandexSearch {
   static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
 
   static SearchSessionCallback? _searchSessionCallback;
+  static SearchErrorCallback?   _searchErrorCallback;
 
   static Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
@@ -105,11 +106,13 @@ class YandexSearch {
     required  String                searchText,
     required  Geometry              geometry,
     required  SearchOptions         searchOptions,
-    required  SearchSessionCallback onSearchResponse}) async {
+    required  SearchSessionCallback onSearchResponse,
+              SearchErrorCallback?  onSearchError}) async {
 
     _channel.setMethodCallHandler(_handleMethodCall);
 
     _searchSessionCallback = onSearchResponse;
+    _searchErrorCallback   = onSearchError;
 
     var geometryParam = {};
 
@@ -174,6 +177,11 @@ class YandexSearch {
   }
 
   static void _onSearchListenerError(dynamic arguments) {
-    //_cancelSuggestSession(arguments['listenerId']);
+
+    var errMsg = arguments['error'];
+
+    if (_searchSessionCallback != null) {
+      _searchErrorCallback!(errMsg);
+    }
   }
 }

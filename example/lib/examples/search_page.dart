@@ -87,10 +87,12 @@ class _SearchExampleState extends State<_SearchExample> {
         geometry: false,
       ),
       onSearchResponse: (SearchResponse res) {
-
-      setState(() {
-        response = res.toString();
+        setState(() {
+          response = res.toString();
+        });
+      },
+      onSearchError: (String error) {
+        print(error);
       });
-    });
   }
 }
