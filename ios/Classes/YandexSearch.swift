@@ -158,7 +158,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
         )
       )
     } else {
-      onSearchError(NSError())
+      onSearchError(NSError(domain: "", code: 0, userInfo: ["message" : "Invalid geometry"]))
       return
     }
     
@@ -400,14 +400,18 @@ public class YandexSearch: NSObject, FlutterPlugin {
   
   private func onSearchError(_ error: Error) {
     
-    let searchError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as! YRTError
-    
     var errorMessage = "Unknown error"
     
-    if searchError.isKind(of: YRTNetworkError.self) {
-        errorMessage = "Network error"
-    } else if searchError.isKind(of: YRTRemoteError.self) {
-        errorMessage = "Remote server error"
+    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
+      
+      if underlyingError.isKind(of: YRTNetworkError.self) {
+          errorMessage = "Network error"
+      } else if underlyingError.isKind(of: YRTRemoteError.self) {
+          errorMessage = "Remote server error"
+      }
+      
+    } else if let msg = (error as NSError).userInfo["message"] {
+      errorMessage = msg as! String
     }
     
     let arguments: [String:Any?] = [
