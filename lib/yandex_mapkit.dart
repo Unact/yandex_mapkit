@@ -31,6 +31,7 @@ part 'src/types/rotation_type.dart';
 part 'src/types/screen_point.dart';
 part 'src/types/search_component_kind.dart';
 part 'src/types/search_item.dart';
+part 'src/types/search_item_business_metadata.dart';
 part 'src/types/search_item_toponym_metadata.dart';
 part 'src/types/search_options.dart';
 part 'src/types/search_response.dart';
