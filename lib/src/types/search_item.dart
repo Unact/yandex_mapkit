@@ -2,27 +2,57 @@ part of yandex_mapkit;
 
 class SearchItem extends Equatable {
 
-  final String                    name;
-  final SearchItemToponymMetadata toponymMetadata;
+  final String                      name;
+  final List<Geometry>              geometry;
+  final SearchItemToponymMetadata?  toponymMetadata;
+  final SearchItemBusinessMetadata? businessMetadata;
 
   const SearchItem({
     required this.name,
-    required this.toponymMetadata,
+    required this.geometry,
+    this.toponymMetadata,
+    this.businessMetadata,
   });
 
   factory SearchItem.fromJson(Map<dynamic, dynamic> json) {
 
+    var geometryItems = json['geometry'] as List;
+
+    List<Geometry>? geometryList;
+    geometryList = geometryItems.map((i) => Geometry.fromJson(i)).toList();
+
+    SearchItemToponymMetadata? toponymMetadata;
+    if (json.containsKey('toponymMetadata')) {
+      toponymMetadata = SearchItemToponymMetadata.fromJson(json['toponymMetadata']);
+    }
+
+    SearchItemBusinessMetadata? businessMetadata;
+    if (json.containsKey('businessMetadata')) {
+      businessMetadata = SearchItemBusinessMetadata.fromJson(json['businessMetadata']);
+    }
+
     return SearchItem(
-      name:             json['name'] ?? "",
-      toponymMetadata:  SearchItemToponymMetadata.fromJson(json['toponymMetadata']),
+      name:             json['name'] ?? '',
+      geometry:         geometryList,
+      toponymMetadata:  toponymMetadata,
+      businessMetadata: businessMetadata,
     );
   }
 
   @override
-  List<Object> get props => <Object>[
-    name,
-    toponymMetadata,
-  ];
+  List<Object> get props {
+
+    var props = <Object>[
+      name,
+      geometry,
+    ];
+
+    if (toponymMetadata != null) {
+      props.add(toponymMetadata!);
+    }
+
+    return props;
+  }
 
   @override
   bool get stringify => true;
