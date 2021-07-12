@@ -290,8 +290,6 @@ public class YandexSearch: NSObject, FlutterPlugin {
     ]
     
     self.methodChannel.invokeMethod("onSearchListenerResponse", arguments: arguments)
-
-    return
   }
   
   private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
