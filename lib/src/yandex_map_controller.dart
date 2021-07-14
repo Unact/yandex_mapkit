@@ -249,8 +249,7 @@ class YandexMapController extends ChangeNotifier {
   Future<void> zoomOut() async {
     await _channel.invokeMethod<void>('zoomOut');
   }
-
-  // Returns min available zoom for visible map region
+  
   Future<bool> isZoomGesturesEnabled() async {
     final bool value = await _channel.invokeMethod<dynamic>('isZoomGesturesEnabled');
     return value;
