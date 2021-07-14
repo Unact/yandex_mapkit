@@ -64,9 +64,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
             onMapRendered: () async {
               print('Map rendered');
-              var enabled = await controller!.isTiltGesturesEnabled();
+
+              var tiltGesturesEnabled = await controller!.isTiltGesturesEnabled();
               setState(() {
-                isTiltGesturesEnabled = enabled;
+                
+                isTiltGesturesEnabled = tiltGesturesEnabled;
               });
             },
             onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
