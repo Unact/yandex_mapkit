@@ -70,9 +70,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
             onMapRendered: () async {
               print('Map rendered');
-              var enabled = await controller!.isZoomGesturesEnabled();
+              var zoomGesturesEnabled = await controller!.isZoomGesturesEnabled();
+
               setState(() {
-                isZoomGesturesEnabled = enabled;
+                isZoomGesturesEnabled = zoomGesturesEnabled;
+                
               });
             },
             onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
