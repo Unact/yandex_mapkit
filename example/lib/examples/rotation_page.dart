@@ -27,12 +27,14 @@ class _RotateExampleState extends State<_RotateExample> {
     final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      style: const PlacemarkStyle(
-        opacity: 0.7,
+      icon: PlacemarkIcon.fromIconName(
         iconName: 'lib/assets/place.png',
-        rotationType: RotationType.rotate,
-        direction: 90,
+        style: const PlacemarkStyle(
+          rotationType: RotationType.rotate,
+        ),
       ),
+      opacity: 0.7,
+      direction: 90,
     );
     controller!.addPlacemark(placemark);
   }
@@ -42,10 +44,10 @@ class _RotateExampleState extends State<_RotateExample> {
     final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      style: const PlacemarkStyle(
-        opacity: 0.7,
+      icon: PlacemarkIcon.fromIconName(
         iconName: 'lib/assets/place.png',
-      )
+      ),
+      opacity: 0.7,
     );
     controller!.addPlacemark(placemark);
   }
