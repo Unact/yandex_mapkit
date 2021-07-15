@@ -291,52 +291,119 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   public func addPlacemark(_ call: FlutterMethodCall) {
+    
     let params = call.arguments as! [String: Any]
+    
     let paramsPoint = params["point"] as! [String: Any]
-    let paramsStyle = params["style"] as! [String: Any]
+    
     let point = YMKPoint(
       latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
       longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
     )
+    
+    let placemark = addPlacemarkObject(point: point, params: params)
+
+    placemarks.append(placemark)
+  }
+  
+  private func addPlacemarkObject(point: YMKPoint, params: [String: Any]) -> YMKPlacemarkMapObject {
+    
     let mapObjects = mapView.mapWindow.map.mapObjects
+    
     let placemark = mapObjects.addPlacemark(with: point)
-    let iconName = paramsStyle["iconName"] as? String
-
+    
     placemark.addTapListener(with: mapObjectTapListener)
+    
     placemark.userData = (params["hashCode"] as! NSNumber).intValue
-    placemark.opacity = (paramsStyle["opacity"] as! NSNumber).floatValue
-    placemark.isDraggable = (paramsStyle["isDraggable"] as! NSNumber).boolValue
-    placemark.direction = (paramsStyle["direction"] as! NSNumber).floatValue
-
-    if (iconName != nil) {
-      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+    
+    placemark.opacity     = (params["opacity"] as! NSNumber).floatValue
+    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
+    placemark.direction   = (params["direction"] as! NSNumber).floatValue
+    
+    if let icon = params["icon"] as? [String: Any] {
+      
+      let img = getIconImage(icon)
+      
+      if img != nil {
+        placemark.setIconWith(img!)
+      }
+      
+      if let iconStyle = icon["style"] as? [String: Any] {
+        let style = getIconStyle(iconStyle)
+        placemark.setIconStyleWith(style)
+      }
+      
+    } else if let composite = params["composite"] as? [String: Any] {
+      
+      for (name, iconData) in composite {
+        
+        guard let icon = iconData as? [String: Any] else {
+          continue
+        }
+        
+        guard let img = getIconImage(icon) else {
+          continue
+        }
+        
+        var style: YMKIconStyle = YMKIconStyle()
+        
+        if let iconStyle = icon["style"] as? [String: Any] {
+          style = getIconStyle(iconStyle)
+        }
+        
+        placemark.useCompositeIcon().setIconWithName(
+          name,
+          image: img,
+          style: style
+        )
+      }
+      
     }
-
-    if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-      let image = UIImage(data: rawImageData.data) {
-        placemark.setIconWith(image)
+    
+    return placemark
+    
+  }
+  
+  private func getIconImage(_ iconData: [String: Any]) -> UIImage? {
+   
+    var img: UIImage?;
+    
+    if let iconName = iconData["iconName"] as? String {
+      img = UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))
+    } else if let rawImageData = iconData["rawImageData"] as? FlutterStandardTypedData {
+      img = UIImage(data: rawImageData.data)
     }
-
+    
+    return img
+  }
+  
+  private func getIconStyle(_ styleParams: [String: Any]) -> YMKIconStyle {
+    
     let iconStyle = YMKIconStyle()
-    let rotationType = (paramsStyle["rotationType"] as! NSNumber).intValue
+
+    let rotationType = (styleParams["rotationType"] as! NSNumber).intValue
     if (rotationType == YMKRotationType.rotate.rawValue) {
       iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
     }
+    
+    let anchor = styleParams["anchor"] as! [String: Any]
+    
     iconStyle.anchor = NSValue(cgPoint:
       CGPoint(
-        x: (paramsStyle["anchorX"] as! NSNumber).doubleValue,
-        y: (paramsStyle["anchorY"] as! NSNumber).doubleValue
+        x: (anchor["x"] as! NSNumber).doubleValue,
+        y: (anchor["y"] as! NSNumber).doubleValue
       )
     )
-    iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
-    iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
     
-    let tappableArea = paramsStyle["tappableArea"] as? [String: Any]
+    iconStyle.zIndex = (styleParams["zIndex"] as! NSNumber)
+    iconStyle.scale = (styleParams["scale"] as! NSNumber)
+    
+    let tappableArea = styleParams["tappableArea"] as? [String: Any]
     
     if (tappableArea != nil) {
       
-      let tappableAreaMin = tappableArea!["min"] as! [String: Any];
-      let tappableAreaMax = tappableArea!["max"] as! [String: Any];
+      let tappableAreaMin = tappableArea!["min"] as! [String: Any]
+      let tappableAreaMax = tappableArea!["max"] as! [String: Any]
       
       iconStyle.tappableArea = YMKRect(
         min: CGPoint(
@@ -350,9 +417,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       )
     }
     
-    placemark.setIconStyleWith(iconStyle)
-
-    placemarks.append(placemark)
+    return iconStyle
   }
 
   public func getVisibleRegion() -> [String: Any] {
@@ -391,6 +456,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   public func enableCameraTracking(_ call: FlutterMethodCall) -> [String: Any] {
+    
     if mapCameraListener == nil {
       mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
       mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
@@ -403,45 +469,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
+    
     if call.arguments != nil {
+      
       let params = call.arguments as! [String: Any]
-      let paramsStyle = params["style"] as! [String: Any]
-
-      let mapObjects = mapView.mapWindow.map.mapObjects
-      cameraTarget = mapObjects.addPlacemark(with: targetPoint)
-
-      let iconName = paramsStyle["iconName"] as? String
-
-      cameraTarget!.addTapListener(with: mapObjectTapListener)
-      cameraTarget!.opacity = (paramsStyle["opacity"] as! NSNumber).floatValue
-      cameraTarget!.isDraggable = (paramsStyle["isDraggable"] as! NSNumber).boolValue
-
-      if (iconName != nil) {
-        cameraTarget!.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+      
+      if let placemarkTemplate = params["placemarkTemplate"] as? [String: Any] {
+        _ = addPlacemarkObject(point: targetPoint, params: placemarkTemplate)
       }
-
-      if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-        let image = UIImage(data: rawImageData.data) {
-        cameraTarget!.setIconWith(image)
-      }
-
-      let iconStyle = YMKIconStyle()
-      iconStyle.anchor = NSValue(cgPoint:
-        CGPoint(
-          x: (paramsStyle["anchorX"] as! NSNumber).doubleValue,
-          y: (paramsStyle["anchorY"] as! NSNumber).doubleValue
-        )
-      )
-
-      iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
-      iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
-      cameraTarget!.setIconStyleWith(iconStyle)
     }
 
     let arguments: [String: Any] = [
       "latitude": targetPoint.latitude,
       "longitude": targetPoint.longitude
     ]
+    
     return arguments
   }
 
