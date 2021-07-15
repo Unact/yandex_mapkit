@@ -52,6 +52,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.FlutterInjector;
+import io.flutter.embedding.engine.loader.FlutterLoader;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -215,46 +217,125 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private void addPlacemark(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
-    Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
-    Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
-    String iconName = (String) paramsStyle.get("iconName");
-    byte[] rawImageData = (byte[]) paramsStyle.get("rawImageData");
 
-    placemark.setUserData(params.get("hashCode"));
-    placemark.setOpacity(((Double) paramsStyle.get("opacity")).floatValue());
-    placemark.setDraggable((Boolean) paramsStyle.get("isDraggable"));
-    placemark.setDirection(((Double) paramsStyle.get("direction")).floatValue());
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
+
+    Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
+
+    PlacemarkMapObject placemark = addPlacemarkObject(point, params);
+
+    placemarks.add(placemark);
+  }
+
+  private PlacemarkMapObject addPlacemarkObject(Point point, Map<String, Object> params) {
+
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
+    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
+
     placemark.addTapListener(yandexMapObjectTapListener);
 
+    placemark.setUserData(params.get("hashCode"));
+
+    placemark.setOpacity(((Double) params.get("opacity")).floatValue());
+    placemark.setDraggable((Boolean) params.get("isDraggable"));
+    placemark.setDirection(((Double) params.get("direction")).floatValue());
+
+    Map<String, Object> icon = ((Map<String, Object>) params.get("icon"));
+    Map<String, Object> composite = ((Map<String, Object>) params.get("composite"));
+
+    if (icon != null) {
+
+      ImageProvider img = getIconImage(icon);
+
+      if (img != null) {
+        placemark.setIcon(img);
+      }
+
+      Map<String, Object> iconStyle = ((Map<String, Object>) icon.get("style"));
+
+      if (iconStyle != null) {
+        IconStyle style = getIconStyle(iconStyle);
+        placemark.setIconStyle(style);
+      }
+
+    } else if (composite != null) {
+
+      for (Map.Entry<String, Object> entry : composite.entrySet()) {
+
+        String name = entry.getKey();
+        Map<String, Object> iconData = (Map<String, Object>) entry.getValue();
+
+        if (name == null || iconData == null) {
+          continue;
+        }
+
+        ImageProvider img = getIconImage(iconData);
+
+        if (img == null) {
+          continue;
+        }
+
+        IconStyle style = new IconStyle();
+
+        Map<String, Object> iconStyle = ((Map<String, Object>) iconData.get("style"));
+
+        if (iconStyle != null) {
+          style = getIconStyle(iconStyle);
+        }
+
+        placemark.useCompositeIcon().setIcon(name, img, style);
+
+      }
+    }
+
+    return placemark;
+  }
+
+  private ImageProvider getIconImage(Map<String, Object> iconData) {
+
+    ImageProvider img = null;
+
+    String iconName = (String) iconData.get("iconName");
+    byte[] rawImageData = (byte[]) iconData.get("rawImageData");
+
     if (iconName != null) {
-      placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
+      FlutterLoader loader = FlutterInjector.instance().flutterLoader();
+      img = ImageProvider.fromAsset(mapView.getContext(), loader.getLookupKeyForAsset(iconName));
     }
 
     if (rawImageData != null) {
       Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-      placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
+      img = ImageProvider.fromBitmap(bitmapData);
     }
 
-    IconStyle iconStyle = new IconStyle();
-    iconStyle.setAnchor(
-      new PointF(
-        ((Double) paramsStyle.get("anchorX")).floatValue(),
-        ((Double) paramsStyle.get("anchorY")).floatValue()
-      )
-    );
-    iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
-    iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
+    return img;
+  }
 
-    int rotationType = ((Number) paramsStyle.get("rotationType")).intValue();
+  private IconStyle getIconStyle(Map<String, Object> styleParams) {
+
+    IconStyle iconStyle = new IconStyle();
+
+    int rotationType = ((Number) styleParams.get("rotationType")).intValue();
     if (rotationType == RotationType.ROTATE.ordinal()) {
       iconStyle.setRotationType(RotationType.ROTATE);
     }
 
-    Map<String, Object> tappableArea = ((Map<String, Object>) paramsStyle.get("tappableArea"));
+    Map<String, Object> anchor = ((Map<String, Object>) styleParams.get("anchor"));
+
+    iconStyle.setAnchor(
+      new PointF(
+        ((Double) anchor.get("x")).floatValue(),
+        ((Double) anchor.get("y")).floatValue()
+      )
+    );
+
+    iconStyle.setZIndex(((Double) styleParams.get("zIndex")).floatValue());
+    iconStyle.setScale(((Double) styleParams.get("scale")).floatValue());
+
+    Map<String, Object> tappableArea = ((Map<String, Object>) styleParams.get("tappableArea"));
 
     if (tappableArea != null) {
 
@@ -278,9 +359,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       }
     }
 
-    placemark.setIconStyle(iconStyle);
-
-    placemarks.add(placemark);
+    return iconStyle;
   }
 
   private Map<String, Object> getTargetPoint() {
@@ -344,6 +423,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private Map<String, Object> enableCameraTracking(MethodCall call) {
+
     if (yandexCameraListener == null) {
       yandexCameraListener = new YandexCameraListener();
       mapView.getMap().addCameraListener(yandexCameraListener);
@@ -356,42 +436,20 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
 
     Point targetPoint =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
+
     if (call.arguments != null) {
+
       Map<String, Object> params = ((Map<String, Object>) call.arguments);
-      Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
 
-      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-      cameraTarget = mapObjects.addPlacemark(targetPoint);
-      String iconName = (String) paramsStyle.get("iconName");
-      byte[] rawImageData = (byte[]) paramsStyle.get("rawImageData");
-      cameraTarget.setOpacity(((Double) paramsStyle.get("opacity")).floatValue());
-      cameraTarget.setDraggable((Boolean) paramsStyle.get("isDraggable"));
-      cameraTarget.addTapListener(yandexMapObjectTapListener);
+      Map<String, Object> placemarkTemplate = ((Map<String, Object>) params.get("placemarkTemplate"));
 
-      if (iconName != null) {
-        cameraTarget.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
-      }
-
-      if (rawImageData != null) {
-        Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
-        cameraTarget.setIcon(ImageProvider.fromBitmap(bitmapData));
-      }
-
-      IconStyle iconStyle = new IconStyle();
-      iconStyle.setAnchor(
-        new PointF(
-          ((Double) paramsStyle.get("anchorX")).floatValue(),
-          ((Double) paramsStyle.get("anchorY")).floatValue()
-        )
-      );
-      iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
-      iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
-      cameraTarget.setIconStyle(iconStyle);
+      addPlacemarkObject(targetPoint, placemarkTemplate);
     }
 
     Map<String, Object> arguments = new HashMap<>();
     arguments.put("latitude", targetPoint.getLatitude());
     arguments.put("longitude", targetPoint.getLongitude());
+
     return arguments;
   }
 
