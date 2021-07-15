@@ -20,6 +20,7 @@ part 'src/types/map_animation.dart';
 part 'src/types/map_size.dart';
 part 'src/types/placemark_style.dart';
 part 'src/types/placemark.dart';
+part 'src/types/placemark_icon.dart';
 part 'src/types/point.dart';
 part 'src/types/polygon.dart';
 part 'src/types/polygon_style.dart';

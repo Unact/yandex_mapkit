@@ -341,47 +341,57 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _placemarkParams(Placemark placemark) {
-    return <String, dynamic>{
+
+    var map = <String, dynamic>{
       'hashCode': placemark.hashCode,
       'point': <String, dynamic>{
         'latitude': placemark.point.latitude,
         'longitude': placemark.point.longitude,
       },
-    }..addAll(_placemarkStyleParams(placemark.style));
-  }
-
-  Map<String, dynamic> _placemarkStyleParams(PlacemarkStyle style) {
-
-    var styleParams = <String, dynamic>{
-      'style': <String, dynamic>{
-        'anchorX': style.iconAnchor.latitude,
-        'anchorY': style.iconAnchor.longitude,
-        'scale': style.scale,
-        'zIndex' : style.zIndex,
-        'opacity': style.opacity,
-        'isDraggable': style.isDraggable,
-        'iconName': style.iconName,
-        'rawImageData': style.rawImageData,
-        'rotationType': style.rotationType.index,
-        'direction': style.direction,
-      }
+      'opacity': placemark.opacity,
+      'isDraggable': placemark.isDraggable,
+      'direction': placemark.direction,
     };
 
-    if (style.tappableArea != null) {
+    if (placemark.icon != null) {
+      
+      map['icon'] = <String, dynamic>{};
 
-      styleParams['tappableArea'] = <String, dynamic>{
-        'min': <String, dynamic>{
-          'x': style.tappableArea!.min.latitude,
-          'y': style.tappableArea!.min.longitude,
-        },
-        'max': <String, dynamic>{
-          'x': style.tappableArea!.max.latitude,
-          'y': style.tappableArea!.max.longitude,
+      if (placemark.icon!.iconName != null) {
+        map['icon']['iconName'] = placemark.icon!.iconName!;
+      }
+
+      if (placemark.icon!.rawImageData != null) {
+        map['icon']['rawImageData'] = placemark.icon!.rawImageData!;
+      }
+      
+      if (placemark.icon!.style != null) {
+        map['icon']['style'] = placemark.icon!.style!.toJson();
+      }
+      
+    } else {
+
+      map['composite'] = <String, dynamic>{};
+      
+      placemark.compositeIcon!.forEach((k,v) {
+        
+        map['composite'][k] = <String, dynamic>{};
+
+        if (v.iconName != null) {
+          map['composite'][k]['iconName'] = v.iconName!;
         }
-      };
+
+        if (v.rawImageData != null) {
+          map['composite'][k]['rawImageData'] = v.rawImageData!;
+        }
+
+        if (v.style != null) {
+          map['composite'][k]['style'] = v.style!.toJson();
+        }
+      });
     }
 
-    return styleParams;
+    return map;
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
