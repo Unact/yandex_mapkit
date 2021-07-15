@@ -186,13 +186,15 @@ class YandexMapController extends ChangeNotifier {
   /// Enables listening for map camera updates
   Future<Point> enableCameraTracking({
     required CameraPositionCallback onCameraPositionChange,
-    PlacemarkStyle? style,
+    Placemark? placemarkTemplate,
   }) async {
     _cameraPositionCallback = onCameraPositionChange;
 
     final dynamic point = await _channel.invokeMethod<dynamic>(
       'enableCameraTracking',
-      style != null ? _placemarkStyleParams(style) : null
+      placemarkTemplate != null
+        ? {'placemarkTemplate': _placemarkParams(placemarkTemplate)}
+        : null
     );
     return Point(latitude: point['latitude'], longitude: point['longitude']);
   }
