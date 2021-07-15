@@ -330,6 +330,26 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     )
     iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
     iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
+    
+    let tappableArea = paramsStyle["tappableArea"] as? [String: Any]
+    
+    if (tappableArea != nil) {
+      
+      let tappableAreaMin = tappableArea!["min"] as! [String: Any];
+      let tappableAreaMax = tappableArea!["max"] as! [String: Any];
+      
+      iconStyle.tappableArea = YMKRect(
+        min: CGPoint(
+          x: (tappableAreaMin["x"] as! NSNumber).doubleValue,
+          y: (tappableAreaMin["y"] as! NSNumber).doubleValue
+        ),
+        max: CGPoint(
+          x: (tappableAreaMax["x"] as! NSNumber).doubleValue,
+          y: (tappableAreaMax["y"] as! NSNumber).doubleValue
+        )
+      )
+    }
+    
     placemark.setIconStyleWith(iconStyle)
 
     placemarks.append(placemark)

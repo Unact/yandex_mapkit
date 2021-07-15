@@ -11,6 +11,7 @@ class PlacemarkStyle extends Equatable {
     this.rawImageData,
     this.direction = kDirection,
     this.rotationType = RotationType.noRotation,
+    this.tappableArea,
   });
 
   final double scale;
@@ -21,6 +22,7 @@ class PlacemarkStyle extends Equatable {
   final String? iconName;
   final RotationType rotationType;
   final double direction;
+  final Rect? tappableArea;
 
   /// Provides ability to use binary image data as Placemark icon.
   ///

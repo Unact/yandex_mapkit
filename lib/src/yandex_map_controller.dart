@@ -351,7 +351,8 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Map<String, dynamic> _placemarkStyleParams(PlacemarkStyle style) {
-    return <String, dynamic>{
+
+    var styleParams = <String, dynamic>{
       'style': <String, dynamic>{
         'anchorX': style.iconAnchor.latitude,
         'anchorY': style.iconAnchor.longitude,
@@ -362,9 +363,25 @@ class YandexMapController extends ChangeNotifier {
         'iconName': style.iconName,
         'rawImageData': style.rawImageData,
         'rotationType': style.rotationType.index,
-        'direction': style.direction
+        'direction': style.direction,
       }
     };
+
+    if (style.tappableArea != null) {
+
+      styleParams['tappableArea'] = <String, dynamic>{
+        'min': <String, dynamic>{
+          'x': style.tappableArea!.min.latitude,
+          'y': style.tappableArea!.min.longitude,
+        },
+        'max': <String, dynamic>{
+          'x': style.tappableArea!.max.latitude,
+          'y': style.tappableArea!.max.longitude,
+        }
+      };
+    }
+
+    return styleParams;
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {

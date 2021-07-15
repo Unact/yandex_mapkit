@@ -25,6 +25,7 @@ part 'src/types/polygon.dart';
 part 'src/types/polygon_style.dart';
 part 'src/types/polyline.dart';
 part 'src/types/polyline_style.dart';
+part 'src/types/rect.dart';
 part 'src/types/rotation_type.dart';
 part 'src/types/screen_point.dart';
 part 'src/types/suggest_item.dart';

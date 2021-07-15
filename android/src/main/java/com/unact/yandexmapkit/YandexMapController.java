@@ -36,6 +36,7 @@ import com.yandex.mapkit.map.PolygonMapObject;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
+import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.map.SizeChangedListener;
@@ -251,6 +252,30 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     int rotationType = ((Number) paramsStyle.get("rotationType")).intValue();
     if (rotationType == RotationType.ROTATE.ordinal()) {
       iconStyle.setRotationType(RotationType.ROTATE);
+    }
+
+    Map<String, Object> tappableArea = ((Map<String, Object>) paramsStyle.get("tappableArea"));
+
+    if (tappableArea != null) {
+
+      Map<String, Object> tappableAreaMin = ((Map<String, Object>) tappableArea.get("min"));
+      Map<String, Object> tappableAreaMax = ((Map<String, Object>) tappableArea.get("max"));
+
+      if (tappableAreaMin != null && tappableAreaMax != null) {
+
+        iconStyle.setTappableArea(
+          new Rect(
+            new PointF(
+              ((Double) tappableAreaMin.get("x")).floatValue(),
+              ((Double) tappableAreaMin.get("y")).floatValue()
+            ),
+            new PointF(
+              ((Double) tappableAreaMax.get("x")).floatValue(),
+              ((Double) tappableAreaMax.get("y")).floatValue()
+            )
+          )
+        );
+      }
     }
 
     placemark.setIconStyle(iconStyle);
