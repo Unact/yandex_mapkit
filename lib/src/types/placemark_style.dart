@@ -12,6 +12,7 @@ class PlacemarkStyle extends Equatable {
     this.direction = kDirection,
     this.rotationType = RotationType.noRotation,
     this.tappableArea,
+    this.compositeName,
   });
 
   final double scale;
@@ -23,6 +24,7 @@ class PlacemarkStyle extends Equatable {
   final RotationType rotationType;
   final double direction;
   final Rect? tappableArea;
+  final String? compositeName;
 
   /// Provides ability to use binary image data as Placemark icon.
   ///
@@ -47,15 +49,28 @@ class PlacemarkStyle extends Equatable {
   static const double kDirection = 0;
 
   @override
-  List<Object> get props => <Object>[
-    scale,
-    zIndex,
-    iconAnchor,
-    opacity,
-    isDraggable,
-    rotationType,
-    direction
-  ];
+  List<Object> get props {
+
+    var props = <Object>[
+      scale,
+      zIndex,
+      iconAnchor,
+      opacity,
+      isDraggable,
+      rotationType,
+      direction,
+    ];
+
+    if (tappableArea != null) {
+      props.add(tappableArea!);
+    }
+
+    if (compositeName != null) {
+      props.add(compositeName!);
+    }
+
+    return props;
+  }
 
   @override
   bool get stringify => true;
