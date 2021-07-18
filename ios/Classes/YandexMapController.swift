@@ -4,28 +4,38 @@ import UIKit
 import YandexMapsMobile
 
 public class YandexMapController: NSObject, FlutterPlatformView {
-  private let methodChannel: FlutterMethodChannel!
-  private let pluginRegistrar: FlutterPluginRegistrar!
-  private let mapTapListener: MapTapListener!
-  private let mapObjectTapListener: MapObjectTapListener!
-  private var mapCameraListener: MapCameraListener!
-  private let mapSizeChangedListener: MapSizeChangedListener!
+  
+  private let methodChannel:    FlutterMethodChannel!
+  private let pluginRegistrar:  FlutterPluginRegistrar!
+  
+  private let mapTapListener:             MapTapListener!
+  private let mapObjectTapListener:       MapObjectTapListener!
+  private var mapCameraListener:          MapCameraListener!
+  private let mapSizeChangedListener:     MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
+  
   private var userLocationLayer: YMKUserLocationLayer?
+  
   private var cameraTarget: YMKPlacemarkMapObject?
+  
   private var placemarks: [YMKPlacemarkMapObject] = []
-  private var polylines: [YMKPolylineMapObject] = []
-  private var polygons: [YMKPolygonMapObject] = []
-  private var circles: [YMKCircleMapObject] = []
+  private var polylines:  [YMKPolylineMapObject] = []
+  private var polygons:   [YMKPolygonMapObject] = []
+  private var circles:    [YMKCircleMapObject] = []
+  
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
+    
     self.pluginRegistrar = registrar
+    
     self.mapView = YMKMapView(frame: frame)
+    
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    
     self.mapTapListener = MapTapListener(channel: methodChannel)
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
@@ -273,7 +283,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     ]
     return arguments
   }
-
 
   public func getUserTargetPoint() -> [String: Any]? {
     if (!hasLocationPermission()) { return nil }
@@ -795,4 +804,5 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
     }
   }
+  
 }
