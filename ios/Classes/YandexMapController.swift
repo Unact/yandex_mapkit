@@ -13,6 +13,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var mapCameraListener:          MapCameraListener!
   private let mapSizeChangedListener:     MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
+  private var clusterizedCollection:      YMKClusterizedPlacemarkCollection?
   
   private var userLocationLayer: YMKUserLocationLayer?
   
@@ -22,6 +23,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var polylines:  [YMKPolylineMapObject] = []
   private var polygons:   [YMKPolygonMapObject] = []
   private var circles:    [YMKCircleMapObject] = []
+  
+  private var unstyledClustersQueue: [YMKCluster] = []
   
   public let mapView: YMKMapView
 
@@ -133,6 +136,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getUserTargetPoint":
       let userTargetPoint = getUserTargetPoint()
       result(userTargetPoint)
+    case "addClusterizedPlacemarks":
+      addClusterizedPlacemarks(call)
+      result(nil)
+    case "setClusterIcon":
+      setClusterIcon(call)
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -317,6 +326,61 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     setupPlacemark(placemark: placemark, params: params)
 
     placemarks.append(placemark)
+  }
+  
+  public func addClusterizedPlacemarks(_ call: FlutterMethodCall) {
+    
+    if (clusterizedCollection == nil) {
+      clusterizedCollection = mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
+    }
+    
+    let params = call.arguments as! [String: Any]
+    
+    let placemarksList = params["placemarks"] as! [[String: Any]]
+    
+    for p in placemarksList {
+      
+      let paramsPoint = p["point"] as! [String: Any]
+      
+      let point = YMKPoint(
+        latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
+        longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
+      )
+      
+      let placemark = clusterizedCollection!.addPlacemark(with: point)
+      placemark.addTapListener(with: mapObjectTapListener)
+      setupPlacemark(placemark: placemark, params: params)
+
+      placemarks.append(placemark)
+    }
+    
+    let clusterRadius = (params["clusterRadius"] as! NSNumber).doubleValue
+    let minZoom       = (params["minZoom"] as! NSNumber).uintValue
+    
+    clusterizedCollection!.clusterPlacemarks(withClusterRadius: clusterRadius, minZoom: minZoom)
+  }
+  
+  public func setClusterIcon(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let hashValue = (params["hashValue"] as! NSNumber).intValue
+    
+    if let i = unstyledClustersQueue.index(where: {$0.hashValue == hashValue}) {
+      
+      let cluster = unstyledClustersQueue[i]
+      
+      if let icon = params["icon"] as? [String: Any] {
+        
+        let img = getIconImage(icon)
+        
+        if img != nil {
+          cluster.appearance.setIconWith(img!)
+        }
+      }
+      
+      unstyledClustersQueue.remove(at: i)
+    }
   }
   
   private func setupPlacemark(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
@@ -809,5 +873,71 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
     }
   }
-  
 }
+
+extension YandexMapController: YMKClusterListener {
+  
+  public func onClusterAdded(with cluster: YMKCluster) {
+    
+    unstyledClustersQueue.append(cluster)
+    
+    var placemarks: [Int] = []
+    
+    // Collect array or placemarks hashCodes stored in userData
+    for p in cluster.placemarks {
+      placemarks.append(p.userData as! Int)
+    }
+    
+    let arguments: [String:Any] = [
+      "hashValue": cluster.hashValue,
+      "size": cluster.size,
+      "appearance": [
+        "opacity": cluster.appearance.opacity,
+        "direction": cluster.appearance.direction,
+        "zIndex": cluster.appearance.zIndex,
+        "geometry": [
+          "latitude": cluster.appearance.geometry.latitude,
+          "longitude": cluster.appearance.geometry.longitude,
+        ],
+      ],
+      "placemarks": cluster.placemarks
+    ]
+    
+    methodChannel.invokeMethod("onClusterAdded", arguments: arguments)
+    
+    cluster.addClusterTapListener(with: self)
+  }
+}
+
+extension YandexMapController: YMKClusterTapListener {
+ 
+  public func onClusterTap(with cluster: YMKCluster) -> Bool {
+    
+    var placemarks: [Int] = []
+    
+    // Collect array or placemarks hashCodes stored in userData
+    for p in cluster.placemarks {
+      placemarks.append(p.userData as! Int)
+    }
+    
+    let arguments: [String:Any] = [
+      "hashValue": cluster.hashValue,
+      "size": cluster.size,
+      "appearance": [
+        "opacity": cluster.appearance.opacity,
+        "direction": cluster.appearance.direction,
+        "zIndex": cluster.appearance.zIndex,
+        "geometry": [
+          "latitude": cluster.appearance.geometry.latitude,
+          "longitude": cluster.appearance.geometry.longitude,
+        ],
+      ],
+      "placemarks": cluster.placemarks
+    ]
+    
+    methodChannel.invokeMethod("onClusterTap", arguments: arguments)
+
+    return true
+  }
+}
+  
