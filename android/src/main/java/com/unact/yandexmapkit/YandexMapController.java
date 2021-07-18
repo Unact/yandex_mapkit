@@ -62,28 +62,38 @@ import io.flutter.view.FlutterMain;
 
 
 public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler {
+
   private final MapView mapView;
   private final MethodChannel methodChannel;
+
   private YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
   private YandexMapObjectTapListener yandexMapObjectTapListener;
   private YandexMapInputListener yandexMapInputListener;
   private YandexMapSizeChangedListener yandexMapSizeChangedListener;
+
   private UserLocationLayer userLocationLayer;
+
   private PlacemarkMapObject cameraTarget = null;
+
   private List<PlacemarkMapObject> placemarks = new ArrayList<>();
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private List<PolygonMapObject> polygons = new ArrayList<>();
   private List<CircleMapObject> circles = new ArrayList<>();
+
   private String userLocationIconName;
   private String userArrowIconName;
   private Boolean userArrowOrientation;
   private int accuracyCircleFillColor = 0;
 
   public YandexMapController(int id, Context context, BinaryMessenger messenger) {
+
     MapKitFactory.initialize(context);
+
     mapView = new MapView(context);
+
     MapKitFactory.getInstance().onStart();
+
     mapView.onStart();
 
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
@@ -224,18 +234,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
 
-    PlacemarkMapObject placemark = addPlacemarkObject(point, params);
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
+    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
+    placemark.addTapListener(yandexMapObjectTapListener);
+    setupPlacemark(placemark, params);
 
     placemarks.add(placemark);
   }
 
-  private PlacemarkMapObject addPlacemarkObject(Point point, Map<String, Object> params) {
-
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-
-    PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
-
-    placemark.addTapListener(yandexMapObjectTapListener);
+  private void setupPlacemark(PlacemarkMapObject placemark, Map<String, Object> params) {
 
     placemark.setUserData(params.get("hashCode"));
 
@@ -290,8 +298,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       }
     }
-
-    return placemark;
   }
 
   private ImageProvider getIconImage(Map<String, Object> iconData) {
@@ -429,8 +435,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       mapView.getMap().addCameraListener(yandexCameraListener);
     }
 
+    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
     if (cameraTarget != null) {
-      MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
       mapObjects.remove(cameraTarget);
       cameraTarget = null;
     }
@@ -443,7 +450,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       Map<String, Object> placemarkTemplate = ((Map<String, Object>) params.get("placemarkTemplate"));
 
-      addPlacemarkObject(targetPoint, placemarkTemplate);
+      Map<String, Object> paramsPoint = ((Map<String, Object>) placemarkTemplate.get("point"));
+
+      Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
+
+      PlacemarkMapObject placemark = mapObjects.addPlacemark(point);
+
+      setupPlacemark(placemark, placemarkTemplate);
     }
 
     Map<String, Object> arguments = new HashMap<>();

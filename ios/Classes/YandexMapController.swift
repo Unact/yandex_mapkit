@@ -310,18 +310,16 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
     )
     
-    let placemark = addPlacemarkObject(point: point, params: params)
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    
+    let placemark = mapObjects.addPlacemark(with: point)
+    placemark.addTapListener(with: mapObjectTapListener)
+    setupPlacemark(placemark: placemark, params: params)
 
     placemarks.append(placemark)
   }
   
-  private func addPlacemarkObject(point: YMKPoint, params: [String: Any]) -> YMKPlacemarkMapObject {
-    
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    
-    let placemark = mapObjects.addPlacemark(with: point)
-    
-    placemark.addTapListener(with: mapObjectTapListener)
+  private func setupPlacemark(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
     
     placemark.userData = (params["hashCode"] as! NSNumber).intValue
     
@@ -368,9 +366,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       }
       
     }
-    
-    return placemark
-    
   }
   
   private func getIconImage(_ iconData: [String: Any]) -> UIImage? {
@@ -471,8 +466,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
     }
 
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    
     if cameraTarget != nil {
-      let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: cameraTarget!)
       cameraTarget = nil
     }
@@ -484,7 +480,16 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let params = call.arguments as! [String: Any]
       
       if let placemarkTemplate = params["placemarkTemplate"] as? [String: Any] {
-        _ = addPlacemarkObject(point: targetPoint, params: placemarkTemplate)
+        
+        let paramsPoint = placemarkTemplate["point"] as! [String: Any]
+        
+        let point = YMKPoint(
+          latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
+          longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
+        )
+        
+        let placemark = mapObjects.addPlacemark(with: point)
+        setupPlacemark(placemark: placemark, params: placemarkTemplate)
       }
     }
 
