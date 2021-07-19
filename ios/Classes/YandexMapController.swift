@@ -592,8 +592,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       
       mapObjects.remove(with: placemark!)
       
-      clusterizedCollection?.remove(withPlacemark: placemark!) // Remove from clusterized collection if exists
-      
       placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
     }
   }
