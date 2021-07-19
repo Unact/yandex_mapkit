@@ -24,7 +24,7 @@ class YandexMapController extends ChangeNotifier {
   final List<Circle>    circles     = <Circle>[];
 
   CameraPositionCallback?     _cameraPositionCallback;
-  ArgumentCallback<int>?      _onClusterAddedCallback;
+  ArgumentCallback<Cluster>?  _onClusterAddedCallback;
   ArgumentCallback<Cluster>?  _onClusterTapCallback;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
@@ -212,7 +212,7 @@ class YandexMapController extends ChangeNotifier {
 
   /// Must be called to present clusterized placemarks after they are all added
   /// Callback applies a Cluster hashValue to use it for cluster's icon updates
-  Future<void> clusterPlacemarks({required double clusterRadius, required int minZoom, required Function(int) addedCallback, Function(Cluster)? tapCallback}) async {
+  Future<void> clusterPlacemarks({required double clusterRadius, required int minZoom, required Function(Cluster) addedCallback, Function(Cluster)? tapCallback}) async {
 
     _onClusterAddedCallback = addedCallback;
     _onClusterTapCallback   = tapCallback;
@@ -228,11 +228,11 @@ class YandexMapController extends ChangeNotifier {
   /// Is called by mapkit when new cluster added - needed to set cluster icon
   void _onClusterAdded(dynamic arguments) {
 
-    final int hashValue = arguments['hashValue'];
+    var cluster = Cluster.fromJson(arguments);
 
     // Call callback if not null to set cluster's icon inside
     if (_onClusterAddedCallback != null) {
-      _onClusterAddedCallback!(hashValue);
+      _onClusterAddedCallback!(cluster);
     }
   }
 

@@ -180,9 +180,9 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                           await controller!.clusterPlacemarks(
                             clusterRadius: 100,
                             minZoom: 17,
-                            addedCallback: (hashValue) {
+                            addedCallback: (cluster) {
                               controller!.setClusterIcon(
-                                  hashValue: hashValue,
+                                  hashValue: cluster.hashValue,
                                   icon: PlacemarkIcon.fromIconName(
                                     iconName: 'lib/assets/arrow.png',
                                   )
