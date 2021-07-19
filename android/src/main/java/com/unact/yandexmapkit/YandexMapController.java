@@ -566,7 +566,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapObjects.clear();
 
     clusterizedCollection = null;
+
     placemarks.clear();
+    placemarks.clear();
+    polylines.clear();
+    polygons.clear();
+    circles.clear();
   }
 
   @SuppressWarnings("unchecked")

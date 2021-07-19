@@ -607,6 +607,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     clusterizedCollection = nil
       
     placemarks.removeAll()
+    polylines.removeAll()
+    polygons.removeAll()
+    circles.removeAll()
   }
 
   public func disableCameraTracking() {

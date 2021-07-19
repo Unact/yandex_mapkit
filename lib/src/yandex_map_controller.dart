@@ -291,6 +291,11 @@ class YandexMapController extends ChangeNotifier {
   Future<void> clear() async {
 
     await _channel.invokeMethod<void>('clear', null);
+    
+    placemarks.clear();
+    polylines.clear();
+    polygons.clear();
+    circles.clear();
   }
 
   Future<void> addPolyline(Polyline polyline) async {
