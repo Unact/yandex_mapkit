@@ -17,4 +17,23 @@ class PlacemarkIcon {
 
   PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkStyle? style}) :
         iconName = null, rawImageData = rawImageData, style = style;
+
+  Map<String, dynamic> toJson() {
+
+    var json = <String, dynamic>{};
+
+    if (iconName != null) {
+      json['iconName'] = iconName!;
+    }
+
+    if (rawImageData != null) {
+      json['rawImageData'] = rawImageData!;
+    }
+
+    if (style != null) {
+      json['style'] = style!.toJson();
+    }
+
+    return json;
+  }
 }

@@ -1,6 +1,7 @@
 part of yandex_mapkit;
 
 class YandexMapController extends ChangeNotifier {
+
   YandexMapController._(this._channel, this._yandexMapState) {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
@@ -17,12 +18,13 @@ class YandexMapController extends ChangeNotifier {
   /// Has the native view been rendered
   bool _viewRendered = false;
 
-  final List<Placemark> placemarks = <Placemark>[];
-  final List<Polyline> polylines = <Polyline>[];
-  final List<Polygon> polygons = <Polygon>[];
-  final List<Circle> circles = <Circle>[];
+  final List<Placemark> placemarks  = <Placemark>[];
+  final List<Polyline>  polylines   = <Polyline>[];
+  final List<Polygon>   polygons    = <Polygon>[];
+  final List<Circle>    circles     = <Circle>[];
 
   CameraPositionCallback? _cameraPositionCallback;
+  ArgumentCallback<int>?  _onClusterAddedCallback;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
     final methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -172,9 +174,75 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Does nothing if passed `Placemark` is `null`
-  Future<void> addPlacemark(Placemark placemark) async {
-    await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
+  Future<void> addPlacemark(Placemark placemark, {bool isClusterized = false}) async {
+
+    var arguments = placemark.toJson();
+
+    arguments['isClusterized'] = isClusterized;
+
+    await _channel.invokeMethod<void>('addPlacemark', arguments);
+
     placemarks.add(placemark);
+  }
+
+  /// Does nothing if passed `Placemark` is `null`
+  Future<void> addPlacemarks({required List<Point> points, required PlacemarkIcon icon, bool isClusterized = false}) async {
+
+    var arguments = <String,dynamic>{};
+
+    arguments['isClusterized']  = isClusterized;
+    arguments['points']         = points.map((p) => p.toJson()).toList();
+    arguments['icon']           = icon.toJson();
+
+    var placemarks  = <Placemark>[];
+    var hashCodes   = [];
+
+    for (var p in points) {
+      var placemark = Placemark(point: p, icon: icon);
+      hashCodes.add(placemark.hashCode);
+    }
+
+    arguments['hashCodes'] = hashCodes;
+
+    await _channel.invokeMethod<void>('addPlacemarks', arguments);
+
+    placemarks.addAll(placemarks);
+  }
+
+  /// Must be called to present clusterized placemarks after they are all added
+  /// Callback applies a Cluster hashValue to use it for cluster's icon updates
+  Future<void> clusterPlacemarks(double clusterRadius, int minZoom, Function(int) callback) async {
+
+    _onClusterAddedCallback = callback;
+
+    var arguments = <String,dynamic>{
+      'clusterRadius': clusterRadius,
+      'minZoom': minZoom,
+    };
+
+    await _channel.invokeMethod<void>('clusterPlacemarks', arguments);
+  }
+
+  /// Is called by mapkit when new cluster added - needed to set cluster icon
+  void _onClusterAdded(dynamic arguments) {
+
+    final int hashValue = arguments['hashValue'];
+
+    // Call callback if not null to set cluster's icon inside
+    if (_onClusterAddedCallback != null) {
+      _onClusterAddedCallback!(hashValue);
+    }
+  }
+
+  /// Does nothing if passed `Placemark` is `null`
+  Future<void> setClusterIcon({required int hashValue, required PlacemarkIcon icon}) async {
+
+    var arguments = {};
+
+    arguments['hashValue'] = hashValue;
+    arguments['icon'] = icon.toJson();
+
+    await _channel.invokeMethod<void>('setClusterIcon', arguments);
   }
 
   /// Disables listening for map camera updates
@@ -193,7 +261,7 @@ class YandexMapController extends ChangeNotifier {
     final dynamic point = await _channel.invokeMethod<dynamic>(
       'enableCameraTracking',
       placemarkTemplate != null
-        ? {'placemarkTemplate': _placemarkParams(placemarkTemplate)}
+        ? {'placemarkTemplate': placemarkTemplate.toJson()}
         : null
     );
     return Point(latitude: point['latitude'], longitude: point['longitude']);
@@ -204,6 +272,12 @@ class YandexMapController extends ChangeNotifier {
     if (placemarks.remove(placemark)) {
       await _channel.invokeMethod<void>('removePlacemark', <String, dynamic>{'hashCode': placemark.hashCode});
     }
+  }
+
+  /// Clears all map objects including clusterized placemarks
+  Future<void> clear() async {
+
+    await _channel.invokeMethod<void>('clear', null);
   }
 
   Future<void> addPolyline(Polyline polyline) async {
@@ -306,6 +380,9 @@ class YandexMapController extends ChangeNotifier {
       case 'onCameraPositionChanged':
         _onCameraPositionChanged(call.arguments);
         break;
+      case 'onClusterAdded':
+        _onClusterAdded(call.arguments);
+        break;
       default:
         throw MissingPluginException();
     }
@@ -340,60 +417,6 @@ class YandexMapController extends ChangeNotifier {
 
   void _onCameraPositionChanged(dynamic arguments) {
     _cameraPositionCallback!(arguments);
-  }
-
-  Map<String, dynamic> _placemarkParams(Placemark placemark) {
-
-    var map = <String, dynamic>{
-      'hashCode': placemark.hashCode,
-      'point': <String, dynamic>{
-        'latitude': placemark.point.latitude,
-        'longitude': placemark.point.longitude,
-      },
-      'opacity': placemark.opacity,
-      'isDraggable': placemark.isDraggable,
-      'direction': placemark.direction,
-    };
-
-    if (placemark.icon != null) {
-      
-      map['icon'] = <String, dynamic>{};
-
-      if (placemark.icon!.iconName != null) {
-        map['icon']['iconName'] = placemark.icon!.iconName!;
-      }
-
-      if (placemark.icon!.rawImageData != null) {
-        map['icon']['rawImageData'] = placemark.icon!.rawImageData!;
-      }
-      
-      if (placemark.icon!.style != null) {
-        map['icon']['style'] = placemark.icon!.style!.toJson();
-      }
-      
-    } else {
-
-      map['composite'] = <String, dynamic>{};
-      
-      placemark.compositeIcon!.forEach((k,v) {
-        
-        map['composite'][k] = <String, dynamic>{};
-
-        if (v.iconName != null) {
-          map['composite'][k]['iconName'] = v.iconName!;
-        }
-
-        if (v.rawImageData != null) {
-          map['composite'][k]['rawImageData'] = v.rawImageData!;
-        }
-
-        if (v.style != null) {
-          map['composite'][k]['style'] = v.style!.toJson();
-        }
-      });
-    }
-
-    return map;
   }
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
