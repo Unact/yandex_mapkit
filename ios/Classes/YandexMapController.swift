@@ -13,7 +13,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var mapCameraListener:          MapCameraListener!
   private let mapSizeChangedListener:     MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
-  private var clusterizedCollection:      YMKClusterizedPlacemarkCollection?
+  
+  private var clusterizedCollection: YMKClusterizedPlacemarkCollection?
   
   private var userLocationLayer: YMKUserLocationLayer?
   
@@ -410,7 +411,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       p.addTapListener(with: mapObjectTapListener)
     }
 
-    placemarks.append(contentsOf: placemarks)
+    placemarks.append(contentsOf: newPlacemarks)
   }
   
   public func clusterPlacemarks(_ call: FlutterMethodCall) {
@@ -432,6 +433,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     clusterizedCollection!.clusterPlacemarks(withClusterRadius: clusterRadius, minZoom: minZoom)
   }
   
+  /// Finds cluster by hashValue in the unstyledClustersQueue and sets icon.
+  /// Can be called only once on a single cluster - cluster removes from queue after it is handled.
   public func setClusterIcon(_ call: FlutterMethodCall) {
     
     let params = call.arguments as! [String: Any]
@@ -564,10 +567,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     
     return iconStyle
   }
-  
-  public func clearPlacemarks(_ call: FlutterMethodCall) {
-    
-  }
 
   public func getVisibleRegion() -> [String: Any] {
     let region = mapView.mapWindow.map.visibleRegion
@@ -603,9 +602,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     
     let mapObjects = mapView.mapWindow.map.mapObjects
     
-    clusterizedCollection?.clear() // Clear clusterized collection if exists
-    
     mapObjects.clear()
+    
+    clusterizedCollection = nil
       
     placemarks.removeAll()
   }
