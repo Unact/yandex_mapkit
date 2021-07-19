@@ -1031,7 +1031,7 @@ extension YandexMapController: YMKClusterTapListener {
           "longitude": cluster.appearance.geometry.longitude,
         ],
       ],
-      "placemarks": cluster.placemarks
+      "placemarks": placemarks
     ]
     
     methodChannel.invokeMethod("onClusterTap", arguments: arguments)
