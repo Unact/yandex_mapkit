@@ -177,14 +177,32 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                             isClusterized: true,
                           );
 
-                          await controller!.clusterPlacemarks(100, 17, (hashValue) {
-                            controller!.setClusterIcon(
-                                hashValue: hashValue,
-                                icon: PlacemarkIcon.fromIconName(
-                                  iconName: 'lib/assets/arrow.png',
-                                )
-                            );
-                          });
+                          await controller!.clusterPlacemarks(
+                            clusterRadius: 100,
+                            minZoom: 17,
+                            addedCallback: (hashValue) {
+                              controller!.setClusterIcon(
+                                  hashValue: hashValue,
+                                  icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/arrow.png',
+                                  )
+                              );
+                            },
+                            tapCallback: (cluster) {
+                              showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) => AlertDialog(
+                                title: const Text('Cluster tapped'),
+                                content: Text('Size: ${cluster.size}'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, 'OK'),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ));
+                            },
+                          );
                         },
                         title: 'Add with clusters'
                     ),

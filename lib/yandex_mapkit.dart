@@ -16,6 +16,7 @@ part 'src/types/alignment.dart';
 part 'src/types/callbacks.dart';
 part 'src/types/circle.dart';
 part 'src/types/circle_style.dart';
+part 'src/types/cluster.dart';
 part 'src/types/map_animation.dart';
 part 'src/types/map_size.dart';
 part 'src/types/placemark_style.dart';

@@ -23,8 +23,9 @@ class YandexMapController extends ChangeNotifier {
   final List<Polygon>   polygons    = <Polygon>[];
   final List<Circle>    circles     = <Circle>[];
 
-  CameraPositionCallback? _cameraPositionCallback;
-  ArgumentCallback<int>?  _onClusterAddedCallback;
+  CameraPositionCallback?     _cameraPositionCallback;
+  ArgumentCallback<int>?      _onClusterAddedCallback;
+  ArgumentCallback<Cluster>?  _onClusterTapCallback;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
     final methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -211,9 +212,10 @@ class YandexMapController extends ChangeNotifier {
 
   /// Must be called to present clusterized placemarks after they are all added
   /// Callback applies a Cluster hashValue to use it for cluster's icon updates
-  Future<void> clusterPlacemarks(double clusterRadius, int minZoom, Function(int) callback) async {
+  Future<void> clusterPlacemarks({required double clusterRadius, required int minZoom, required Function(int) addedCallback, Function(Cluster)? tapCallback}) async {
 
-    _onClusterAddedCallback = callback;
+    _onClusterAddedCallback = addedCallback;
+    _onClusterTapCallback   = tapCallback;
 
     var arguments = <String,dynamic>{
       'clusterRadius': clusterRadius,
@@ -231,6 +233,17 @@ class YandexMapController extends ChangeNotifier {
     // Call callback if not null to set cluster's icon inside
     if (_onClusterAddedCallback != null) {
       _onClusterAddedCallback!(hashValue);
+    }
+  }
+
+  /// Is called by mapkit when cluster tapped
+  void _onClusterTap(dynamic arguments) {
+
+    var cluster = Cluster.fromJson(arguments);
+
+    // Call callback if not null
+    if (_onClusterTapCallback != null) {
+      _onClusterTapCallback!(cluster);
     }
   }
 
@@ -382,6 +395,9 @@ class YandexMapController extends ChangeNotifier {
         break;
       case 'onClusterAdded':
         _onClusterAdded(call.arguments);
+        break;
+      case 'onClusterTap':
+        _onClusterTap(call.arguments);
         break;
       default:
         throw MissingPluginException();
