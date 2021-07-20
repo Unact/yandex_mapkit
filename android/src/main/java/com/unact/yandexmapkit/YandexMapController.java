@@ -546,12 +546,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private void removePlacemark(MethodCall call) {
+
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
+
     Iterator<PlacemarkMapObject> iterator = placemarks.iterator();
 
     while (iterator.hasNext()) {
+
       PlacemarkMapObject placemarkMapObject = iterator.next();
+      
       if (placemarkMapObject.getUserData().equals(params.get("hashCode"))) {
         mapObjects.remove(placemarkMapObject);
         iterator.remove();

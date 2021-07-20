@@ -14,7 +14,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private let mapSizeChangedListener:     MapSizeChangedListener!
   private var userLocationObjectListener: UserLocationObjectListener?
   
-  private var clusterizedCollection: YMKClusterizedPlacemarkCollection?
+  private var collections: [YMKMapObjectCollection] = []
+  private var clusterizedCollections: [YMKClusterizedPlacemarkCollection] = []
   
   private var userLocationLayer: YMKUserLocationLayer?
   
@@ -96,6 +97,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "disableCameraTracking":
       disableCameraTracking()
       result(nil)
+    case "addCollection":
+      addCollection(call)
+      result(nil)
     case "addPlacemark":
       addPlacemark(call)
       result(nil)
@@ -112,7 +116,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       removePlacemark(call)
       result(nil)
     case "clear":
-      clear()
+      clear(call)
       result(nil)
     case "addPolyline":
       addPolyline(call)
@@ -314,12 +318,53 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     return nil
   }
+  
+  public func addCollection(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let id            = (params["id"] as! NSNumber).intValue
+    let parentId      = (params["id"] as? NSNumber)?.intValue
+    let isClusterized = (params["isClusterized"] as? NSNumber)?.boolValue ?? false
+    
+    // Only plain (YMKMapObjectCollection) can be nested,YMKClusterizedPlacemarkCollection - can not
+    guard let parentCollection = getCollectionById(parentId) as? YMKMapObjectCollection else {
+      return
+    }
+
+    if !isClusterized {
+      let collection = parentCollection.add()
+      collection.userData = id
+      collections.append(collection)
+    } else {
+      let collection = parentCollection.addClusterizedPlacemarkCollection(with: self)
+      collection.userData = id
+      clusterizedCollections.append(collection)
+    }
+  }
+  
+  private func getCollectionById(_ collectionId: Int?) -> YMKMapObject? {
+    
+    if collectionId == nil {
+      return mapView.mapWindow.map.mapObjects
+    }
+    
+    if let collection = collections.first(where: { $0.userData as? Int == collectionId }) {
+      return collection
+    }
+    
+    if let clusterizedCollection = clusterizedCollections.first(where: { $0.userData as? Int == collectionId }) {
+      return clusterizedCollection
+    }
+    
+    return nil
+  }
 
   public func addPlacemark(_ call: FlutterMethodCall) {
     
     let params = call.arguments as! [String: Any]
     
-    let isClusterized = (params["isClusterized"] as? NSNumber)?.boolValue ?? false
+    let collectionId = (params["collectionId"] as? NSNumber)?.intValue
     
     let paramsPoint = params["point"] as! [String: Any]
     
@@ -328,19 +373,16 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
     )
     
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    
     var placemark: YMKPlacemarkMapObject
     
-    if (!isClusterized) {
-      placemark = mapObjects.addPlacemark(with: point)
+    let collection = getCollectionById(collectionId)
+    
+    if let plainCollection = collection as? YMKMapObjectCollection {
+      placemark = plainCollection.addPlacemark(with: point)
+    } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
+      placemark = clusterizedCollection.addPlacemark(with: point)
     } else {
-      
-      if (clusterizedCollection == nil) {
-        clusterizedCollection = mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
-      }
-      
-      placemark = clusterizedCollection!.addPlacemark(with: point)
+      return
     }
     
     placemark.addTapListener(with: mapObjectTapListener)
@@ -353,13 +395,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     
     let params = call.arguments as! [String: Any]
     
-    let isClusterized = (params["isClusterized"] as? NSNumber)?.boolValue ?? false
+    let collectionId = (params["collectionId"] as? NSNumber)?.intValue
     
     guard let paramsPoint = params["points"] as? [[String: Any]] else {
       return
     }
     
-    guard let hashCodes = params["hashCodes"] as? [Any] else {
+    guard let ids = params["ids"] as? [Any] else {
       return
     }
     
@@ -389,24 +431,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       iconStyle = getIconStyle(iconStyleParam)
     }
     
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    
     var newPlacemarks: [YMKPlacemarkMapObject] = []
     
-    if (!isClusterized) {
-      newPlacemarks = mapObjects.addPlacemarks(with: mapkitPoints, image: img, style: iconStyle)
+    let collection = getCollectionById(collectionId)
+    
+    if let plainCollection = collection as? YMKMapObjectCollection {
+      newPlacemarks = plainCollection.addPlacemarks(with: mapkitPoints, image: img, style: iconStyle)
+    } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
+      newPlacemarks = clusterizedCollection.addPlacemarks(with: mapkitPoints, image: img, style: iconStyle)
     } else {
-      
-      if (clusterizedCollection == nil) {
-        clusterizedCollection = mapView.mapWindow.map.mapObjects.addClusterizedPlacemarkCollection(with: self)
-      }
-      
-      newPlacemarks = clusterizedCollection!.addPlacemarks(with: mapkitPoints, image: img, style: iconStyle)
+      return
     }
     
     for (i, p) in newPlacemarks.enumerated() {
       
-      p.userData = hashCodes[i] as! Int
+      p.userData = ids[i] as! Int
       
       p.addTapListener(with: mapObjectTapListener)
     }
@@ -414,13 +453,124 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemarks.append(contentsOf: newPlacemarks)
   }
   
-  public func clusterPlacemarks(_ call: FlutterMethodCall) {
+  public func removePlacemark(_ call: FlutterMethodCall) {
     
-    if (clusterizedCollection == nil) {
+    let params = call.arguments as! [String: Any]
+    
+    let id = (params["id"] as! NSNumber).intValue
+    
+    guard let placemark = placemarks.first(where: { $0.userData as! Int == id }), let i = placemarks.firstIndex(of: placemark) else {
       return
     }
     
+    // Remove placemark from it's parent collection
+    placemark.parent.remove(with: placemark)
+
+    // Remove from local list
+    placemarks.remove(at: i)
+  }
+  
+  public func clear(_ call: FlutterMethodCall) {
+    
     let params = call.arguments as! [String: Any]
+    
+    let collectionId = (params["collectionId"] as? NSNumber)?.intValue
+    
+    let collection = getCollectionById(collectionId)
+    
+    if let plainCollection = collection as? YMKMapObjectCollection {
+      
+      // Clear mapkit collection
+      plainCollection.clear()
+      
+      // If this is root collection (mapObjects) - just clear all objects, else - remove objects selectively from subtree of collections
+      if (collectionId == nil) {
+        
+        collections             = []
+        clusterizedCollections  = []
+          
+        placemarks.removeAll()
+        polylines.removeAll()
+        polygons.removeAll()
+        circles.removeAll()
+        
+      } else {
+        
+        var nestedCollectionsIds: [Int] = []
+        nestedCollectionsIds.append(collectionId!)
+        
+        // Get all plain (not clusterized) nested collections ids using recursive func
+        nestedCollectionsIds = getNestedCollectionsIds(nestedCollectionsIds)
+        
+        // Add all clusterized placemark collections nested in plain collections (no recursion is needed because clusterized collections can't be nested itself)
+        for cc in clusterizedCollections {
+          if nestedCollectionsIds.contains(cc.parent.userData as! Int) {
+            nestedCollectionsIds.append(cc.userData as! Int)
+          }
+        }
+
+        // Remove all placemarks which parents are in the nestedCollectionsIds list
+        for (i, p) in placemarks.enumerated() {
+          if nestedCollectionsIds.contains(p.parent.userData as! Int) {
+            placemarks.remove(at: i)
+          }
+        }
+        
+        /*
+         TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
+         so there is no need to clear corresponding arrays, but should be implemented if addPolyline, addPolygon or addCircle
+         will become to accept collectionId argument.
+        */
+        
+      }
+      
+    } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
+      
+      // Clear mapkit collection
+      clusterizedCollection.clear()
+      
+      // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
+      for (i, p) in placemarks.enumerated() {
+        if p.parent.userData as? Int == collectionId {
+          placemarks.remove(at: i)
+        }
+      }
+      
+    }
+  }
+  
+  private func getNestedCollectionsIds(_ nestedIds: [Int]) -> [Int] {
+    
+    var ids = nestedIds
+    
+    for c in collections {
+      
+      guard let id = c.userData as? Int, let parentId = c.parent.userData as? Int else {
+        continue
+      }
+      
+      if ids.contains(parentId) && !ids.contains(id) {
+        ids.append(id)
+        return getNestedCollectionsIds(ids)
+      }
+    }
+    
+    return ids
+  }
+  
+  public func clusterPlacemarks(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let collectionId = (params["collectionId"] as? NSNumber)?.intValue
+    
+    if (collectionId == nil) {
+      return
+    }
+    
+    guard let clusterizedCollection = clusterizedCollections.first(where: { $0.userData as? Int == collectionId }) else {
+      return
+    }
     
     guard let clusterRadius = (params["clusterRadius"] as? NSNumber)?.doubleValue else {
       return
@@ -430,7 +580,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       return
     }
     
-    clusterizedCollection!.clusterPlacemarks(withClusterRadius: clusterRadius, minZoom: minZoom)
+    clusterizedCollection.clusterPlacemarks(withClusterRadius: clusterRadius, minZoom: minZoom)
   }
   
   /// Finds cluster by hashValue in the unstyledClustersQueue and sets icon.
@@ -460,7 +610,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   
   private func setupPlacemark(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
     
-    placemark.userData = (params["hashCode"] as! NSNumber).intValue
+    placemark.userData = (params["id"] as! NSNumber).intValue
     
     placemark.opacity     = (params["opacity"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
@@ -576,38 +726,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     arguments["topLeftPoint"] = ["latitude": region.topLeft.latitude, "longitude": region.topLeft.longitude]
     arguments["topRightPoint"] = ["latitude": region.topRight.latitude, "longitude": region.topRight.longitude]
     return arguments
-  }
-
-  public func removePlacemark(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    
-    let hashCode = (params["hashCode"] as! NSNumber).intValue
-    
-    let placemark = placemarks.first(where: { $0.userData as! Int == hashCode })
-
-    if (placemark != nil) {
-      
-      mapObjects.remove(with: placemark!)
-      
-      placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
-    }
-  }
-  
-  public func clear() {
-    
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    
-    mapObjects.clear()
-    
-    clusterizedCollection = nil
-      
-    placemarks.removeAll()
-    polylines.removeAll()
-    polygons.removeAll()
-    circles.removeAll()
   }
 
   public func disableCameraTracking() {

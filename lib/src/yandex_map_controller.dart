@@ -187,7 +187,7 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Does nothing if passed `Placemark` is `null`
-  Future<void> addPlacemarks({required List<Point> points, required PlacemarkIcon icon, bool isClusterized = false}) async {
+  Future<List<Placemark>> addPlacemarks({required List<Point> points, required PlacemarkIcon icon, bool isClusterized = false}) async {
 
     var arguments = <String,dynamic>{};
 
@@ -201,13 +201,16 @@ class YandexMapController extends ChangeNotifier {
     for (var p in points) {
       var placemark = Placemark(point: p, icon: icon);
       hashCodes.add(placemark.hashCode);
+      placemarks.add(placemark);
     }
 
     arguments['hashCodes'] = hashCodes;
 
     await _channel.invokeMethod<void>('addPlacemarks', arguments);
 
-    placemarks.addAll(placemarks);
+    this.placemarks.addAll(placemarks);
+
+    return placemarks;
   }
 
   /// Must be called to present clusterized placemarks after they are all added
