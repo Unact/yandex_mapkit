@@ -324,7 +324,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let params = call.arguments as! [String: Any]
     
     let id            = (params["id"] as! NSNumber).intValue
-    let parentId      = (params["id"] as? NSNumber)?.intValue
+    let parentId      = (params["parentId"] as? NSNumber)?.intValue
     let isClusterized = (params["isClusterized"] as? NSNumber)?.boolValue ?? false
     
     // Only plain (YMKMapObjectCollection) can be nested,YMKClusterizedPlacemarkCollection - can not
@@ -463,9 +463,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       return
     }
     
-    // Remove placemark from it's parent collection
-    placemark.parent.remove(with: placemark)
-
+    // Strange, but placemark.parent is always of YMKMapObjectCollection type,
+    // but indeed it can be of YMKClusterizedPlacemarkCollection type - in this case remove(with: placemark) throws an Exception
+    // because of wrong signatue: remove(withPlacemark: placemark) is correct.
+    // So, have to use a workaround - at first find the collection and then remove the placemark from it....
+    
+    let collection = getCollectionById(placemark.parent.userData as? Int )
+    
+    if let plainCollection = collection as? YMKMapObjectCollection {
+      plainCollection.remove(with: placemark)
+    } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
+      clusterizedCollection.remove(withPlacemark: placemark)
+    } else {
+      return
+    }
+    
     // Remove from local list
     placemarks.remove(at: i)
   }
@@ -479,9 +491,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let collection = getCollectionById(collectionId)
     
     if let plainCollection = collection as? YMKMapObjectCollection {
-      
-      // Clear mapkit collection
-      plainCollection.clear()
       
       // If this is root collection (mapObjects) - just clear all objects, else - remove objects selectively from subtree of collections
       if (collectionId == nil) {
@@ -510,11 +519,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         }
 
         // Remove all placemarks which parents are in the nestedCollectionsIds list
-        for (i, p) in placemarks.enumerated() {
-          if nestedCollectionsIds.contains(p.parent.userData as! Int) {
-            placemarks.remove(at: i)
-          }
-        }
+        placemarks.removeAll(where: ({nestedCollectionsIds.contains($0.userData as! Int)}))
         
         /*
          TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
@@ -523,6 +528,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         */
         
       }
+      
+      // Clear mapkit collection
+      plainCollection.clear()
       
     } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
       

@@ -15,6 +15,7 @@ class Placemark {
   final double                          direction;
   final bool                            isVisible;
   final double?                         zIndex;
+  final int?                            collectionId;
   final TapCallback<Placemark, Point>?  onTap;
 
   /// If both icon and compositeIcon are passed - icon has priority
@@ -27,12 +28,13 @@ class Placemark {
     this.direction = kDirection,
     this.isVisible = true,
     this.zIndex,
+    this.collectionId,
     this.onTap}) : assert((icon != null || compositeIcon != null), 'Either icon or compositeIcon must be provided');
 
   Map<String, dynamic> toJson() {
 
     var json = <String, dynamic>{
-      'hashCode': hashCode,
+      'id': hashCode,
       'point': <String, dynamic>{
         'latitude': point.latitude,
         'longitude': point.longitude,
@@ -42,6 +44,10 @@ class Placemark {
       'direction': direction,
       'isVisible': isVisible,
     };
+
+    if (collectionId != null) {
+      json['collectionId'] = collectionId!;
+    }
 
     if (zIndex != null) {
       json['zIndex'] = zIndex!;
