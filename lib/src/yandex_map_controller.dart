@@ -188,9 +188,10 @@ class YandexMapController extends ChangeNotifier {
   /// attempts to create a collection inside it will lead to nothing.
   Future<void> addCollection(ObjectsCollection collection, {int? parentId}) async {
 
+    var found = getCollectionById(collection.id);
+
     // Do not add if already exists
-    var found = collections.where((coll) => coll.id == collection.id);
-    if (found.isNotEmpty) {
+    if (found != null) {
       return;
     }
 
@@ -199,6 +200,17 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('addCollection', arguments);
 
     collections.add(collection);
+  }
+
+  ObjectsCollection? getCollectionById(int collectionId) {
+
+    var found = collections.where((coll) => coll.id == collectionId);
+
+    if (found.isNotEmpty) {
+      return found.first;
+    }
+
+    return null;
   }
 
   /// Does nothing if passed `Placemark` is `null`
@@ -321,6 +333,7 @@ class YandexMapController extends ChangeNotifier {
 
   /// Clears all map objects inside the collection including nested collections.
   /// If collectionId == null then clears root (mapObjects) collection
+  /// Nested collections of target collection to be removed too.
   Future<void> clear({int? collectionId}) async {
 
     var arguments = {};
@@ -330,11 +343,70 @@ class YandexMapController extends ChangeNotifier {
     }
 
     await _channel.invokeMethod<void>('clear', arguments);
-    
-    // placemarks.clear();
-    // polylines.clear();
-    // polygons.clear();
-    // circles.clear();
+
+    if (collectionId == null) { // Root collection (mapObjects)
+
+      placemarks.clear();
+      polylines.clear();
+      polygons.clear();
+      circles.clear();
+
+      collections.clear();
+
+    } else { // Nested collection (only placemarks)
+
+      var collection = getCollectionById(collectionId);
+
+      if (collection == null) {
+        return;
+      }
+
+      if (collection.isClusterized) {
+
+        // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
+        placemarks.removeWhere((p) => p.collectionId == collectionId);
+
+      } else {
+
+        var nestedCollectionsIds = <int>[];
+        nestedCollectionsIds.add(collectionId);
+        nestedCollectionsIds = _getNestedCollectionsIds(nestedCollectionsIds);
+
+        // Remove all placemarks which parents are in the nestedCollectionsIds list
+        placemarks.removeWhere((p) => nestedCollectionsIds.contains(p.collectionId));
+
+        // Remove all nested collections except current one
+        collections.removeWhere((c) => nestedCollectionsIds.contains(c.id) && c.id != collectionId);
+
+        /*
+        TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
+         so there is no need to clear corresponding arrays, but should be implemented if addPolyline, addPolygon or addCircle
+         will become to accept collectionId argument.
+        */
+      }
+    }
+  }
+
+  List<int> _getNestedCollectionsIds(List<int> list) {
+
+    var ids = list;
+
+    for (var c in collections) {
+
+      var id        = c.id;
+      var parentId  = c.parentId;
+
+      if (parentId == null) {
+        continue;
+      }
+
+      if (ids.contains(parentId) && !ids.contains(id)) {
+        ids.add(id);
+        _getNestedCollectionsIds(ids);
+      }
+    }
+
+    return ids;
   }
 
   Future<void> addPolyline(Polyline polyline) async {

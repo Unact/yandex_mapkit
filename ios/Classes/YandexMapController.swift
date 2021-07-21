@@ -513,13 +513,19 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         
         // Add all clusterized placemark collections nested in plain collections (no recursion is needed because clusterized collections can't be nested itself)
         for cc in clusterizedCollections {
-          if nestedCollectionsIds.contains(cc.parent.userData as! Int) {
+          
+          guard let parentId = cc.parent.userData as? Int else { continue }
+          
+          if nestedCollectionsIds.contains(parentId) {
             nestedCollectionsIds.append(cc.userData as! Int)
           }
         }
 
         // Remove all placemarks which parents are in the nestedCollectionsIds list
-        placemarks.removeAll(where: ({nestedCollectionsIds.contains($0.userData as! Int)}))
+        placemarks.removeAll(where: ({nestedCollectionsIds.contains($0.parent.userData as! Int)}))
+        
+        // Remove all nested collections except current one
+        collections.removeAll(where: ({nestedCollectionsIds.contains($0.userData as! Int) && ($0.userData as! Int) != collectionId!}))
         
         /*
          TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
@@ -534,16 +540,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       
     } else if let clusterizedCollection = collection as? YMKClusterizedPlacemarkCollection {
       
+      // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
+      placemarks.removeAll(where: ({$0.parent.userData as? Int == collectionId}))
+      
       // Clear mapkit collection
       clusterizedCollection.clear()
-      
-      // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
-      for (i, p) in placemarks.enumerated() {
-        if p.parent.userData as? Int == collectionId {
-          placemarks.remove(at: i)
-        }
-      }
-      
     }
   }
   
