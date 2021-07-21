@@ -254,7 +254,8 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Must be called to present clusterized placemarks after they are all added
-  /// Callback applies a Cluster hashValue to use it for cluster's icon updates
+  /// and every time the placemarks collection is updated.
+  /// Callback applies a Cluster object - use it for cluster's icon updates
   Future<void> clusterPlacemarks({required int collectionId, required double clusterRadius, required int minZoom, required Function(Cluster) addedCallback, Function(Cluster)? tapCallback}) async {
 
     _onClusterAddedCallback = addedCallback;
