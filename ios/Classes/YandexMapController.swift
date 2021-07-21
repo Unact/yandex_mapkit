@@ -608,7 +608,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         
         let img = getIconImage(icon)
         
-        if img != nil {
+        // Check for isValid to prevent crashes when cluster is not already showing (sometimes may be caused by Flutter interaction delay)
+        if img != nil && cluster.isValid {
           cluster.appearance.setIconWith(img!)
         }
       }
