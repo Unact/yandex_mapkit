@@ -78,7 +78,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private YandexClusterListener             yandexClusterListener;
   private YandexClusterTapListener          yandexClusterTapListener;
 
-  private ClusterizedPlacemarkCollection clusterizedCollection;
+  private List<MapObjectCollection>             collections            = new ArrayList<>();
+  private List<ClusterizedPlacemarkCollection>  clusterizedCollections = new ArrayList<>();
 
   private UserLocationLayer userLocationLayer;
 
@@ -235,31 +236,79 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     moveWithParams(params, mapView.getMap().cameraPosition(boundingBox));
   }
 
+  public void addCollection(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Integer id            = (Integer) params.get("id");
+    Integer parentId      = (Integer) params.get("parentId");
+    boolean isClusterized = params.get("isClusterized") != null ? (Boolean) params.get("isClusterized") : false;
+
+    MapObject parent = getCollectionById(parentId);
+
+    // Only plain (YMKMapObjectCollection) can be nested,YMKClusterizedPlacemarkCollection - can not
+    if (!(parent instanceof MapObjectCollection)) {
+      return;
+    }
+
+    MapObjectCollection parentCollection = (MapObjectCollection) parent;
+
+    if (!isClusterized) {
+      MapObjectCollection collection = parentCollection.addCollection();
+      collection.setUserData(id);
+      collections.add(collection);
+    } else {
+      if (yandexClusterListener == null) {
+        yandexClusterListener = new YandexClusterListener();
+      }
+      ClusterizedPlacemarkCollection collection = parentCollection.addClusterizedPlacemarkCollection(yandexClusterListener);
+      collection.setUserData(id);
+      clusterizedCollections.add(collection);
+    }
+  }
+
+  private MapObject getCollectionById(Integer collectionId) {
+
+    if (collectionId == null) {
+      return mapView.getMapWindow().getMap().getMapObjects();
+    }
+
+    for (int i = 0; i < collections.size(); i++) {
+      if (collections.get(i).getUserData().equals(collectionId)) {
+        return collections.get(i);
+      }
+    }
+
+    for (int i = 0; i < clusterizedCollections.size(); i++) {
+      if (clusterizedCollections.get(i).getUserData().equals(collectionId)) {
+        return clusterizedCollections.get(i);
+      }
+    }
+
+    return null;
+  }
+
   @SuppressWarnings("unchecked")
   public void addPlacemark(MethodCall call) {
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    boolean isClusterized = params.get("isClusterized") != null ? (Boolean) params.get("isClusterized") : false;
+    Integer collectionId = (Integer) params.get("collectionId");
 
     Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
 
     Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
 
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-
     PlacemarkMapObject placemark;
 
-    if (!isClusterized) {
-      placemark = mapObjects.addPlacemark(point);
+    MapObject collection = getCollectionById(collectionId);
+
+    if (collection instanceof MapObjectCollection) {
+      placemark = ((MapObjectCollection) collection).addPlacemark(point);
+    } else if (collection instanceof ClusterizedPlacemarkCollection) {
+      placemark = ((ClusterizedPlacemarkCollection) collection).addPlacemark(point);
     } else {
-
-      if (clusterizedCollection == null) {
-        yandexClusterListener = new YandexClusterListener();
-        clusterizedCollection = mapView.getMapWindow().getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexClusterListener);
-      }
-
-      placemark = clusterizedCollection.addPlacemark(point);
+      return;
     }
 
     placemark.addTapListener(yandexMapObjectTapListener);
@@ -272,15 +321,15 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    boolean isClusterized = params.get("isClusterized") != null ? (Boolean) params.get("isClusterized") : false;
+    Integer collectionId = (Integer) params.get("collectionId");
 
-    if (params.get("points") == null || params.get("hashCodes") == null || params.get("icon") == null) {
+    if (params.get("points") == null || params.get("ids") == null || params.get("icon") == null) {
       return;
     }
 
-    List<Map<String, Object>> points    = ((List<Map<String, Object>>) params.get("points"));
-    List<Object>              hashCodes = ((List<Object>) params.get("hashCodes"));
-    Map<String, Object>       icon      = ((Map<String, Object>) params.get("icon"));
+    List<Map<String, Object>> points  = ((List<Map<String, Object>>) params.get("points"));
+    List<Object>              ids     = ((List<Object>) params.get("ids"));
+    Map<String, Object>       icon    = ((Map<String, Object>) params.get("icon"));
 
     List<Point> mapkitPoints = new ArrayList<>();
 
@@ -305,46 +354,198 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       iconStyle = getIconStyle(icon);
     }
 
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-
     List<PlacemarkMapObject> newPlacemarks;
 
-    if (!isClusterized) {
-      newPlacemarks = mapObjects.addPlacemarks(mapkitPoints, img, iconStyle);
+    MapObject collection = getCollectionById(collectionId);
+
+    if (collection instanceof MapObjectCollection) {
+      newPlacemarks = ((MapObjectCollection) collection).addPlacemarks(mapkitPoints, img, iconStyle);
+    } else if (collection instanceof ClusterizedPlacemarkCollection) {
+      newPlacemarks = ((ClusterizedPlacemarkCollection) collection).addPlacemarks(mapkitPoints, img, iconStyle);
     } else {
-
-      if (clusterizedCollection == null) {
-        yandexClusterListener = new YandexClusterListener();
-        clusterizedCollection = mapView.getMapWindow().getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexClusterListener);
-      }
-
-      newPlacemarks = clusterizedCollection.addPlacemarks(mapkitPoints, img, iconStyle);
+      return;
     }
 
     for (int i = 0; i < newPlacemarks.size(); i++) {
 
       PlacemarkMapObject p = newPlacemarks.get(i);
 
-      p.setUserData(hashCodes.get(i));
+      p.setUserData(ids.get(i));
       p.addTapListener(yandexMapObjectTapListener);
     }
 
     placemarks.addAll(newPlacemarks);
   }
 
-  public void clusterPlacemarks(MethodCall call) {
-
-    if (clusterizedCollection == null) {
-      return;
-    }
+  @SuppressWarnings("unchecked")
+  public void removePlacemark(MethodCall call) {
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    if (params.get("clusterRadius") == null || params.get("minZoom") == null) {
+    Integer id = (Integer) params.get("id");
+
+    PlacemarkMapObject placemark = null;
+
+    for (int i = 0; i < placemarks.size(); i++) {
+      if (placemarks.get(i).getUserData().equals(id)) {
+        placemark = placemarks.get(i);
+        break;
+      }
+    }
+
+    if (placemark == null) {
       return;
     }
 
-    clusterizedCollection.clusterPlacemarks((Double) params.get("clusterRadius"), (int) params.get("minZoom"));
+    // Strange, but placemark.parent is always of MapObjectCollection type,
+    // but indeed it can be of ClusterizedPlacemarkCollection type.
+    // So, have to use a workaround - at first find the collection and then remove the placemark from it....
+
+    MapObject collection = getCollectionById((Integer) placemark.getParent().getUserData());
+
+    if (collection instanceof MapObjectCollection) {
+      ((MapObjectCollection) collection).remove(placemark);
+    } else if (collection instanceof ClusterizedPlacemarkCollection) {
+      ((ClusterizedPlacemarkCollection) collection).remove(placemark);
+    } else {
+      return;
+    }
+
+    // Remove from local list
+    placemarks.remove(placemark);
+  }
+
+  public void clear(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Integer collectionId = (Integer) params.get("collectionId");
+
+    MapObject collection = getCollectionById(collectionId);
+
+    if (collection instanceof MapObjectCollection) {
+
+      if (collectionId == null) {
+
+        collections.clear();
+        clusterizedCollections.clear();
+
+        placemarks.clear();
+        polylines.clear();
+        polygons.clear();
+        circles.clear();
+
+      } else {
+
+        List<Integer> nestedCollectionsIds = new ArrayList<>();
+        nestedCollectionsIds.add(collectionId);
+
+        // Get all plain (not clusterized) nested collections ids using recursive func
+        nestedCollectionsIds = getNestedCollectionsIds(nestedCollectionsIds);
+
+        // Add all clusterized placemark collections nested in plain collections (no recursion is needed because clusterized collections can't be nested itself)
+        for (int i = 0; i < clusterizedCollections.size(); i++) {
+
+          MapObjectCollection coll = collections.get(i);
+
+          Integer parentId = (Integer) coll.getParent().getUserData();
+
+          if (parentId == null) {
+            continue;
+          }
+
+          if (nestedCollectionsIds.contains(parentId)) {
+            nestedCollectionsIds.add((Integer) coll.getUserData());
+          }
+        }
+
+        // Remove all placemarks which parents are in the nestedCollectionsIds list
+        List<PlacemarkMapObject> placemarksToRemove   = new ArrayList<>();
+        for (int i = 0; i < placemarks.size(); i++) {
+          if (nestedCollectionsIds.contains(placemarks.get(i).getParent().getUserData())) {
+            placemarksToRemove.add(placemarks.get(i));
+          }
+        }
+        placemarks.removeAll(placemarksToRemove);
+
+        // Remove all nested collections except current one
+        List<MapObjectCollection> collectionsToRemove = new ArrayList<>();
+        for (int i = 0; i < collections.size(); i++) {
+          if (nestedCollectionsIds.contains(collections.get(i).getUserData()) && !collections.get(i).getUserData().equals(collectionId)) {
+            collectionsToRemove.add(collections.get(i));
+          }
+        }
+        collections.removeAll(collectionsToRemove);
+
+        /*
+         TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
+          so there is no need to clear corresponding arrays, but should be implemented if addPolyline, addPolygon or addCircle
+          will become to accept collectionId argument.
+        */
+      }
+
+      // Clear mapkit collection
+      ((MapObjectCollection) collection).clear();
+
+    } else if (collection instanceof ClusterizedPlacemarkCollection) {
+
+      // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
+      List<PlacemarkMapObject> placemarksToRemove   = new ArrayList<>();
+      for (int i = 0; i < placemarks.size(); i++) {
+        if (placemarks.get(i).getParent().getUserData().equals(collectionId)) {
+          placemarksToRemove.add(placemarks.get(i));
+        }
+      }
+      placemarks.removeAll(placemarksToRemove);
+
+      // Clear mapkit collection
+      ((ClusterizedPlacemarkCollection) collection).clear();
+    }
+  }
+
+  private List<Integer> getNestedCollectionsIds(List<Integer> nestedIds) {
+
+    List<Integer> ids = nestedIds;
+
+    for (int i = 0; i < collections.size(); i++) {
+
+      MapObjectCollection coll = collections.get(i);
+
+      Integer id        = (Integer) coll.getUserData();
+      Integer parentId  = (Integer) coll.getParent().getUserData();
+
+      if (id == null || parentId == null) {
+        continue;
+      }
+
+      if (ids.contains(parentId) && !ids.contains(id)) {
+        ids.add(id);
+        return getNestedCollectionsIds(ids);
+      }
+    }
+
+    return ids;
+  }
+
+  public void clusterPlacemarks(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Integer collectionId = (Integer) params.get("collectionId");
+
+    if (collectionId == null ||params.get("clusterRadius") == null || params.get("minZoom") == null) {
+      return;
+    }
+
+    MapObject collection = getCollectionById(collectionId);
+    if (!(collection instanceof ClusterizedPlacemarkCollection)) {
+      return;
+    }
+
+    Double clusterRadius = (Double) params.get("clusterRadius");
+    Integer minZoom      = (Integer) params.get("minZoom");
+
+    ((ClusterizedPlacemarkCollection) collection).clusterPlacemarks(clusterRadius, minZoom);
   }
 
   /// Finds cluster by hashValue in the unstyledClustersQueue and sets icon.
@@ -380,7 +581,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       ImageProvider img = getIconImage(icon);
 
-      if (img != null) {
+      // Check for isValid to prevent crashes when cluster is not already showing (sometimes may be caused by Flutter interaction delay)
+      if (img != null && foundCluster.isValid()) {
         foundCluster.getAppearance().setIcon(img);
       }
     }
@@ -390,11 +592,16 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   private void setupPlacemark(PlacemarkMapObject placemark, Map<String, Object> params) {
 
-    placemark.setUserData(params.get("hashCode"));
+    placemark.setUserData(params.get("id"));
 
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDraggable((Boolean) params.get("isDraggable"));
     placemark.setDirection(((Double) params.get("direction")).floatValue());
+    placemark.setDraggable((Boolean) params.get("isVisible"));
+
+    if (params.get("zIndex") != null) {
+      placemark.setZIndex((float) params.get("zIndex"));
+    }
 
     Map<String, Object> icon = ((Map<String, Object>) params.get("icon"));
     Map<String, Object> composite = ((Map<String, Object>) params.get("composite"));
@@ -440,7 +647,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         }
 
         placemark.useCompositeIcon().setIcon(name, img, style);
-
       }
     }
   }
@@ -542,41 +748,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       put("longitude", region.getTopRight().getLongitude());
     }});
     return arguments;
-  }
-
-  @SuppressWarnings("unchecked")
-  private void removePlacemark(MethodCall call) {
-
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-
-    Iterator<PlacemarkMapObject> iterator = placemarks.iterator();
-
-    while (iterator.hasNext()) {
-
-      PlacemarkMapObject placemarkMapObject = iterator.next();
-      
-      if (placemarkMapObject.getUserData().equals(params.get("hashCode"))) {
-        mapObjects.remove(placemarkMapObject);
-        iterator.remove();
-      }
-    }
-  }
-
-  private void clear() {
-
-    MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
-
-    mapObjects.clear();
-
-    clusterizedCollection = null;
-
-    placemarks.clear();
-    placemarks.clear();
-    polylines.clear();
-    polygons.clear();
-    circles.clear();
   }
 
   @SuppressWarnings("unchecked")
@@ -886,6 +1057,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         disableCameraTracking(call);
         result.success(null);
         break;
+      case "addCollection":
+        addCollection(call);
+        result.success(null);
+        break;
       case "addPlacemark":
         addPlacemark(call);
         result.success(null);
@@ -907,7 +1082,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(null);
         break;
       case "clear":
-        clear();
+        clear(call);
         result.success(null);
         break;
       case "addPolyline":
