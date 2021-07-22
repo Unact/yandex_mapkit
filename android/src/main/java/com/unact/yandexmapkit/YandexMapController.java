@@ -578,7 +578,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     return mapView.getMap().isTiltGesturesEnabled();
   }
 
-  public void setTiltGesturesEnabled(MethodCall call) {
+  public void toggleTiltGestures(MethodCall call) {
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
@@ -693,9 +693,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "isTiltGesturesEnabled":
         boolean isTiltGesturesEnabled = isTiltGesturesEnabled();
         result.success(isTiltGesturesEnabled);
-      case "setTiltGesturesEnabled":
-        setTiltGesturesEnabled(call);
+        break;
+      case "toggleTiltGestures":
+        toggleTiltGestures(call);
         result.success(null);
+        break;
       default:
         result.notImplemented();
         break;

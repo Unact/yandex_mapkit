@@ -126,8 +126,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "isTiltGesturesEnabled":
       let isTiltGesturesEnabled = isTiltGesturesEnabled()
       result(isTiltGesturesEnabled)
-    case "setTiltGesturesEnabled":
-      setTiltGesturesEnabled(call)
+    case "toggleTiltGestures":
+      toggleTiltGestures(call)
       result(nil)
     
     default:
@@ -745,7 +745,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     return mapView.mapWindow.map.isTiltGesturesEnabled
   }
     
-  public func setTiltGesturesEnabled(_ call: FlutterMethodCall) {
+  public func toggleTiltGestures(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let enabled = params["enabled"] as! Bool
     mapView.mapWindow.map.isTiltGesturesEnabled = enabled
