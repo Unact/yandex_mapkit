@@ -186,7 +186,7 @@ class YandexMapController extends ChangeNotifier {
   /// If not null parentId passed, will create a nested collection.
   /// YMKClusterizedPlacemarkCollection can't contain nested collections,
   /// attempts to create a collection inside it will lead to nothing.
-  Future<void> addCollection(ObjectsCollection collection, {int? parentId}) async {
+  Future<void> addCollection(ObjectsCollection collection) async {
 
     var found = getCollectionById(collection.id);
 

@@ -90,6 +90,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private List<PolygonMapObject> polygons = new ArrayList<>();
   private List<CircleMapObject> circles = new ArrayList<>();
 
+  // Use this as workaround for mapkit issue which leads to unavailability of getting a placemark's collection
+  // (method getParent() throws exception for placemarks in ClusterizedPlacemarkCollection)
+  // https://github.com/yandex/mapkit-android-demo/issues/258
+  private HashMap<Integer, ArrayList<PlacemarkMapObject>> placemarksByCollections = new HashMap<>();
+
   private List<Cluster> unstyledClustersQueue = new ArrayList<>();
 
   private String userLocationIconName;
@@ -265,6 +270,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       collection.setUserData(id);
       clusterizedCollections.add(collection);
     }
+
+    placemarksByCollections.put(id, new ArrayList<PlacemarkMapObject>());
   }
 
   private MapObject getCollectionById(Integer collectionId) {
@@ -315,6 +322,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     setupPlacemark(placemark, params);
 
     placemarks.add(placemark);
+
+    if (collectionId != null) {
+      ArrayList<PlacemarkMapObject> collectionPlacemarks = placemarksByCollections.get(collectionId);
+      collectionPlacemarks.add(placemark);
+      placemarksByCollections.put(collectionId, collectionPlacemarks);
+    }
   }
 
   public void addPlacemarks(MethodCall call) {
@@ -375,6 +388,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
 
     placemarks.addAll(newPlacemarks);
+
+    if (collectionId != null) {
+      ArrayList<PlacemarkMapObject> collectionPlacemarks = placemarksByCollections.get(collectionId);
+      collectionPlacemarks.addAll(newPlacemarks);
+      placemarksByCollections.put(collectionId, collectionPlacemarks);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -397,11 +416,19 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       return;
     }
 
-    // Strange, but placemark.parent is always of MapObjectCollection type,
-    // but indeed it can be of ClusterizedPlacemarkCollection type.
-    // So, have to use a workaround - at first find the collection and then remove the placemark from it....
+    // Use this as workaround for mapkit issue which leads to unavailability of getting a placemark's collection
+    // (method getParent() throws exception for placemarks in ClusterizedPlacemarkCollection)
+    // https://github.com/yandex/mapkit-android-demo/issues/258
+    Integer parentId = null;
+    Iterator iterator = placemarksByCollections.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry pair = (Map.Entry)iterator.next();
+      if (placemarksByCollections.get(pair.getKey()).contains(placemark)) {
+        parentId = (Integer) pair.getKey();
+      }
+    }
 
-    MapObject collection = getCollectionById((Integer) placemark.getParent().getUserData());
+    MapObject collection = getCollectionById(parentId);
 
     if (collection instanceof MapObjectCollection) {
       ((MapObjectCollection) collection).remove(placemark);
@@ -446,7 +473,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         // Add all clusterized placemark collections nested in plain collections (no recursion is needed because clusterized collections can't be nested itself)
         for (int i = 0; i < clusterizedCollections.size(); i++) {
 
-          MapObjectCollection coll = collections.get(i);
+          ClusterizedPlacemarkCollection coll = clusterizedCollections.get(i);
 
           Integer parentId = (Integer) coll.getParent().getUserData();
 
@@ -460,27 +487,35 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         }
 
         // Remove all placemarks which parents are in the nestedCollectionsIds list
-        List<PlacemarkMapObject> placemarksToRemove   = new ArrayList<>();
-        for (int i = 0; i < placemarks.size(); i++) {
-          if (nestedCollectionsIds.contains(placemarks.get(i).getParent().getUserData())) {
-            placemarksToRemove.add(placemarks.get(i));
-          }
+        for (int i = 0; i < nestedCollectionsIds.size(); i++) {
+          placemarks.removeAll(placemarksByCollections.get(nestedCollectionsIds.get(i)));
+          placemarksByCollections.get(nestedCollectionsIds.get(i)).clear();
         }
-        placemarks.removeAll(placemarksToRemove);
 
         // Remove all nested collections except current one
+
         List<MapObjectCollection> collectionsToRemove = new ArrayList<>();
         for (int i = 0; i < collections.size(); i++) {
           if (nestedCollectionsIds.contains(collections.get(i).getUserData()) && !collections.get(i).getUserData().equals(collectionId)) {
             collectionsToRemove.add(collections.get(i));
+            placemarksByCollections.remove(collections.get(i).getUserData());
           }
         }
         collections.removeAll(collectionsToRemove);
 
+        List<ClusterizedPlacemarkCollection> clusterizedCollectionsToRemove = new ArrayList<>();
+        for (int i = 0; i < clusterizedCollections.size(); i++) {
+          if (nestedCollectionsIds.contains(clusterizedCollections.get(i).getUserData()) && !clusterizedCollections.get(i).getUserData().equals(collectionId)) {
+            clusterizedCollectionsToRemove.add(clusterizedCollections.get(i));
+            placemarksByCollections.remove(clusterizedCollections.get(i).getUserData());
+          }
+        }
+        clusterizedCollections.removeAll(clusterizedCollectionsToRemove);
+
         /*
-         TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
-          so there is no need to clear corresponding arrays, but should be implemented if addPolyline, addPolygon or addCircle
-          will become to accept collectionId argument.
+        TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
+         so there is no need to clear corresponding arrays, but should be implemented if addPolyline, addPolygon or addCircle
+         will become to accept collectionId argument.
         */
       }
 
@@ -490,13 +525,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     } else if (collection instanceof ClusterizedPlacemarkCollection) {
 
       // As clusterized collections can not be nested just remove all placemarks with parent = collectionId
-      List<PlacemarkMapObject> placemarksToRemove   = new ArrayList<>();
-      for (int i = 0; i < placemarks.size(); i++) {
-        if (placemarks.get(i).getParent().getUserData().equals(collectionId)) {
-          placemarksToRemove.add(placemarks.get(i));
-        }
-      }
-      placemarks.removeAll(placemarksToRemove);
+      placemarks.removeAll(placemarksByCollections.get(collectionId));
+      placemarksByCollections.get(collectionId).clear();
 
       // Clear mapkit collection
       ((ClusterizedPlacemarkCollection) collection).clear();

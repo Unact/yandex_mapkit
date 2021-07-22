@@ -164,9 +164,9 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                     ControlButton(
                         onPressed: () async {
 
-                          _collection1 = ObjectsCollection();
-                          _collection2 = ObjectsCollection(parentId: _collection1!.id); // Collection 2 is nested in Collection 1
-                          _collection3 = ObjectsCollection(parentId: _collection2!.id); // Collection 3 is nested in Collection 2
+                          _collection1 ??= ObjectsCollection();
+                          _collection2 ??= ObjectsCollection(parentId: _collection1!.id); // Collection 2 is nested in Collection 1
+                          _collection3 ??= ObjectsCollection(parentId: _collection2!.id); // Collection 3 is nested in Collection 2
 
                           await controller!.addCollection(_collection1!);
                           await controller!.addCollection(_collection2!);
@@ -213,7 +213,7 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                         onPressed: () async {
 
                           // Create and add clusterized collection - required for placemarks clusters to work (will not work with plain collection, including root)
-                          _clusterizedCollection = ObjectsCollection(isClusterized: true);
+                          _clusterizedCollection ??= ObjectsCollection(isClusterized: true);
                           await controller!.addCollection(_clusterizedCollection!);
 
                           await controller!.addPlacemarks(

@@ -522,10 +522,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         }
 
         // Remove all placemarks which parents are in the nestedCollectionsIds list
-        placemarks.removeAll(where: ({nestedCollectionsIds.contains($0.parent.userData as! Int)}))
+        placemarks.removeAll(where: ({$0.parent.userData != nil && nestedCollectionsIds.contains($0.parent.userData as! Int)}))
         
         // Remove all nested collections except current one
         collections.removeAll(where: ({nestedCollectionsIds.contains($0.userData as! Int) && ($0.userData as! Int) != collectionId!}))
+        clusterizedCollections.removeAll(where: ({nestedCollectionsIds.contains($0.userData as! Int) && ($0.userData as! Int) != collectionId!}))
         
         /*
          TODO: For now polylines, polygons and circles can be added only into the root collection (mapObjects),
