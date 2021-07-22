@@ -470,4 +470,14 @@ class YandexMapController extends ChangeNotifier {
       }
     };
   }
+
+  Future<bool> isTiltGesturesEnabled() async {
+    final bool value = await _channel.invokeMethod<dynamic>('isTiltGesturesEnabled');
+    return value;
+  }
+
+  /// Toggles isTiltGesturesEnabled (enable/disable tilt gestures)
+  Future<void> toggleTiltGestures({required bool enabled}) async {
+    await _channel.invokeMethod<void>('toggleTiltGestures', <String, dynamic>{'enabled': enabled});
+  }
 }

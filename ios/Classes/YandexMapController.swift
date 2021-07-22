@@ -138,6 +138,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "getUserTargetPoint":
       let userTargetPoint = getUserTargetPoint()
       result(userTargetPoint)
+    case "isTiltGesturesEnabled":
+      let isTiltGesturesEnabled = isTiltGesturesEnabled()
+      result(isTiltGesturesEnabled)
+    case "toggleTiltGestures":
+      toggleTiltGestures(call)
+      result(nil)
+    
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -768,5 +775,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
     }
+  }
+  
+  public func isTiltGesturesEnabled() -> Bool {
+    return mapView.mapWindow.map.isTiltGesturesEnabled
+  }
+    
+  public func toggleTiltGestures(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let enabled = params["enabled"] as! Bool
+    mapView.mapWindow.map.isTiltGesturesEnabled = enabled
   }
 }

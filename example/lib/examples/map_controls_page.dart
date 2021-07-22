@@ -22,7 +22,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   YandexMapController? controller;
 
   bool isNightModeEnabled = false;
+
   bool isZoomGesturesEnabled = false;
+
+  bool isTiltGesturesEnabled = false;
 
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
 
@@ -69,8 +72,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
               controller = yandexMapController;
             },
             onMapRendered: () async {
-
               print('Map rendered');
+              var tiltGesturesEnabled = await controller!.isTiltGesturesEnabled();
               var zoomGesturesEnabled = await controller!.isZoomGesturesEnabled();
 
               var zoom    = await controller!.getZoom();
@@ -80,8 +83,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
               print('Current zoom: $zoom, minZoom: $minZoom, maxZoom: $maxZoom');
 
               setState(() {
+                isTiltGesturesEnabled = tiltGesturesEnabled;
                 isZoomGesturesEnabled = zoomGesturesEnabled;
-                
               });
             },
             onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
@@ -218,6 +221,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     )
                   ],
                 ),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                      onPressed: () async {
+                        setState(() {
+                          isTiltGesturesEnabled = !isTiltGesturesEnabled;
+                        });
+                        await controller!.toggleTiltGestures(enabled: isTiltGesturesEnabled);
+                      },
+                      title: 'Tilt gestures: ${isTiltGesturesEnabled ? 'on' : 'off'}'
+                  ),
+                  Container(),
+                ]),
               ],
             ),
           ),
