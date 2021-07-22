@@ -255,9 +255,9 @@ class YandexMapController extends ChangeNotifier {
     return value;
   }
 
-  /// Toggles zoomGesturesEnabled (enable/disable zoom gestures)
-  Future<void> toggleZoomGesturesEnabled({required bool enabled}) async {
-    await _channel.invokeMethod<void>('toggleZoomGesturesEnabled', <String, dynamic>{'enabled': enabled});
+  /// Toggles isZoomGesturesEnabled (enable/disable zoom gestures)
+  Future<void> toggleZoomGestures({required bool enabled}) async {
+    await _channel.invokeMethod<void>('toggleZoomGestures', <String, dynamic>{'enabled': enabled});
   }
 
   // Returns min available zoom for visible map region

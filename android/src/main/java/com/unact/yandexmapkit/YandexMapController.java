@@ -578,7 +578,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     return mapView.getMap().isZoomGesturesEnabled();
   }
 
-  public void toggleZoomGesturesEnabled(MethodCall call) {
+  public void toggleZoomGestures(MethodCall call) {
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
@@ -694,8 +694,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         boolean isZoomGesturesEnabled = isZoomGesturesEnabled();
         result.success(isZoomGesturesEnabled);
         break;
-      case "toggleZoomGesturesEnabled":
-        toggleZoomGesturesEnabled(call);
+      case "toggleZoomGestures":
+        toggleZoomGestures(call);
         result.success(null);
         break;
       case "getMinZoom":

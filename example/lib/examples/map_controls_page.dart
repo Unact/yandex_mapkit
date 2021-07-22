@@ -131,7 +131,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       setState(() {
                         isZoomGesturesEnabled = !isZoomGesturesEnabled;
                       });
-                      await controller!.toggleZoomGesturesEnabled(enabled: isZoomGesturesEnabled);
+                      await controller!.toggleZoomGestures(enabled: isZoomGesturesEnabled);
                     },
                     title: 'Zoom gestures: ${isZoomGesturesEnabled ? 'on' : 'off'}'
                   ),
