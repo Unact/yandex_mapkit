@@ -126,6 +126,11 @@ class YandexSearch {
     );
   }
 
+  static Future<void> cancelSearch() async {
+
+    await _channel.invokeMethod<void>('cancelSearch', null);
+  }
+
   static void _onSearchListenerResponse(dynamic arguments) {
 
     final Map<dynamic, dynamic> response = arguments['response'];

@@ -65,8 +65,8 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
         searchByText(call);
         result.success(null);
         break;
-      case "cancelSearchSession":
-        cancelSearchSession();
+      case "cancelSearch":
+        cancelSearch();
         result.success(null);
         break;
       default:
@@ -197,11 +197,9 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
     );
   }
 
-  public void cancelSearchSession() {
+  public void cancelSearch() {
 
     searchSession.cancel();
-
-    searchSession = null;
   }
 
   private class YandexSuggestListener implements SuggestSession.SuggestListener {

@@ -28,55 +28,57 @@ class _SearchExampleState extends State<_SearchExample> {
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          const SizedBox(height: 20),
-          Expanded(
-              child: SingleChildScrollView(
-                  child: Column(
-                      children: <Widget>[
-                        const Text('Search:'),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Flexible(
-                              child: TextField(
-                                controller: queryController,
-                              ),
-                            ),
-                            ControlButton(
-                                onPressed: () {
-                                  search(queryController.text);
-                                },
-                                title: 'Query'
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Text('Response:'),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Flexible(
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 20),
-                                  child: Text(response),
-                                )
-                            ),
-                          ],
-                        ),
-                      ]
-                  )
-              )
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        const SizedBox(height: 20),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                const Text('Search:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Flexible(
+                      child: TextField(
+                        controller: queryController,
+                      ),
+                    ),
+                    ControlButton(
+                      onPressed: () {
+                        search(queryController.text);
+                      },
+                      title: 'Query'
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const Text('Response:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Text(response),
+                      ),
+                    ),
+                  ],
+                ),
+              ]
+            )
           )
-        ]
+        )
+      ]
     );
   }
 
-  Future<void> search(String query) async {
+  void search(String query) {
 
-    await YandexSearch.searchByText(
+    print('Search query: $query');
+
+    YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         BoundingBox(
@@ -89,12 +91,18 @@ class _SearchExampleState extends State<_SearchExample> {
         geometry: false,
       ),
       onSearchResponse: (SearchResponse res) {
+        print('Success: ${res.toString()}');
         setState(() {
           response = res.toString();
         });
       },
       onSearchError: (String error) {
-        print(error);
-      });
+        print('Error: $error');
+      }
+    );
+
+    // Uncomment to check cancellation
+    // print('Cancel search');
+    // YandexSearch.cancelSearch();
   }
 }

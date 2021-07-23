@@ -40,8 +40,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
     case "searchByText":
       searchByText(call)
       result(nil)
-    case "cancelSearchSession":
-      cancelSearchSession(call)
+    case "cancelSearch":
+      cancelSearch(call)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -413,10 +413,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
     return
   }
   
-  public func cancelSearchSession(_ call: FlutterMethodCall) {
+  public func cancelSearch(_ call: FlutterMethodCall) {
     
     searchSession?.cancel()
-
-    searchSession = nil
   }
 }
