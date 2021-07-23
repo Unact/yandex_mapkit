@@ -14,6 +14,7 @@ import com.yandex.mapkit.search.BusinessObjectMetadata;
 import com.yandex.mapkit.search.Response;
 import com.yandex.mapkit.search.SearchOptions;
 import com.yandex.mapkit.search.Session;
+import com.yandex.mapkit.search.Snippet;
 import com.yandex.mapkit.search.SuggestItem;
 import com.yandex.mapkit.search.SearchFactory;
 import com.yandex.mapkit.search.SearchManagerType;
@@ -119,7 +120,7 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
               new Point(((Double) point.get("latitude")), ((Double) point.get("longitude")))
       );
 
-    } else if (geometry.containsKey("boundingBox")) {
+    } else {
 
       Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
 
@@ -132,32 +133,20 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
           new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
         )
       );
-    } else {
-      YandexSearchListener yaListener = new YandexSearchListener();
-      yaListener.onSearchError(new SearchError("Invalid geometry"));
-      return;
     }
 
-    int                 searchTypeOption            = ((Number) options.get("searchType")).intValue();
-    Number              resultPageSizeOption        = (Number) options.get("resultPageSize");
-    List<Number>        snippetsOption              = (List<Number>) options.get("snippets");
-    List<String>        experimentalSnippetsOption  = (List<String>) options.get("experimentalSnippets");
-    Map<String, Object> userPositionOption          = (Map<String, Object>) options.get("userPosition");
+    int                 searchTypeOption     = ((Number) options.get("searchType")).intValue();
+    Number              resultPageSizeOption = (Number) options.get("resultPageSize");
+    Map<String, Object> userPositionOption   = (Map<String, Object>) options.get("userPosition");
 
     Integer resultPageSize = null;
     if (resultPageSizeOption != null) {
       resultPageSize = resultPageSizeOption.intValue();
     }
 
-    int snippet = 0;
-
-    for (Number n: snippetsOption) {
-      snippet = snippet | n.intValue();
-    }
-
-    if (experimentalSnippetsOption == null) {
-      experimentalSnippetsOption = new ArrayList<>();
-    }
+    // Theses params are not implemented on the flutter side yet
+    int snippetOption = Snippet.NONE.value;
+    List<String> experimentalSnippetsOption = new ArrayList<>();
 
     Point userPosition = null;
 
@@ -188,7 +177,7 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
     SearchOptions searchOptions = new SearchOptions(
       searchTypeOption,
       resultPageSize,
-      snippet,
+      snippetOption,
       experimentalSnippetsOption,
       userPosition,
       originOption,

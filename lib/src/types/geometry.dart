@@ -5,11 +5,6 @@ class Geometry {
   final Point?       point;
   final BoundingBox? boundingBox;
 
-  Geometry({
-    this.point,
-    this.boundingBox,
-  });
-
   Geometry.fromPoint(Point point) :
     point = point, boundingBox = null;
 
@@ -26,6 +21,7 @@ class Geometry {
         latitude: json['point']['latitude'],
         longitude: json['point']['longitude'],
       );
+      return Geometry.fromPoint(point);
     } else if (json.containsKey('boundingBox')) {
       boundingBox = BoundingBox(
         southWest: Point(
@@ -37,11 +33,34 @@ class Geometry {
           longitude: json['northEast']['longitude'],
         ),
       );
+      return Geometry.fromBoundingBox(boundingBox);
     }
 
-    return Geometry(
-      point: point,
-      boundingBox: boundingBox,
-    );
+    throw('Invalid data: point or boundingBox keys required');
+  }
+
+  Map<String, dynamic> toJson() {
+
+    var json = <String, dynamic>{};
+
+    if (point != null) {
+      json['point'] = {
+        'latitude': point!.latitude,
+        'longitude': point!.longitude,
+      };
+    } else {
+      json['boundingBox'] = {
+        'southWest': {
+          'latitude': boundingBox!.southWest.latitude,
+          'longitude': boundingBox!.southWest.longitude,
+        },
+        'northEast': {
+          'latitude': boundingBox!.northEast.latitude,
+          'longitude': boundingBox!.northEast.longitude,
+        },
+      };
+    }
+
+    return json;
   }
 }

@@ -40,19 +40,12 @@ class SearchItem extends Equatable {
   }
 
   @override
-  List<Object> get props {
-
-    var props = <Object>[
-      name,
-      geometry,
-    ];
-
-    if (toponymMetadata != null) {
-      props.add(toponymMetadata!);
-    }
-
-    return props;
-  }
+  List<Object?> get props => <Object?>[
+    name,
+    geometry,
+    toponymMetadata,
+    businessMetadata,
+  ];
 
   @override
   bool get stringify => true;

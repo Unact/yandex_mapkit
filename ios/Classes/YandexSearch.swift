@@ -140,10 +140,11 @@ public class YandexSearch: NSObject, FlutterPlugin {
         )
       )
       
-    } else if
-      let geometryBoundingBox = geometry["boundingBox"] as? [String:Any],
-      let southWest = geometryBoundingBox["southWest"] as? [String:Any],
-      let northEast = geometryBoundingBox["northEast"] as? [String:Any] {
+    } else {
+      
+      let geometryBoundingBox = geometry["boundingBox"] as! [String:Any]
+      let southWest = geometryBoundingBox["southWest"] as! [String:Any]
+      let northEast = geometryBoundingBox["northEast"] as! [String:Any]
       
       geometryObj = YMKGeometry(
         boundingBox: YMKBoundingBox(
@@ -157,26 +158,17 @@ public class YandexSearch: NSObject, FlutterPlugin {
           )
         )
       )
-    } else {
-      onSearchError(NSError(domain: "", code: 0, userInfo: ["message" : "Invalid geometry"]))
-      return
     }
     
-    let searchTypeOption           = (options["searchType"] as! NSNumber).uintValue
-    let resultPageSizeOption       = options["resultPageSize"] as? NSNumber
-    let snippetsOption             = options["snippets"] as! [NSNumber]
-    let experimentalSnippetsOption = options["experimentalSnippets"] as! [String]
-    let userPositionOption         = options["userPosition"] as? [String:Any]
+    let searchTypeOption     = (options["searchType"] as! NSNumber).uintValue
+    let resultPageSizeOption = options["resultPageSize"] as? NSNumber
+    let userPositionOption   = options["userPosition"] as? [String:Any]
     
     let searchType = YMKSearchType.init(rawValue: searchTypeOption)
     
-    let snippet = YMKSearchSnippet(
-      rawValue: snippetsOption
-        .map({ val in
-          return val.uintValue
-        })
-        .reduce(0, |)
-    )
+    // Theses params are not implemented on the flutter side yet
+    let snippetsOption             = YMKSearchSnippet(rawValue: 0) // None
+    let experimentalSnippetsOption = [String]()
     
     let userPosition = userPositionOption != nil
       ? YMKPoint.init(
@@ -196,7 +188,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let searchOptions = YMKSearchOptions.init(
       searchTypes: searchType,
       resultPageSize: resultPageSizeOption,
-      snippets: snippet,
+      snippets: snippetsOption,
       experimentalSnippets: experimentalSnippetsOption,
       userPosition: userPosition,
       origin: originOption,
@@ -348,7 +340,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
       $0.kinds.forEach {
         
         let kind = YMKSearchComponentKind(rawValue: UInt(truncating: $0))
-
+        
         // Map kind to enum value in flutter
         switch kind {
         case .none, .some(.unknown):

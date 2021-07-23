@@ -38,20 +38,12 @@ class SearchItemBusinessMetadata extends Equatable {
   }
 
   @override
-  List<Object> get props {
-
-    var props = <Object>[
-      name,
-      formattedAddress,
-      addressComponents,
-    ];
-
-    if (shortName != null) {
-      props.add(shortName!);
-    }
-
-    return props;
-  }
+  List<Object?> get props => <Object?>[
+    name,
+    formattedAddress,
+    addressComponents,
+    shortName,
+  ];
 
   @override
   bool get stringify => true;

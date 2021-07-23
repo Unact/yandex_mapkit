@@ -114,49 +114,10 @@ class YandexSearch {
     _searchSessionCallback = onSearchResponse;
     _searchErrorCallback   = onSearchError;
 
-    var geometryParam = {};
-
-    if (geometry.point != null) {
-      geometryParam['point'] = {
-        'latitude': geometry.point!.latitude,
-        'longitude': geometry.point!.longitude,
-      };
-    } else if (geometry.boundingBox != null) {
-      geometryParam['boundingBox'] = {
-        'southWest': {
-          'latitude': geometry.boundingBox!.southWest.latitude,
-          'longitude': geometry.boundingBox!.southWest.longitude,
-        },
-        'northEast': {
-          'latitude': geometry.boundingBox!.northEast.latitude,
-          'longitude': geometry.boundingBox!.northEast.longitude,
-        },
-      };
-    } else {
-      throw('geometry is invalid: point or boundingBox required');
-    }
-
-    var options = {
-      'searchType':                 searchOptions.searchType.index,
-      'snippets':                   [],
-      'experimentalSnippets':       [],
-      'geometry':                   searchOptions.geometry,
-      'suggestWords':               searchOptions.suggestWords,
-      'disableSpellingCorrection':  searchOptions.disableSpellingCorrection,
-    };
-
-    if (searchOptions.resultPageSize != null) {
-      options['resultPageSize'] = searchOptions.resultPageSize!;
-    }
-
-    if (searchOptions.userPosition != null) {
-      options['userPosition'] = searchOptions.userPosition!;
-    }
-
     var params = {
       'searchText': searchText,
-      'geometry': geometryParam,
-      'options': options,
+      'geometry': geometry.toJson(),
+      'options': searchOptions.toJson(),
     };
 
     await _channel.invokeMethod<void>(
