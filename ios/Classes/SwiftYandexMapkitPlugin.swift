@@ -1,6 +1,7 @@
 import CoreLocation
 import Flutter
 import UIKit
+import YandexMapsMobile
 
 public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
 
@@ -10,6 +11,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
       withId: "yandex_mapkit/yandex_map"
     )
     
+    YMKMapKit.sharedInstance().onStart()
     YandexSearch.register(with: registrar)
   }
 
