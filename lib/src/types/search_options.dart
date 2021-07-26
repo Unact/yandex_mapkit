@@ -33,31 +33,13 @@ class SearchOptions {
       'geometry':                   geometry,
       'suggestWords':               suggestWords,
       'disableSpellingCorrection':  disableSpellingCorrection,
+      'resultPageSize':             resultPageSize,
+      'userPosition':               userPosition,
+      'origin':                     origin,
+      'directPageId':               directPageId,
+      'appleCtx':                   appleCtx,
+      'advertPageId':               advertPageId,
     };
-
-    if (resultPageSize != null) {
-      json['resultPageSize'] = resultPageSize!;
-    }
-
-    if (userPosition != null) {
-      json['userPosition'] = userPosition!;
-    }
-
-    if (origin != null) {
-      json['origin'] = origin!;
-    }
-
-    if (directPageId != null) {
-      json['directPageId'] = directPageId!;
-    }
-
-    if (appleCtx != null) {
-      json['appleCtx'] = appleCtx!;
-    }
-
-    if (advertPageId != null) {
-      json['advertPageId'] = advertPageId!;
-    }
 
     return json;
   }
