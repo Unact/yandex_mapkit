@@ -199,7 +199,9 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
 
   public void cancelSearch() {
 
-    searchSession.cancel();
+    if (searchSession != null) {
+      searchSession.cancel();
+    }
   }
 
   private class YandexSuggestListener implements SuggestSession.SuggestListener {
