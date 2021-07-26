@@ -26,6 +26,14 @@ class _SearchExampleState extends State<_SearchExample> {
   String response = '';
 
   @override
+  void dispose() {
+
+    YandexSearch.cancelSearch(); // Cancel search request if it's in progress
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
