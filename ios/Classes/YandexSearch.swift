@@ -9,7 +9,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
   private let searchManager: YMKSearchManager!
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
   
-  private var searchSession: YMKSearchSession?
+  private var searchSessions: [Int:YMKSearchSession] = [:]
   
 
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -42,6 +42,15 @@ public class YandexSearch: NSObject, FlutterPlugin {
       result(nil)
     case "cancelSearch":
       cancelSearch(call)
+      result(nil)
+    case "retrySearch":
+      retrySearch(call)
+      result(nil)
+    case "fetchSearchNextPage":
+      fetchSearchNextPage(call)
+      result(nil)
+    case "closeSearchSession":
+      closeSearchSession(call)
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
@@ -128,6 +137,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
     let searchText = params["searchText"] as! String
     let geometry   = params["geometry"] as! [String:Any]
     let options    = params["options"] as! [String:Any]
+    let sessionId  = params["sessionId"] as! Int
     
     var geometryObj: YMKGeometry
     
@@ -200,26 +210,93 @@ public class YandexSearch: NSObject, FlutterPlugin {
       disableSpellingCorrection: disableSpellingCorrectionOption
     )
     
-    let responseHandler = {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-      if let response = searchResponse {
-          self.onSearchResponse(response)
-      } else {
-          self.onSearchError(error!)
-      }
-    }
+    let responseHandler = getResponseHandler(sessionId)
     
-    searchSession = searchManager.submit(
+    let searchSession = searchManager.submit(
       withText: searchText,
       geometry: geometryObj,
       searchOptions: searchOptions,
       responseHandler: responseHandler)
+    
+    searchSessions[sessionId] = searchSession
   }
   
-  private func onSearchResponse(_ res: YMKSearchResponse) {
+  private func getResponseHandler(_ sessionId: Int) -> YMKSearchSessionResponseHandler {
+    
+    let responseHandler = {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+      if let response = searchResponse {
+          self.onSearchResponse(response, sessionId: sessionId)
+      } else {
+          self.onSearchError(error!, sessionId: sessionId)
+      }
+    }
+    
+    return responseHandler
+  }
+  
+  public func closeSearchSession(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let sessionId  = params["sessionId"] as! Int
+    
+    if let session = searchSessions[sessionId] {
+      session.cancel()
+      searchSessions.removeValue(forKey: sessionId)
+    }
+  }
+  
+  public func cancelSearch(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let sessionId  = params["sessionId"] as! Int
+    
+    if let session = searchSessions[sessionId] {
+      session.cancel()
+    }
+  }
+  
+  public func retrySearch(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let sessionId  = params["sessionId"] as! Int
+    
+    guard let session = searchSessions[sessionId] else {
+      return
+    }
+    
+    let responseHandler = getResponseHandler(sessionId)
+    
+    session.retry(responseHandler: responseHandler)
+  }
+  
+  public func fetchSearchNextPage(_ call: FlutterMethodCall) {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let sessionId  = params["sessionId"] as! Int
+    
+    guard let session = searchSessions[sessionId], session.hasNextPage() else {
+      return
+    }
+    
+    let responseHandler = getResponseHandler(sessionId)
+    
+    session.fetchNextPage(responseHandler: responseHandler)
+  }
+  
+  private func onSearchResponse(_ res: YMKSearchResponse, sessionId: Int) {
+    
+    guard let session = searchSessions[sessionId] else {
+      return
+    }
     
     var data = [String : Any]()
       
-    data["found"] = res.metadata.found
+    data["found"]       = res.metadata.found
+    data["hasNextPage"] = session.hasNextPage() ? true : false
     
     var dataItems = [[String : Any]]()
     
@@ -278,7 +355,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
     data["items"] = dataItems
     
     let arguments: [String:Any?] = [
-      "response": data
+      "response": data,
+      "sessionId": sessionId
     ]
     
     self.methodChannel.invokeMethod("onSearchListenerResponse", arguments: arguments)
@@ -388,7 +466,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
     return addressComponents
   }
   
-  private func onSearchError(_ error: Error) {
+  private func onSearchError(_ error: Error, sessionId: Int) {
     
     var errorMessage = "Unknown error"
     
@@ -406,15 +484,11 @@ public class YandexSearch: NSObject, FlutterPlugin {
     
     let arguments: [String:Any?] = [
       "error": errorMessage,
+      "sessionId": sessionId,
     ]
     
     self.methodChannel.invokeMethod("onSearchListenerError", arguments: arguments)
 
     return
-  }
-  
-  public func cancelSearch(_ call: FlutterMethodCall) {
-    
-    searchSession?.cancel()
   }
 }

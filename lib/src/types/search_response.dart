@@ -4,10 +4,12 @@ class SearchResponse extends Equatable {
 
   final int               found;
   final List<SearchItem>  items;
+  final bool              hasNextPage;
 
   const SearchResponse({
     required this.found,
     required this.items,
+    required this.hasNextPage,
   });
 
   factory SearchResponse.fromJson(Map<dynamic, dynamic> json) {
@@ -25,6 +27,7 @@ class SearchResponse extends Equatable {
     return SearchResponse(
       found:  json['found'],
       items:  mappedItems ?? [],
+      hasNextPage: json['hasNextPage'],
     );
   }
 
@@ -32,6 +35,7 @@ class SearchResponse extends Equatable {
   List<Object> get props => <Object>[
     found,
     items,
+    hasNextPage,
   ];
 
   @override

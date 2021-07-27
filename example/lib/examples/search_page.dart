@@ -25,12 +25,18 @@ class _SearchExampleState extends State<_SearchExample> {
 
   String response = '';
 
-  @override
-  void dispose() {
+  final Map<int, SearchSession> _sessions = {};
 
-    YandexSearch.cancelSearch(); // Cancel search request if it's in progress
+  @override
+  void dispose() async {
 
     super.dispose();
+
+    for (var s in _sessions.values) {
+      await s.closeSearchSession();
+    }
+
+    _sessions.clear();
   }
 
   @override
@@ -82,11 +88,11 @@ class _SearchExampleState extends State<_SearchExample> {
     );
   }
 
-  void search(String query) {
+  void search(String query) async {
 
     print('Search query: $query');
 
-    YandexSearch.searchByText(
+    var session = await YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         BoundingBox(
@@ -98,19 +104,42 @@ class _SearchExampleState extends State<_SearchExample> {
         searchType: SearchType.geo,
         geometry: false,
       ),
-      onSearchResponse: (SearchResponse res) {
+      onSearchResponse: (SearchResponse res, int sessionId) {
+
         print('Success: ${res.toString()}');
+
         setState(() {
           response = res.toString();
         });
+
+        var session = _sessions[sessionId];
+
+        if (session == null) {
+          return;
+        }
+
+        if (res.hasNextPage) {
+          print('Got ${res.found} items, fetching next page...');
+          session.fetchSearchNextPage();
+        } else {
+          print('No more results available, closing session...');
+          session.closeSearchSession();
+          _sessions.remove(sessionId);
+        }
       },
-      onSearchError: (String error) {
+      onSearchError: (String error, int sessionId) {
         print('Error: $error');
+        if (_sessions[sessionId] != null) {
+          _sessions[sessionId]!.closeSearchSession();
+          _sessions.remove(sessionId);
+        }
       }
     );
+    
+    _sessions[session.id] = session;
 
     // Uncomment to check cancellation
     // print('Cancel search');
-    // YandexSearch.cancelSearch();
+    // await session.retrySearch();
   }
 }
