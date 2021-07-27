@@ -135,11 +135,11 @@ class _SearchExampleState extends State<_SearchExample> {
         }
       }
     );
-    
+
     _sessions[session.id] = session;
 
     // Uncomment to check cancellation
     // print('Cancel search');
-    // await session.retrySearch();
+    // await session.cancelSearch();
   }
 }
