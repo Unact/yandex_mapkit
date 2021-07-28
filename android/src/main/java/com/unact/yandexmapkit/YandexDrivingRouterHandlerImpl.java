@@ -63,36 +63,7 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
                 points,
                 new DrivingOptions(),
                 new VehicleOptions(),
-                new DrivingRouteListener() {
-                    @Override
-                    public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
-                        sessions.remove(sessionId);
-                        Map<String, Object> resultMap = new HashMap<>();
-                        List<Map<String, Object>> resultRoutes = new ArrayList<>();
-                        for (DrivingRoute route : list) {
-                            Map<String, Object> resultRoute = new HashMap<>();
-                            List<Map<String, Object>> resultPoints = new ArrayList<>();
-                            for (Point point : route.getGeometry().getPoints()) {
-                                Map<String, Object> resultPoint = new HashMap<>();
-                                resultPoint.put("latitude", point.getLatitude());
-                                resultPoint.put("longitude", point.getLongitude());
-                                resultPoints.add(resultPoint);
-                            }
-                            resultRoute.put("geometry", resultPoints);
-                            resultRoutes.add(resultRoute);
-                        }
-                        resultMap.put("routes", resultRoutes);
-                        result.success(resultMap);
-                    }
-
-                    @Override
-                    public void onDrivingRoutesError(@NonNull Error error) {
-                        sessions.remove(sessionId);
-                        Map<String, Object> resultMap = new HashMap<>();
-                        resultMap.put("error", error.getClass().getName());
-                        result.success(resultMap);
-                    }
-                }
+                new DrivingRouteListenerImpl(sessionId, result)
         );
         sessions.put(sessionId, session);
     }
@@ -126,5 +97,44 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
             sessions.remove(sessionId);
         }
         result.success(null);
+    }
+
+    private class DrivingRouteListenerImpl implements DrivingRouteListener {
+        private final Integer sessionId;
+        private final Result result;
+
+        public DrivingRouteListenerImpl(Integer sessionId, Result result) {
+            this.sessionId = sessionId;
+            this.result = result;
+        }
+
+        @Override
+        public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
+            sessions.remove(sessionId);
+            Map<String, Object> resultMap = new HashMap<>();
+            List<Map<String, Object>> resultRoutes = new ArrayList<>();
+            for (DrivingRoute route : list) {
+                Map<String, Object> resultRoute = new HashMap<>();
+                List<Map<String, Object>> resultPoints = new ArrayList<>();
+                for (Point point : route.getGeometry().getPoints()) {
+                    Map<String, Object> resultPoint = new HashMap<>();
+                    resultPoint.put("latitude", point.getLatitude());
+                    resultPoint.put("longitude", point.getLongitude());
+                    resultPoints.add(resultPoint);
+                }
+                resultRoute.put("geometry", resultPoints);
+                resultRoutes.add(resultRoute);
+            }
+            resultMap.put("routes", resultRoutes);
+            result.success(resultMap);
+        }
+
+        @Override
+        public void onDrivingRoutesError(@NonNull Error error) {
+            sessions.remove(sessionId);
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("error", error.getClass().getName());
+            result.success(resultMap);
+        }
     }
 }
