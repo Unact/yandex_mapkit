@@ -5,7 +5,6 @@ import YandexMapsMobile
 public class YandexDrivingRouter: NSObject, FlutterPlugin {
     private let methodChannel: FlutterMethodChannel!
     private var router: YMKDrivingRouter?
-    private var session: YMKDrivingSession?
     
     private var sessions = [Int:YMKDrivingSession]()
     
@@ -52,8 +51,8 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         sessions[sessionId] = router!.requestRoutes(with: requestPoints, drivingOptions: drivingOptions, vehicleOptions: vehicleOptions) { (routes, error) in
             self.sessions.removeValue(forKey: sessionId)
             guard let routes: [YMKDrivingRoute] = routes else {
-                if(error != nil){
-                    result(error)
+                if(error != nil)  {
+                    result(["error": "YMKDrivingSession error"])
                 }
                 return
             }
@@ -65,7 +64,7 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
                     let resultRoute: [String: Any] = ["geometry": resultpoints]
                     return resultRoute
                 }
-            result(resultRoutes)
+            result(["routes": resultRoutes])
         }
     }
     
