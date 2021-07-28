@@ -18,10 +18,11 @@ class _RouterExample extends StatefulWidget {
 }
 
 class _RouterExampleState extends State<_RouterExample> {
-  YandexMapController? _controller;
+  late YandexMapController _controller;
+  late DrivingSession _session;
   Polyline? _route;
-  DrivingSession? _result;
   bool _progress = false;
+  String? _error;
 
   @override
   Widget build(BuildContext context) {
@@ -45,27 +46,24 @@ class _RouterExampleState extends State<_RouterExample> {
                       ControlButton(
                         onPressed: () async {
                           if (_route != null) {
-                            await _controller?.removePolyline(_route!);
+                            await _controller.removePolyline(_route!);
                           }
-                          _result = await _buildRoutes();
+                          _session = await _buildRoutes();
                           setState(() {
                             _progress = true;
                           });
-                          try {
-                            _route = await _polyline(_result!);
-                            await _controller?.addPolyline(_route!);
-                          } catch (_) {}
+                          await _parseSession();
                           setState(() {
                             _progress = false;
                           });
                         },
                         title: 'Build route',
                       ),
-                      progressWidget(),
+                      _progressWidget(),
                       ControlButton(
                         onPressed: () async {
                           if (_route != null) {
-                            await _controller?.removePolyline(_route!);
+                            await _controller.removePolyline(_route!);
                           }
                         },
                         title: 'Remove route',
@@ -79,43 +77,51 @@ class _RouterExampleState extends State<_RouterExample> {
         ]);
   }
 
-  Widget progressWidget() {
-    return _progress
-        ? TextButton.icon(
-            icon: const CircularProgressIndicator(),
-            label: const Text('Cancel'),
-            onPressed: () {
-              _result?.cancelSession();
-              setState(() {
-                _progress = false;
-              });
-            },
-          )
-        : const Spacer(flex: 1);
+  Future<void> _parseSession() async {
+    final result = await _session.result;
+    final routes = result.routes;
+    if (routes != null) {
+      _route = Polyline(
+        coordinates: routes[0].geometry,
+        style: const PolylineStyle(
+          strokeColor: Colors.blueAccent,
+          strokeWidth: 3,
+        ),
+      );
+      await _controller.addPolyline(_route!);
+    }
+    _error = result.error;
   }
 
-  Future<Polyline> _polyline(DrivingSession result) async {
-    final routes = await result.routes;
-
-    return Polyline(
-      coordinates: routes[0].geometry,
-      style: const PolylineStyle(
-        strokeColor: Colors.blueAccent,
-        strokeWidth: 3, // <- default value 5.0, this will be a little bold
-      ),
-    );
+  Widget _progressWidget() {
+    if (_progress) {
+      return TextButton.icon(
+        icon: const CircularProgressIndicator(),
+        label: const Text('Cancel'),
+        onPressed: () {
+          _session.cancelSession();
+          setState(() {
+            _progress = false;
+          });
+        },
+      );
+    } else if (_error != null) {
+      return Text('Error: $_error', style: TextStyle(color: Colors.red));
+    } else {
+      return const Spacer(flex: 1);
+    }
   }
+}
 
-  Future<DrivingSession> _buildRoutes() async {
-    return await YandexDrivingRouter.requestRoutes(
-      <RequestPoint>[
-        const RequestPoint(Point(latitude: 55.7558, longitude: 37.6173),
-            RequestPointType.wayPoint),
-        const RequestPoint(Point(latitude: 45.0360, longitude: 38.9746),
-            RequestPointType.viaPoint),
-        const RequestPoint(Point(latitude: 48.4814, longitude: 135.0721),
-            RequestPointType.wayPoint),
-      ],
-    );
-  }
+Future<DrivingSession> _buildRoutes() async {
+  return await YandexDrivingRouter.requestRoutes(
+    <RequestPoint>[
+      const RequestPoint(Point(latitude: 55.7558, longitude: 37.6173),
+          RequestPointType.wayPoint),
+      const RequestPoint(Point(latitude: 45.0360, longitude: 38.9746),
+          RequestPointType.viaPoint),
+      const RequestPoint(Point(latitude: 48.4814, longitude: 135.0721),
+          RequestPointType.wayPoint),
+    ],
+  );
 }

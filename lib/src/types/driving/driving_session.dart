@@ -1,8 +1,16 @@
 part of yandex_mapkit;
 
 class DrivingSession {
-  const DrivingSession(this.routes, this.cancelSession);
+  const DrivingSession(this.result, this.cancelSession);
 
-  final Future<List<DrivingRoute>> routes;
+  final Future<DrivingSessionResult> result;
+
   final CancelDrivingSessionCallback cancelSession;
+}
+
+class DrivingSessionResult {
+  final List<DrivingRoute>? routes;
+  final String? error;
+
+  DrivingSessionResult(this.routes, this.error);
 }

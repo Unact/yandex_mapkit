@@ -7,11 +7,10 @@ class YandexDrivingRouter {
 
   static int _nextSessionId = 0;
 
-  static Future<DrivingSession> requestRoutes(
-      List<RequestPoint> points) async {
+  static Future<DrivingSession> requestRoutes(List<RequestPoint> points) async {
     final sessionId = _nextSessionId++;
 
-    final  pointsRequest = points
+    final pointsRequest = points
         .map((RequestPoint requestPoint) => <String, dynamic>{
               'requestPointType':
                   requestPoint.requestPointType.toString().split('.').last,
@@ -27,23 +26,27 @@ class YandexDrivingRouter {
     };
 
     final futureRoutes = _channel
-        .invokeListMethod<dynamic>('requestRoutes', request)
-        .then((List<dynamic>? resultRoutes) {
-
-      return resultRoutes!.map((dynamic map) {
-
-        final List<dynamic> resultPoints = map['geometry'];
-        final points = resultPoints
-            .map((dynamic resultPoint) => Point(
-                  latitude: resultPoint['latitude'],
-                  longitude: resultPoint['longitude'],
-                ))
-            .toList();
-        return DrivingRoute(points);
-      }).toList();
-    });
+        .invokeMethod('requestRoutes', request)
+        .then((resultRoutes) => _mapSessionResult(resultRoutes));
 
     return DrivingSession(futureRoutes, () => _cancelSession(sessionId));
+  }
+
+  static DrivingSessionResult _mapSessionResult(Map<dynamic/**/, dynamic> result) {
+    final List<dynamic>? resultRoutes = result['routes'];
+    final String? error = result['error'];
+    final routes =  resultRoutes?.map((dynamic map) {
+      final List<dynamic> resultPoints = map['geometry'];
+      final points = resultPoints
+          .map((dynamic resultPoint) => Point(
+                latitude: resultPoint['latitude'],
+                longitude: resultPoint['longitude'],
+              ))
+          .toList();
+      return DrivingRoute(points);
+    }).toList();
+
+    return DrivingSessionResult(routes, error);
   }
 
   static Future<void> _cancelSession(int sessionId) async {

@@ -67,6 +67,7 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
                     @Override
                     public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
                         sessions.remove(sessionId);
+                        Map<String, Object> resultMap = new HashMap<>();
                         List<Map<String, Object>> resultRoutes = new ArrayList<>();
                         for (DrivingRoute route : list) {
                             Map<String, Object> resultRoute = new HashMap<>();
@@ -80,13 +81,16 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
                             resultRoute.put("geometry", resultPoints);
                             resultRoutes.add(resultRoute);
                         }
-                        result.success(resultRoutes);
+                        resultMap.put("routes", resultRoutes);
+                        result.success(resultMap);
                     }
 
                     @Override
                     public void onDrivingRoutesError(@NonNull Error error) {
                         sessions.remove(sessionId);
-                        result.error("onDrivingRoutesError", null, null);
+                        Map<String, Object> resultMap = new HashMap<>();
+                        resultMap.put("error", error.getClass().getName());
+                        result.success(resultMap);
                     }
                 }
         );
