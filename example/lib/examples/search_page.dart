@@ -104,36 +104,36 @@ class _SearchExampleState extends State<_SearchExample> {
         searchType: SearchType.geo,
         geometry: false,
       ),
-      onSearchResponse: (SearchResponse res, int sessionId) {
-
-        print('Success: ${res.toString()}');
-
-        setState(() {
-          response = res.toString();
-        });
-
-        var session = _sessions[sessionId];
-
-        if (session == null) {
-          return;
-        }
-
-        if (res.hasNextPage) {
-          print('Got ${res.found} items, fetching next page...');
-          session.fetchSearchNextPage();
-        } else {
-          print('No more results available, closing session...');
-          session.closeSearchSession();
-          _sessions.remove(sessionId);
-        }
-      },
-      onSearchError: (String error, int sessionId) {
-        print('Error: $error');
-        if (_sessions[sessionId] != null) {
-          _sessions[sessionId]!.closeSearchSession();
-          _sessions.remove(sessionId);
-        }
-      }
+      // onSearchResponse: (SearchResponse res, int sessionId) {
+      //
+      //   print('Success: ${res.toString()}');
+      //
+      //   setState(() {
+      //     response = res.toString();
+      //   });
+      //
+      //   var session = _sessions[sessionId];
+      //
+      //   if (session == null) {
+      //     return;
+      //   }
+      //
+      //   if (res.hasNextPage) {
+      //     print('Got ${res.found} items, fetching next page...');
+      //     session.fetchSearchNextPage();
+      //   } else {
+      //     print('No more results available, closing session...');
+      //     session.closeSearchSession();
+      //     _sessions.remove(sessionId);
+      //   }
+      // },
+      // onSearchError: (String error, int sessionId) {
+      //   print('Error: $error');
+      //   if (_sessions[sessionId] != null) {
+      //     _sessions[sessionId]!.closeSearchSession();
+      //     _sessions.remove(sessionId);
+      //   }
+      // }
     );
 
     _sessions[session.id] = session;

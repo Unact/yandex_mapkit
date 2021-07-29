@@ -10,52 +10,50 @@ import YandexMapsMobile
 
 public class YandexSearchSession: NSObject {
   
-  private var id: String
+  private var id: Int
   
-  private let searchManager: YMKSearchManager!
+  private var session: YMKSearchSession!
   
-  private var session: YMKSearchSession?
-  
-  Stream<int> stream
-  
-  private let pluginRegistrar: FlutterPluginRegistrar!
+  private var page = 0
   
   private let methodChannel:  FlutterMethodChannel!
   private let eventChannel:   FlutterEventChannel!
   
+  private var eventSink: FlutterEventSink?
   
-  public required init(session: YMKSearchSession, registrar: FlutterPluginRegistrar) {
+  
+  public required init(id: Int, session: YMKSearchSession, registrar: FlutterPluginRegistrar) {
     
-    id = UUID().uuidString
-    
-    self.session = session
+    self.id       = id
+    self.session  = session
     
     methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_search_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
-    methodChannel.setMethodCallHandler(handle)
     
     eventChannel = FlutterEventChannel(
-      name: "yandex_mapkit/yandex_search_session_results_\(id)",
+      name: "yandex_mapkit/yandex_search_session_events_\(id)",
       binaryMessenger: registrar.messenger()
     )
-    eventChannel.setStreamHandler(self)
     
     super.init()
+    
+    methodChannel.setMethodCallHandler(handle)
+    eventChannel.setStreamHandler(self)
   }
   
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     
       switch call.method {
       case "cancelSearch":
-        cancelSearch(call)
+        cancelSearch()
         result(nil)
       case "retrySearch":
-        retrySearch(call)
+        retrySearch()
         result(nil)
       case "fetchSearchNextPage":
-        fetchSearchNextPage(call)
+        fetchSearchNextPage()
         result(nil)
       case "closeSearchSession":
         closeSearchSession()
@@ -65,75 +63,25 @@ public class YandexSearchSession: NSObject {
       }
   }
   
-  private func getResponseHandler(_ sessionId: Int) -> YMKSearchSessionResponseHandler {
+  public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?) {
     
-    let responseHandler = {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-      if let response = searchResponse {
-          self.onSearchResponse(response, sessionId: sessionId)
-      } else {
-          self.onSearchError(error!, sessionId: sessionId)
-      }
-    }
-    
-    return responseHandler
-  }
-  
-  public func closeSearchSession() {
-      session?.cancel()
-      session = nil
+    if let response = searchResponse {
+      onSuccess(response)
+    } else {
+      onError(error!)
     }
   }
   
-  public func cancelSearch(_ call: FlutterMethodCall) {
+  private func onSuccess(_ res: YMKSearchResponse) {
     
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    if let session = searchSessions[sessionId] {
-      session.cancel()
-    }
-  }
-  
-  public func retrySearch(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    guard let session = searchSessions[sessionId] else {
-      return
-    }
-    
-    let responseHandler = getResponseHandler(sessionId)
-    
-    session.retry(responseHandler: responseHandler)
-  }
-  
-  public func fetchSearchNextPage(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    guard let session = searchSessions[sessionId], session.hasNextPage() else {
-      return
-    }
-    
-    let responseHandler = getResponseHandler(sessionId)
-    
-    session.fetchNextPage(responseHandler: responseHandler)
-  }
-  
-  private func onSearchResponse(_ res: YMKSearchResponse, sessionId: Int) {
-    
-    guard let session = self.se else {
+    guard let session = self.session else {
       return
     }
     
     var data = [String : Any]()
       
     data["found"]       = res.metadata.found
+    data["page"]        = page
     data["hasNextPage"] = session.hasNextPage() ? true : false
     
     var dataItems = [[String : Any]]()
@@ -193,11 +141,29 @@ public class YandexSearchSession: NSObject {
     data["items"] = dataItems
     
     let arguments: [String:Any?] = [
-      "response": data,
-      "sessionId": sessionId
+      "response": data
     ]
     
-    self.methodChannel.invokeMethod("onSearchListenerResponse", arguments: arguments)
+    eventSink?(arguments)
+  }
+  
+  private func onError(_ error: Error) {
+    
+    var errorMessage = "Unknown error"
+    
+    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
+      
+      if underlyingError.isKind(of: YRTNetworkError.self) {
+          errorMessage = "Network error"
+      } else if underlyingError.isKind(of: YRTRemoteError.self) {
+          errorMessage = "Remote server error"
+      }
+      
+    } else if let msg = (error as NSError).userInfo["message"] {
+      errorMessage = msg as! String
+    }
+    
+    eventSink?(FlutterError(code: "error", message: errorMessage, details: nil))
   }
   
   private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
@@ -304,41 +270,55 @@ public class YandexSearchSession: NSObject {
     return addressComponents
   }
   
-  private func onSearchError(_ error: Error, sessionId: Int) {
+  public func closeSearchSession() {
     
-    var errorMessage = "Unknown error"
+    session?.cancel()
+    session = nil
+    eventSink?(FlutterEndOfEventStream)
     
-    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
-      
-      if underlyingError.isKind(of: YRTNetworkError.self) {
-          errorMessage = "Network error"
-      } else if underlyingError.isKind(of: YRTRemoteError.self) {
-          errorMessage = "Remote server error"
-      }
-      
-    } else if let msg = (error as NSError).userInfo["message"] {
-      errorMessage = msg as! String
-    }
-    
-    let arguments: [String:Any?] = [
-      "error": errorMessage,
-      "sessionId": sessionId,
-    ]
-    
-    self.methodChannel.invokeMethod("onSearchListenerError", arguments: arguments)
-
-    return
+    YandexSearch.searchSessions[id] = nil
   }
   
+  public func cancelSearch() {
+    
+    session?.cancel()
+  }
+  
+  public func retrySearch() {
+    
+    page = 0
+    
+    session?.retry(responseHandler: handleResponse)
+  }
+  
+  public func fetchSearchNextPage() {
+    
+    guard let session = self.session else {
+      return
+    }
+    
+    if (session.hasNextPage()) {
+      
+      page += 1
+      
+      session.fetchNextPage(responseHandler: handleResponse)
+    }
+  }
 }
 
 extension YandexSearchSession: FlutterStreamHandler {
   
   public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-    <#code#>
+    
+    eventSink = events
+    
+    return nil
   }
   
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    <#code#>
+    
+    eventSink = nil
+    
+    return nil
   }
 }

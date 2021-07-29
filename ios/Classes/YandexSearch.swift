@@ -10,9 +10,11 @@ public class YandexSearch: NSObject, FlutterPlugin {
   private let searchManager: YMKSearchManager!
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
   
-  private var searchSessions: [Int:YMKSearchSession] = [:]
+  private var nextSearchSessionId = 0
   
-
+  static var searchSessions: [Int:YandexSearchSession] = [:]
+  
+  
   public static func register(with registrar: FlutterPluginRegistrar) {
     
     let channel = FlutterMethodChannel(
@@ -47,20 +49,8 @@ public class YandexSearch: NSObject, FlutterPlugin {
       cancelSuggestSession(call)
       result(nil)
     case "searchByText":
-      searchByText(call)
-      result(nil)
-    case "cancelSearch":
-      cancelSearch(call)
-      result(nil)
-    case "retrySearch":
-      retrySearch(call)
-      result(nil)
-    case "fetchSearchNextPage":
-      fetchSearchNextPage(call)
-      result(nil)
-    case "closeSearchSession":
-      closeSearchSession(call)
-      result(nil)
+      let sessionData = searchByText(call)
+      result(sessionData)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -139,14 +129,13 @@ public class YandexSearch: NSObject, FlutterPlugin {
     }
   }
   
-  public func searchByText(_ call: FlutterMethodCall) {
+  public func searchByText(_ call: FlutterMethodCall) -> [String: Any] {
     
     let params = call.arguments as! [String: Any]
     
     let searchText = params["searchText"] as! String
     let geometry   = params["geometry"] as! [String:Any]
     let options    = params["options"] as! [String:Any]
-    let sessionId  = params["sessionId"] as! Int
     
     var geometryObj: YMKGeometry
     
@@ -219,285 +208,25 @@ public class YandexSearch: NSObject, FlutterPlugin {
       disableSpellingCorrection: disableSpellingCorrectionOption
     )
     
-    let responseHandler = getResponseHandler(sessionId)
+    let sessionId = nextSearchSessionId
+    nextSearchSessionId += 1
     
     let searchSession = searchManager.submit(
       withText: searchText,
       geometry: geometryObj,
       searchOptions: searchOptions,
-      responseHandler: responseHandler)
-    
-    searchSessions[sessionId] = searchSession
-  }
-  
-  private func getResponseHandler(_ sessionId: Int) -> YMKSearchSessionResponseHandler {
-    
-    let responseHandler = {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-      if let response = searchResponse {
-          self.onSearchResponse(response, sessionId: sessionId)
-      } else {
-          self.onSearchError(error!, sessionId: sessionId)
-      }
-    }
-    
-    return responseHandler
-  }
-  
-  public func closeSearchSession(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    if let session = searchSessions[sessionId] {
-      session.cancel()
-      searchSessions.removeValue(forKey: sessionId)
-    }
-  }
-  
-  public func cancelSearch(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    if let session = searchSessions[sessionId] {
-      session.cancel()
-    }
-  }
-  
-  public func retrySearch(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    guard let session = searchSessions[sessionId] else {
-      return
-    }
-    
-    let responseHandler = getResponseHandler(sessionId)
-    
-    session.retry(responseHandler: responseHandler)
-  }
-  
-  public func fetchSearchNextPage(_ call: FlutterMethodCall) {
-    
-    let params = call.arguments as! [String: Any]
-    
-    let sessionId  = params["sessionId"] as! Int
-    
-    guard let session = searchSessions[sessionId], session.hasNextPage() else {
-      return
-    }
-    
-    let responseHandler = getResponseHandler(sessionId)
-    
-    session.fetchNextPage(responseHandler: responseHandler)
-  }
-  
-  private func onSearchResponse(_ res: YMKSearchResponse, sessionId: Int) {
-    
-    guard let session = searchSessions[sessionId] else {
-      return
-    }
-    
-    var data = [String : Any]()
-      
-    data["found"]       = res.metadata.found
-    data["hasNextPage"] = session.hasNextPage() ? true : false
-    
-    var dataItems = [[String : Any]]()
-    
-    for searchItem in res.collection.children {
-      
-      guard let obj = searchItem.obj else {
-        continue
-      }
-      
-      var dataItem = [String : Any]()
-      
-      dataItem["name"] = obj.name
-      
-      var geometry = [[String : Any]]()
-      
-      obj.geometry.forEach {
-        
-        if let point = $0.point {
-          geometry.append([
-            "point": [
-              "latitude": point.latitude,
-              "longitude": point.longitude,
-            ]
-          ])
+      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        if let s = YandexSearch.searchSessions[sessionId] {
+          s.handleResponse(searchResponse: searchResponse, error: error)
         }
-        
-        if let boundingBox = $0.boundingBox {
-          geometry.append([
-            "boundingBox": [
-              "southWest": [
-                "latitude": boundingBox.southWest.latitude,
-                "longitude": boundingBox.southWest.longitude,
-              ],
-              "northEast": [
-                "latitude": boundingBox.northEast.latitude,
-                "longitude": boundingBox.northEast.longitude,
-              ],
-            ]
-          ])
-        }
-      }
-      
-      dataItem["geometry"] = geometry;
-      
-      if let toponymMeta = obj.metadataContainer.getItemOf(YMKSearchToponymObjectMetadata.self) as? YMKSearchToponymObjectMetadata {
-        dataItem["toponymMetadata"] = getToponymMetadata(meta: toponymMeta)
-      }
-      
-      if let businessMeta = obj.metadataContainer.getItemOf(YMKSearchBusinessObjectMetadata.self) as? YMKSearchBusinessObjectMetadata {
-        dataItem["businessMetadata"] = getBusinessMetadata(meta: businessMeta)
-      }
-      
-      dataItems.append(dataItem)
-    }
+      })
     
-    data["items"] = dataItems
+    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar)
     
-    let arguments: [String:Any?] = [
-      "response": data,
+    YandexSearch.searchSessions[sessionId] = session
+    
+    return [
       "sessionId": sessionId
     ]
-    
-    self.methodChannel.invokeMethod("onSearchListenerResponse", arguments: arguments)
-  }
-  
-  private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
-    
-    var toponymMetadata = [String : Any]()
-    
-    var balloonPoint = [String : Double]()
-    
-    balloonPoint["latitude"]  = meta.balloonPoint.latitude
-    balloonPoint["longitude"] = meta.balloonPoint.longitude
-    
-    toponymMetadata["balloonPoint"] = balloonPoint
-
-    var address = [String : Any]()
-    
-    address["formattedAddress"] = meta.address.formattedAddress
-    address["addressComponents"] = getAddressComponents(address: meta.address)
-    
-    toponymMetadata["address"] = address
-    
-    return toponymMetadata
-  }
-  
-  private func getBusinessMetadata(meta: YMKSearchBusinessObjectMetadata) -> [String : Any] {
-    
-    var businessMetadata = [String : Any]()
-    
-    businessMetadata["name"] = meta.name
-    
-    if (meta.shortName != nil) {
-      businessMetadata["shortName"] = meta.shortName
-    }
-    
-    var address = [String : Any]()
-    
-    let addressComponents = getAddressComponents(address: meta.address)
-    
-    address["formattedAddress"]  = meta.address.formattedAddress
-    address["addressComponents"] = addressComponents;
-    
-    businessMetadata["address"] = address
-    
-    return businessMetadata
-  }
-  
-  private func getAddressComponents(address: YMKSearchAddress) -> [Int : String] {
-   
-    var addressComponents = [Int : String]()
-    
-    address.components.forEach {
-      
-      var flutterKind: Int = 0
-      
-      let value = $0.name
-
-      $0.kinds.forEach {
-        
-        let kind = YMKSearchComponentKind(rawValue: UInt(truncating: $0))
-        
-        // Map kind to enum value in flutter
-        switch kind {
-        case .none, .some(.unknown):
-          flutterKind = 0
-        case .country:
-          flutterKind = 1
-        case .some(.region):
-          flutterKind = 2
-        case .some(.province):
-          flutterKind = 3
-        case .some(.area):
-          flutterKind = 4
-        case .some(.locality):
-          flutterKind = 5
-        case .some(.district):
-          flutterKind = 6
-        case .some(.street):
-          flutterKind = 7
-        case .some(.house):
-          flutterKind = 8
-        case .some(.entrance):
-          flutterKind = 9
-        case .some(.route):
-          flutterKind = 10
-        case .some(.station):
-          flutterKind = 11
-        case .some(.metroStation):
-          flutterKind = 12
-        case .some(.railwayStation):
-          flutterKind = 13
-        case .some(.vegetation):
-          flutterKind = 14
-        case .some(.hydro):
-          flutterKind = 15
-        case .some(.airport):
-          flutterKind = 16
-        case .some(.other):
-          flutterKind = 17
-        }
-        
-        addressComponents[flutterKind] = value
-      }
-    }
-    
-    return addressComponents
-  }
-  
-  private func onSearchError(_ error: Error, sessionId: Int) {
-    
-    var errorMessage = "Unknown error"
-    
-    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
-      
-      if underlyingError.isKind(of: YRTNetworkError.self) {
-          errorMessage = "Network error"
-      } else if underlyingError.isKind(of: YRTRemoteError.self) {
-          errorMessage = "Remote server error"
-      }
-      
-    } else if let msg = (error as NSError).userInfo["message"] {
-      errorMessage = msg as! String
-    }
-    
-    let arguments: [String:Any?] = [
-      "error": errorMessage,
-      "sessionId": sessionId,
-    ]
-    
-    self.methodChannel.invokeMethod("onSearchListenerError", arguments: arguments)
-
-    return
   }
 }

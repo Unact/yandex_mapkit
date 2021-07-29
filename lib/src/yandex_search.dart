@@ -9,9 +9,6 @@ class YandexSearch {
   static int _nextCallbackId = 0;
   static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
 
-  static int _nextSearchSessionId = 0;
-  static final Map<int, SearchSession> _searchSessions = {};
-
   static Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onSuggestListenerResponse':
@@ -22,12 +19,6 @@ class YandexSearch {
         break;
       case 'onSuggestListenerRemove':
         _onSuggestListenerRemove(call.arguments);
-        break;
-      case 'onSearchListenerResponse':
-        _onSearchListenerResponse(call.arguments);
-        break;
-      case 'onSearchListenerError':
-        _onSearchListenerError(call.arguments);
         break;
       default:
         throw MissingPluginException();
@@ -105,56 +96,28 @@ class YandexSearch {
   static Future<SearchSession> searchByText({
     required  String                searchText,
     required  Geometry              geometry,
-    required  SearchOptions         searchOptions,
-    required  SearchSessionCallback onSearchResponse,
-              SearchErrorCallback?  onSearchError}) async {
+    required  SearchOptions         searchOptions}) async {
 
     _channel.setMethodCallHandler(_handleMethodCall);
-
-    var sessionId = _nextSearchSessionId++;
-
-    var session = SearchSession(
-      id: sessionId,
-      callback: onSearchResponse,
-      errorCallback: onSearchError,
-    );
-
-    _searchSessions[sessionId] = session;
 
     var params = {
       'searchText': searchText,
       'geometry':   geometry.toJson(),
       'options':    searchOptions.toJson(),
-      'sessionId':  sessionId,
     };
 
-    await _channel.invokeMethod<void>(
+    final session = _channel.invokeMethod(
       'searchByText',
       params
-    );
+    ).then((sessionResult) => _mapSessionResult(sessionResult));
 
     return session;
   }
 
-  static void _onSearchListenerResponse(dynamic arguments) {
+  static SearchSession _mapSessionResult(Map<dynamic, dynamic> result) {
 
-    final Map<dynamic, dynamic> response  = arguments['response'];
-    final int                   sessionId = arguments['sessionId'];
+    final int id = result['sessionId'];
 
-    final respObj = SearchResponse.fromJson(response);
-
-    if (_searchSessions[sessionId] != null) {
-      _searchSessions[sessionId]!.callback(respObj, sessionId);
-    }
-  }
-
-  static void _onSearchListenerError(dynamic arguments) {
-
-    final String errMsg     = arguments['error'];
-    final int    sessionId  = arguments['sessionId'];
-
-    if (_searchSessions[sessionId] != null && _searchSessions[sessionId]!.errorCallback != null) {
-      _searchSessions[sessionId]!.errorCallback!(errMsg, sessionId);
-    }
+    return SearchSession(id: id);
   }
 }

@@ -2,32 +2,51 @@ part of yandex_mapkit;
 
 class SearchSession {
 
-  static const String _channelName = 'yandex_mapkit/yandex_search';
+  static const String _methodChannelName = 'yandex_mapkit/yandex_search_session_';
+  static const String _eventChannelName  = 'yandex_mapkit/yandex_search_session_events_';
 
-  static const MethodChannel _channel = MethodChannel(_channelName);
+  MethodChannel? _methodChannel;
+  EventChannel?  _eventChannel;
 
-  final int                   id;
-  final SearchSessionCallback callback;
-  final SearchErrorCallback?  errorCallback;
+  final int id;
 
-  SearchSession({required this.id, required this.callback, this.errorCallback}) {
-    _channel.setMethodCallHandler(YandexSearch._handleMethodCall);
+  SearchSession({required this.id}) {
+
+    _methodChannel = MethodChannel(_methodChannelName + id.toString());
+    _eventChannel  = EventChannel(_eventChannelName + id.toString());
+
+    _eventChannel!.receiveBroadcastStream().listen(_onResponse, onError: _onError);
   }
 
   Future<void> cancelSearch() async {
-    await _channel.invokeMethod<void>('cancelSearch', {'sessionId': id});
+    await _methodChannel!.invokeMethod<void>('cancelSearch');
   }
 
   Future<void> retrySearch() async {
-    await _channel.invokeMethod<void>('retrySearch', {'sessionId': id});
+    await _methodChannel!.invokeMethod<void>('retrySearch');
   }
 
   Future<void> fetchSearchNextPage() async {
-    await _channel.invokeMethod<void>('fetchSearchNextPage', {'sessionId': id});
+    await _methodChannel!.invokeMethod<void>('fetchSearchNextPage');
   }
 
   Future<void> closeSearchSession() async {
-    await _channel.invokeMethod<void>('closeSearchSession', {'sessionId': id});
-    YandexSearch._searchSessions.remove(this);
+    await _methodChannel!.invokeMethod<void>('closeSearchSession');
+  }
+
+  void _onResponse(dynamic arguments) {
+
+    final Map<dynamic, dynamic> response  = arguments['response'];
+
+    final respObj = SearchResponse.fromJson(response);
+
+    print(respObj);
+  }
+
+  static void _onError(dynamic arguments) {
+
+    final String errMsg = arguments['error'];
+
+    print(errMsg);
   }
 }
