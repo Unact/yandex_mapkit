@@ -5,6 +5,7 @@ import YandexMapsMobile
 
 public class YandexSearch: NSObject, FlutterPlugin {
   
+  private let pluginRegistrar: FlutterPluginRegistrar!
   private let methodChannel: FlutterMethodChannel!
   private let searchManager: YMKSearchManager!
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
@@ -13,17 +14,25 @@ public class YandexSearch: NSObject, FlutterPlugin {
   
 
   public static func register(with registrar: FlutterPluginRegistrar) {
+    
     let channel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_search",
       binaryMessenger: registrar.messenger()
     )
-    let plugin = YandexSearch(channel: channel)
+    
+    let plugin = YandexSearch(channel: channel, registrar: registrar)
+    
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
 
-  public required init(channel: FlutterMethodChannel) {
+  public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
+    
+    self.pluginRegistrar = registrar
+    
     self.methodChannel = channel
+    
     self.searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
+    
     super.init()
 
     self.methodChannel.setMethodCallHandler(self.handle)
