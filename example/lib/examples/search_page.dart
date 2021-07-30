@@ -134,7 +134,10 @@ class _SearchExampleState extends State<_SearchExample> {
     _sessions[session.id] = session;
 
     // Listen to results stream
-    session.results.listen((res) {
+
+    StreamSubscription? subscription;
+
+    subscription = session.results.listen((res) {
 
       var resStr = res.toString();
 
@@ -151,12 +154,16 @@ class _SearchExampleState extends State<_SearchExample> {
         print('No more results available, closing session...');
         session.closeSearchSession();
         _sessions.remove(session.id);
+        subscription!.cancel();
       }
 
     }, onError: (error) {
+
       if (error is PlatformException) {
         print('Error: ${error.message}');
       }
+
+      subscription!.cancel();
     });
 
     // Uncomment to check cancellation
