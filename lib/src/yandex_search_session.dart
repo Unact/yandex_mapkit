@@ -29,15 +29,15 @@ class SearchSession {
     await _methodChannel!.invokeMethod<void>('retrySearch');
   }
 
-  Future<void> fetchSearchNextPage() async {
-    await _methodChannel!.invokeMethod<void>('fetchSearchNextPage');
+  Future<void> fetchNextPage() async {
+    await _methodChannel!.invokeMethod<void>('fetchNextPage');
   }
 
-  Future<void> closeSearchSession() async {
+  Future<void> closeSession() async {
 
     await _streamController.sink.close();
 
-    await _methodChannel!.invokeMethod<void>('closeSearchSession');
+    await _methodChannel!.invokeMethod<void>('closeSession');
   }
 
   void _onResponse(dynamic arguments) {

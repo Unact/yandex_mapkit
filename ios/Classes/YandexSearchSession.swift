@@ -52,11 +52,11 @@ public class YandexSearchSession: NSObject {
       case "retrySearch":
         retrySearch()
         result(nil)
-      case "fetchSearchNextPage":
-        fetchSearchNextPage()
+      case "fetchNextPage":
+        fetchNextPage()
         result(nil)
-      case "closeSearchSession":
-        closeSearchSession()
+      case "closeSession":
+        closeSession()
         result(nil)
       default:
         result(FlutterMethodNotImplemented)
@@ -270,7 +270,7 @@ public class YandexSearchSession: NSObject {
     return addressComponents
   }
   
-  public func closeSearchSession() {
+  public func closeSession() {
     
     session?.cancel()
     session = nil
@@ -291,7 +291,7 @@ public class YandexSearchSession: NSObject {
     session?.retry(responseHandler: handleResponse)
   }
   
-  public func fetchSearchNextPage() {
+  public func fetchNextPage() {
     
     guard let session = self.session else {
       return

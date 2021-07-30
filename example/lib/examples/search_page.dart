@@ -34,7 +34,7 @@ class _SearchExampleState extends State<_SearchExample> {
     super.dispose();
 
     for (var s in _sessions.values) {
-      await s.closeSearchSession();
+      await s.closeSession();
     }
 
     _sessions.clear();
@@ -149,10 +149,10 @@ class _SearchExampleState extends State<_SearchExample> {
 
       if (res.hasNextPage) {
         print('Got ${res.found} items, fetching next page...');
-        session.fetchSearchNextPage();
+        session.fetchNextPage();
       } else {
         print('No more results available, closing session...');
-        session.closeSearchSession();
+        session.closeSession();
         _sessions.remove(session.id);
         subscription!.cancel();
       }
