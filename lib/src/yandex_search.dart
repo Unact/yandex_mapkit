@@ -94,9 +94,9 @@ class YandexSearch {
   }
 
   static Future<SearchSession> searchByText({
-    required  String                searchText,
-    required  Geometry              geometry,
-    required  SearchOptions         searchOptions}) async {
+    required  String        searchText,
+    required  Geometry      geometry,
+    required  SearchOptions searchOptions}) async {
 
     _channel.setMethodCallHandler(_handleMethodCall);
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
@@ -23,9 +24,9 @@ class _SearchExampleState extends State<_SearchExample> {
 
   TextEditingController queryController = TextEditingController();
 
-  String response = '';
+  final List<SearchResponse> responseByPages = [];
 
-  final Map<int, SearchSession> _sessions = {};
+  final Map<int,SearchSession> _sessions = {};
 
   @override
   void dispose() async {
@@ -75,7 +76,10 @@ class _SearchExampleState extends State<_SearchExample> {
                     Flexible(
                       child: Padding(
                         padding: EdgeInsets.only(top: 20),
-                        child: Text(response),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _getList(),
+                        )
                       ),
                     ),
                   ],
@@ -88,9 +92,30 @@ class _SearchExampleState extends State<_SearchExample> {
     );
   }
 
+  List<Widget> _getList() {
+
+    var list = <Widget>[];
+
+    for (var r in responseByPages) {
+
+      list.add(Text('Page: ${r.page}'));
+      list.add(Container(height: 20));
+
+      r.items.asMap().forEach((i, item) {
+        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+      });
+
+      list.add(Container(height: 20));
+    }
+
+    return list;
+  }
+
   void search(String query) async {
 
     print('Search query: $query');
+
+    responseByPages.clear();
 
     var session = await YandexSearch.searchByText(
       searchText: query,
@@ -104,39 +129,35 @@ class _SearchExampleState extends State<_SearchExample> {
         searchType: SearchType.geo,
         geometry: false,
       ),
-      // onSearchResponse: (SearchResponse res, int sessionId) {
-      //
-      //   print('Success: ${res.toString()}');
-      //
-      //   setState(() {
-      //     response = res.toString();
-      //   });
-      //
-      //   var session = _sessions[sessionId];
-      //
-      //   if (session == null) {
-      //     return;
-      //   }
-      //
-      //   if (res.hasNextPage) {
-      //     print('Got ${res.found} items, fetching next page...');
-      //     session.fetchSearchNextPage();
-      //   } else {
-      //     print('No more results available, closing session...');
-      //     session.closeSearchSession();
-      //     _sessions.remove(sessionId);
-      //   }
-      // },
-      // onSearchError: (String error, int sessionId) {
-      //   print('Error: $error');
-      //   if (_sessions[sessionId] != null) {
-      //     _sessions[sessionId]!.closeSearchSession();
-      //     _sessions.remove(sessionId);
-      //   }
-      // }
     );
 
     _sessions[session.id] = session;
+
+    // Listen to results stream
+    session.results.listen((res) {
+
+      var resStr = res.toString();
+
+      print('Page ${res.page}: $resStr');
+
+      setState(() {
+        responseByPages.add(res);
+      });
+
+      if (res.hasNextPage) {
+        print('Got ${res.found} items, fetching next page...');
+        session.fetchSearchNextPage();
+      } else {
+        print('No more results available, closing session...');
+        session.closeSearchSession();
+        _sessions.remove(session.id);
+      }
+
+    }, onError: (error) {
+      if (error is PlatformException) {
+        print('Error: ${error.message}');
+      }
+    });
 
     // Uncomment to check cancellation
     // print('Cancel search');

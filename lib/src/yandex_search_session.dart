@@ -10,6 +10,9 @@ class SearchSession {
 
   final int id;
 
+  final _streamController = StreamController<SearchResponse>();
+  Stream<SearchResponse> get results => _streamController.stream;
+
   SearchSession({required this.id}) {
 
     _methodChannel = MethodChannel(_methodChannelName + id.toString());
@@ -31,22 +34,23 @@ class SearchSession {
   }
 
   Future<void> closeSearchSession() async {
+
+    await _streamController.sink.close();
+
     await _methodChannel!.invokeMethod<void>('closeSearchSession');
   }
 
   void _onResponse(dynamic arguments) {
 
-    final Map<dynamic, dynamic> response  = arguments['response'];
+    final Map<dynamic, dynamic> response = arguments['response'];
 
     final respObj = SearchResponse.fromJson(response);
 
-    print(respObj);
+    _streamController.sink.add(respObj);
   }
 
-  static void _onError(dynamic arguments) {
+  void _onError(dynamic arguments) {
 
-    final String errMsg = arguments['error'];
-
-    print(errMsg);
+    _streamController.sink.addError(arguments);
   }
 }
