@@ -30,6 +30,7 @@ part 'src/types/screen_point.dart';
 part 'src/types/suggest/suggest_item.dart';
 part 'src/types/suggest/suggest_item_type.dart';
 part 'src/types/suggest/suggest_type.dart';
+part 'src/types/suggest/suggest_session.dart';
 part 'src/types/driving/driving_route.dart';
 part 'src/types/driving/request_point.dart';
 part 'src/types/driving/driving_session.dart';

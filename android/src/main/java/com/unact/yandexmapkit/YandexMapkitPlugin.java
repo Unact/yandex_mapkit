@@ -41,7 +41,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
   private void setupChannels(BinaryMessenger messenger, Context context) {
     methodChannelSearch = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
-    YandexSearchHandlerImpl handlerSearch = new YandexSearchHandlerImpl(context, methodChannelSearch);
+    YandexSearchHandlerImpl handlerSearch = new YandexSearchHandlerImpl(context);
     methodChannelSearch.setMethodCallHandler(handlerSearch);
 
     methodChannelDrivingRouter = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
