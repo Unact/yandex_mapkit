@@ -32,7 +32,7 @@ class YandexDrivingRouter {
     return DrivingSession(futureRoutes, () => _cancelSession(sessionId));
   }
 
-  static DrivingSessionResult _mapSessionResult(Map<dynamic/**/, dynamic> result) {
+  static DrivingSessionResult _mapSessionResult(Map<dynamic, dynamic> result) {
     final List<dynamic>? resultRoutes = result['routes'];
     final String? error = result['error'];
     final routes =  resultRoutes?.map((dynamic map) {

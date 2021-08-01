@@ -14,12 +14,13 @@ class SuggestSessionResult {
 
   SuggestSessionResult(this.items, this.error);
 
-  factory SuggestSessionResult.fromJson(Map<String, dynamic> json) {
+  factory SuggestSessionResult.fromJson(Map<dynamic, dynamic> json) {
     final String? error = json['error'];
-    final List<Map<String, dynamic>>? items = json['items'];
+    final List<dynamic>? items = json['items'];
     return SuggestSessionResult(
-      items?.map((it)=>SuggestItem.fromJson(it)).toList(),
-      error
-    );
+        items
+            ?.map((it) => SuggestItem.fromJson(it as Map<dynamic, dynamic>))
+            .toList(),
+        error);
   }
 }
