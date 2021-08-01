@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class SearchPage extends MapPage {
@@ -32,41 +31,29 @@ class _SearchExampleState extends State<_SearchExample> {
           const SizedBox(height: 20),
           Expanded(
               child: SingleChildScrollView(
-                  child: Column(
-                      children: <Widget>[
-                        const Text('Search:'),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Flexible(
-                              child: TextField(
-                                controller: queryController,
-                              ),
-                            ),
-                            ControlButton(
-                                onPressed: () {
-                                  querySuggestions(queryController.text);
-                                },
-                                title: 'Query'
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        const Text('Response:'),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Flexible(
-                                child: Text(response)
-                            ),
-                          ],
-                        ),
-                      ]
-                  )
-              )
-          )
-        ]
-    );
+                  child: Column(children: <Widget>[
+            const Text('Input part of address:'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Flexible(
+                  child: TextField(
+                    controller: queryController,
+                    onChanged: (text) => querySuggestions(queryController.text),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text('Suggest:'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Flexible(child: Text(response)),
+              ],
+            ),
+          ])))
+        ]);
   }
 
   Future<void> querySuggestions(String query) async {
@@ -77,12 +64,12 @@ class _SearchExampleState extends State<_SearchExample> {
       suggestType: SuggestType.geo,
       suggestWords: true,
     );
-    Future.delayed(
-        const Duration(seconds: 3), () => session.cancelSession());
+    Future.delayed(const Duration(seconds: 3), () => session.cancelSession());
     final result = await session.result;
     setState(() {
-      response = result.items?.map((SuggestItem item) => item.title).join('\n')
-          ?? 'Error: ${result.error}';
+      response =
+          result.items?.map((SuggestItem item) => item.title).join('\n') ??
+              'Error: ${result.error}';
     });
   }
 }
