@@ -574,6 +574,44 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     );
   }
 
+  private boolean isZoomGesturesEnabled() {
+    return mapView.getMap().isZoomGesturesEnabled();
+  }
+
+  public void toggleZoomGestures(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    boolean enabled = (Boolean) params.get("enabled");
+
+    mapView.getMap().setZoomGesturesEnabled(enabled);
+  }
+
+  public float getMinZoom() {
+    return mapView.getMap().getMinZoom();
+  }
+
+  public float getMaxZoom() {
+    return mapView.getMap().getMaxZoom();
+  }
+
+  public float getZoom() {
+    return mapView.getMap().getCameraPosition().getZoom();
+  }
+  
+  private boolean isTiltGesturesEnabled() {
+    return mapView.getMap().isTiltGesturesEnabled();
+  }
+    
+  public void toggleTiltGestures(MethodCall call) {
+    
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    boolean enabled = (Boolean) params.get("enabled");
+    
+    mapView.getMap().setTiltGesturesEnabled(enabled);
+  }
+
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -665,6 +703,26 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         zoomOut();
         result.success(null);
         break;
+      case "isZoomGesturesEnabled":
+        boolean isZoomGesturesEnabled = isZoomGesturesEnabled();
+        result.success(isZoomGesturesEnabled);
+        break;
+      case "toggleZoomGestures":
+        toggleZoomGestures(call);
+        result.success(null);
+        break;
+      case "getMinZoom":
+        float minZoom = getMinZoom();
+        result.success(minZoom);
+        break;
+      case "getMaxZoom":
+        float maxZoom = getMaxZoom();
+        result.success(maxZoom);
+        break;
+      case "getZoom":
+        float zoom = getZoom();
+        result.success(zoom);
+        break;
       case "getTargetPoint":
         Map<String, Object> targetPoint = getTargetPoint();
         result.success(targetPoint);
@@ -676,6 +734,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "getUserTargetPoint":
         Map<String, Object> userTargetPoint = getUserTargetPoint();
         result.success(userTargetPoint);
+        break;
+      case "isTiltGesturesEnabled":
+        boolean isTiltGesturesEnabled = isTiltGesturesEnabled();
+        result.success(isTiltGesturesEnabled);
+        break;
+      case "toggleTiltGestures":
+        toggleTiltGestures(call);
+        result.success(null);
         break;
       default:
         result.notImplemented();
