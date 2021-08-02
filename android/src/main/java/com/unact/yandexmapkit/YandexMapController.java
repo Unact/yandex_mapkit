@@ -78,9 +78,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private int accuracyCircleFillColor = 0;
 
   public YandexMapController(int id, Context context, BinaryMessenger messenger) {
-    MapKitFactory.initialize(context);
     mapView = new MapView(context);
-    MapKitFactory.getInstance().onStart();
     mapView.onStart();
 
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
@@ -104,7 +102,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @Override
   public void dispose() {
     mapView.onStop();
-    MapKitFactory.getInstance().onStop();
   }
 
   @SuppressWarnings("unchecked")
