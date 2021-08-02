@@ -165,9 +165,5 @@ class _SearchExampleState extends State<_SearchExample> {
 
       subscription!.cancel();
     });
-
-    // Uncomment to check cancellation
-    // print('Cancel search');
-    // await session.cancelSearch();
   }
 }
