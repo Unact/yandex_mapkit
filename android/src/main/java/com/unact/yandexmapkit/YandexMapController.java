@@ -701,8 +701,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(null);
         break;
       case "isZoomGesturesEnabled":
-        boolean isZoomGesturesEnabled = isZoomGesturesEnabled();
-        result.success(isZoomGesturesEnabled);
+        boolean isZoomGesturesEnabledValue = isZoomGesturesEnabled();
+        result.success(isZoomGesturesEnabledValue);
         break;
       case "toggleZoomGestures":
         toggleZoomGestures(call);
@@ -733,8 +733,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         result.success(userTargetPoint);
         break;
       case "isTiltGesturesEnabled":
-        boolean isTiltGesturesEnabled = isTiltGesturesEnabled();
-        result.success(isTiltGesturesEnabled);
+        boolean isTiltGesturesEnabledValue = isTiltGesturesEnabled();
+        result.success(isTiltGesturesEnabledValue);
         break;
       case "toggleTiltGestures":
         toggleTiltGestures(call);
