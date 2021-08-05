@@ -15,23 +15,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
   private MethodChannel methodChannel;
   private YandexSearchHandlerImpl handler;
-
-  public static void registerWith(Registrar registrar) {
-
-    if (registrar.activity() == null) {
-      // When a background flutter view tries to register the plugin, the registrar has no activity.
-      // We stop the registration process as this plugin is foreground only.
-      return;
-    }
-
-    MapKitFactory.initialize(registrar.activity().getApplicationContext());
-    MapKitFactory.getInstance().onStart();
-
-    registrar.platformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(registrar.messenger()));
-
-    new YandexMapkitPlugin().setupYandexSearchChannel(registrar.messenger(), registrar.context());
-  }
-
+  
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
     MapKitFactory.initialize(binding.getApplicationContext());
