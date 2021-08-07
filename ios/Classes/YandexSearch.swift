@@ -51,6 +51,9 @@ public class YandexSearch: NSObject, FlutterPlugin {
     case "searchByText":
       let sessionData = searchByText(call)
       result(sessionData)
+    case "searchByPoint":
+      let sessionData = searchByPoint(call)
+      result(sessionData)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -168,6 +171,73 @@ public class YandexSearch: NSObject, FlutterPlugin {
       )
     }
     
+    let searchOptions = getSearchOptions(options)
+    
+    let sessionId = nextSearchSessionId
+    nextSearchSessionId += 1
+    
+    let searchSession = searchManager.submit(
+      withText: searchText,
+      geometry: geometryObj,
+      searchOptions: searchOptions,
+      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        if let s = self.searchSessions[sessionId] {
+          s.handleResponse(searchResponse: searchResponse, error: error)
+        }
+      }
+    )
+    
+    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar, onClose: { (sessionId) in
+      self.searchSessions.removeValue(forKey: sessionId)
+    })
+    
+    searchSessions[sessionId] = session
+    
+    return [
+      "sessionId": sessionId
+    ]
+  }
+  
+  public func searchByPoint(_ call: FlutterMethodCall) -> [String: Any] {
+    
+    let params = call.arguments as! [String: Any]
+    
+    let point   = params["point"] as! [String:Any]
+    let zoom    = params["zoom"] as? NSNumber
+    let options = params["options"] as! [String:Any]
+    
+    let searchOptions = getSearchOptions(options)
+    
+    let sessionId = nextSearchSessionId
+    nextSearchSessionId += 1
+    
+    let searchSession = searchManager.submit(
+      with: YMKPoint(
+        latitude: (point["latitude"] as! NSNumber).doubleValue,
+        longitude: (point["longitude"] as! NSNumber).doubleValue
+      ),
+      zoom: zoom,
+      searchOptions: searchOptions,
+      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        if let s = self.searchSessions[sessionId] {
+          s.handleResponse(searchResponse: searchResponse, error: error)
+        }
+      }
+    )
+    
+    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar, onClose: { (sessionId) in
+      self.searchSessions.removeValue(forKey: sessionId)
+    })
+    
+    searchSessions[sessionId] = session
+    
+    return [
+      "sessionId": sessionId
+    ]
+  }
+  
+  private func getSearchOptions(_ options: [String:Any]) -> YMKSearchOptions {
+    
     let searchTypeOption     = (options["searchType"] as! NSNumber).uintValue
     let resultPageSizeOption = options["resultPageSize"] as? NSNumber
     let userPositionOption   = options["userPosition"] as? [String:Any]
@@ -208,27 +278,6 @@ public class YandexSearch: NSObject, FlutterPlugin {
       disableSpellingCorrection: disableSpellingCorrectionOption
     )
     
-    let sessionId = nextSearchSessionId
-    nextSearchSessionId += 1
-    
-    let searchSession = searchManager.submit(
-      withText: searchText,
-      geometry: geometryObj,
-      searchOptions: searchOptions,
-      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-        if let s = self.searchSessions[sessionId] {
-          s.handleResponse(searchResponse: searchResponse, error: error)
-        }
-      })
-    
-    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar, onClose: { (sessionId) in
-      self.searchSessions.removeValue(forKey: sessionId)
-    })
-    
-    searchSessions[sessionId] = session
-    
-    return [
-      "sessionId": sessionId
-    ]
+    return searchOptions
   }
 }

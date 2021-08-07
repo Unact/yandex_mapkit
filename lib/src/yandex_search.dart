@@ -112,6 +112,25 @@ class YandexSearch {
     return responseWithSession;
   }
 
+  static Future<SearchResponseWithSession> searchByPoint({
+    required  Point         point,
+    required  double        zoom,
+    required  SearchOptions searchOptions}) async {
+
+    var params = {
+      'point':    point.toJson(),
+      'zoom':     zoom,
+      'options':  searchOptions.toJson(),
+    };
+
+    final responseWithSession = _channel.invokeMethod(
+        'searchByPoint',
+        params
+    ).then((sessionResult) => _mapSearchResult(sessionResult));
+
+    return responseWithSession;
+  }
+
   static SearchResponseWithSession _mapSearchResult(Map<dynamic, dynamic> result) {
 
     final int sessionId = result['sessionId'];

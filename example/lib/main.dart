@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:yandex_mapkit_example/examples/reverse_search_page.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 import 'package:yandex_mapkit_example/examples/camera_tracking_page.dart';
 import 'package:yandex_mapkit_example/examples/circle_page.dart';
@@ -27,6 +28,7 @@ const List<MapPage> _allPages = <MapPage>[
   RotationPage(),
   SuggestionsPage(),
   SearchPage(),
+  ReverseSearchPage(),
 ];
 
 class MainPage extends StatelessWidget {
