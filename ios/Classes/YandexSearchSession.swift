@@ -1,10 +1,3 @@
-//
-//  YandexSearchSession.swift
-//  yandex_mapkit
-//
-//  Created by CreamCheeze on 7/28/21.
-//
-
 import Foundation
 import YandexMapsMobile
 
@@ -21,11 +14,18 @@ public class YandexSearchSession: NSObject {
   
   private var eventSink: FlutterEventSink?
   
+  private var onClose: (Int) -> ()
   
-  public required init(id: Int, session: YMKSearchSession, registrar: FlutterPluginRegistrar) {
+  
+  public required init(
+    id: Int,
+    session: YMKSearchSession,
+    registrar: FlutterPluginRegistrar,
+    onClose: @escaping ((Int) -> ())) {
     
     self.id       = id
     self.session  = session
+    self.onClose  = onClose
     
     methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_search_session_\(id)",
@@ -55,8 +55,8 @@ public class YandexSearchSession: NSObject {
       case "fetchNextPage":
         fetchNextPage()
         result(nil)
-      case "closeSession":
-        closeSession()
+      case "close":
+        close()
         result(nil)
       default:
         result(FlutterMethodNotImplemented)
@@ -270,13 +270,13 @@ public class YandexSearchSession: NSObject {
     return addressComponents
   }
   
-  public func closeSession() {
+  public func close() {
     
     session?.cancel()
     session = nil
     eventSink?(FlutterEndOfEventStream)
     
-    YandexSearch.searchSessions[id] = nil
+    onClose(id)
   }
   
   public func cancelSearch() {

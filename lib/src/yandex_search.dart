@@ -93,12 +93,10 @@ class YandexSearch {
     _cancelSuggestSession(arguments['listenerId']);
   }
 
-  static Future<SearchSession> searchByText({
+  static Future<SearchResponseWithSession> searchByText({
     required  String        searchText,
     required  Geometry      geometry,
     required  SearchOptions searchOptions}) async {
-
-    _channel.setMethodCallHandler(_handleMethodCall);
 
     var params = {
       'searchText': searchText,
@@ -106,18 +104,23 @@ class YandexSearch {
       'options':    searchOptions.toJson(),
     };
 
-    final session = _channel.invokeMethod(
+    final responseWithSession = _channel.invokeMethod(
       'searchByText',
       params
-    ).then((sessionResult) => _mapSessionResult(sessionResult));
+    ).then((sessionResult) => _mapSearchResult(sessionResult));
 
-    return session;
+    return responseWithSession;
   }
 
-  static SearchSession _mapSessionResult(Map<dynamic, dynamic> result) {
+  static SearchResponseWithSession _mapSearchResult(Map<dynamic, dynamic> result) {
 
-    final int id = result['sessionId'];
+    final int sessionId = result['sessionId'];
 
-    return SearchSession(id: id);
+    var session = SearchSession(id: sessionId);
+
+    return SearchResponseWithSession(
+      session: session,
+      responseOrError: session.lastResponse,
+    );
   }
 }

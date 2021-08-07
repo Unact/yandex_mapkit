@@ -12,7 +12,7 @@ public class YandexSearch: NSObject, FlutterPlugin {
   
   private var nextSearchSessionId = 0
   
-  static var searchSessions: [Int:YandexSearchSession] = [:]
+  private var searchSessions: [Int:YandexSearchSession] = [:]
   
   
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -216,14 +216,16 @@ public class YandexSearch: NSObject, FlutterPlugin {
       geometry: geometryObj,
       searchOptions: searchOptions,
       responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-        if let s = YandexSearch.searchSessions[sessionId] {
+        if let s = self.searchSessions[sessionId] {
           s.handleResponse(searchResponse: searchResponse, error: error)
         }
       })
     
-    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar)
+    let session = YandexSearchSession(id: sessionId, session: searchSession, registrar: pluginRegistrar, onClose: { (sessionId) in
+      self.searchSessions.removeValue(forKey: sessionId)
+    })
     
-    YandexSearch.searchSessions[sessionId] = session
+    searchSessions[sessionId] = session
     
     return [
       "sessionId": sessionId

@@ -34,7 +34,7 @@ class _SearchExampleState extends State<_SearchExample> {
     super.dispose();
 
     for (var s in _sessions.values) {
-      await s.closeSession();
+      await s.close();
     }
 
     _sessions.clear();
@@ -117,7 +117,7 @@ class _SearchExampleState extends State<_SearchExample> {
 
     responseByPages.clear();
 
-    var session = await YandexSearch.searchByText(
+    var sessionWithResponse = await YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         BoundingBox(
@@ -131,39 +131,43 @@ class _SearchExampleState extends State<_SearchExample> {
       ),
     );
 
+    var session = sessionWithResponse.session;
+
     _sessions[session.id] = session;
 
-    // Listen to results stream
+    var responseOrError = await sessionWithResponse.responseOrError;
 
-    StreamSubscription? subscription;
+    await _handleResponse(session, responseOrError);
 
-    subscription = session.results.listen((res) {
+    print('No more results available, closing session...');
+    await _closeSession(session);
+  }
 
-      var resStr = res.toString();
+  Future<void> _closeSession(SearchSession session) async {
 
-      print('Page ${res.page}: $resStr');
+    await session.close();
+    _sessions.remove(session.id);
+  }
 
-      setState(() {
-        responseByPages.add(res);
-      });
+  Future<void> _handleResponse(SearchSession session, SearchResponseOrError responseOrError) async {
 
-      if (res.hasNextPage) {
-        print('Got ${res.found} items, fetching next page...');
-        session.fetchNextPage();
-      } else {
-        print('No more results available, closing session...');
-        session.closeSession();
-        _sessions.remove(session.id);
-        subscription!.cancel();
-      }
+    if (responseOrError.error != null) {
+      print('Error: ${responseOrError.error}');
+      await _closeSession(session);
+      return;
+    }
 
-    }, onError: (error) {
+    var response = responseOrError.response!;
 
-      if (error is PlatformException) {
-        print('Error: ${error.message}');
-      }
+    print('Page ${response.page}: ${response.toString()}');
 
-      subscription!.cancel();
+    setState(() {
+      responseByPages.add(response);
     });
+
+    if (response.hasNextPage) {
+      print('Got ${response.found} items, fetching next page...');
+      await _handleResponse(session, await session.fetchNextPage());
+    }
   }
 }

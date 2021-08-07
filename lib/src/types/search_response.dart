@@ -45,3 +45,25 @@ class SearchResponse extends Equatable {
   @override
   bool get stringify => true;
 }
+
+class SearchResponseOrError {
+
+  SearchResponse? response;
+  String?         error;
+
+  SearchResponseOrError({
+    required this.response,
+    required this.error
+  });
+}
+
+class SearchResponseWithSession {
+
+  SearchSession                 session;
+  Future<SearchResponseOrError> responseOrError;
+
+  SearchResponseWithSession({
+    required this.session,
+    required this.responseOrError
+  });
+}
