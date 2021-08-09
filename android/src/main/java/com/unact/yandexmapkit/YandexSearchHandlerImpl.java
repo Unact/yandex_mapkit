@@ -61,9 +61,9 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
       case "searchByText":
         searchByText(call, result);
         break;
-			case "searchByPoint":
-				searchByPoint(call, result);
-				break;
+      case "searchByPoint":
+        searchByPoint(call, result);
+        break;
       default:
         result.notImplemented();
         break;
@@ -99,142 +99,142 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
 
   public void searchByText(MethodCall call, MethodChannel.Result result) {
 
-		Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-		int                 sessionId   = ((Number) params.get("sessionId")).intValue();
-		String              searchText  = (String) params.get("searchText");
-		Map<String, Object> geometry    = (Map<String, Object>) params.get("geometry");
-		Map<String, Object> options     = (Map<String, Object>) params.get("options");
+    int                 sessionId   = ((Number) params.get("sessionId")).intValue();
+    String              searchText  = (String) params.get("searchText");
+    Map<String, Object> geometry    = (Map<String, Object>) params.get("geometry");
+    Map<String, Object> options     = (Map<String, Object>) params.get("options");
 
-		Geometry geometryObj;
+    Geometry geometryObj;
 
-		if (geometry.containsKey("point")) {
+    if (geometry.containsKey("point")) {
 
-		  Map<String, Object> point = (Map<String, Object>) geometry.get("point");
+      Map<String, Object> point = (Map<String, Object>) geometry.get("point");
 
-		  geometryObj = Geometry.fromPoint(
-		    new Point(((Double) point.get("latitude")), ((Double) point.get("longitude")))
-		  );
+      geometryObj = Geometry.fromPoint(
+        new Point(((Double) point.get("latitude")), ((Double) point.get("longitude")))
+      );
 
-		} else {
+    } else {
 
-		  Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
+      Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
 
-		  Map<String, Object> southWest = (Map<String, Object>) boundingBox.get("southWest");
-		  Map<String, Object> northEast = (Map<String, Object>) boundingBox.get("northEast");
+      Map<String, Object> southWest = (Map<String, Object>) boundingBox.get("southWest");
+      Map<String, Object> northEast = (Map<String, Object>) boundingBox.get("northEast");
 
-		  geometryObj = Geometry.fromBoundingBox(
-		    new BoundingBox(
-		      new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
-		      new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
-		    )
-		  );
-		}
+      geometryObj = Geometry.fromBoundingBox(
+        new BoundingBox(
+          new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
+          new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
+        )
+      );
+    }
 
-		SearchOptions searchOptions = getSearchOptions(options);
+    SearchOptions searchOptions = getSearchOptions(options);
 
-		Session searchSession = searchManager.submit(
-		  searchText,
-		  geometryObj,
-		  searchOptions,
-		  new YandexSearchListener(result, 0)
-		);
+    Session searchSession = searchManager.submit(
+      searchText,
+      geometryObj,
+      searchOptions,
+      new YandexSearchListener(result, 0)
+    );
 
-		YandexSearchSession session = new YandexSearchSession(
-			sessionId,
-			searchSession,
-			binaryMessenger,
-			new CloseSearchSessionCallback()
-		);
+    YandexSearchSession session = new YandexSearchSession(
+      sessionId,
+      searchSession,
+      binaryMessenger,
+      new CloseSearchSessionCallback()
+    );
 
-		searchSessionsById.put(sessionId, session);
+    searchSessionsById.put(sessionId, session);
   }
 
-	public void searchByPoint(MethodCall call, MethodChannel.Result result) {
+  public void searchByPoint(MethodCall call, MethodChannel.Result result) {
 
-		Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-		int 								sessionId	= ((Number) params.get("sessionId")).intValue();
-		Map<String, Object> point    	= (Map<String, Object>) params.get("point");
-		Integer             zoom  		= (Integer) params.get("zoom");
-		Map<String, Object> options   = (Map<String, Object>) params.get("options");
+    int 								sessionId	= ((Number) params.get("sessionId")).intValue();
+    Map<String, Object> point    	= (Map<String, Object>) params.get("point");
+    Integer             zoom  		= (Integer) params.get("zoom");
+    Map<String, Object> options   = (Map<String, Object>) params.get("options");
 
-		SearchOptions searchOptions = getSearchOptions(options);
+    SearchOptions searchOptions = getSearchOptions(options);
 
-		Session searchSession = searchManager.submit(
-			new Point(((Double) point.get("latitude")), ((Double) point.get("longitude"))),
-			zoom,
-			searchOptions,
-			new YandexSearchListener(result, 0)
-		);
+    Session searchSession = searchManager.submit(
+      new Point(((Double) point.get("latitude")), ((Double) point.get("longitude"))),
+      zoom,
+      searchOptions,
+      new YandexSearchListener(result, 0)
+    );
 
-		YandexSearchSession session = new YandexSearchSession(
-			sessionId,
-			searchSession,
-			binaryMessenger,
-			new CloseSearchSessionCallback()
-		);
+    YandexSearchSession session = new YandexSearchSession(
+      sessionId,
+      searchSession,
+      binaryMessenger,
+      new CloseSearchSessionCallback()
+    );
 
-		searchSessionsById.put(sessionId, session);
-	}
+    searchSessionsById.put(sessionId, session);
+  }
 
   private SearchOptions getSearchOptions(Map<String, Object> options) {
 
-		int                 searchTypeOption     = ((Number) options.get("searchType")).intValue();
-		Number              resultPageSizeOption = (Number) options.get("resultPageSize");
-		Map<String, Object> userPositionOption   = (Map<String, Object>) options.get("userPosition");
+    int                 searchTypeOption     = ((Number) options.get("searchType")).intValue();
+    Number              resultPageSizeOption = (Number) options.get("resultPageSize");
+    Map<String, Object> userPositionOption   = (Map<String, Object>) options.get("userPosition");
 
-		Integer resultPageSize = null;
-		if (resultPageSizeOption != null) {
-		  resultPageSize = resultPageSizeOption.intValue();
-		}
+    Integer resultPageSize = null;
+    if (resultPageSizeOption != null) {
+      resultPageSize = resultPageSizeOption.intValue();
+    }
 
-		// Theses params are not implemented on the flutter side yet
-		int snippetOption = Snippet.NONE.value;
-		List<String> experimentalSnippetsOption = new ArrayList<>();
+    // Theses params are not implemented on the flutter side yet
+    int snippetOption = Snippet.NONE.value;
+    List<String> experimentalSnippetsOption = new ArrayList<>();
 
-		Point userPosition = null;
+    Point userPosition = null;
 
-		if (userPositionOption != null) {
-		  userPosition = new Point(((Double) userPositionOption.get("latitude")), ((Double) userPositionOption.get("longitude")));
-		}
+    if (userPositionOption != null) {
+      userPosition = new Point(((Double) userPositionOption.get("latitude")), ((Double) userPositionOption.get("longitude")));
+    }
 
-		String  originOption                    = (String) options.get("origin");
-		String  directPageIdOption              = (String) options.get("directPageId");
-		String  appleCtxOption                  = (String) options.get("appleCtx");
-		Boolean geometryOption                  = (Boolean) options.get("geometry");
-		String  advertPageIdOption              = (String) options.get("advertPageId");
-		Boolean suggestWordsOption              = (Boolean) options.get("suggestWords");
-		Boolean disableSpellingCorrectionOption = (Boolean) options.get("disableSpellingCorrection");
+    String  originOption                    = (String) options.get("origin");
+    String  directPageIdOption              = (String) options.get("directPageId");
+    String  appleCtxOption                  = (String) options.get("appleCtx");
+    Boolean geometryOption                  = (Boolean) options.get("geometry");
+    String  advertPageIdOption              = (String) options.get("advertPageId");
+    Boolean suggestWordsOption              = (Boolean) options.get("suggestWords");
+    Boolean disableSpellingCorrectionOption = (Boolean) options.get("disableSpellingCorrection");
 
-		if (geometryOption == null) {
-		  geometryOption = false;
-		}
+    if (geometryOption == null) {
+      geometryOption = false;
+    }
 
-		if (suggestWordsOption == null) {
-		  suggestWordsOption = false;
-		}
+    if (suggestWordsOption == null) {
+      suggestWordsOption = false;
+    }
 
-		if (disableSpellingCorrectionOption == null) {
-		  disableSpellingCorrectionOption = false;
-		}
+    if (disableSpellingCorrectionOption == null) {
+      disableSpellingCorrectionOption = false;
+    }
 
-		SearchOptions searchOptions = new SearchOptions(
-		  searchTypeOption,
-		  resultPageSize,
-		  snippetOption,
-		  experimentalSnippetsOption,
-		  userPosition,
-		  originOption,
-		  directPageIdOption,
-		  appleCtxOption,
-		  geometryOption,
-		  advertPageIdOption,
-		  suggestWordsOption,
-		  disableSpellingCorrectionOption
-		);
+    SearchOptions searchOptions = new SearchOptions(
+      searchTypeOption,
+      resultPageSize,
+      snippetOption,
+      experimentalSnippetsOption,
+      userPosition,
+      originOption,
+      directPageIdOption,
+      appleCtxOption,
+      geometryOption,
+      advertPageIdOption,
+      suggestWordsOption,
+      disableSpellingCorrectionOption
+    );
 
-		return searchOptions;
+    return searchOptions;
   }
 
 	private class CloseSearchSessionCallback implements YandexSearchSessionCloseCallbackInterface {
