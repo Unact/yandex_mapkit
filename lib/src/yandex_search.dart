@@ -9,6 +9,8 @@ class YandexSearch {
   static int _nextCallbackId = 0;
   static final Map<int, SuggestSessionCallback> _suggestSessionsById = {};
 
+  static int _nextSearchSessionId = 0;
+
   static Future<void> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onSuggestListenerResponse':
@@ -98,18 +100,26 @@ class YandexSearch {
     required  Geometry      geometry,
     required  SearchOptions searchOptions}) async {
 
+    var sessionId = _nextSearchSessionId++;
+
     var params = {
+      'sessionId':  sessionId,
       'searchText': searchText,
       'geometry':   geometry.toJson(),
       'options':    searchOptions.toJson(),
     };
 
-    final responseWithSession = _channel.invokeMethod(
+    var session = SearchSession(id: sessionId);
+
+    final response = _channel.invokeMethod(
       'searchByText',
       params
-    ).then((sessionResult) => _mapSearchResult(sessionResult));
+    ).then((sessionResult) => session.handleResponse(sessionResult));
 
-    return responseWithSession;
+    return SearchResponseWithSession(
+      session: session,
+      responseOrError: response,
+    );
   }
 
   static Future<SearchResponseWithSession> searchByPoint({
@@ -117,29 +127,25 @@ class YandexSearch {
     required  double        zoom,
     required  SearchOptions searchOptions}) async {
 
+    var sessionId = _nextSearchSessionId++;
+
     var params = {
-      'point':    point.toJson(),
-      'zoom':     zoom,
-      'options':  searchOptions.toJson(),
+      'sessionId':  sessionId,
+      'point':      point.toJson(),
+      'zoom':       zoom,
+      'options':    searchOptions.toJson(),
     };
-
-    final responseWithSession = _channel.invokeMethod(
-        'searchByPoint',
-        params
-    ).then((sessionResult) => _mapSearchResult(sessionResult));
-
-    return responseWithSession;
-  }
-
-  static SearchResponseWithSession _mapSearchResult(Map<dynamic, dynamic> result) {
-
-    final int sessionId = result['sessionId'];
 
     var session = SearchSession(id: sessionId);
 
+    final response = _channel.invokeMethod(
+        'searchByPoint',
+        params
+    ).then((sessionResult) => session.handleResponse(sessionResult));
+
     return SearchResponseWithSession(
       session: session,
-      responseOrError: session.lastResponse,
+      responseOrError: response,
     );
   }
 }

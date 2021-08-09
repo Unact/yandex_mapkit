@@ -4,15 +4,10 @@ import YandexMapsMobile
 public class YandexSearchSession: NSObject {
   
   private var id: Int
-  
   private var session: YMKSearchSession!
-  
   private var page = 0
   
-  private let methodChannel:  FlutterMethodChannel!
-  private let eventChannel:   FlutterEventChannel!
-  
-  private var eventSink: FlutterEventSink?
+  private let methodChannel: FlutterMethodChannel!
   
   private var onClose: (Int) -> ()
   
@@ -32,15 +27,9 @@ public class YandexSearchSession: NSObject {
       binaryMessenger: registrar.messenger()
     )
     
-    eventChannel = FlutterEventChannel(
-      name: "yandex_mapkit/yandex_search_session_events_\(id)",
-      binaryMessenger: registrar.messenger()
-    )
-    
     super.init()
     
     methodChannel.setMethodCallHandler(handle)
-    eventChannel.setStreamHandler(self)
   }
   
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -50,11 +39,9 @@ public class YandexSearchSession: NSObject {
         cancelSearch()
         result(nil)
       case "retrySearch":
-        retrySearch()
-        result(nil)
+        retrySearch(result)
       case "fetchNextPage":
-        fetchNextPage()
-        result(nil)
+        fetchNextPage(result)
       case "close":
         close()
         result(nil)
@@ -63,16 +50,54 @@ public class YandexSearchSession: NSObject {
       }
   }
   
-  public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?) {
+  public func close() {
     
-    if let response = searchResponse {
-      onSuccess(response)
-    } else {
-      onError(error!)
+    session?.cancel()
+    session = nil
+    
+    onClose(id)
+  }
+  
+  public func cancelSearch() {
+    
+    session?.cancel()
+  }
+  
+  public func retrySearch(_ result: @escaping FlutterResult) {
+    
+    page = 0
+    
+    session?.retry(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+      self.handleResponse(searchResponse: searchResponse, error: error, result: result)
+    })
+  }
+  
+  public func fetchNextPage(_ result: @escaping FlutterResult) {
+    
+    guard let session = self.session else {
+      return
+    }
+    
+    if (session.hasNextPage()) {
+      
+      page += 1
+      
+      session.fetchNextPage(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        self.handleResponse(searchResponse: searchResponse, error: error, result: result)
+      })
     }
   }
   
-  private func onSuccess(_ res: YMKSearchResponse) {
+  public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?, result: @escaping FlutterResult) {
+    
+    if let response = searchResponse {
+      onSuccess(response, result)
+    } else {
+      onError(error!, result)
+    }
+  }
+  
+  private func onSuccess(_ res: YMKSearchResponse, _ result: @escaping FlutterResult) {
     
     guard let session = self.session else {
       return
@@ -144,10 +169,10 @@ public class YandexSearchSession: NSObject {
       "response": data
     ]
     
-    eventSink?(arguments)
+    result(arguments)
   }
   
-  private func onError(_ error: Error) {
+  private func onError(_ error: Error, _ result: @escaping FlutterResult) {
     
     var errorMessage = "Unknown error"
     
@@ -163,7 +188,11 @@ public class YandexSearchSession: NSObject {
       errorMessage = msg as! String
     }
     
-    eventSink?(FlutterError(code: "error", message: errorMessage, details: nil))
+    let arguments: [String:Any?] = [
+      "error": errorMessage
+    ]
+    
+    result(arguments)
   }
   
   private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
@@ -268,57 +297,5 @@ public class YandexSearchSession: NSObject {
     }
     
     return addressComponents
-  }
-  
-  public func close() {
-    
-    session?.cancel()
-    session = nil
-    eventSink?(FlutterEndOfEventStream)
-    
-    onClose(id)
-  }
-  
-  public func cancelSearch() {
-    
-    session?.cancel()
-  }
-  
-  public func retrySearch() {
-    
-    page = 0
-    
-    session?.retry(responseHandler: handleResponse)
-  }
-  
-  public func fetchNextPage() {
-    
-    guard let session = self.session else {
-      return
-    }
-    
-    if (session.hasNextPage()) {
-      
-      page += 1
-      
-      session.fetchNextPage(responseHandler: handleResponse)
-    }
-  }
-}
-
-extension YandexSearchSession: FlutterStreamHandler {
-  
-  public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-    
-    eventSink = events
-    
-    return nil
-  }
-  
-  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    
-    eventSink = nil
-    
-    return nil
   }
 }

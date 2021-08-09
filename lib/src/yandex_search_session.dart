@@ -3,25 +3,13 @@ part of yandex_mapkit;
 class SearchSession {
 
   static const String _methodChannelName = 'yandex_mapkit/yandex_search_session_';
-  static const String _eventChannelName  = 'yandex_mapkit/yandex_search_session_events_';
 
   final MethodChannel _methodChannel;
-  final EventChannel  _eventChannel;
 
   final int id;
 
-  late Future<SearchResponseOrError> lastResponse;
-  Completer<SearchResponseOrError> _responseCompleter;
-
   SearchSession({required this.id}) :
-        _methodChannel = MethodChannel(_methodChannelName + id.toString()),
-        _eventChannel = EventChannel(_eventChannelName + id.toString()),
-        _responseCompleter = Completer<SearchResponseOrError>() {
-
-    _eventChannel.receiveBroadcastStream().listen(_onResponse, onError: _onError);
-
-    lastResponse = _responseCompleter.future;
-  }
+    _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Cancels running search request if there is one.
   /// Do nothing if there are no active searches.
@@ -35,26 +23,14 @@ class SearchSession {
   /// Automatically cancels running search if there is one.
   Future<SearchResponseOrError> retrySearch() async {
 
-    await _methodChannel.invokeMethod<void>('retrySearch');
-
-    _responseCompleter = Completer<SearchResponseOrError>();
-
-    lastResponse = _responseCompleter.future;
-
-    return lastResponse;
+    return _methodChannel.invokeMethod('retrySearch').then((response) => handleResponse(response));
   }
 
   /// If hasNextPage in SearchResponse is false
   /// then calling of this method will have no effect.
   Future<SearchResponseOrError> fetchNextPage() async {
 
-    await _methodChannel.invokeMethod<void>('fetchNextPage');
-
-    _responseCompleter = Completer<SearchResponseOrError>();
-
-    lastResponse = _responseCompleter.future;
-
-    return lastResponse;
+    return _methodChannel.invokeMethod('fetchNextPage').then((response) => handleResponse(response));
   }
 
   /// Closes current session.
@@ -64,27 +40,20 @@ class SearchSession {
     await _methodChannel.invokeMethod<void>('close');
   }
 
-  void _onResponse(dynamic arguments) {
+  SearchResponseOrError handleResponse(dynamic arguments) {
 
     final Map<dynamic, dynamic> response = arguments['response'];
 
-    final respObj = SearchResponseOrError(
-      response: SearchResponse.fromJson(response),
-      error: null
-    );
-
-    _responseCompleter.complete(respObj);
-  }
-
-  void _onError(dynamic arguments) {
-
-    final String errorMessage = arguments['message'];
-
-    final respObj = SearchResponseOrError(
-        response: null,
-        error: errorMessage
-    );
-
-    _responseCompleter.complete(respObj);
+    if (response['error'] != null) {
+      return SearchResponseOrError(
+          response: null,
+          error: response['error']
+      );
+    } else {
+      return SearchResponseOrError(
+          response: SearchResponse.fromJson(response),
+          error: null
+      );
+    }
   }
 }
