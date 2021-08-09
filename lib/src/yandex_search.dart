@@ -124,7 +124,7 @@ class YandexSearch {
 
   static Future<SearchResponseWithSession> searchByPoint({
     required  Point         point,
-    required  double        zoom,
+    required  int           zoom,
     required  SearchOptions searchOptions}) async {
 
     var sessionId = _nextSearchSessionId++;

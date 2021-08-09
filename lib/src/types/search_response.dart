@@ -2,16 +2,14 @@ part of yandex_mapkit;
 
 class SearchResponse extends Equatable {
 
-  final int                found;
-  final List<SearchItem>   items;
-  final int                page;
-  final bool               hasNextPage;
+  final int               found;
+  final List<SearchItem>  items;
+  final int               page;
 
   const SearchResponse({
     required this.found,
     required this.items,
     required this.page,
-    required this.hasNextPage,
   });
 
   factory SearchResponse.fromJson(Map<dynamic, dynamic> json) {
@@ -27,10 +25,9 @@ class SearchResponse extends Equatable {
     }
 
     return SearchResponse(
-      found:        json['found'],
-      items:        mappedItems ?? [],
-      page:         json['page'],
-      hasNextPage:  json['hasNextPage'],
+      found:  json['found'],
+      items:  mappedItems ?? [],
+      page:   json['page'],
     );
   }
 
@@ -39,7 +36,6 @@ class SearchResponse extends Equatable {
     found,
     items,
     page,
-    hasNextPage,
   ];
 
   @override

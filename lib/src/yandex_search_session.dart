@@ -26,6 +26,12 @@ class SearchSession {
     return _methodChannel.invokeMethod('retrySearch').then((response) => handleResponse(response));
   }
 
+  /// Returns true/false depending on next page is available
+  Future<bool> hasNextPage() async {
+
+    return await _methodChannel.invokeMethod('hasNextPage');
+  }
+
   /// If hasNextPage in SearchResponse is false
   /// then calling of this method will have no effect.
   Future<SearchResponseOrError> fetchNextPage() async {
@@ -46,13 +52,13 @@ class SearchSession {
 
     if (response['error'] != null) {
       return SearchResponseOrError(
-          response: null,
-          error: response['error']
+        response: null,
+        error: response['error']
       );
     } else {
       return SearchResponseOrError(
-          response: SearchResponse.fromJson(response),
-          error: null
+        response: SearchResponse.fromJson(response),
+        error: null
       );
     }
   }

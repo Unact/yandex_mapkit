@@ -163,7 +163,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
       responseByPages.add(response);
     });
 
-    if (response.hasNextPage) {
+    if (await session.hasNextPage()) {
       print('Got ${response.found} items, fetching next page...');
       await _handleResponse(session, await session.fetchNextPage());
     }

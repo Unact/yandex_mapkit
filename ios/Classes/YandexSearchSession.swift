@@ -4,7 +4,7 @@ import YandexMapsMobile
 public class YandexSearchSession: NSObject {
   
   private var id: Int
-  private var session: YMKSearchSession!
+  private var session: YMKSearchSession?
   private var page = 0
   
   private let methodChannel: FlutterMethodChannel!
@@ -40,6 +40,9 @@ public class YandexSearchSession: NSObject {
         result(nil)
       case "retrySearch":
         retrySearch(result)
+      case "hasNextPage":
+        let value = hasNextPage()
+        result(value)
       case "fetchNextPage":
         fetchNextPage(result)
       case "close":
@@ -48,14 +51,6 @@ public class YandexSearchSession: NSObject {
       default:
         result(FlutterMethodNotImplemented)
       }
-  }
-  
-  public func close() {
-    
-    session?.cancel()
-    session = nil
-    
-    onClose(id)
   }
   
   public func cancelSearch() {
@@ -70,6 +65,11 @@ public class YandexSearchSession: NSObject {
     session?.retry(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
       self.handleResponse(searchResponse: searchResponse, error: error, result: result)
     })
+  }
+  
+  public func hasNextPage() -> Bool {
+    
+    return session?.hasNextPage() ?? false
   }
   
   public func fetchNextPage(_ result: @escaping FlutterResult) {
@@ -88,6 +88,14 @@ public class YandexSearchSession: NSObject {
     }
   }
   
+  public func close() {
+    
+    session?.cancel()
+    session = nil
+    
+    onClose(id)
+  }
+  
   public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?, result: @escaping FlutterResult) {
     
     if let response = searchResponse {
@@ -99,15 +107,10 @@ public class YandexSearchSession: NSObject {
   
   private func onSuccess(_ res: YMKSearchResponse, _ result: @escaping FlutterResult) {
     
-    guard let session = self.session else {
-      return
-    }
-    
     var data = [String : Any]()
       
-    data["found"]       = res.metadata.found
-    data["page"]        = page
-    data["hasNextPage"] = session.hasNextPage() ? true : false
+    data["found"] = res.metadata.found
+    data["page"]  = page
     
     var dataItems = [[String : Any]]()
     

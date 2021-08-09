@@ -165,7 +165,7 @@ class _SearchExampleState extends State<_SearchExample> {
       responseByPages.add(response);
     });
 
-    if (response.hasNextPage) {
+    if (await session.hasNextPage()) {
       print('Got ${response.found} items, fetching next page...');
       await _handleResponse(session, await session.fetchNextPage());
     }
