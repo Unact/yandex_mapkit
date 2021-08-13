@@ -48,17 +48,18 @@ class SearchSession {
 
   SearchResponseOrError handleResponse(dynamic arguments) {
 
-    final Map<dynamic, dynamic> response = arguments['response'];
+    if (arguments['error'] != null) {
 
-    if (response['error'] != null) {
       return SearchResponseOrError(
-        response: null,
-        error: response['error']
+        error: arguments['error']
       );
+
     } else {
+
+      final Map<dynamic, dynamic> response = arguments['response'];
+
       return SearchResponseOrError(
         response: SearchResponse.fromJson(response),
-        error: null
       );
     }
   }

@@ -48,9 +48,9 @@ class SearchResponseOrError {
   String?         error;
 
   SearchResponseOrError({
-    required this.response,
-    required this.error
-  });
+    this.response,
+    this.error
+  }) : assert(response != null || error != null);
 }
 
 class SearchResponseWithSession {
