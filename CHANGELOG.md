@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Fix compiling errors for swift versions lower than 5.4 [#119, cream-cheeze]
+
 ## 1.1.0
 
 * Add gesture manipulation [#120, cream-cheeze]
