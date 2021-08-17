@@ -10,9 +10,11 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
       YandexMapFactory(registrar: registrar),
       withId: "yandex_mapkit/yandex_map"
     )
-    
+
     YMKMapKit.sharedInstance().onStart()
+
     YandexSearch.register(with: registrar)
+    YandexDrivingRouter.register(with: registrar)
   }
 
 }

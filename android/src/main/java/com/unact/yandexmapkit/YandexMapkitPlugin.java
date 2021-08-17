@@ -16,13 +16,14 @@ import io.flutter.plugin.common.MethodChannel;
 
 public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
-  private static final String CHANNEL_ID = "yandex_mapkit/yandex_search";
+  private static final String SEARCH_CHANNEL_ID = "yandex_mapkit/yandex_search";
+  private static final String DRIVING_CHANNEL_ID = "yandex_mapkit/yandex_driving";
 
   @Nullable private Lifecycle lifecycle;
 
-  private MethodChannel methodChannel;
-  private YandexSearchHandlerImpl handler;
-  
+  private MethodChannel methodChannelSearch;
+  private MethodChannel methodChannelDrivingRouter;
+
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
     MapKitFactory.initialize(binding.getApplicationContext());
@@ -30,24 +31,31 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     BinaryMessenger messenger = binding.getBinaryMessenger();
     binding.getPlatformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(messenger, new LifecycleProvider()));
 
-    setupYandexSearchChannel(messenger, binding.getApplicationContext());
+    setupChannels(messenger, binding.getApplicationContext());
   }
 
   @Override
   public void onDetachedFromEngine(FlutterPluginBinding binding) {
-    teardownYandexSearchChannel();
+    teardownChannels();
   }
 
-  private void setupYandexSearchChannel(BinaryMessenger messenger, Context context) {
-    methodChannel = new MethodChannel(messenger, CHANNEL_ID);
-    handler = new YandexSearchHandlerImpl(context, methodChannel);
-    methodChannel.setMethodCallHandler(handler);
+  private void setupChannels(BinaryMessenger messenger, Context context) {
+    methodChannelSearch = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
+    YandexSearchHandlerImpl handlerSearch = new YandexSearchHandlerImpl(context);
+    methodChannelSearch.setMethodCallHandler(handlerSearch);
+
+    methodChannelDrivingRouter = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
+    YandexDrivingRouterHandlerImpl handlerDrivingRouter = new YandexDrivingRouterHandlerImpl(context);
+    methodChannelDrivingRouter.setMethodCallHandler(handlerDrivingRouter);
+
   }
 
-  private void teardownYandexSearchChannel() {
-    methodChannel.setMethodCallHandler(null);
-    handler = null;
-    methodChannel = null;
+  private void teardownChannels() {
+    methodChannelSearch.setMethodCallHandler(null);
+    methodChannelSearch = null;
+
+    methodChannelDrivingRouter.setMethodCallHandler(null);
+    methodChannelDrivingRouter = null;
   }
 
   @Override
@@ -76,6 +84,6 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     @Nullable
     Lifecycle getLifecycle() {
       return lifecycle;
-    };
+    }
   }
 }

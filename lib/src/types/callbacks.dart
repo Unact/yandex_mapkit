@@ -7,3 +7,4 @@ typedef GenericCallback = void Function();
 typedef ArgumentCallback<T> = void Function(T argument);
 typedef TapCallback<T, S> = void Function(T point, S tapReceiver);
 typedef MapCreatedCallback = void Function(YandexMapController controller);
+typedef CancelDrivingSessionCallback = void Function();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:yandex_mapkit_example/examples/router_page.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 import 'package:yandex_mapkit_example/examples/camera_tracking_page.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
@@ -17,6 +18,7 @@ void main() {
 
 const List<MapPage> _allPages = <MapPage>[
   CameraTrackingPage(),
+  RouterPage(),
   LayersPage(),
   MapControlsPage(),
   PlacemarkPage(),
