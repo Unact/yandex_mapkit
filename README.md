@@ -126,6 +126,12 @@ For usage examples refer to example [app](https://github.com/Unact/yandex_mapkit
 
 ![image](https://user-images.githubusercontent.com/8961745/100362969-26e23880-300d-11eb-9529-6ab36beffa51.png)
 
+### Additional remarks
+
+This project only supports Android V2 embedding. V1 support has been completly dropped.
+If you are creating a new flutter project then you are automatically using V2 and don't have to worry.
+Other projects are strongly recommended to migrate to V2. See [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects) page for more details.
+
 ### Features
 
 - [X] iOS Support
