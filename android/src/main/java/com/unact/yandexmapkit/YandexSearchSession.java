@@ -93,6 +93,8 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
     session.cancel();
     session = null;
 
+    methodChannel.setMethodCallHandler(null);
+
     closeCallback.onClose(id);
 	}
 }

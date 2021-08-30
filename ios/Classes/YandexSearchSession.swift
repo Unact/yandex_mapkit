@@ -93,6 +93,8 @@ public class YandexSearchSession: NSObject {
     session?.cancel()
     session = nil
     
+    methodChannel.setMethodCallHandler(nil)
+    
     onClose(id)
   }
   

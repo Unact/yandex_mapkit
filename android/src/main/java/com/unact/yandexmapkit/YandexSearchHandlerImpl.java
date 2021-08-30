@@ -33,7 +33,7 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
 
   private MethodChannel methodChannel;
   private final SearchManager searchManager;
-	private final BinaryMessenger binaryMessenger;
+  private final BinaryMessenger binaryMessenger;
 
   private Map<Integer, SuggestSession>  		suggestSessionsById = new HashMap<>();
   private Map<Integer, YandexSearchSession> searchSessionsById  = new HashMap<>();;
@@ -206,18 +206,6 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
     String  advertPageIdOption              = (String) options.get("advertPageId");
     Boolean suggestWordsOption              = (Boolean) options.get("suggestWords");
     Boolean disableSpellingCorrectionOption = (Boolean) options.get("disableSpellingCorrection");
-
-    if (geometryOption == null) {
-      geometryOption = false;
-    }
-
-    if (suggestWordsOption == null) {
-      suggestWordsOption = false;
-    }
-
-    if (disableSpellingCorrectionOption == null) {
-      disableSpellingCorrectionOption = false;
-    }
 
     SearchOptions searchOptions = new SearchOptions(
       searchTypeOption,
