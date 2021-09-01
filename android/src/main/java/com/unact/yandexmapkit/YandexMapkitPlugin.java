@@ -16,8 +16,8 @@ public class YandexMapkitPlugin implements FlutterPlugin {
   private MethodChannel searchMethodChannel;
   private MethodChannel suggestMethodChannel;
 
-  private YandexSearchHandlerImpl   searchHandler;
-  private YandexSuggestHandlerImpl  suggestHandler;
+  private YandexSearchHandlerImpl2   searchHandler;
+  private YandexSearchHandlerImpl  suggestHandler;
 
   public static void registerWith(Registrar registrar) {
 
@@ -56,7 +56,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
     searchMethodChannel = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
 
-    searchHandler = new YandexSearchHandlerImpl(context, messenger);
+    searchHandler = new YandexSearchHandlerImpl2(context, messenger);
 
     searchMethodChannel.setMethodCallHandler(searchHandler);
   }
@@ -65,7 +65,7 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
     suggestMethodChannel = new MethodChannel(messenger, SUGGEST_CHANNEL_ID);
 
-    suggestHandler = new YandexSuggestHandlerImpl(context, suggestMethodChannel);
+    suggestHandler = new YandexSearchHandlerImpl(context, suggestMethodChannel);
 
     suggestMethodChannel.setMethodCallHandler(suggestHandler);
   }
