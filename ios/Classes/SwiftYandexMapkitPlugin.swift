@@ -11,6 +11,7 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     )
     
     YandexSearch.register(with: registrar)
+    YandexSuggest.register(with: registrar)
   }
 
 }

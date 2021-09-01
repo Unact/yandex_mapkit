@@ -33,8 +33,12 @@ class _SearchExampleState extends State<_SearchExample> {
 
     super.dispose();
 
-    for (var s in _sessions.values) {
-      await s.close();
+    try {
+      for (var s in _sessions.values) {
+        await s.close();
+      }
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
     }
 
     _sessions.clear();
@@ -145,7 +149,12 @@ class _SearchExampleState extends State<_SearchExample> {
 
   Future<void> _closeSession(SearchSession session) async {
 
-    await session.close();
+    try {
+      await session.close();
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
+    }
+
     _sessions.remove(session.id);
   }
 
@@ -165,9 +174,13 @@ class _SearchExampleState extends State<_SearchExample> {
       responseByPages.add(response);
     });
 
-    if (await session.hasNextPage()) {
-      print('Got ${response.found} items, fetching next page...');
-      await _handleResponse(session, await session.fetchNextPage());
+    try {
+      if (await session.hasNextPage()) {
+        print('Got ${response.found} items, fetching next page...');
+        await _handleResponse(session, await session.fetchNextPage());
+      }
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
     }
   }
 }

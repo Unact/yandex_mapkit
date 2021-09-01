@@ -7,13 +7,20 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 public class YandexMapkitPlugin implements FlutterPlugin {
-  private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
-  private static final String CHANNEL_ID = "yandex_mapkit/yandex_search";
 
-  private MethodChannel methodChannel;
-  private YandexSearchHandlerImpl handler;
+  private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
+
+  private static final String SEARCH_CHANNEL_ID = "yandex_mapkit/yandex_search";
+  private static final String SUGGEST_CHANNEL_ID = "yandex_mapkit/yandex_suggest";
+
+  private MethodChannel searchMethodChannel;
+  private MethodChannel suggestMethodChannel;
+
+  private YandexSearchHandlerImpl   searchHandler;
+  private YandexSuggestHandlerImpl  suggestHandler;
 
   public static void registerWith(Registrar registrar) {
+
     if (registrar.activity() == null) {
       // When a background flutter view tries to register the plugin, the registrar has no activity.
       // We stop the registration process as this plugin is foreground only.
@@ -22,31 +29,58 @@ public class YandexMapkitPlugin implements FlutterPlugin {
 
     registrar.platformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(registrar.messenger()));
 
-    new YandexMapkitPlugin().setupYandexSearchChannel(registrar.messenger(), registrar.context());
+    YandexMapkitPlugin plugin = new YandexMapkitPlugin();
+
+    plugin.setupYandexSearchChannel(registrar.messenger(), registrar.context());
+    plugin.setupYandexSuggestChannel(registrar.messenger(), registrar.context());
   }
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
+
     BinaryMessenger messenger = binding.getBinaryMessenger();
+
     binding.getPlatformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(messenger));
 
     setupYandexSearchChannel(messenger, binding.getApplicationContext());
+    setupYandexSuggestChannel(messenger, binding.getApplicationContext());
   }
 
   @Override
   public void onDetachedFromEngine(FlutterPluginBinding binding) {
     teardownYandexSearchChannel();
+    teardownYandexSuggestChannel();
   }
 
   private void setupYandexSearchChannel(BinaryMessenger messenger, Context context) {
-    methodChannel = new MethodChannel(messenger, CHANNEL_ID);
-    handler = new YandexSearchHandlerImpl(context, methodChannel, messenger);
-    methodChannel.setMethodCallHandler(handler);
+
+    searchMethodChannel = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
+
+    searchHandler = new YandexSearchHandlerImpl(context, messenger);
+
+    searchMethodChannel.setMethodCallHandler(searchHandler);
+  }
+
+  private void setupYandexSuggestChannel(BinaryMessenger messenger, Context context) {
+
+    suggestMethodChannel = new MethodChannel(messenger, SUGGEST_CHANNEL_ID);
+
+    suggestHandler = new YandexSuggestHandlerImpl(context, suggestMethodChannel);
+
+    suggestMethodChannel.setMethodCallHandler(suggestHandler);
   }
 
   private void teardownYandexSearchChannel() {
-    methodChannel.setMethodCallHandler(null);
-    handler = null;
-    methodChannel = null;
+
+    searchMethodChannel.setMethodCallHandler(null);
+    searchHandler = null;
+    searchMethodChannel = null;
+  }
+
+  private void teardownYandexSuggestChannel() {
+
+    suggestMethodChannel.setMethodCallHandler(null);
+    suggestHandler = null;
+    suggestMethodChannel = null;
   }
 }
