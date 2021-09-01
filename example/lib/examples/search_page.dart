@@ -1,76 +1,186 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class SuggestionsPage extends MapPage {
-  const SuggestionsPage() : super('Suggestions example');
+class SearchPage extends MapPage {
+  const SearchPage() : super('Search example');
 
   @override
   Widget build(BuildContext context) {
-    return _SuggestionsExample();
+    return _SearchExample();
   }
 }
 
-class _SuggestionsExample extends StatefulWidget {
+class _SearchExample extends StatefulWidget {
   @override
-  _SuggestionsExampleState createState() => _SuggestionsExampleState();
+  _SearchExampleState createState() => _SearchExampleState();
 }
 
-class _SuggestionsExampleState extends State<_SuggestionsExample> {
+class _SearchExampleState extends State<_SearchExample> {
+
   TextEditingController queryController = TextEditingController();
-  String response = '';
+
+  final List<SearchResponse> responseByPages = [];
+
+  final Map<int,SearchSession> _sessions = {};
+
+  @override
+  void dispose() async {
+
+    super.dispose();
+
+    try {
+      for (var s in _sessions.values) {
+        await s.close();
+      }
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
+    }
+
+    _sessions.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          const SizedBox(height: 20),
-          Expanded(
-              child: SingleChildScrollView(
-                  child: Column(children: <Widget>[
-            const Text('Input part of address:'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        const SizedBox(height: 20),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
               children: <Widget>[
-                Flexible(
-                  child: TextField(
-                    controller: queryController,
-                    onChanged: (text) => querySuggestions(queryController.text),
-                  ),
+                const Text('Search:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Flexible(
+                      child: TextField(
+                        controller: queryController,
+                      ),
+                    ),
+                    ControlButton(
+                      onPressed: () {
+                        search(queryController.text);
+                      },
+                      title: 'Query'
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text('Suggest:'),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Flexible(child: Text(response)),
-              ],
-            ),
-          ])))
-        ]);
+                const SizedBox(height: 20),
+                const Text('Response:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _getList(),
+                        )
+                      ),
+                    ),
+                  ],
+                ),
+              ]
+            )
+          )
+        )
+      ]
+    );
   }
 
-  Future<void> querySuggestions(String query) async {
+  List<Widget> _getList() {
 
-    final session = await YandexSuggest.getSuggestions(
-      address: query,
-      southWestPoint: const Point(latitude: 55.5143, longitude: 37.24841),
-      northEastPoint: const Point(latitude: 56.0421, longitude: 38.0284),
-      suggestType: SuggestType.geo,
-      suggestWords: true,
+    var list = <Widget>[];
+
+    for (var r in responseByPages) {
+
+      list.add(Text('Page: ${r.page}'));
+      list.add(Container(height: 20));
+
+      r.items.asMap().forEach((i, item) {
+        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+      });
+
+      list.add(Container(height: 20));
+    }
+
+    return list;
+  }
+
+  void search(String query) async {
+
+    print('Search query: $query');
+
+    responseByPages.clear();
+
+    var sessionWithResponse = await YandexSearch.searchByText(
+      searchText: query,
+      geometry: Geometry.fromBoundingBox(
+        BoundingBox(
+          southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
+          northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
+        )
+      ),
+      searchOptions: SearchOptions(
+        searchType: SearchType.geo,
+        geometry: false,
+      ),
     );
-    Future.delayed(const Duration(seconds: 3), () => session.cancelSession());
-    final result = await session.result;
+
+    var session = sessionWithResponse.session;
+
+    _sessions[session.id] = session;
+
+    var responseOrError = await sessionWithResponse.responseOrError;
+
+    await _handleResponse(session, responseOrError);
+
+    print('No more results available, closing session...');
+    await _closeSession(session);
+  }
+
+  Future<void> _closeSession(SearchSession session) async {
+
+    try {
+      await session.close();
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
+    }
+
+    _sessions.remove(session.id);
+  }
+
+  Future<void> _handleResponse(SearchSession session, SearchResponseOrError responseOrError) async {
+
+    if (responseOrError.error != null) {
+      print('Error: ${responseOrError.error}');
+      await _closeSession(session);
+      return;
+    }
+
+    var response = responseOrError.response!;
+
+    print('Page ${response.page}: ${response.toString()}');
+
     setState(() {
-      response =
-          result.items?.map((SuggestItem item) => item.title).join('\n') ??
-              'Error: ${result.error}';
+      responseByPages.add(response);
     });
+
+    try {
+      if (await session.hasNextPage()) {
+        print('Got ${response.found} items, fetching next page...');
+        await _handleResponse(session, await session.fetchNextPage());
+      }
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
+    }
   }
 }

@@ -28,8 +28,8 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private MethodChannel suggestMethodChannel;
   private MethodChannel drivingRouterMethodChannel;
 
-  private YandexSearchHandlerImpl2   searchHandler;
-  private YandexSearchHandlerImpl  suggestHandler;
+  private YandexSearchHandlerImpl searchHandler;
+  private YandexSuggestHandlerImpl suggestHandler;
 
 
   @Override
@@ -53,11 +53,11 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private void setupChannels(BinaryMessenger messenger, Context context) {
 
     searchMethodChannel = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
-    searchHandler = new YandexSearchHandlerImpl2(context, messenger);
+    searchHandler = new YandexSearchHandlerImpl(context, messenger);
     searchMethodChannel.setMethodCallHandler(searchHandler);
 
     suggestMethodChannel = new MethodChannel(messenger, SUGGEST_CHANNEL_ID);
-    suggestHandler = new YandexSearchHandlerImpl(context);
+    suggestHandler = new YandexSuggestHandlerImpl(context);
     suggestMethodChannel.setMethodCallHandler(suggestHandler);
 
     drivingRouterMethodChannel = new MethodChannel(messenger, DRIVING_CHANNEL_ID);

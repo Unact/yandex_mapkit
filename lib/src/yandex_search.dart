@@ -1,42 +1,65 @@
 part of yandex_mapkit;
 
-class YandexSuggest {
+class YandexSearch {
 
-  static const String _channelName = 'yandex_mapkit/yandex_suggest';
+  static const String _channelName = 'yandex_mapkit/yandex_search';
 
   static const MethodChannel _channel = MethodChannel(_channelName);
 
-  static int _nextCallbackId = 0;
+  static int _nextSearchSessionId = 0;
 
-  static Future<SuggestSession> getSuggestions({
-    required String address,
-    required Point southWestPoint,
-    required Point northEastPoint,
-    required SuggestType suggestType,
-    required bool suggestWords,
-  }) async {
-    final listenerId = _nextCallbackId++;
 
-    final futureResult =
-        _channel.invokeMethod('getSuggestions', <String, dynamic>{
-      'formattedAddress': address,
-      'southWestLatitude': southWestPoint.latitude,
-      'southWestLongitude': southWestPoint.longitude,
-      'northEastLatitude': northEastPoint.latitude,
-      'northEastLongitude': northEastPoint.longitude,
-      'suggestType': suggestType.index,
-      'suggestWords': suggestWords,
-      'listenerId': listenerId
-    }).then((it) => SuggestSessionResult.fromJson(it));
+  static Future<SearchResponseWithSession> searchByText({
+    required  String        searchText,
+    required  Geometry      geometry,
+    required  SearchOptions searchOptions}) async {
 
-    return SuggestSession(
-        futureResult, () => _cancelSuggestSession(listenerId));
+    var sessionId = _nextSearchSessionId++;
+
+    var params = {
+      'sessionId':  sessionId,
+      'searchText': searchText,
+      'geometry':   geometry.toJson(),
+      'options':    searchOptions.toJson(),
+    };
+
+    var session = SearchSession(id: sessionId);
+
+    final response = _channel.invokeMethod(
+      'searchByText',
+      params
+    ).then((sessionResult) => session.handleResponse(sessionResult));
+
+    return SearchResponseWithSession(
+      session: session,
+      responseOrError: response,
+    );
   }
 
-  static Future<void> _cancelSuggestSession(int listenerId) async {
-    await _channel.invokeMethod<void>(
-      'cancelSuggestSession',
-      <String, dynamic>{'listenerId': listenerId},
+  static Future<SearchResponseWithSession> searchByPoint({
+    required  Point         point,
+    required  int           zoom,
+    required  SearchOptions searchOptions}) async {
+
+    var sessionId = _nextSearchSessionId++;
+
+    var params = {
+      'sessionId':  sessionId,
+      'point':      point.toJson(),
+      'zoom':       zoom,
+      'options':    searchOptions.toJson(),
+    };
+
+    var session = SearchSession(id: sessionId);
+
+    final response = _channel.invokeMethod(
+        'searchByPoint',
+        params
+    ).then((sessionResult) => session.handleResponse(sessionResult));
+
+    return SearchResponseWithSession(
+      session: session,
+      responseOrError: response,
     );
   }
 }

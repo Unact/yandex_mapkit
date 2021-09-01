@@ -12,7 +12,7 @@ import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
 import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
-import 'package:yandex_mapkit_example/examples/search_page2.dart';
+import 'package:yandex_mapkit_example/examples/suggest_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
