@@ -20,35 +20,27 @@ import java.util.List;
 import java.util.Map;
 
 import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 public class YandexSearchHandlerImpl implements MethodCallHandler {
 
-  private MethodChannel methodChannel;
+  private final Map<Integer, SuggestSession> suggestSessionsById = new HashMap<>();
   private final SearchManager searchManager;
 
-  private Map<Integer, SuggestSession> suggestSessionsById = new HashMap<>();
-
-  public YandexSearchHandlerImpl(Context context, MethodChannel channel) {
-
+  public YandexSearchHandlerImpl(Context context) {
     SearchFactory.initialize(context);
-
-    methodChannel = channel;
     searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
   }
 
   @Override
-  public void onMethodCall(MethodCall call, Result result) {
+  public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "getSuggestions":
-        getSuggestions(call);
-        result.success(null);
+        getSuggestions(call, result);
         break;
       case "cancelSuggestSession":
-        cancelSuggestSession(call);
-        result.success(null);
+        cancelSuggestSession(call, result);
         break;
       default:
         result.notImplemented();
@@ -57,51 +49,71 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
   }
 
   @SuppressWarnings("unchecked")
-  private void cancelSuggestSession(MethodCall call) {
+  private void cancelSuggestSession(MethodCall call, Result result) {
+
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
     final int listenerId = ((Number) params.get("listenerId")).intValue();
 
-    suggestSessionsById.remove(listenerId);
+    final SuggestSession session = suggestSessionsById.remove(listenerId);
+
+    if (session != null) {
+      session.reset();
+    }
+
+    result.success(null);
   }
 
   @SuppressWarnings("unchecked")
-  private void getSuggestions(MethodCall call) {
+  private void getSuggestions(MethodCall call, Result result) {
+
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
     final int listenerId = ((Number) params.get("listenerId")).intValue();
+
     String formattedAddress = (String) params.get("formattedAddress");
+
     BoundingBox boundingBox = new BoundingBox(
-        new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
-        new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
+      new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
+      new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
     );
+
     Boolean suggestWords = ((Boolean) params.get("suggestWords"));
+
     SuggestSession suggestSession = searchManager.createSuggestSession();
+
     SuggestOptions suggestOptions = new SuggestOptions();
     suggestOptions.setSuggestTypes(((Number) params.get("suggestType")).intValue());
     suggestOptions.setSuggestWords(suggestWords);
 
-    suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(listenerId));
+    suggestSession.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(listenerId, result));
+
     suggestSessionsById.put(listenerId, suggestSession);
   }
 
   private class YandexSuggestListener implements SuggestSession.SuggestListener {
 
-    public YandexSuggestListener(int id) {
+    public YandexSuggestListener(int id, Result result) {
       listenerId = id;
+      this.result = result;
     }
 
-    private int listenerId;
+    private final int listenerId;
+    private final Result result;
 
     @Override
     public void onResponse(@NonNull List<SuggestItem> suggestItems) {
+
+      suggestSessionsById.remove(listenerId);
       List<Map<String, Object>> suggests = new ArrayList<>();
 
       for (SuggestItem suggestItemResult : suggestItems) {
         Map<String, Object> suggestMap = new HashMap<>();
         suggestMap.put("title", suggestItemResult.getTitle().getText());
-        if(suggestItemResult.getSubtitle() != null) {
+        if (suggestItemResult.getSubtitle() != null) {
           suggestMap.put("subtitle", suggestItemResult.getSubtitle().getText());
         }
-        if(suggestItemResult.getDisplayText() != null) {
+        if (suggestItemResult.getDisplayText() != null) {
           suggestMap.put("displayText", suggestItemResult.getDisplayText());
         }
         suggestMap.put("searchText", suggestItemResult.getSearchText());
@@ -112,17 +124,16 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
       }
 
       Map<String, Object> arguments = new HashMap<>();
-      arguments.put("listenerId", listenerId);
-      arguments.put("response", suggests);
-
-      methodChannel.invokeMethod("onSuggestListenerResponse", arguments);
+      arguments.put("items", suggests);
+      result.success(arguments);
     }
 
     @Override
     public void onError(@NonNull Error error) {
+      suggestSessionsById.remove(listenerId);
       Map<String, Object> arguments = new HashMap<>();
-      arguments.put("listenerId", listenerId);
-      methodChannel.invokeMethod("onSuggestListenerError", arguments);
+      arguments.put("error", error.getClass().getName());
+      result.success(arguments);
     }
   }
 }

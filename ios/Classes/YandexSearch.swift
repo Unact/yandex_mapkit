@@ -3,10 +3,9 @@ import Flutter
 import UIKit
 import YandexMapsMobile
 
+
 public class YandexSuggest: NSObject, FlutterPlugin {
   
-  private let pluginRegistrar: FlutterPluginRegistrar!
-  private let methodChannel: FlutterMethodChannel!
   private let searchManager: YMKSearchManager!
   private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
   
@@ -19,49 +18,51 @@ public class YandexSuggest: NSObject, FlutterPlugin {
       name: "yandex_mapkit/yandex_suggest",
       binaryMessenger: registrar.messenger()
     )
-    
-    let plugin = YandexSuggest(channel: channel, registrar: registrar)
+
+    let plugin = YandexSuggest()
     
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
 
-  public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
-    
-    self.pluginRegistrar = registrar
-    
-    self.methodChannel = channel
+  public required override init() {
     
     self.searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
     
     super.init()
-
-    self.methodChannel.setMethodCallHandler(self.handle)
   }
   
+  
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    
     switch call.method {
     case "getSuggestions":
-      getSuggestions(call)
-      result(nil)
+      getSuggestions(call, result: result)
     case "cancelSuggestSession":
-      cancelSuggestSession(call)
-      result(nil)
+      cancelSuggestSession(call, result: result)
     default:
       result(FlutterMethodNotImplemented)
     }
   }
 
-  public func cancelSuggestSession(_ call: FlutterMethodCall) {
+  public func cancelSuggestSession(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    
     let params = call.arguments as! [String: Any]
     let listenerId = (params["listenerId"] as! NSNumber).intValue
-
-    self.suggestSessionsById.removeValue(forKey: listenerId)
+    
+    if let session = suggestSessionsById[listenerId] {
+        session.reset()
+        suggestSessionsById.removeValue(forKey: listenerId)
+    }
+    
+    result(nil)
   }
 
-  public func getSuggestions(_ call: FlutterMethodCall) {
+  public func getSuggestions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    
     let params = call.arguments as! [String: Any]
     let listenerId = (params["listenerId"] as! NSNumber).intValue
     let formattedAddress = params["formattedAddress"] as! String
+    
     let boundingBox = YMKBoundingBox.init(
       southWest: YMKPoint.init(
         latitude: (params["southWestLatitude"] as! NSNumber).doubleValue,
@@ -72,6 +73,7 @@ public class YandexSuggest: NSObject, FlutterPlugin {
         longitude: (params["northEastLongitude"] as! NSNumber).doubleValue
       )
     )
+    
     let suggestSession = self.searchManager!.createSuggestSession()
     let suggestType = YMKSuggestType.init(rawValue: (params["suggestType"] as! NSNumber).uintValue)
     let suggestOptions = YMKSuggestOptions.init(
@@ -84,15 +86,22 @@ public class YandexSuggest: NSObject, FlutterPlugin {
       withText: formattedAddress,
       window: boundingBox,
       suggestOptions: suggestOptions,
-      responseHandler: buildResponseHandler(listenerId: listenerId)
+      responseHandler: buildResponseHandler(listenerId: listenerId, result: result)
     )
+    
     self.suggestSessionsById[listenerId] = suggestSession;
   }
 
-  private func buildResponseHandler(listenerId: Int) -> ([YMKSuggestItem]?, Error?) -> Void {
+  private func buildResponseHandler(listenerId: Int, result: @escaping FlutterResult) -> ([YMKSuggestItem]?, Error?) -> Void {
+
     return { (searchResponse: [YMKSuggestItem]?, error: Error?) -> Void in
+      
+      self.suggestSessionsById.removeValue(forKey: listenerId)
+      
       if searchResponse != nil {
+        
         let suggestItems = searchResponse!.map({ (suggestItem) -> [String : Any] in
+          
           var dict = [String : Any]()
 
           dict["title"] = suggestItem.title.text
@@ -104,21 +113,13 @@ public class YandexSuggest: NSObject, FlutterPlugin {
 
           return dict
         })
-        let arguments: [String:Any?] = [
-          "listenerId": listenerId,
-          "response": suggestItems
-        ]
-        self.methodChannel.invokeMethod("onSuggestListenerResponse", arguments: arguments)
-
+        
+        result(["items":suggestItems])
         return
       }
 
       if error != nil {
-        let arguments: [String:Any?] = [
-          "listenerId": listenerId
-        ]
-        self.methodChannel.invokeMethod("onSuggestListenerError", arguments: arguments)
-
+        result(["error": "YMKSearchManager error"])
         return
       }
     }
