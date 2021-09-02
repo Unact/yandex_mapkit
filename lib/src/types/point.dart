@@ -17,4 +17,14 @@ class Point extends Equatable{
 
   @override
   bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+
+    var json = <String, dynamic>{
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+
+    return json;
+  }
 }
