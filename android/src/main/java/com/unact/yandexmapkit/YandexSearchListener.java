@@ -22,17 +22,17 @@ import io.flutter.plugin.common.MethodChannel;
 
 public class YandexSearchListener implements Session.SearchListener {
 
-  private MethodChannel.Result 	result;
-  private int 									page;
+  private MethodChannel.Result  result;
+  private int                   page;
 
   YandexSearchListener(MethodChannel.Result result, int page) {
 
     this.result = result;
-    this.page 	= page;
+    this.page   = page;
   }
 
-	@Override
-	public void onSearchResponse(@NonNull Response response) {
+  @Override
+  public void onSearchResponse(@NonNull Response response) {
 
     Map<String, Object> data = new HashMap<>();
 
@@ -120,19 +120,19 @@ public class YandexSearchListener implements Session.SearchListener {
     arguments.put("response", data);
 
     result.success(arguments);
-	}
+  }
 
-	@Override
-	public void onSearchError(@NonNull Error error) {
+  @Override
+  public void onSearchError(@NonNull Error error) {
 
     Map<String, Object> arguments = new HashMap<>();
 
     arguments.put("error", "Unknown error");
 
     result.success(arguments);
-	}
+  }
 
-	private Map<String, Object> getToponymMetadata(ToponymObjectMetadata meta) {
+  private Map<String, Object> getToponymMetadata(ToponymObjectMetadata meta) {
 
     Map<String, Object> toponymMetadata = new HashMap<>();
 
@@ -151,9 +151,9 @@ public class YandexSearchListener implements Session.SearchListener {
     toponymMetadata.put("address", address);
 
     return toponymMetadata;
-	}
+  }
 
-	private Map<String, Object> getBusinessMetadata(BusinessObjectMetadata meta) {
+  private Map<String, Object> getBusinessMetadata(BusinessObjectMetadata meta) {
 
     Map<String, Object> businessMetadata = new HashMap<>();
 
@@ -171,9 +171,9 @@ public class YandexSearchListener implements Session.SearchListener {
     businessMetadata.put("address", address);
 
     return businessMetadata;
-	}
+  }
 
-	private Map<Integer, String> getAddressComponents(Address address) {
+  private Map<Integer, String> getAddressComponents(Address address) {
 
     Map<Integer, String> addressComponents = new HashMap<>();
 
@@ -254,5 +254,5 @@ public class YandexSearchListener implements Session.SearchListener {
     }
 
     return addressComponents;
-	}
+  }
 }

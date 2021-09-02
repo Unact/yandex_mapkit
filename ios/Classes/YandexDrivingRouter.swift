@@ -93,4 +93,3 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
     }
 }
-

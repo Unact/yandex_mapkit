@@ -34,7 +34,7 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
     methodChannel.setMethodCallHandler(this);
   }
 
-	@Override
+  @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
       case "cancelSearch":
@@ -58,7 +58,7 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
       default:
         result.notImplemented();
         break;
-		}
+    }
   }
 
   public void cancelSearch() {
@@ -78,7 +78,7 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
     return session.hasNextPage();
   }
 
-	public void fetchNextPage(MethodChannel.Result result) {
+  public void fetchNextPage(MethodChannel.Result result) {
 
     if (session.hasNextPage()) {
 
@@ -86,9 +86,9 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
 
       session.fetchNextPage(new YandexSearchListener(result, page));
     }
-	}
+  }
 
-	public void close() {
+  public void close() {
 
     session.cancel();
     session = null;
@@ -96,5 +96,5 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
     methodChannel.setMethodCallHandler(null);
 
     closeCallback.onClose(id);
-	}
+  }
 }

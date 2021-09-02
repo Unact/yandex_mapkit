@@ -26,6 +26,16 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   final Map<int,SearchSession> _sessions = {};
 
   @override
+  void dispose() async {
+
+    super.dispose();
+
+    for (var s in _sessions.values) {
+      await _closeSession(s);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     var mapHeight = 300.0;
@@ -143,7 +153,12 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
   Future<void> _closeSession(SearchSession session) async {
 
-    await session.close();
+    try {
+      await session.close();
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
+    }
+
     _sessions.remove(session.id);
   }
 
@@ -163,9 +178,13 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
       responseByPages.add(response);
     });
 
-    if (await session.hasNextPage()) {
-      print('Got ${response.found} items, fetching next page...');
-      await _handleResponse(session, await session.fetchNextPage());
+    try {
+      if (await session.hasNextPage()) {
+        print('Got ${response.found} items, fetching next page...');
+        await _handleResponse(session, await session.fetchNextPage());
+      }
+    } on SearchSessionException catch (e) {
+      print('Error: ${e.message}');
     }
   }
 }

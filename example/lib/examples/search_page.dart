@@ -33,15 +33,9 @@ class _SearchExampleState extends State<_SearchExample> {
 
     super.dispose();
 
-    try {
-      for (var s in _sessions.values) {
-        await s.close();
-      }
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
+    for (var s in _sessions.values) {
+      await _closeSession(s);
     }
-
-    _sessions.clear();
   }
 
   @override
