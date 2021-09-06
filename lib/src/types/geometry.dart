@@ -1,5 +1,10 @@
 part of yandex_mapkit;
 
+class GeometryException implements YandexMapkitException {
+  final String message;
+
+  GeometryException(this.message);
+}
 class Geometry {
 
   final Point?       point;
@@ -36,7 +41,7 @@ class Geometry {
       return Geometry.fromBoundingBox(boundingBox);
     }
 
-    throw('Invalid data: point or boundingBox keys required');
+    throw GeometryException('Invalid data: point or boundingBox keys required');
   }
 
   Map<String, dynamic> toJson() {
