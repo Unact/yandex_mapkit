@@ -1,5 +1,10 @@
 part of yandex_mapkit;
 
+enum RotationType {
+  noRotation,
+  rotate
+}
+
 class PlacemarkStyle extends Equatable {
   const PlacemarkStyle({
     this.scale = kScale,

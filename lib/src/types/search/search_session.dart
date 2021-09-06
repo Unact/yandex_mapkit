@@ -1,7 +1,7 @@
 part of yandex_mapkit;
 
 class SearchSessionException implements Exception {
-  String message;
+  final String message;
   SearchSessionException(this.message);
 }
 

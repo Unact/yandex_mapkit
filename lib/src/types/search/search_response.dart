@@ -25,9 +25,9 @@ class SearchResponse extends Equatable {
     }
 
     return SearchResponse(
-      found:  json['found'],
-      items:  mappedItems ?? [],
-      page:   json['page'],
+      found: json['found'],
+      items: mappedItems ?? [],
+      page:  json['page'],
     );
   }
 

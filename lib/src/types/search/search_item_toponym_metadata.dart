@@ -4,7 +4,7 @@ class SearchItemToponymMetadata extends Equatable {
 
   final Point                           balloonPoint;
   final String                          formattedAddress;
-  final Map<SearchComponentKind,String> addressComponents;
+  final Map<SearchComponentKind, String> addressComponents;
 
   const SearchItemToponymMetadata({
     required this.balloonPoint,
@@ -19,7 +19,7 @@ class SearchItemToponymMetadata extends Equatable {
       map = json['address']['addressComponents'] as Map;
     }
 
-    Map<SearchComponentKind,String> addressMap;
+    Map<SearchComponentKind, String> addressMap;
     addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
 
     return SearchItemToponymMetadata(

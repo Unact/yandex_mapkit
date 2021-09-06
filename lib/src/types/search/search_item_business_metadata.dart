@@ -5,7 +5,7 @@ class SearchItemBusinessMetadata extends Equatable {
   final String                          name;
   final String?                         shortName;
   final String                          formattedAddress;
-  final Map<SearchComponentKind,String> addressComponents;
+  final Map<SearchComponentKind, String> addressComponents;
 
   const SearchItemBusinessMetadata({
     required this.name,
@@ -26,7 +26,7 @@ class SearchItemBusinessMetadata extends Equatable {
       map = json['address']['addressComponents'] as Map;
     }
 
-    Map<SearchComponentKind,String> addressMap;
+    Map<SearchComponentKind, String> addressMap;
     addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
 
     return SearchItemBusinessMetadata(

@@ -249,7 +249,7 @@ class YandexMapController extends ChangeNotifier {
   Future<void> zoomOut() async {
     await _channel.invokeMethod<void>('zoomOut');
   }
-  
+
   Future<bool> isZoomGesturesEnabled() async {
     final bool value = await _channel.invokeMethod<dynamic>('isZoomGesturesEnabled');
     return value;
@@ -333,7 +333,7 @@ class YandexMapController extends ChangeNotifier {
         _onCameraPositionChanged(call.arguments);
         break;
       default:
-        throw MissingPluginException();
+        throw YandexMapkitException();
     }
   }
 
