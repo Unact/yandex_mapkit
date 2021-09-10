@@ -35,7 +35,7 @@ class YandexDrivingRouter {
   static DrivingSessionResult _mapSessionResult(Map<dynamic, dynamic> result) {
     final List<dynamic>? resultRoutes = result['routes'];
     final String? error = result['error'];
-    final routes =  resultRoutes?.map((dynamic map) {
+    final routes = resultRoutes?.map((dynamic map) {
       final List<dynamic> resultPoints = map['geometry'];
       final points = resultPoints
           .map((dynamic resultPoint) => Point(
@@ -43,7 +43,24 @@ class YandexDrivingRouter {
                 longitude: resultPoint['longitude'],
               ))
           .toList();
-      return DrivingRoute(points);
+      final dynamic weight = map['metadata']['weight'];
+      final metadata = DrivingSectionMetadata(
+        DrivingWeight(
+          LocalizedValue(
+            weight['time']['value'],
+            weight['time']['text'],
+          ),
+          LocalizedValue(
+            weight['timeWithTraffic']['value'],
+            weight['timeWithTraffic']['text'],
+          ),
+          LocalizedValue(
+            weight['distance']['value'],
+            weight['distance']['text'],
+          ),
+        ),
+      );
+      return DrivingRoute(points, metadata);
     }).toList();
 
     return DrivingSessionResult(routes, error);

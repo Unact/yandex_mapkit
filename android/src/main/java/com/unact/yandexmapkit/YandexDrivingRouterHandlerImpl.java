@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.RequestPoint;
 import com.yandex.mapkit.RequestPointType;
+import com.yandex.mapkit.LocalizedValue;
 import com.yandex.mapkit.directions.Directions;
 import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingOptions;
@@ -14,6 +15,7 @@ import com.yandex.mapkit.directions.driving.DrivingRouter;
 import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.DrivingSession.DrivingRouteListener;
 import com.yandex.mapkit.directions.driving.VehicleOptions;
+import com.yandex.mapkit.directions.driving.Weight;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.runtime.Error;
 
@@ -87,6 +89,13 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
         return points;
     }
 
+    private Map<String, Object> localizedValueData(LocalizedValue value) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("value", value.getValue());
+        result.put("text", value.getText());
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     private void cancelDrivingSession(final MethodCall call, final Result result) {
         final Map<String, Object> params = (Map<String, Object>) call.arguments;
@@ -123,6 +132,17 @@ public class YandexDrivingRouterHandlerImpl implements MethodCallHandler {
                     resultPoints.add(resultPoint);
                 }
                 resultRoute.put("geometry", resultPoints);
+
+                Weight weight = route.getMetadata().getWeight();
+                Map<String, Object> resultWeight = new HashMap<>();
+                resultWeight.put("time", localizedValueData(weight.getTime()));
+                resultWeight.put("timeWithTraffic", localizedValueData(weight.getTimeWithTraffic()));
+                resultWeight.put("distance", localizedValueData(weight.getDistance()));
+
+                Map<String, Object> resultMetadata = new HashMap<>();
+                resultMetadata.put("weight", resultWeight);
+                resultRoute.put("metadata", resultMetadata);
+
                 resultRoutes.add(resultRoute);
             }
             resultMap.put("routes", resultRoutes);
