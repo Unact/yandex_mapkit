@@ -99,7 +99,7 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
         return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
     }
 
-    private func localizedValueData(_ value: YMKLocalizedValue) -> [String: Any] {
+    private func localizedValueData(_ value: YMKLocalizedValue) -> [String: Any?] {
         ["value": value.value, "text": value.text]
     }
 }
