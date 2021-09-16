@@ -159,21 +159,29 @@ class _SessionState extends State<_SessionPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Point - Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}',
-                          style: TextStyle(fontSize: 20)
-                        ),
-                        !_progress ? Container() : TextButton.icon(
-                          icon: const CircularProgressIndicator(),
-                          label: const Text('Cancel'),
-                          onPressed: _cancel
-                        )
-                      ],
+                    SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Point',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          !_progress ? Container() : TextButton.icon(
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
+                            onPressed: _cancel
+                          )
+                        ],
+                      )
                     ),
+                    Row(children: [
+                      Flexible(child:
+                        Text('Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}')
+                      )
+                    ]),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[

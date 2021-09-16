@@ -6,7 +6,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class DrivingPage extends MapPage {
-  const DrivingPage() : super('Driving router example');
+  const DrivingPage() : super('Driving example');
 
   @override
   Widget build(BuildContext context) {

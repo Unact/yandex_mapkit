@@ -6,7 +6,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class SuggestionsPage extends MapPage {
-  const SuggestionsPage() : super('Suggestions example');
+  const SuggestionsPage() : super('Suggest example');
 
   @override
   Widget build(BuildContext context) {
@@ -122,17 +122,20 @@ class _SessionState extends State<_SessionPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(widget.query, style: TextStyle(fontSize: 20,)),
-                        !_progress ? Container() : TextButton.icon(
-                          icon: const CircularProgressIndicator(),
-                          label: const Text(''),
-                          onPressed: null
-                        )
-                      ],
+                    SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(widget.query, style: TextStyle(fontSize: 20,)),
+                          !_progress ? Container() : TextButton.icon(
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Reset'),
+                            onPressed: _reset
+                          )
+                        ],
+                      )
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -172,6 +175,11 @@ class _SessionState extends State<_SessionPage> {
     }
 
     return list;
+  }
+
+  Future<void> _reset() async {
+    await widget.session.reset();
+    setState(() { _progress = false; });
   }
 
   Future<void> _close() async {

@@ -2,8 +2,6 @@ package com.unact.yandexmapkit;
 
 import com.yandex.mapkit.search.Session;
 
-import java.util.function.Consumer;
-
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
