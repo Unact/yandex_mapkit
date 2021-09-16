@@ -1,9 +1,9 @@
 part of yandex_mapkit;
 
 class DrivingSectionMetadata extends Equatable {
-  DrivingSectionMetadata._(this.weight);
-
   final DrivingWeight weight;
+
+  DrivingSectionMetadata._(this.weight);
 
   @override
   List<Object> get props => <Object>[
@@ -15,11 +15,11 @@ class DrivingSectionMetadata extends Equatable {
 }
 
 class DrivingWeight extends Equatable {
-  DrivingWeight._(this.time, this.timeWithTraffic, this.distance);
-
   final LocalizedValue time;
   final LocalizedValue timeWithTraffic;
   final LocalizedValue distance;
+
+  DrivingWeight._(this.time, this.timeWithTraffic, this.distance);
 
   @override
   List<Object> get props => <Object>[

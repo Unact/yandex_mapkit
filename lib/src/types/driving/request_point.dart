@@ -1,10 +1,10 @@
 part of yandex_mapkit;
 
 class RequestPoint extends Equatable {
-  const RequestPoint(this.point, this.requestPointType);
-
   final Point point;
   final RequestPointType requestPointType;
+
+  const RequestPoint(this.point, this.requestPointType);
 
   @override
   List<Object> get props => <Object>[
