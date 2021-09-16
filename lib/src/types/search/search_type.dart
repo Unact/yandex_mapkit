@@ -11,7 +11,6 @@ enum SearchType {
 }
 
 extension SearchTypeExtension on SearchType {
-
   int get value {
     switch (this) {
       case SearchType.none:

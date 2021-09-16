@@ -15,27 +15,22 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
-
   private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
-
   private static final String SEARCH_CHANNEL_ID   = "yandex_mapkit/yandex_search";
   private static final String SUGGEST_CHANNEL_ID  = "yandex_mapkit/yandex_suggest";
   private static final String DRIVING_CHANNEL_ID  = "yandex_mapkit/yandex_driving";
 
   @Nullable private Lifecycle lifecycle;
 
-  private MethodChannel searchMethodChannel;
-  private MethodChannel suggestMethodChannel;
-  private MethodChannel drivingRouterMethodChannel;
-
+  @Nullable private MethodChannel searchMethodChannel;
+  @Nullable private MethodChannel suggestMethodChannel;
+  @Nullable private MethodChannel drivingRouterMethodChannel;
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
-
     MapKitFactory.initialize(binding.getApplicationContext());
 
     BinaryMessenger messenger = binding.getBinaryMessenger();
-
     binding.getPlatformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(messenger, new LifecycleProvider()));
 
     setupChannels(messenger, binding.getApplicationContext());
@@ -43,27 +38,24 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
 
   @Override
   public void onDetachedFromEngine(FlutterPluginBinding binding) {
-
     teardownChannels();
   }
 
   private void setupChannels(BinaryMessenger messenger, Context context) {
-
     searchMethodChannel = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
-    YandexSearchHandlerImpl searchHandler = new YandexSearchHandlerImpl(context, messenger);
-    searchMethodChannel.setMethodCallHandler(searchHandler);
+    YandexSearch yandexSearch = new YandexSearch(context, messenger);
+    searchMethodChannel.setMethodCallHandler(yandexSearch);
 
     suggestMethodChannel = new MethodChannel(messenger, SUGGEST_CHANNEL_ID);
-    YandexSuggestHandlerImpl suggestHandler = new YandexSuggestHandlerImpl(context);
-    suggestMethodChannel.setMethodCallHandler(suggestHandler);
+    YandexSuggest yandexSuggest = new YandexSuggest(context, messenger);
+    suggestMethodChannel.setMethodCallHandler(yandexSuggest);
 
     drivingRouterMethodChannel = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
-    YandexDrivingRouterHandlerImpl handlerDrivingRouter = new YandexDrivingRouterHandlerImpl(context);
-    drivingRouterMethodChannel.setMethodCallHandler(handlerDrivingRouter);
+    YandexDriving yandexDriving = new YandexDriving(context, messenger);
+    drivingRouterMethodChannel.setMethodCallHandler(yandexDriving);
   }
 
   private void teardownChannels() {
-
     searchMethodChannel.setMethodCallHandler(null);
     searchMethodChannel = null;
 

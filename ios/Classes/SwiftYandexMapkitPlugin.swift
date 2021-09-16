@@ -4,9 +4,7 @@ import UIKit
 import YandexMapsMobile
 
 public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
-
   public static func register(with registrar: FlutterPluginRegistrar) {
-    
     registrar.register(
       YandexMapFactory(registrar: registrar),
       withId: "yandex_mapkit/yandex_map"
@@ -16,8 +14,6 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
 
     YandexSearch.register(with: registrar)
     YandexSuggest.register(with: registrar)
-    
-    YandexDrivingRouter.register(with: registrar)
+    YandexDriving.register(with: registrar)
   }
-
 }

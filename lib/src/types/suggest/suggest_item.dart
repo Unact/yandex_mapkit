@@ -1,7 +1,7 @@
 part of yandex_mapkit;
 
 class SuggestItem extends Equatable {
-  const SuggestItem({
+  const SuggestItem._({
     required this.title,
     required this.subtitle,
     required this.displayText,
@@ -11,7 +11,7 @@ class SuggestItem extends Equatable {
   });
 
   factory SuggestItem.fromJson(Map<dynamic, dynamic> json) {
-    return SuggestItem(
+    return SuggestItem._(
       title: json['title'],
       subtitle: json['subtitle'],
       displayText: json['displayText'],
@@ -39,4 +39,11 @@ class SuggestItem extends Equatable {
 
   @override
   bool get stringify => true;
+}
+
+enum SuggestItemType {
+  unknown,
+  toponym,
+  business,
+  transit
 }

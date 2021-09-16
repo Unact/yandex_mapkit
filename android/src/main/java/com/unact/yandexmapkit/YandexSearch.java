@@ -23,19 +23,16 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-public class YandexSearchHandlerImpl implements MethodCallHandler {
-
+public class YandexSearch implements MethodCallHandler {
   private final SearchManager searchManager;
   private final BinaryMessenger binaryMessenger;
+  private Map<Integer, YandexSearchSession> searchSessions = new HashMap<>();
 
-  private Map<Integer, YandexSearchSession> searchSessionsById  = new HashMap<>();;
-
-  public YandexSearchHandlerImpl(Context context, BinaryMessenger messenger) {
-
+  public YandexSearch(Context context, BinaryMessenger messenger) {
     SearchFactory.initialize(context);
 
-    searchManager 	= SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
-		binaryMessenger	= messenger;
+    searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
+    binaryMessenger = messenger;
   }
 
   @Override
@@ -54,28 +51,19 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
   }
 
   public void searchByText(MethodCall call, MethodChannel.Result result) {
-
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    int                 sessionId   = ((Number) params.get("sessionId")).intValue();
-    String              searchText  = (String) params.get("searchText");
-    Map<String, Object> geometry    = (Map<String, Object>) params.get("geometry");
-    Map<String, Object> options     = (Map<String, Object>) params.get("options");
-
+    int sessionId = ((Number) params.get("sessionId")).intValue();
+    String searchText = (String) params.get("searchText");
+    Map<String, Object> geometry = (Map<String, Object>) params.get("geometry");
+    Map<String, Object> options = (Map<String, Object>) params.get("options");
     Geometry geometryObj;
 
     if (geometry.containsKey("point")) {
-
       Map<String, Object> point = (Map<String, Object>) geometry.get("point");
 
-      geometryObj = Geometry.fromPoint(
-        new Point(((Double) point.get("latitude")), ((Double) point.get("longitude")))
-      );
-
+      geometryObj = Geometry.fromPoint(new Point(((Double) point.get("latitude")), ((Double) point.get("longitude"))));
     } else {
-
       Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
-
       Map<String, Object> southWest = (Map<String, Object>) boundingBox.get("southWest");
       Map<String, Object> northEast = (Map<String, Object>) boundingBox.get("northEast");
 
@@ -88,79 +76,76 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
     }
 
     SearchOptions searchOptions = getSearchOptions(options);
-
-    Session searchSession = searchManager.submit(
+    Session session = searchManager.submit(
       searchText,
       geometryObj,
       searchOptions,
       new YandexSearchListener(result, 0)
     );
 
-    YandexSearchSession session = new YandexSearchSession(
+    YandexSearchSession searchSession = new YandexSearchSession(
       sessionId,
-      searchSession,
+      session,
       binaryMessenger,
-      new CloseSearchSessionCallback()
+      new SearchCloseListener()
     );
 
-    searchSessionsById.put(sessionId, session);
+    searchSessions.put(sessionId, searchSession);
   }
 
   public void searchByPoint(MethodCall call, MethodChannel.Result result) {
-
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    int 								sessionId	= ((Number) params.get("sessionId")).intValue();
-    Map<String, Object> point    	= (Map<String, Object>) params.get("point");
-    Integer             zoom  		= (Integer) params.get("zoom");
-    Map<String, Object> options   = (Map<String, Object>) params.get("options");
+    int sessionId = ((Number) params.get("sessionId")).intValue();
+    Map<String, Object> point = (Map<String, Object>) params.get("point");
+    Integer zoom = ((Number) params.get("zoom")).intValue();
+    Map<String, Object> options = (Map<String, Object>) params.get("options");
 
     SearchOptions searchOptions = getSearchOptions(options);
-
-    Session searchSession = searchManager.submit(
+    Session session = searchManager.submit(
       new Point(((Double) point.get("latitude")), ((Double) point.get("longitude"))),
       zoom,
       searchOptions,
       new YandexSearchListener(result, 0)
     );
 
-    YandexSearchSession session = new YandexSearchSession(
+    YandexSearchSession searchSession = new YandexSearchSession(
       sessionId,
-      searchSession,
+      session,
       binaryMessenger,
-      new CloseSearchSessionCallback()
+      new SearchCloseListener()
     );
 
-    searchSessionsById.put(sessionId, session);
+    searchSessions.put(sessionId, searchSession);
   }
 
   private SearchOptions getSearchOptions(Map<String, Object> options) {
-
-    int                 searchTypeOption     = ((Number) options.get("searchType")).intValue();
-    Number              resultPageSizeOption = (Number) options.get("resultPageSize");
-    Map<String, Object> userPositionOption   = (Map<String, Object>) options.get("userPosition");
+    int searchTypeOption = ((Number) options.get("searchType")).intValue();
+    Number resultPageSizeOption = (Number) options.get("resultPageSize");
+    Map<String, Object> userPositionOption = (Map<String, Object>) options.get("userPosition");
 
     Integer resultPageSize = null;
     if (resultPageSizeOption != null) {
       resultPageSize = resultPageSizeOption.intValue();
     }
 
-    // Theses params are not implemented on the flutter side yet
     int snippetOption = Snippet.NONE.value;
     List<String> experimentalSnippetsOption = new ArrayList<>();
 
     Point userPosition = null;
 
     if (userPositionOption != null) {
-      userPosition = new Point(((Double) userPositionOption.get("latitude")), ((Double) userPositionOption.get("longitude")));
+      userPosition = new Point(
+        ((Double) userPositionOption.get("latitude")),
+        ((Double) userPositionOption.get("longitude"))
+      );
     }
 
-    String  originOption                    = (String) options.get("origin");
-    String  directPageIdOption              = (String) options.get("directPageId");
-    String  appleCtxOption                  = (String) options.get("appleCtx");
-    Boolean geometryOption                  = (Boolean) options.get("geometry");
-    String  advertPageIdOption              = (String) options.get("advertPageId");
-    Boolean suggestWordsOption              = (Boolean) options.get("suggestWords");
+    String originOption = (String) options.get("origin");
+    String directPageIdOption = (String) options.get("directPageId");
+    String appleCtxOption = (String) options.get("appleCtx");
+    Boolean geometryOption = (Boolean) options.get("geometry");
+    String advertPageIdOption = (String) options.get("advertPageId");
+    Boolean suggestWordsOption = (Boolean) options.get("suggestWords");
     Boolean disableSpellingCorrectionOption = (Boolean) options.get("disableSpellingCorrection");
 
     SearchOptions searchOptions = new SearchOptions(
@@ -181,11 +166,9 @@ public class YandexSearchHandlerImpl implements MethodCallHandler {
     return searchOptions;
   }
 
-	private class CloseSearchSessionCallback implements YandexSearchSessionCloseCallbackInterface {
-
-		@Override
-		public void onClose(int sessionId) {
-			searchSessionsById.remove(sessionId);
-		}
-	}
+  public class SearchCloseListener {
+    public void onClose(int id) {
+      searchSessions.remove(id);
+    }
+  }
 }

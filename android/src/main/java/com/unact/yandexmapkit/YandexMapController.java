@@ -614,17 +614,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   public float getZoom() {
     return mapView.getMap().getCameraPosition().getZoom();
   }
-  
+
   private boolean isTiltGesturesEnabled() {
     return mapView.getMap().isTiltGesturesEnabled();
   }
-    
+
   public void toggleTiltGestures(MethodCall call) {
-    
+
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
     boolean enabled = (Boolean) params.get("enabled");
-    
+
     mapView.getMap().setTiltGesturesEnabled(enabled);
   }
 

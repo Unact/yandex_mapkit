@@ -5,21 +5,16 @@ class GeometryException implements YandexMapkitException {
 
   GeometryException(this.message);
 }
-class Geometry {
-
-  final Point?       point;
+class Geometry extends Equatable {
+  final Point? point;
   final BoundingBox? boundingBox;
 
-  Geometry.fromPoint(Point point) :
-    point = point, boundingBox = null;
-
-  Geometry.fromBoundingBox(BoundingBox boundingBox) :
-        point = null, boundingBox = boundingBox;
+  Geometry.fromPoint(Point point) : point = point, boundingBox = null;
+  Geometry.fromBoundingBox(BoundingBox boundingBox) : point = null, boundingBox = boundingBox;
 
   factory Geometry.fromJson(Map<dynamic, dynamic> json) {
-
-    Point?        point;
-    BoundingBox?  boundingBox;
+    Point? point;
+    BoundingBox? boundingBox;
 
     if (json.containsKey('point')) {
       point = Point(
@@ -45,7 +40,6 @@ class Geometry {
   }
 
   Map<String, dynamic> toJson() {
-
     var json = <String, dynamic>{};
 
     if (point != null) {
@@ -68,4 +62,13 @@ class Geometry {
 
     return json;
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+    point,
+    boundingBox,
+  ];
+
+  @override
+  bool get stringify => true;
 }

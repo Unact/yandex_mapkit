@@ -11,6 +11,8 @@ import com.yandex.mapkit.search.Response;
 import com.yandex.mapkit.search.Session;
 import com.yandex.mapkit.search.ToponymObjectMetadata;
 import com.yandex.runtime.Error;
+import com.yandex.runtime.network.NetworkError;
+import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,47 +23,39 @@ import java.util.Map;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexSearchListener implements Session.SearchListener {
-
   private MethodChannel.Result  result;
   private int                   page;
 
   YandexSearchListener(MethodChannel.Result result, int page) {
-
     this.result = result;
     this.page   = page;
   }
 
   @Override
   public void onSearchResponse(@NonNull Response response) {
+    Map<String, Object> arguments = new HashMap<>();
 
-    Map<String, Object> data = new HashMap<>();
-
-    data.put("found", response.getMetadata().getFound());
-    data.put("page", page);
+    arguments.put("found", response.getMetadata().getFound());
+    arguments.put("page", page);
 
     List<Map<String, Object>> dataItems = new ArrayList<>();
 
     Iterator<GeoObjectCollection.Item> objectsIterator = response.getCollection().getChildren().iterator();
 
     while (objectsIterator.hasNext()) {
-
       GeoObjectCollection.Item item = objectsIterator.next();
-
       GeoObject obj = item.getObj();
       if (item.getObj() == null) {
         continue;
       }
 
       Map<String, Object> dataItem = new HashMap<>();
-
       dataItem.put("name", obj.getName());
 
       List<Map<String, Object>> geometry = new ArrayList<>();
-
       Iterator<Geometry> geometryIterator = obj.getGeometry().iterator();
 
       while (geometryIterator.hasNext()) {
-
         final Geometry geometryItem = geometryIterator.next();
 
         if (geometryItem.getPoint() != null) {
@@ -113,29 +107,31 @@ public class YandexSearchListener implements Session.SearchListener {
       dataItems.add(dataItem);
     }
 
-    data.put("items", dataItems);
-
-    Map<String, Object> arguments = new HashMap<>();
-
-    arguments.put("response", data);
+    arguments.put("items", dataItems);
 
     result.success(arguments);
   }
 
   @Override
   public void onSearchError(@NonNull Error error) {
+    String errorMessage = "Unknown error";
+
+    if (error instanceof NetworkError) {
+      errorMessage = "Network error";
+    }
+
+    if (error instanceof RemoteError) {
+      errorMessage = "Remote server error";
+    }
 
     Map<String, Object> arguments = new HashMap<>();
-
-    arguments.put("error", "Unknown error");
+    arguments.put("error", errorMessage);
 
     result.success(arguments);
   }
 
   private Map<String, Object> getToponymMetadata(ToponymObjectMetadata meta) {
-
     Map<String, Object> toponymMetadata = new HashMap<>();
-
     Map<String, Double> balloonPoint = new HashMap<>();
 
     balloonPoint.put("latitude", meta.getBalloonPoint().getLatitude());
@@ -144,7 +140,6 @@ public class YandexSearchListener implements Session.SearchListener {
     toponymMetadata.put("balloonPoint", balloonPoint);
 
     Map<String, Object> address = new HashMap<>();
-
     address.put("formattedAddress", meta.getAddress().getFormattedAddress());
     address.put("addressComponents", getAddressComponents(meta.getAddress()));
 
@@ -154,9 +149,7 @@ public class YandexSearchListener implements Session.SearchListener {
   }
 
   private Map<String, Object> getBusinessMetadata(BusinessObjectMetadata meta) {
-
     Map<String, Object> businessMetadata = new HashMap<>();
-
     businessMetadata.put("name", meta.getName());
 
     if (meta.getShortName() != null) {
@@ -164,7 +157,6 @@ public class YandexSearchListener implements Session.SearchListener {
     }
 
     Map<String, Object> address = new HashMap<>();
-
     address.put("formattedAddress", meta.getAddress().getFormattedAddress());
     address.put("addressComponents", getAddressComponents(meta.getAddress()));
 
@@ -174,23 +166,16 @@ public class YandexSearchListener implements Session.SearchListener {
   }
 
   private Map<Integer, String> getAddressComponents(Address address) {
-
     Map<Integer, String> addressComponents = new HashMap<>();
-
     Iterator<Address.Component> iterator = address.getComponents().iterator();
 
     while (iterator.hasNext()) {
-
       Address.Component addressComponent = iterator.next();
-
       Integer flutterKind = 0;
-
       String value = addressComponent.getName();
-
       Iterator<Address.Component.Kind> addressKindsIterator = addressComponent.getKinds().iterator();
 
       while (addressKindsIterator.hasNext()) {
-
         Address.Component.Kind addressComponentKind = addressKindsIterator.next();
 
         switch (addressComponentKind) {

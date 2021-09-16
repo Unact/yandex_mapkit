@@ -26,7 +26,6 @@ enum SearchSnippet {
 }
 
 extension SearchSnippetExtension on SearchSnippet {
-
   int get value {
     switch (this) {
       case SearchSnippet.none:
