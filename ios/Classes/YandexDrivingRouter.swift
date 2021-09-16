@@ -61,7 +61,13 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
                     let resultpoints: [[String: Any]] = route.geometry.points.map { (point) -> [String: Any] in
                         return ["latitude": point.latitude, "longitude": point.longitude]
                     }
-                    let resultRoute: [String: Any] = ["geometry": resultpoints]
+                    let weight: [String: Any] = [
+                        "time": self.localizedValueData(route.metadata.weight.time),
+                        "timeWithTraffic": self.localizedValueData(route.metadata.weight.timeWithTraffic),
+                        "distance": self.localizedValueData(route.metadata.weight.distance)
+                    ]
+                    let metadata: [String: Any] = ["weight": weight]
+                    let resultRoute: [String: Any] = ["geometry": resultpoints, "metadata": metadata]
                     return resultRoute
                 }
             result(["routes": resultRoutes])
@@ -91,5 +97,9 @@ public class YandexDrivingRouter: NSObject, FlutterPlugin {
             pointType = YMKRequestPointType.waypoint
         }
         return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
+    }
+
+    private func localizedValueData(_ value: YMKLocalizedValue) -> [String: Any?] {
+        ["value": value.value, "text": value.text]
     }
 }
