@@ -67,13 +67,11 @@ class _DrivingExampleState extends State<_DrivingExample> {
   Future<void> _requestRoutes() async {
     print('Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
-    var resultWithSession = YandexDriving.requestRoutes(
-      <RequestPoint>[
-        RequestPoint(startPlacemark.point, RequestPointType.wayPoint),
-        RequestPoint(stopByPlacemark.point, RequestPointType.viaPoint),
-        RequestPoint(endPlacemark.point, RequestPointType.wayPoint),
-      ],
-    );
+    var resultWithSession = YandexDriving.requestRoutes(points: [
+      RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
+      RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
+      RequestPoint(point: endPlacemark.point, requestPointType: RequestPointType.wayPoint),
+    ]);
 
     await Navigator.push(
       context,
@@ -164,16 +162,19 @@ class _SessionState extends State<_SessionPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        !_progress ? Container() : TextButton.icon(
-                          icon: const CircularProgressIndicator(),
-                          label: const Text('Cancel'),
-                          onPressed: _cancel
-                        )
-                      ],
+                    SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          !_progress ? Container() : TextButton.icon(
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
+                            onPressed: _cancel
+                          )
+                        ],
+                      )
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -221,15 +222,12 @@ class _SessionState extends State<_SessionPage> {
 
   Future<void> _cancel() async {
     await widget.session.cancel();
+
     setState(() { _progress = false; });
   }
 
   Future<void> _close() async {
-    try {
-      await widget.session.close();
-    } on DrivingSessionException catch (e) {
-      print('Error: ${e.message}');
-    }
+    await widget.session.close();
   }
 
   Future<void> _init() async {

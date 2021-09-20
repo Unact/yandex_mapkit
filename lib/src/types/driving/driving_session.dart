@@ -4,13 +4,17 @@ class DrivingSession {
   static const String _methodChannelName = 'yandex_mapkit/yandex_driving_session_';
   final MethodChannel _methodChannel;
 
+  /// Unique session identifier
   final int id;
   bool _isClosed = false;
+
+  /// Has the current session been closed
+  bool get isClosed => _isClosed;
 
   DrivingSession._({required this.id}) :
     _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
-  /// Retries current session.
+  /// Retries current session
   ///
   /// After [DrivingSession.close] has been called, all subsequent calls will return a [DrivingSessionException]
   Future<void> retry() async {
@@ -21,7 +25,7 @@ class DrivingSession {
     await _methodChannel.invokeMethod<void>('retry');
   }
 
-  /// Cancels current session.
+  /// Cancels current session
   ///
   /// After [DrivingSession.close] has been called, all subsequent calls will return a [DrivingSessionException]
   Future<void> cancel() async {
@@ -32,7 +36,7 @@ class DrivingSession {
     await _methodChannel.invokeMethod<void>('cancel');
   }
 
-  /// Closes current session.
+  /// Closes current session
   ///
   /// After first call, all subsequent calls will return a [DrivingSessionException]
   Future<void> close() async {
@@ -49,6 +53,7 @@ class DrivingSession {
 class DrivingSessionException extends SessionException {
   DrivingSessionException._(String message) : super._(message);
 }
+
 class DrivingSessionResult {
   final List<DrivingRoute>? routes;
   final String? error;
@@ -56,33 +61,10 @@ class DrivingSessionResult {
   DrivingSessionResult._(this.routes, this.error);
 
   factory DrivingSessionResult.fromJson(Map<dynamic, dynamic> json) {
-    String? error = json['error'];
-    List<dynamic>? resultRoutes = json['routes'];
-    var routes = resultRoutes?.map((dynamic route) {
-      final List<dynamic> resultPoints = route['geometry'];
-      final points = resultPoints.map((dynamic resultPoint) => Point.fromJson(resultPoint)).toList();
-      final dynamic weight = route['metadata']['weight'];
-      final metadata = DrivingSectionMetadata._(
-        DrivingWeight._(
-          LocalizedValue(
-            weight['time']['value'],
-            weight['time']['text'],
-          ),
-          LocalizedValue(
-            weight['timeWithTraffic']['value'],
-            weight['timeWithTraffic']['text'],
-          ),
-          LocalizedValue(
-            weight['distance']['value'],
-            weight['distance']['text'],
-          ),
-        ),
-      );
-
-      return DrivingRoute._(points, metadata);
-    }).toList();
-
-    return DrivingSessionResult._(routes, error);
+    return DrivingSessionResult._(
+      json['routes']?.map<DrivingRoute>((dynamic route) => DrivingRoute.fromJson(route)).toList(),
+      json['error']
+    );
   }
 }
 

@@ -1,10 +1,14 @@
 part of yandex_mapkit;
 
 class LocalizedValue extends Equatable {
-  LocalizedValue(this.value, this.text);
+  LocalizedValue._(this.value, this.text);
 
   final double? value;
   final String text;
+
+  factory LocalizedValue.fromJson(Map<dynamic, dynamic> json) {
+    return LocalizedValue._(json['value'], json['text']);
+  }
 
   @override
   List<Object?> get props => <Object?>[

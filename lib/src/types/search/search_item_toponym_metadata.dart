@@ -22,10 +22,7 @@ class SearchItemToponymMetadata extends Equatable {
     addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
 
     return SearchItemToponymMetadata._(
-      balloonPoint: Point(
-        latitude: json['balloonPoint']['latitude'],
-        longitude: json['balloonPoint']['longitude']
-      ),
+      balloonPoint: Point.fromJson(json['balloonPoint']),
       formattedAddress: json['address']['formattedAddress'],
       addressComponents: addressMap,
     );

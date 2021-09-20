@@ -17,22 +17,15 @@ class Geometry extends Equatable {
     BoundingBox? boundingBox;
 
     if (json.containsKey('point')) {
-      point = Point(
-        latitude: json['point']['latitude'],
-        longitude: json['point']['longitude'],
-      );
+      point = Point.fromJson(json['point']);
+
       return Geometry.fromPoint(point);
     } else if (json.containsKey('boundingBox')) {
       boundingBox = BoundingBox(
-        southWest: Point(
-          latitude: json['southWest']['latitude'],
-          longitude: json['southWest']['longitude'],
-        ),
-        northEast: Point(
-          latitude: json['northEast']['latitude'],
-          longitude: json['northEast']['longitude'],
-        ),
+        southWest: Point.fromJson(json['southWest']),
+        northEast: Point.fromJson(json['northEast']),
       );
+
       return Geometry.fromBoundingBox(boundingBox);
     }
 
@@ -43,21 +36,9 @@ class Geometry extends Equatable {
     var json = <String, dynamic>{};
 
     if (point != null) {
-      json['point'] = {
-        'latitude': point!.latitude,
-        'longitude': point!.longitude,
-      };
+      json['point'] = point!.toJson();
     } else {
-      json['boundingBox'] = {
-        'southWest': {
-          'latitude': boundingBox!.southWest.latitude,
-          'longitude': boundingBox!.southWest.longitude,
-        },
-        'northEast': {
-          'latitude': boundingBox!.northEast.latitude,
-          'longitude': boundingBox!.northEast.longitude,
-        },
-      };
+      json['boundingBox'] = boundingBox!.toJson();
     }
 
     return json;

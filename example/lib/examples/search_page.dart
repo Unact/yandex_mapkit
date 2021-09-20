@@ -190,15 +190,12 @@ class _SessionState extends State<_SessionPage> {
 
   Future<void> _cancel() async {
     await widget.session.cancel();
+
     setState(() { _progress = false; });
   }
 
   Future<void> _close() async {
-    try {
-      await widget.session.close();
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
-    }
+    await widget.session.close();
   }
 
   Future<void> _init() async {
@@ -215,14 +212,10 @@ class _SessionState extends State<_SessionPage> {
 
     setState(() { results.add(result); });
 
-    try {
-      if (await widget.session.hasNextPage()) {
-        print('Got ${result.found} items, fetching next page...');
-        setState(() { _progress = true; });
-        await _handleResult(await widget.session.fetchNextPage());
-      }
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
+    if (await widget.session.hasNextPage()) {
+      print('Got ${result.found} items, fetching next page...');
+      setState(() { _progress = true; });
+      await _handleResult(await widget.session.fetchNextPage());
     }
 
     setState(() { _progress = false; });

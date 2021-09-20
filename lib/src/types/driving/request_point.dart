@@ -4,7 +4,10 @@ class RequestPoint extends Equatable {
   final Point point;
   final RequestPointType requestPointType;
 
-  const RequestPoint(this.point, this.requestPointType);
+  const RequestPoint({
+    required this.point,
+    required this.requestPointType
+  });
 
   @override
   List<Object> get props => <Object>[
@@ -14,6 +17,13 @@ class RequestPoint extends Equatable {
 
   @override
   bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'requestPointType': requestPointType.value,
+      'point': point.toJson()
+    };
+  }
 }
 
 enum RequestPointType { wayPoint, viaPoint }

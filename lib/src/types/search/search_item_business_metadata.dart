@@ -1,10 +1,9 @@
 part of yandex_mapkit;
 
 class SearchItemBusinessMetadata extends Equatable {
-
-  final String                          name;
-  final String?                         shortName;
-  final String                          formattedAddress;
+  final String name;
+  final String? shortName;
+  final String formattedAddress;
   final Map<SearchComponentKind, String> addressComponents;
 
   const SearchItemBusinessMetadata._({

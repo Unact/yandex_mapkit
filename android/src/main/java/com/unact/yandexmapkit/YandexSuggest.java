@@ -49,9 +49,12 @@ public class YandexSuggest implements MethodCallHandler {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     final int sessionId = ((Number) params.get("sessionId")).intValue();
     String formattedAddress = (String) params.get("formattedAddress");
+    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
+    Map<String, Object> southWest = (Map<String, Object>) paramsBoundingBox.get("southWest");
+    Map<String, Object> northEast = (Map<String, Object>) paramsBoundingBox.get("northEast");
     BoundingBox boundingBox = new BoundingBox(
-      new Point(((Double) params.get("southWestLatitude")), ((Double) params.get("southWestLongitude"))),
-      new Point(((Double) params.get("northEastLatitude")), ((Double) params.get("northEastLongitude")))
+      new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
+      new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
     );
 
     Boolean suggestWords = ((Boolean) params.get("suggestWords"));

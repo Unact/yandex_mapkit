@@ -4,13 +4,17 @@ class SearchSession {
   static const String _methodChannelName = 'yandex_mapkit/yandex_search_session_';
   final MethodChannel _methodChannel;
 
+  /// Unique session identifier
   final int id;
   bool _isClosed = false;
+
+  /// Has the current session been closed
+  bool get isClosed => _isClosed;
 
   SearchSession._({required this.id}) :
     _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
-  /// Cancels running search request if there is one.
+  /// Cancels running search request if there is one
   ///
   /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<void> cancel() async {
@@ -21,7 +25,7 @@ class SearchSession {
     await _methodChannel.invokeMethod<void>('cancel');
   }
 
-  /// Retries last search request (for ex. if it  failed).
+  /// Retries last search request(for example if it failed)
   ///
   /// Use all the options of previous request.
   /// Automatically cancels running search if there is one.
@@ -36,7 +40,7 @@ class SearchSession {
     return SearchSessionResult.fromJson(result);
   }
 
-  /// Returns true/false depending on next page is available
+  /// Returns true/false depending on if the next page is available
   ///
   /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<bool> hasNextPage() async {
@@ -47,8 +51,7 @@ class SearchSession {
     return await _methodChannel.invokeMethod('hasNextPage');
   }
 
-  /// If hasNextPage in SearchResponse is false
-  /// then calling of this method will have no effect.
+  /// If [SearchResponse.hasNextPage] is false then calling of this method will have no effect
   ///
   /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<SearchSessionResult> fetchNextPage() async {
@@ -61,8 +64,7 @@ class SearchSession {
     return SearchSessionResult.fromJson(result);
   }
 
-  /// Closes current session.
-  /// After close all requests to this session will have no effect.
+  /// Closes current session
   ///
   /// After first call, all subsequent calls will return a [SearchSessionException]
   Future<void> close() async {
@@ -94,11 +96,12 @@ class SearchSessionResult {
   );
 
   factory SearchSessionResult.fromJson(Map<dynamic, dynamic> json) {
-    String? error = json['error'];
-    List<dynamic>? resultItems = json['items'];
-    var items = resultItems?.map((dynamic item) => SearchItem.fromJson(item)).toList();
-
-    return SearchSessionResult._(json['found'], items, json['page'], error);
+    return SearchSessionResult._(
+      json['found'],
+      json['items']?.map<SearchItem>((dynamic item) => SearchItem.fromJson(item)).toList(),
+      json['page'],
+      json['error']
+    );
   }
 }
 

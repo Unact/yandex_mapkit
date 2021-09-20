@@ -4,13 +4,18 @@ class SuggestSession {
   static const String _methodChannelName = 'yandex_mapkit/yandex_suggest_session_';
   final MethodChannel _methodChannel;
 
+  /// Unique session identifier
   final int id;
   bool _isClosed = false;
+
+  /// Has the current session been closed
+  bool get isClosed => _isClosed;
 
   SuggestSession._({required this.id}) :
     _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
-  /// Resets current session.
+  /// Resets current session
+  ///
   /// After [SuggestSession.close] has been called, all subsequent calls will return a [SuggestSessionException]
   Future<void> reset() async {
     if (_isClosed) {
@@ -20,7 +25,8 @@ class SuggestSession {
     await _methodChannel.invokeMethod<void>('reset');
   }
 
-  /// Closes current session.
+  /// Closes current session
+  ///
   /// After first call, all subsequent calls will return a [SuggestSessionException]
   Future<void> close() async {
     if (_isClosed) {
@@ -44,13 +50,10 @@ class SuggestSessionResult {
   SuggestSessionResult._(this.items, this.error);
 
   factory SuggestSessionResult.fromJson(Map<dynamic, dynamic> json) {
-    String? error = json['error'];
-    List<dynamic>? resultItems = json['items'];
-    var items = resultItems?.map(
-      (dynamic item) => SuggestItem.fromJson(item as Map<dynamic, dynamic>)
-    ).toList();
-
-    return SuggestSessionResult._(items, error);
+    return SuggestSessionResult._(
+      json['items']?.map<SuggestItem>((dynamic item) => SuggestItem.fromJson(item)).toList(),
+      json['error']
+    );
   }
 }
 

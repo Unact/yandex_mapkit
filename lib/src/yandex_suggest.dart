@@ -8,18 +8,14 @@ class YandexSuggest {
 
   static SuggestResultWithSession getSuggestions({
     required String address,
-    required Point southWestPoint,
-    required Point northEastPoint,
+    required BoundingBox boundingBox,
     required SuggestType suggestType,
     required bool suggestWords,
   }) {
     var params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'formattedAddress': address,
-      'southWestLatitude': southWestPoint.latitude,
-      'southWestLongitude': southWestPoint.longitude,
-      'northEastLatitude': northEastPoint.latitude,
-      'northEastLongitude': northEastPoint.longitude,
+      'boundingBox': boundingBox.toJson(),
       'suggestType': suggestType.value,
       'suggestWords': suggestWords,
     };

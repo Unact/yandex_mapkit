@@ -44,15 +44,17 @@ public class YandexSuggest: NSObject, FlutterPlugin {
     let params = call.arguments as! [String: Any]
     let sessionId = (params["sessionId"] as! NSNumber).intValue
     let formattedAddress = params["formattedAddress"] as! String
-
+    let paramsBoundingBox = params["boundingBox"] as! [String:Any]
+    let southWest = paramsBoundingBox["southWest"] as! [String:Any]
+    let northEast = paramsBoundingBox["northEast"] as! [String:Any]
     let boundingBox = YMKBoundingBox.init(
       southWest: YMKPoint.init(
-        latitude: (params["southWestLatitude"] as! NSNumber).doubleValue,
-        longitude: (params["southWestLongitude"] as! NSNumber).doubleValue
+        latitude: (southWest["latitude"] as! NSNumber).doubleValue,
+        longitude: (southWest["longitude"] as! NSNumber).doubleValue
       ),
       northEast: YMKPoint.init(
-        latitude: (params["northEastLatitude"] as! NSNumber).doubleValue,
-        longitude: (params["northEastLongitude"] as! NSNumber).doubleValue
+        latitude: (northEast["latitude"] as! NSNumber).doubleValue,
+        longitude: (northEast["longitude"] as! NSNumber).doubleValue
       )
     )
 

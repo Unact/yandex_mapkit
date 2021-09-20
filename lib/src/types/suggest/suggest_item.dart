@@ -22,14 +22,14 @@ class SuggestItem extends Equatable {
   }
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String displayText;
   final String searchText;
   final SuggestItemType type;
   final List<dynamic> tags;
 
   @override
-  List<Object> get props => <Object>[
+  List<Object?> get props => <Object?>[
     title,
     subtitle,
     searchText,
