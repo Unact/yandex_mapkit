@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
@@ -21,22 +20,7 @@ class _SearchExample extends StatefulWidget {
 }
 
 class _SearchExampleState extends State<_SearchExample> {
-
-  TextEditingController queryController = TextEditingController();
-
-  final List<SearchResponse> responseByPages = [];
-
-  final Map<int,SearchSession> _sessions = {};
-
-  @override
-  void dispose() async {
-
-    super.dispose();
-
-    for (var s in _sessions.values) {
-      await _closeSession(s);
-    }
-  }
+  final TextEditingController queryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -49,36 +33,18 @@ class _SearchExampleState extends State<_SearchExample> {
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[
-                const Text('Search:'),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Flexible(
                       child: TextField(
                         controller: queryController,
+                        decoration: InputDecoration(hintText: 'Search'),
                       ),
                     ),
                     ControlButton(
-                      onPressed: () {
-                        search(queryController.text);
-                      },
+                      onPressed: _search,
                       title: 'Query'
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text('Response:'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Flexible(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: _getList(),
-                        )
-                      ),
                     ),
                   ],
                 ),
@@ -90,32 +56,12 @@ class _SearchExampleState extends State<_SearchExample> {
     );
   }
 
-  List<Widget> _getList() {
-
-    var list = <Widget>[];
-
-    for (var r in responseByPages) {
-
-      list.add(Text('Page: ${r.page}'));
-      list.add(Container(height: 20));
-
-      r.items.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
-      });
-
-      list.add(Container(height: 20));
-    }
-
-    return list;
-  }
-
-  void search(String query) async {
+  void _search() async {
+    var query = queryController.text;
 
     print('Search query: $query');
 
-    responseByPages.clear();
-
-    var sessionWithResponse = await YandexSearch.searchByText(
+    var resultWithSession = YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         BoundingBox(
@@ -129,52 +75,149 @@ class _SearchExampleState extends State<_SearchExample> {
       ),
     );
 
-    var session = sessionWithResponse.session;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => _SessionPage(query, resultWithSession.session, resultWithSession.result)
+      )
+    );
+  }
+}
 
-    _sessions[session.id] = session;
+class _SessionPage extends StatefulWidget {
+  final Future<SearchSessionResult> result;
+  final SearchSession session;
+  final String query;
 
-    var responseOrError = await sessionWithResponse.responseOrError;
+  _SessionPage(this.query, this.session, this.result);
 
-    await _handleResponse(session, responseOrError);
+  @override
+  _SessionState createState() => _SessionState();
+}
 
-    print('No more results available, closing session...');
-    await _closeSession(session);
+class _SessionState extends State<_SessionPage> {
+  final List<SearchSessionResult> results = [];
+  bool _progress = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _init();
   }
 
-  Future<void> _closeSession(SearchSession session) async {
+  @override
+  void dispose() {
+    super.dispose();
 
-    try {
-      await session.close();
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
+    _close();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Search ${widget.session.id}')),
+      body: Container(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(widget.query, style: TextStyle(fontSize: 20,)),
+                          !_progress ? Container() : TextButton.icon(
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
+                            onPressed: _cancel
+                          )
+                        ],
+                      )
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Flexible(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _getList(),
+                            )
+                          ),
+                        ),
+                      ],
+                    ),
+                  ]
+                )
+              )
+            )
+          ]
+        )
+      )
+    );
+  }
+
+  List<Widget> _getList() {
+    var list = <Widget>[];
+
+    if (results.isEmpty) {
+      list.add((Text('Nothing found')));
     }
 
-    _sessions.remove(session.id);
+    for (var r in results) {
+      list.add(Text('Page: ${r.page}'));
+      list.add(Container(height: 20));
+
+      r.items!.asMap().forEach((i, item) {
+        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+      });
+
+      list.add(Container(height: 20));
+    }
+
+    return list;
   }
 
-  Future<void> _handleResponse(SearchSession session, SearchResponseOrError responseOrError) async {
+  Future<void> _cancel() async {
+    await widget.session.cancel();
 
-    if (responseOrError.error != null) {
-      print('Error: ${responseOrError.error}');
-      await _closeSession(session);
+    setState(() { _progress = false; });
+  }
+
+  Future<void> _close() async {
+    await widget.session.close();
+  }
+
+  Future<void> _init() async {
+    await _handleResult(await widget.result);
+  }
+
+  Future<void> _handleResult(SearchSessionResult result) async {
+    if (result.error != null) {
+      print('Error: ${result.error}');
       return;
     }
 
-    var response = responseOrError.response!;
+    print('Page ${result.page}: ${result.toString()}');
 
-    print('Page ${response.page}: ${response.toString()}');
+    setState(() { results.add(result); });
 
-    setState(() {
-      responseByPages.add(response);
-    });
-
-    try {
-      if (await session.hasNextPage()) {
-        print('Got ${response.found} items, fetching next page...');
-        await _handleResponse(session, await session.fetchNextPage());
-      }
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
+    if (await widget.session.hasNextPage()) {
+      print('Got ${result.found} items, fetching next page...');
+      setState(() { _progress = true; });
+      await _handleResult(await widget.session.fetchNextPage());
     }
+
+    setState(() { _progress = false; });
   }
 }

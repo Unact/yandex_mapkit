@@ -5,76 +5,60 @@ import YandexMapsMobile
 
 
 public class YandexSuggest: NSObject, FlutterPlugin {
-  
+  private let pluginRegistrar: FlutterPluginRegistrar!
+  private let methodChannel: FlutterMethodChannel!
   private let searchManager: YMKSearchManager!
-  private var suggestSessionsById: [Int:YMKSearchSuggestSession] = [:]
-  
-  private var searchSessions: [Int:YandexSearchSession] = [:]
-  
-  
+  private var suggestSessions: [Int:YandexSuggestSession] = [:]
+
   public static func register(with registrar: FlutterPluginRegistrar) {
-    
     let channel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_suggest",
       binaryMessenger: registrar.messenger()
     )
 
-    let plugin = YandexSuggest()
-    
+    let plugin = YandexSuggest(channel: channel, registrar: registrar)
+
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
 
-  public required override init() {
-    
+  public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
+    self.pluginRegistrar = registrar
+    self.methodChannel = channel
     self.searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
-    
+
     super.init()
+
+    self.methodChannel.setMethodCallHandler(self.handle)
   }
-  
-  
+
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    
     switch call.method {
     case "getSuggestions":
       getSuggestions(call, result: result)
-    case "cancelSuggestSession":
-      cancelSuggestSession(call, result: result)
     default:
       result(FlutterMethodNotImplemented)
     }
   }
 
-  public func cancelSuggestSession(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    
-    let params = call.arguments as! [String: Any]
-    let listenerId = (params["listenerId"] as! NSNumber).intValue
-    
-    if let session = suggestSessionsById[listenerId] {
-        session.reset()
-        suggestSessionsById.removeValue(forKey: listenerId)
-    }
-    
-    result(nil)
-  }
-
   public func getSuggestions(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    
     let params = call.arguments as! [String: Any]
-    let listenerId = (params["listenerId"] as! NSNumber).intValue
+    let sessionId = (params["sessionId"] as! NSNumber).intValue
     let formattedAddress = params["formattedAddress"] as! String
-    
+    let paramsBoundingBox = params["boundingBox"] as! [String:Any]
+    let southWest = paramsBoundingBox["southWest"] as! [String:Any]
+    let northEast = paramsBoundingBox["northEast"] as! [String:Any]
     let boundingBox = YMKBoundingBox.init(
       southWest: YMKPoint.init(
-        latitude: (params["southWestLatitude"] as! NSNumber).doubleValue,
-        longitude: (params["southWestLongitude"] as! NSNumber).doubleValue
+        latitude: (southWest["latitude"] as! NSNumber).doubleValue,
+        longitude: (southWest["longitude"] as! NSNumber).doubleValue
       ),
       northEast: YMKPoint.init(
-        latitude: (params["northEastLatitude"] as! NSNumber).doubleValue,
-        longitude: (params["northEastLongitude"] as! NSNumber).doubleValue
+        latitude: (northEast["latitude"] as! NSNumber).doubleValue,
+        longitude: (northEast["longitude"] as! NSNumber).doubleValue
       )
     )
-    
-    let suggestSession = self.searchManager!.createSuggestSession()
+
+    let session = self.searchManager!.createSuggestSession()
     let suggestType = YMKSuggestType.init(rawValue: (params["suggestType"] as! NSNumber).uintValue)
     let suggestOptions = YMKSuggestOptions.init(
       suggestTypes: suggestType,
@@ -82,46 +66,24 @@ public class YandexSuggest: NSObject, FlutterPlugin {
       suggestWords: (params["suggestWords"] as! NSNumber).boolValue
     )
 
-    suggestSession.suggest(
+    session.suggest(
       withText: formattedAddress,
       window: boundingBox,
       suggestOptions: suggestOptions,
-      responseHandler: buildResponseHandler(listenerId: listenerId, result: result)
+      responseHandler: {(suggestResponse: [YMKSuggestItem]?, error: Error?) -> Void in
+        if let s = self.suggestSessions[sessionId] {
+          s.handleResponse(suggestResponse: suggestResponse, error: error, result: result)
+        }
+      }
     )
-    
-    self.suggestSessionsById[listenerId] = suggestSession;
-  }
 
-  private func buildResponseHandler(listenerId: Int, result: @escaping FlutterResult) -> ([YMKSuggestItem]?, Error?) -> Void {
+    let suggestSession = YandexSuggestSession(
+      id: sessionId,
+      session: session,
+      registrar: pluginRegistrar,
+      onClose: { (id) in self.suggestSessions.removeValue(forKey: id) }
+    )
 
-    return { (searchResponse: [YMKSuggestItem]?, error: Error?) -> Void in
-      
-      self.suggestSessionsById.removeValue(forKey: listenerId)
-      
-      if searchResponse != nil {
-        
-        let suggestItems = searchResponse!.map({ (suggestItem) -> [String : Any] in
-          
-          var dict = [String : Any]()
-
-          dict["title"] = suggestItem.title.text
-          dict["subtitle"] = suggestItem.subtitle?.text
-          dict["displayText"] = suggestItem.displayText
-          dict["searchText"] = suggestItem.searchText
-          dict["type"] = suggestItem.type.rawValue
-          dict["tags"] = suggestItem.tags
-
-          return dict
-        })
-        
-        result(["items":suggestItems])
-        return
-      }
-
-      if error != nil {
-        result(["error": "YMKSearchManager error"])
-        return
-      }
-    }
+    suggestSessions[sessionId] = suggestSession
   }
 }

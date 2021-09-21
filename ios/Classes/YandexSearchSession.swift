@@ -2,134 +2,111 @@ import Foundation
 import YandexMapsMobile
 
 public class YandexSearchSession: NSObject {
-  
   private var id: Int
-  private var session: YMKSearchSession?
+  private var session: YMKSearchSession
   private var page = 0
-  
   private let methodChannel: FlutterMethodChannel!
-  
   private var onClose: (Int) -> ()
-  
-  
+
   public required init(
     id: Int,
     session: YMKSearchSession,
     registrar: FlutterPluginRegistrar,
-    onClose: @escaping ((Int) -> ())) {
-    
-    self.id       = id
-    self.session  = session
-    self.onClose  = onClose
-    
+    onClose: @escaping ((Int) -> ())
+  ) {
+    self.id = id
+    self.session = session
+    self.onClose = onClose
+
     methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_search_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
-    
+
     super.init()
-    
-    methodChannel.setMethodCallHandler(handle)
+
+    weak var weakSelf = self
+    self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
   }
-  
+
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    
-      switch call.method {
-      case "cancelSearch":
-        cancelSearch()
-        result(nil)
-      case "retrySearch":
-        retrySearch(result)
-      case "hasNextPage":
-        let value = hasNextPage()
-        result(value)
-      case "fetchNextPage":
-        fetchNextPage(result)
-      case "close":
-        close()
-        result(nil)
-      default:
-        result(FlutterMethodNotImplemented)
-      }
+    switch call.method {
+    case "cancel":
+      cancel()
+      result(nil)
+    case "retry":
+      retry(result)
+    case "hasNextPage":
+      let value = hasNextPage()
+      result(value)
+    case "fetchNextPage":
+      fetchNextPage(result)
+    case "close":
+      close()
+      result(nil)
+    default:
+      result(FlutterMethodNotImplemented)
+    }
   }
-  
-  public func cancelSearch() {
-    
-    session?.cancel()
+
+  public func cancel() {
+    session.cancel()
   }
-  
-  public func retrySearch(_ result: @escaping FlutterResult) {
-    
+
+  public func retry(_ result: @escaping FlutterResult) {
     page = 0
-    
-    session?.retry(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+
+    session.retry(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
       self.handleResponse(searchResponse: searchResponse, error: error, result: result)
     })
   }
-  
+
   public func hasNextPage() -> Bool {
-    
-    return session?.hasNextPage() ?? false
+    return session.hasNextPage()
   }
-  
+
   public func fetchNextPage(_ result: @escaping FlutterResult) {
-    
-    guard let session = self.session else {
-      return
-    }
-    
     if (session.hasNextPage()) {
-      
       page += 1
-      
+
       session.fetchNextPage(responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
         self.handleResponse(searchResponse: searchResponse, error: error, result: result)
       })
     }
   }
-  
+
   public func close() {
-    
-    session?.cancel()
-    session = nil
-    
-    methodChannel.setMethodCallHandler(nil)
-    
+    session.cancel()
+
     onClose(id)
   }
-  
+
   public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?, result: @escaping FlutterResult) {
-    
     if let response = searchResponse {
       onSuccess(response, result)
     } else {
       onError(error!, result)
     }
   }
-  
+
   private func onSuccess(_ res: YMKSearchResponse, _ result: @escaping FlutterResult) {
-    
-    var data = [String : Any]()
-      
-    data["found"] = res.metadata.found
-    data["page"]  = page
-    
+    var arguments = [String : Any]()
+
+    arguments["found"] = res.metadata.found
+    arguments["page"]  = page
+
     var dataItems = [[String : Any]]()
-    
+
     for searchItem in res.collection.children {
-      
       guard let obj = searchItem.obj else {
         continue
       }
-      
+
       var dataItem = [String : Any]()
-      
-      dataItem["name"] = obj.name
-      
       var geometry = [[String : Any]]()
-      
+
+      dataItem["name"] = obj.name
       obj.geometry.forEach {
-        
         if let point = $0.point {
           geometry.append([
             "point": [
@@ -138,7 +115,7 @@ public class YandexSearchSession: NSObject {
             ]
           ])
         }
-        
+
         if let boundingBox = $0.boundingBox {
           geometry.append([
             "boundingBox": [
@@ -154,109 +131,90 @@ public class YandexSearchSession: NSObject {
           ])
         }
       }
-      
+
       dataItem["geometry"] = geometry;
-      
+
       if let toponymMeta = obj.metadataContainer.getItemOf(YMKSearchToponymObjectMetadata.self) as? YMKSearchToponymObjectMetadata {
         dataItem["toponymMetadata"] = getToponymMetadata(meta: toponymMeta)
       }
-      
+
       if let businessMeta = obj.metadataContainer.getItemOf(YMKSearchBusinessObjectMetadata.self) as? YMKSearchBusinessObjectMetadata {
         dataItem["businessMetadata"] = getBusinessMetadata(meta: businessMeta)
       }
-      
+
       dataItems.append(dataItem)
     }
-    
-    data["items"] = dataItems
-    
-    let arguments: [String:Any?] = [
-      "response": data
-    ]
-    
+
+    arguments["items"] = dataItems
+
     result(arguments)
   }
-  
+
   private func onError(_ error: Error, _ result: @escaping FlutterResult) {
-    
     var errorMessage = "Unknown error"
-    
+
     if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
-      
       if underlyingError.isKind(of: YRTNetworkError.self) {
-          errorMessage = "Network error"
+        errorMessage = "Network error"
       } else if underlyingError.isKind(of: YRTRemoteError.self) {
-          errorMessage = "Remote server error"
+        errorMessage = "Remote server error"
       }
-      
     } else if let msg = (error as NSError).userInfo["message"] {
       errorMessage = msg as! String
     }
-    
-    let arguments: [String:Any?] = [
-      "error": errorMessage
-    ]
-    
+
+    let arguments: [String:Any?] = ["error": errorMessage]
+
     result(arguments)
   }
-  
+
   private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
-    
     var toponymMetadata = [String : Any]()
-    
+
     var balloonPoint = [String : Double]()
-    
     balloonPoint["latitude"]  = meta.balloonPoint.latitude
     balloonPoint["longitude"] = meta.balloonPoint.longitude
-    
+
     toponymMetadata["balloonPoint"] = balloonPoint
 
     var address = [String : Any]()
-    
     address["formattedAddress"] = meta.address.formattedAddress
     address["addressComponents"] = getAddressComponents(address: meta.address)
-    
+
     toponymMetadata["address"] = address
-    
+
     return toponymMetadata
   }
-  
+
   private func getBusinessMetadata(meta: YMKSearchBusinessObjectMetadata) -> [String : Any] {
-    
     var businessMetadata = [String : Any]()
-    
     businessMetadata["name"] = meta.name
-    
+
     if (meta.shortName != nil) {
       businessMetadata["shortName"] = meta.shortName
     }
-    
+
     var address = [String : Any]()
-    
     let addressComponents = getAddressComponents(address: meta.address)
-    
+
     address["formattedAddress"]  = meta.address.formattedAddress
     address["addressComponents"] = addressComponents;
-    
+
     businessMetadata["address"] = address
-    
+
     return businessMetadata
   }
-  
+
   private func getAddressComponents(address: YMKSearchAddress) -> [Int : String] {
-   
     var addressComponents = [Int : String]()
-    
+
     address.components.forEach {
-      
       var flutterKind: Int = 0
-      
       let value = $0.name
 
       $0.kinds.forEach {
-        
         let kind = YMKSearchComponentKind(rawValue: UInt(truncating: $0))
-        
+
         // Map kind to enum value in flutter
         switch kind {
         case .none, .some(.unknown):
@@ -296,11 +254,11 @@ public class YandexSearchSession: NSObject {
         case .some(.other):
           flutterKind = 17
         }
-        
+
         addressComponents[flutterKind] = value
       }
     }
-    
+
     return addressComponents
   }
 }

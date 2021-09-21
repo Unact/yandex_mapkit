@@ -1,20 +1,19 @@
 part of yandex_mapkit;
 
 class SearchItemToponymMetadata extends Equatable {
-
-  final Point                           balloonPoint;
-  final String                          formattedAddress;
+  final Point balloonPoint;
+  final String formattedAddress;
   final Map<SearchComponentKind, String> addressComponents;
 
-  const SearchItemToponymMetadata({
+  const SearchItemToponymMetadata._({
     required this.balloonPoint,
     required this.formattedAddress,
     required this.addressComponents,
   });
 
   factory SearchItemToponymMetadata.fromJson(Map<dynamic, dynamic> json) {
-
     var map = {};
+
     if (json['address']['addressComponents'] != null) {
       map = json['address']['addressComponents'] as Map;
     }
@@ -22,13 +21,10 @@ class SearchItemToponymMetadata extends Equatable {
     Map<SearchComponentKind, String> addressMap;
     addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
 
-    return SearchItemToponymMetadata(
-      balloonPoint:       Point(
-        latitude: json['balloonPoint']['latitude'],
-        longitude: json['balloonPoint']['longitude']
-      ),
-      formattedAddress:   json['address']['formattedAddress'],
-      addressComponents:  addressMap,
+    return SearchItemToponymMetadata._(
+      balloonPoint: Point.fromJson(json['balloonPoint']),
+      formattedAddress: json['address']['formattedAddress'],
+      addressComponents: addressMap,
     );
   }
 

@@ -147,3 +147,4 @@ Other projects are strongly recommended to migrate to V2. See [this](https://git
 - [X] Adding and removing Circles
 - [X] Address suggestions
 - [X] Basic driving routing
+- [X] Basic address direct/reverse search

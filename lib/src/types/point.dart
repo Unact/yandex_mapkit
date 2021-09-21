@@ -1,6 +1,6 @@
 part of yandex_mapkit;
 
-class Point extends Equatable{
+class Point extends Equatable {
   const Point({
     required this.latitude,
     required this.longitude
@@ -19,12 +19,18 @@ class Point extends Equatable{
   bool get stringify => true;
 
   Map<String, dynamic> toJson() {
-
     var json = <String, dynamic>{
       'latitude': latitude,
       'longitude': longitude,
     };
 
     return json;
+  }
+
+  factory Point.fromJson(Map<dynamic, dynamic> json) {
+    return Point(
+      latitude: json['latitude'],
+      longitude: json['longitude']
+    );
   }
 }

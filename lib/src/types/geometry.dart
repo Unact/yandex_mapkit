@@ -5,39 +5,27 @@ class GeometryException implements YandexMapkitException {
 
   GeometryException(this.message);
 }
-class Geometry {
-
-  final Point?       point;
+class Geometry extends Equatable {
+  final Point? point;
   final BoundingBox? boundingBox;
 
-  Geometry.fromPoint(Point point) :
-    point = point, boundingBox = null;
-
-  Geometry.fromBoundingBox(BoundingBox boundingBox) :
-        point = null, boundingBox = boundingBox;
+  Geometry.fromPoint(Point point) : point = point, boundingBox = null;
+  Geometry.fromBoundingBox(BoundingBox boundingBox) : point = null, boundingBox = boundingBox;
 
   factory Geometry.fromJson(Map<dynamic, dynamic> json) {
-
-    Point?        point;
-    BoundingBox?  boundingBox;
+    Point? point;
+    BoundingBox? boundingBox;
 
     if (json.containsKey('point')) {
-      point = Point(
-        latitude: json['point']['latitude'],
-        longitude: json['point']['longitude'],
-      );
+      point = Point.fromJson(json['point']);
+
       return Geometry.fromPoint(point);
     } else if (json.containsKey('boundingBox')) {
       boundingBox = BoundingBox(
-        southWest: Point(
-          latitude: json['southWest']['latitude'],
-          longitude: json['southWest']['longitude'],
-        ),
-        northEast: Point(
-          latitude: json['northEast']['latitude'],
-          longitude: json['northEast']['longitude'],
-        ),
+        southWest: Point.fromJson(json['southWest']),
+        northEast: Point.fromJson(json['northEast']),
       );
+
       return Geometry.fromBoundingBox(boundingBox);
     }
 
@@ -45,27 +33,23 @@ class Geometry {
   }
 
   Map<String, dynamic> toJson() {
-
     var json = <String, dynamic>{};
 
     if (point != null) {
-      json['point'] = {
-        'latitude': point!.latitude,
-        'longitude': point!.longitude,
-      };
+      json['point'] = point!.toJson();
     } else {
-      json['boundingBox'] = {
-        'southWest': {
-          'latitude': boundingBox!.southWest.latitude,
-          'longitude': boundingBox!.southWest.longitude,
-        },
-        'northEast': {
-          'latitude': boundingBox!.northEast.latitude,
-          'longitude': boundingBox!.northEast.longitude,
-        },
-      };
+      json['boundingBox'] = boundingBox!.toJson();
     }
 
     return json;
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+    point,
+    boundingBox,
+  ];
+
+  @override
+  bool get stringify => true;
 }

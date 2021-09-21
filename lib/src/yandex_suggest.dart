@@ -1,42 +1,31 @@
 part of yandex_mapkit;
 
 class YandexSuggest {
-
   static const String _channelName = 'yandex_mapkit/yandex_suggest';
-
   static const MethodChannel _channel = MethodChannel(_channelName);
 
-  static int _nextCallbackId = 0;
+  static int _nextSessionId = 0;
 
-  static Future<SuggestSession> getSuggestions({
+  static SuggestResultWithSession getSuggestions({
     required String address,
-    required Point southWestPoint,
-    required Point northEastPoint,
+    required BoundingBox boundingBox,
     required SuggestType suggestType,
     required bool suggestWords,
-  }) async {
-    final listenerId = _nextCallbackId++;
-
-    final futureResult =
-        _channel.invokeMethod('getSuggestions', <String, dynamic>{
+  }) {
+    var params = <String, dynamic>{
+      'sessionId': _nextSessionId++,
       'formattedAddress': address,
-      'southWestLatitude': southWestPoint.latitude,
-      'southWestLongitude': southWestPoint.longitude,
-      'northEastLatitude': northEastPoint.latitude,
-      'northEastLongitude': northEastPoint.longitude,
-      'suggestType': suggestType.index,
+      'boundingBox': boundingBox.toJson(),
+      'suggestType': suggestType.value,
       'suggestWords': suggestWords,
-      'listenerId': listenerId
-    }).then((it) => SuggestSessionResult.fromJson(it));
+    };
+    var result = _channel
+      .invokeMethod('getSuggestions', params)
+      .then((result) => SuggestSessionResult.fromJson(result));
 
-    return SuggestSession(
-        futureResult, () => _cancelSuggestSession(listenerId));
-  }
-
-  static Future<void> _cancelSuggestSession(int listenerId) async {
-    await _channel.invokeMethod<void>(
-      'cancelSuggestSession',
-      <String, dynamic>{'listenerId': listenerId},
+    return SuggestResultWithSession._(
+      session: SuggestSession._(id: params['sessionId']),
+      result: result
     );
   }
 }

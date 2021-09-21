@@ -1,13 +1,12 @@
 part of yandex_mapkit;
 
 class SearchItem extends Equatable {
-
-  final String                      name;
-  final List<Geometry>              geometry;
-  final SearchItemToponymMetadata?  toponymMetadata;
+  final String name;
+  final List<Geometry> geometry;
+  final SearchItemToponymMetadata? toponymMetadata;
   final SearchItemBusinessMetadata? businessMetadata;
 
-  const SearchItem({
+  const SearchItem._({
     required this.name,
     required this.geometry,
     this.toponymMetadata,
@@ -15,7 +14,6 @@ class SearchItem extends Equatable {
   });
 
   factory SearchItem.fromJson(Map<dynamic, dynamic> json) {
-
     var geometryItems = json['geometry'] as List;
 
     List<Geometry>? geometryList;
@@ -31,10 +29,10 @@ class SearchItem extends Equatable {
       businessMetadata = SearchItemBusinessMetadata.fromJson(json['businessMetadata']);
     }
 
-    return SearchItem(
-      name:             json['name'] ?? '',
-      geometry:         geometryList,
-      toponymMetadata:  toponymMetadata,
+    return SearchItem._(
+      name: json['name'] ?? '',
+      geometry: geometryList,
+      toponymMetadata: toponymMetadata,
       businessMetadata: businessMetadata,
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
@@ -18,26 +20,13 @@ class _ReverseSearchExample extends StatefulWidget {
 }
 
 class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
-
+  final TextEditingController queryController = TextEditingController();
   YandexMapController? controller;
 
-  final List<SearchResponse> responseByPages = [];
-
-  final Map<int,SearchSession> _sessions = {};
-
-  @override
-  void dispose() async {
-
-    super.dispose();
-
-    for (var s in _sessions.values) {
-      await _closeSession(s);
-    }
-  }
+  static const Point _point = Point(latitude: 55.755848, longitude: 37.620409);
 
   @override
   Widget build(BuildContext context) {
-
     var mapHeight = 300.0;
 
     return Column(
@@ -53,14 +42,13 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                 YandexMap(
                   onMapCreated: (YandexMapController yandexMapController) async {
                     controller = yandexMapController;
-                    await controller!.move(point: Point(latitude: 55.755848, longitude: 37.620409), zoom: 17);
+                    await controller!.move(point: _point, zoom: 17);
+                    await controller!.enableCameraTracking(
+                      onCameraPositionChange: (_) {},
+                      style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
+                    );
                   },
-                ),
-                Positioned(
-                  bottom: mapHeight/2,
-                  left: MediaQuery.of(context).size.width/2 - 16,
-                  child: Image.asset('lib/assets/place.png', scale: 3),
-                ),
+                )
               ],
             ),
           ),
@@ -73,27 +61,8 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: <Widget>[
                       ControlButton(
-                        onPressed: () async {
-                          var targetPoint = await controller!.getTargetPoint();
-                          search(targetPoint);
-                        },
+                        onPressed: _search,
                         title: 'What is here?'
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Response:'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Flexible(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: _getList(),
-                          )
-                        ),
                       ),
                     ],
                   ),
@@ -105,16 +74,150 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     );
   }
 
-  List<Widget> _getList() {
+  void _search() async {
+    var point = await controller!.getTargetPoint();
 
+    print('Point: $point');
+
+    var resultWithSession = YandexSearch.searchByPoint(
+      point: point,
+      zoom: 20,
+      searchOptions: SearchOptions(
+        searchType: SearchType.geo,
+        geometry: false,
+      ),
+    );
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => _SessionPage(point, resultWithSession.session, resultWithSession.result)
+      )
+    );
+  }
+}
+
+class _SessionPage extends StatefulWidget {
+  final Future<SearchSessionResult> result;
+  final SearchSession session;
+  final Point point;
+
+  _SessionPage(this.point, this.session, this.result);
+
+  @override
+  _SessionState createState() => _SessionState();
+}
+
+class _SessionState extends State<_SessionPage> {
+  final List<SearchSessionResult> results = [];
+  bool _progress = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _init();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _close();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Search ${widget.session.id}')),
+      body: Container(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 300,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  YandexMap(
+                    onMapCreated: (YandexMapController yandexMapController) async {
+                      await yandexMapController.move(point: widget.point, zoom: 17);
+                      await yandexMapController.addPlacemark(Placemark(
+                        point: widget.point,
+                        style: PlacemarkStyle(iconName: 'lib/assets/place.png', scale: 0.75)
+                      ));
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 60,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Point',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          !_progress ? Container() : TextButton.icon(
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
+                            onPressed: _cancel
+                          )
+                        ],
+                      )
+                    ),
+                    Row(children: [
+                      Flexible(child:
+                        Text('Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}')
+                      )
+                    ]),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Flexible(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _getList(),
+                            )
+                          ),
+                        ),
+                      ],
+                    ),
+                  ]
+                )
+              )
+            )
+          ]
+        )
+      )
+    );
+  }
+
+  List<Widget> _getList() {
     var list = <Widget>[];
 
-    for (var r in responseByPages) {
+    if (results.isEmpty) {
+      list.add((Text('Nothing found')));
+    }
 
+    for (var r in results) {
       list.add(Text('Page: ${r.page}'));
       list.add(Container(height: 20));
 
-      r.items.asMap().forEach((i, item) {
+      r.items!.asMap().forEach((i, item) {
         list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
       });
 
@@ -124,67 +227,36 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     return list;
   }
 
-  void search(Point point) async {
+  Future<void> _cancel() async {
+    await widget.session.cancel();
 
-    print('Point: ${point.toString()}');
-
-    responseByPages.clear();
-
-    var sessionWithResponse = await YandexSearch.searchByPoint(
-      point: point,
-      zoom: 20,
-      searchOptions: SearchOptions(
-        searchType: SearchType.geo,
-        geometry: false,
-      ),
-    );
-
-    var session = sessionWithResponse.session;
-
-    _sessions[session.id] = session;
-
-    var responseOrError = await sessionWithResponse.responseOrError;
-
-    await _handleResponse(session, responseOrError);
-
-    print('No more results available, closing session...');
-    await _closeSession(session);
+    setState(() { _progress = false; });
   }
 
-  Future<void> _closeSession(SearchSession session) async {
-
-    try {
-      await session.close();
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
-    }
-
-    _sessions.remove(session.id);
+  Future<void> _close() async {
+    await widget.session.close();
   }
 
-  Future<void> _handleResponse(SearchSession session, SearchResponseOrError responseOrError) async {
+  Future<void> _init() async {
+    await _handleResult(await widget.result);
+  }
 
-    if (responseOrError.error != null) {
-      print('Error: ${responseOrError.error}');
-      await _closeSession(session);
+  Future<void> _handleResult(SearchSessionResult result) async {
+    if (result.error != null) {
+      print('Error: ${result.error}');
       return;
     }
 
-    var response = responseOrError.response!;
+    print('Page ${result.page}: ${result.toString()}');
 
-    print('Page ${response.page}: ${response.toString()}');
+    setState(() { results.add(result); });
 
-    setState(() {
-      responseByPages.add(response);
-    });
-
-    try {
-      if (await session.hasNextPage()) {
-        print('Got ${response.found} items, fetching next page...');
-        await _handleResponse(session, await session.fetchNextPage());
-      }
-    } on SearchSessionException catch (e) {
-      print('Error: ${e.message}');
+    if (await widget.session.hasNextPage()) {
+      print('Got ${result.found} items, fetching next page...');
+      setState(() { _progress = true; });
+      await _handleResult(await widget.session.fetchNextPage());
     }
+
+    setState(() { _progress = false; });
   }
 }

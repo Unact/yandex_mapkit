@@ -1,13 +1,12 @@
 part of yandex_mapkit;
 
 class SearchItemBusinessMetadata extends Equatable {
-
-  final String                          name;
-  final String?                         shortName;
-  final String                          formattedAddress;
+  final String name;
+  final String? shortName;
+  final String formattedAddress;
   final Map<SearchComponentKind, String> addressComponents;
 
-  const SearchItemBusinessMetadata({
+  const SearchItemBusinessMetadata._({
     required this.name,
     required this.formattedAddress,
     required this.addressComponents,
@@ -29,11 +28,11 @@ class SearchItemBusinessMetadata extends Equatable {
     Map<SearchComponentKind, String> addressMap;
     addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
 
-    return SearchItemBusinessMetadata(
-      name:               json['name'],
-      shortName:          shortName,
-      formattedAddress:   json['address']['formattedAddress'],
-      addressComponents:  addressMap,
+    return SearchItemBusinessMetadata._(
+      name: json['name'],
+      shortName: shortName,
+      formattedAddress: json['address']['formattedAddress'],
+      addressComponents: addressMap,
     );
   }
 
