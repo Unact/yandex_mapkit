@@ -182,6 +182,7 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('addClusterizedPlacemark', _placemarkParams(placemark)..addAll(<String, int>{
       'collection_index': collection.id
     }));
+    placemarks.add(placemark);
   }
 
   Future<void> clearClusterizedPlacemarkCollection(ClusterizedPlacemarkCollection collection) async {

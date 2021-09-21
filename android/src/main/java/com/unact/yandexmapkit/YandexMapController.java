@@ -30,6 +30,8 @@ import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CircleMapObject;
+import com.yandex.mapkit.map.Cluster;
+import com.yandex.mapkit.map.ClusterTapListener;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;

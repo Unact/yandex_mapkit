@@ -74,6 +74,9 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
 
   Future<void> addPlacemark(Point point) async {
     await controller!.addClusterizedPlacemark(clusterizedPlacemarkCollection!, Placemark(
+      onTap: (Placemark self, Point point) {
+        print('Tapped me at ${point.latitude},${point.longitude}');
+      },
       point: point,
       style: const PlacemarkStyle(
         iconName: 'lib/assets/place.png',
