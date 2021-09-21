@@ -30,6 +30,8 @@ import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CircleMapObject;
+import com.yandex.mapkit.map.ClusterListener;
+import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
@@ -56,6 +58,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.Log;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -77,11 +80,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private List<PolylineMapObject> polylines = new ArrayList<>();
   private List<PolygonMapObject> polygons = new ArrayList<>();
   private List<CircleMapObject> circles = new ArrayList<>();
+  private List<ClusterizedPlacemarkCollection> clusterizedPlacemarkCollections = new ArrayList<>();
   private String userLocationIconName;
   private String userArrowIconName;
   private Boolean userArrowOrientation;
   private int accuracyCircleFillColor = 0;
   private boolean disposed = false;
+  private YandexMapClusterListener yandexMapClusterListener;
 
   public YandexMapController(int id, Context context, BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
     this.lifecycleProvider = lifecycleProvider;
@@ -93,7 +98,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     yandexMapSizeChangedListener = new YandexMapSizeChangedListener();
     userLocationLayer = MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
     yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
-
+    yandexMapClusterListener = new YandexMapClusterListener(context);
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
 
@@ -121,6 +126,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     if (lifecycle != null) {
       lifecycle.removeObserver(this);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private int addClusterizedPlacemarkCollection(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    ClusterizedPlacemarkCollection c = mapView.getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexMapClusterListener);
+    clusterizedPlacemarkCollections.add(c);
+    return clusterizedPlacemarkCollections.indexOf(c);
   }
 
   @SuppressWarnings("unchecked")
@@ -256,10 +269,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     IconStyle iconStyle = new IconStyle();
     iconStyle.setAnchor(
-      new PointF(
-        ((Double) paramsStyle.get("anchorX")).floatValue(),
-        ((Double) paramsStyle.get("anchorY")).floatValue()
-      )
+            new PointF(
+                    ((Double) paramsStyle.get("anchorX")).floatValue(),
+                    ((Double) paramsStyle.get("anchorY")).floatValue()
+            )
     );
     iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
     iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
@@ -270,8 +283,58 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     }
 
     placemark.setIconStyle(iconStyle);
-
     placemarks.add(placemark);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void addClusterizedPlacemark(MethodCall call) {
+        Map<String, Object> params = ((Map<String, Object>) call.arguments);
+        Map<String, Object> paramsPoint = ((Map<String, Object>) params.get("point"));
+        Map<String, Object> paramsStyle = ((Map<String, Object>) params.get("style"));
+        Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
+
+        Map<String, Integer> paramsInt = ((Map<String, Integer>) call.arguments);
+        int collectionIndex = paramsInt.get("collection_index");
+        ClusterizedPlacemarkCollection coll = clusterizedPlacemarkCollections.get(collectionIndex);
+        if(coll != null) {
+          PlacemarkMapObject placemark = coll.addPlacemark(point);
+          String iconName = (String) paramsStyle.get("iconName");
+          byte[] rawImageData = (byte[]) paramsStyle.get("rawImageData");
+
+          placemark.setUserData(params.get("hashCode"));
+          placemark.setOpacity(((Double) paramsStyle.get("opacity")).floatValue());
+          placemark.setDraggable((Boolean) paramsStyle.get("isDraggable"));
+          placemark.setDirection(((Double) paramsStyle.get("direction")).floatValue());
+          placemark.addTapListener(yandexMapObjectTapListener);
+
+          if (iconName != null) {
+            placemark.setIcon(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
+          }
+
+          if (rawImageData != null) {
+            Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
+            placemark.setIcon(ImageProvider.fromBitmap(bitmapData));
+          }
+
+          IconStyle iconStyle = new IconStyle();
+          iconStyle.setAnchor(
+                  new PointF(
+                          ((Double) paramsStyle.get("anchorX")).floatValue(),
+                          ((Double) paramsStyle.get("anchorY")).floatValue()
+                  )
+          );
+          iconStyle.setZIndex(((Double) paramsStyle.get("zIndex")).floatValue());
+          iconStyle.setScale(((Double) paramsStyle.get("scale")).floatValue());
+
+          int rotationType = ((Number) paramsStyle.get("rotationType")).intValue();
+          if (rotationType == RotationType.ROTATE.ordinal()) {
+            iconStyle.setRotationType(RotationType.ROTATE);
+          }
+
+          placemark.setIconStyle(iconStyle);
+          placemarks.add(placemark);
+          coll.clusterPlacemarks(60, 15);
+        }
   }
 
   private Map<String, Object> getTargetPoint() {
@@ -631,6 +694,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
+      case "addClusterizedPlacemark":
+        addClusterizedPlacemark(call);
+        result.success(null);
+        break;
+      case "addClusterizedPlacemarkCollection":
+        int index = addClusterizedPlacemarkCollection(call);
+        result.success(index);
+        break;
       case "logoAlignment":
         logoAlignment(call);
         result.success(null);

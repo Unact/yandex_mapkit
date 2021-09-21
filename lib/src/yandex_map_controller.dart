@@ -21,6 +21,8 @@ class YandexMapController extends ChangeNotifier {
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
   final List<Circle> circles = <Circle>[];
+  final List<Placemark> clusterizedPlacemarks = <Placemark>[];
+  final List<ClusterizedPlacemarkCollection> clusterizedCollections = <ClusterizedPlacemarkCollection>[];
 
   CameraPositionCallback? _cameraPositionCallback;
 
@@ -175,6 +177,21 @@ class YandexMapController extends ChangeNotifier {
   Future<void> addPlacemark(Placemark placemark) async {
     await _channel.invokeMethod<void>('addPlacemark', _placemarkParams(placemark));
     placemarks.add(placemark);
+  }
+
+  Future<void> addClusterizedPlacemark(ClusterizedPlacemarkCollection collection, Placemark placemark) async {
+    await _channel.invokeMethod<void>('addClusterizedPlacemark', _placemarkParams(placemark)..addAll(<String, int>{
+      'collection_index': collection.id
+    }));
+    clusterizedPlacemarks.add(placemark);
+  }
+
+  Future<ClusterizedPlacemarkCollection> addClusterizedPlacemarkCollection() async {
+    final int index = await _channel.invokeMethod('addClusterizedPlacemarkCollection');
+    final collection = ClusterizedPlacemarkCollection(index);
+    clusterizedCollections.add(collection);
+
+    return collection;
   }
 
   /// Disables listening for map camera updates

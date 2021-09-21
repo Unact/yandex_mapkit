@@ -13,6 +13,7 @@ import 'package:yandex_mapkit_example/examples/polygon_page.dart';
 import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
 import 'package:yandex_mapkit_example/examples/suggest_page.dart';
+import 'package:yandex_mapkit_example/examples/clusterized_placemark.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
@@ -31,6 +32,7 @@ const List<MapPage> _allPages = <MapPage>[
   SuggestionsPage(),
   SearchPage(),
   ReverseSearchPage(),
+  ClusterizedPlacemarkPage(),
 ];
 
 class MainPage extends StatelessWidget {
