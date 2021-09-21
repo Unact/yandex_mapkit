@@ -30,7 +30,6 @@ import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.CircleMapObject;
-import com.yandex.mapkit.map.ClusterListener;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapObject;
@@ -59,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.flutter.Log;
+import io.flutter.embedding.engine.loader.FlutterLoader;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -87,12 +87,14 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private int accuracyCircleFillColor = 0;
   private boolean disposed = false;
   private YandexMapClusterListener yandexMapClusterListener;
+  private FlutterLoader flutterLoader;
+  private Context context;
 
   public YandexMapController(int id, Context context, BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
     this.lifecycleProvider = lifecycleProvider;
     mapView = new MapView(context);
     mapView.onStart();
-
+    flutterLoader = new FlutterLoader();
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
     yandexMapInputListener = new YandexMapInputListener();
     yandexMapSizeChangedListener = new YandexMapSizeChangedListener();
@@ -106,6 +108,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.getMapWindow().addSizeChangedListener(yandexMapSizeChangedListener);
 
     lifecycleProvider.getLifecycle().addObserver(this);
+    this.context = context;
   }
 
   @Override
@@ -132,9 +135,26 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private int addClusterizedPlacemarkCollection(MethodCall call) {
     Map<String, String> params = ((Map<String, String>) call.arguments);
     String iconName = params.get("iconName");
-    if(iconName != null && iconName != "") {
-        yandexMapClusterListener.setImageProvider(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
+    if(iconName != null && !iconName.equals("") && !iconName.equals("flutter_assets/")) {
+      Log.d("ivanb", iconName);
+      yandexMapClusterListener.loadBitmap(FlutterMain.getLookupKeyForAsset(iconName));
     }
+    String textAlign = params.get("textAlign");
+    Map<String, Object> options = new HashMap<>();
+    if(textAlign != null && textAlign.equals("")) {
+      options.put("textAlign", textAlign);
+    }
+    Map<String, Object> paramsObj = ((Map<String, Object>) call.arguments);
+    Map<String, Integer> textColor = (Map<String, Integer>) paramsObj.get("textColor");
+
+    if(textColor != null
+            && textColor.containsKey("r")
+            && textColor.containsKey("g")
+            && textColor.containsKey("b")) {
+      options.put("textColor", textColor);
+
+    }
+    yandexMapClusterListener.setOptions(options);
     ClusterizedPlacemarkCollection c = mapView.getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexMapClusterListener);
     clusterizedPlacemarkCollections.add(c);
     return clusterizedPlacemarkCollections.indexOf(c);

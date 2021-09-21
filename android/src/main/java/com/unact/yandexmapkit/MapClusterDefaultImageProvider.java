@@ -7,6 +7,10 @@ import android.graphics.Paint;
 
 import com.yandex.runtime.image.ImageProvider;
 
+import java.util.Map;
+
+import io.flutter.Log;
+
 public class MapClusterDefaultImageProvider extends ImageProvider {
 
     private static final float FONT_SIZE = 15;
@@ -14,12 +18,22 @@ public class MapClusterDefaultImageProvider extends ImageProvider {
     private static final float STROKE_SIZE = 3;
 
     private float density;
-    private int backgroundPaintColor;
+    private Bitmap outerBitmap;
+    private Map<String, Object> options;
 
-    public MapClusterDefaultImageProvider(int clusterSize, int backgroundPaintColor, float density) {
+    public MapClusterDefaultImageProvider(int clusterSize, float density) {
         this.text = Integer.toString(clusterSize);
-        this.backgroundPaintColor = backgroundPaintColor;
         this.density = density;
+    }
+
+    public MapClusterDefaultImageProvider(int clusterSize, float density, Map<String, Object> options) {
+        this.text = Integer.toString(clusterSize);
+        this.density = density;
+        this.options = options;
+    }
+
+    public void setOuterBitmap(Bitmap bm) {
+        outerBitmap = bm;
     }
 
     @Override
@@ -30,12 +44,46 @@ public class MapClusterDefaultImageProvider extends ImageProvider {
     private final String text;
     @Override
     public Bitmap getImage() {
+        // Styling text
         Paint textPaint = new Paint();
         textPaint.setTextSize(FONT_SIZE * density);
-        textPaint.setTextAlign(Paint.Align.CENTER);
+        if(options.containsKey("textAlign")) {
+            String paramsTextAlign = (String) options.get("textAlign");
+            switch (paramsTextAlign) {
+                case "center":
+                    textPaint.setTextAlign(Paint.Align.CENTER);
+                    break;
+                case "left":
+                    textPaint.setTextAlign(Paint.Align.RIGHT);
+                    break;
+                case "right":
+                    textPaint.setTextAlign(Paint.Align.LEFT);
+                    break;
+                default:
+                    textPaint.setTextAlign(Paint.Align.CENTER);
+                    break;
+            }
+        } else {
+            textPaint.setTextAlign(Paint.Align.CENTER);
+        }
+
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setAntiAlias(true);
+        if(options.containsKey("textColor")) {
+            Map<String, Integer> paramsColor = (Map<String, Integer>) options.get("textColor");
+            if(paramsColor.containsKey("r")
+                    && paramsColor.containsKey("g")
+                    && paramsColor.containsKey("b")) {
+                textPaint.setColor(Color.rgb( paramsColor.get("r"),paramsColor.get("g"), paramsColor.get("b")));
+            } else {
+                textPaint.setColor(Color.BLACK);
+            }
+        } else {
+            textPaint.setColor(Color.BLACK);
+        }
 
+
+        // Sizes
         float widthF = textPaint.measureText(text);
         Paint.FontMetrics textMetrics = textPaint.getFontMetrics();
         float heightF = Math.abs(textMetrics.bottom) + Math.abs(textMetrics.top);
@@ -44,17 +92,27 @@ public class MapClusterDefaultImageProvider extends ImageProvider {
         float externalRadius = internalRadius + STROKE_SIZE * density;
 
         int width = (int) (2 * externalRadius + 0.5);
+        Bitmap bitmap = null;
+        Canvas canvas = null;
+        // If background is asset
+        if(outerBitmap != null) {
+            bitmap = outerBitmap.copy(Bitmap.Config.ARGB_8888, true);
+            //bitmap = Bitmap.createBitmap(bitmap);
+            canvas = new Canvas(bitmap);
+        }
+        // If not
+        if(bitmap == null) {
+            bitmap = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(bitmap);
+            Paint backgroundPaint = new Paint();
+            backgroundPaint.setAntiAlias(true);
+            backgroundPaint.setColor(Color.BLACK);
+            canvas.drawCircle(width / 2, width / 2, externalRadius, backgroundPaint);
 
-        Bitmap bitmap = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
+            backgroundPaint.setColor(Color.WHITE);
+            canvas.drawCircle(width / 2, width / 2, internalRadius, backgroundPaint);
+        }
 
-        Paint backgroundPaint = new Paint();
-        backgroundPaint.setAntiAlias(true);
-        backgroundPaint.setColor(backgroundPaintColor);
-        canvas.drawCircle(width / 2, width / 2, externalRadius, backgroundPaint);
-
-        backgroundPaint.setColor(Color.WHITE);
-        canvas.drawCircle(width / 2, width / 2, internalRadius, backgroundPaint);
 
         canvas.drawText(
                 text,
