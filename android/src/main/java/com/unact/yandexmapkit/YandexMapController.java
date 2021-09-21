@@ -132,27 +132,47 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private void clearClusterizedPlacemarkCollection(MethodCall call) {
+    Map<String, Integer> params = ((Map<String, Integer>) call.arguments);
+    int index = params.get("collection_index");
+
+    ClusterizedPlacemarkCollection coll = clusterizedPlacemarkCollections.get(index);
+    if(coll != null) {
+      coll.clear();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   private int addClusterizedPlacemarkCollection(MethodCall call) {
     Map<String, String> params = ((Map<String, String>) call.arguments);
+    Map<String, Object> paramsObj = ((Map<String, Object>) call.arguments);
     String iconName = params.get("iconName");
+    byte[] rawImageData = (byte[]) paramsObj.get("rawImageData");
     if(iconName != null && !iconName.equals("") && !iconName.equals("flutter_assets/")) {
-      Log.d("ivanb", iconName);
       yandexMapClusterListener.loadBitmap(FlutterMain.getLookupKeyForAsset(iconName));
+    }
+    if (rawImageData != null) {
+      Bitmap bitmapData = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
+      yandexMapClusterListener.setBitmap(bitmapData);
     }
     String textAlign = params.get("textAlign");
     Map<String, Object> options = new HashMap<>();
     if(textAlign != null && textAlign.equals("")) {
       options.put("textAlign", textAlign);
     }
-    Map<String, Object> paramsObj = ((Map<String, Object>) call.arguments);
+
     Map<String, Integer> textColor = (Map<String, Integer>) paramsObj.get("textColor");
+    Map<String, Integer> backgroundColor = (Map<String, Integer>) paramsObj.get("backgroundColor");
+    Map<String, Integer> strokeColor = (Map<String, Integer>) paramsObj.get("strokeColor");
 
-    if(textColor != null
-            && textColor.containsKey("r")
-            && textColor.containsKey("g")
-            && textColor.containsKey("b")) {
+    if(textColor != null) {
       options.put("textColor", textColor);
-
+    }
+    if(backgroundColor != null) {
+      options.put("backgroundColor", backgroundColor);
+    }
+    if(strokeColor != null) {
+      options.put("strokeColor", strokeColor);
     }
     yandexMapClusterListener.setOptions(options);
     ClusterizedPlacemarkCollection c = mapView.getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexMapClusterListener);
@@ -357,6 +377,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
           placemark.setIconStyle(iconStyle);
           placemarks.add(placemark);
+          // It has impact for clustering behavior
           coll.clusterPlacemarks(60, 15);
         }
   }
@@ -725,6 +746,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       case "addClusterizedPlacemarkCollection":
         int index = addClusterizedPlacemarkCollection(call);
         result.success(index);
+        break;
+      case "clearClusterizedPlacemarkCollection":
+        clearClusterizedPlacemarkCollection(call);
+        result.success(null);
         break;
       case "logoAlignment":
         logoAlignment(call);

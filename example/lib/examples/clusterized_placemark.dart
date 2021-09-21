@@ -28,6 +28,7 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
+            flex: 5,
               child: YandexMap(
                 onMapCreated: (YandexMapController yandexMapController) async {
                   controller = yandexMapController;
@@ -36,9 +37,10 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
                   clusterizedPlacemarkCollection = await controller!.addClusterizedPlacemarkCollection(
                       iconName: '',
                       textAlign: 'center',
-                      textColor: {'r': 211, 'g': 165, 'b': 103}
+                      textColor: {'r': 211, 'g': 165, 'b': 103},
+                      backgroundColor: {'r': 19, 'g': 43, 'b': 32},
+                      strokeColor: {'r': 173, 'g': 171, 'b': 118}
                   );
-                  //clusterizedPlacemarkCollection = await controller!.addClusterizedPlacemarkCollection();
                   <dynamic>[
                     [54.790246, 32.048847],
                     [54.789960, 32.048933],
@@ -53,6 +55,18 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
                   });
                 },
               )
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              height: 100,
+              child: ControlButton(
+                  onPressed: () async {
+                    await controller!.clearClusterizedPlacemarkCollection(clusterizedPlacemarkCollection!);
+                  },
+                  title: 'Clear collection'
+              ),
+            )
           )
         ]
     );

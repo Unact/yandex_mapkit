@@ -21,7 +21,6 @@ class YandexMapController extends ChangeNotifier {
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
   final List<Circle> circles = <Circle>[];
-  final List<Placemark> clusterizedPlacemarks = <Placemark>[];
   final List<ClusterizedPlacemarkCollection> clusterizedCollections = <ClusterizedPlacemarkCollection>[];
 
   CameraPositionCallback? _cameraPositionCallback;
@@ -183,17 +182,29 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('addClusterizedPlacemark', _placemarkParams(placemark)..addAll(<String, int>{
       'collection_index': collection.id
     }));
-    clusterizedPlacemarks.add(placemark);
+  }
+
+  Future<void> clearClusterizedPlacemarkCollection(ClusterizedPlacemarkCollection collection) async {
+    await _channel.invokeMethod<void>('clearClusterizedPlacemarkCollection', <String, int>{
+      'collection_index': collection.id
+    });
+    clusterizedCollections.remove(collection);
   }
 
   Future<ClusterizedPlacemarkCollection> addClusterizedPlacemarkCollection({
     String? iconName,
+    Uint8List? rawImageData,
     Map<String, int>? textColor,
+    Map<String, int>? backgroundColor,
+    Map<String, int>? strokeColor,
     String? textAlign}) async {
     final int index = await _channel.invokeMethod('addClusterizedPlacemarkCollection', <String, dynamic>{
       'iconName': iconName,
+      'rawImageData': rawImageData,
       'textAlign': textAlign ?? 'center',
-      'textColor': textColor ?? {'r': 0,'g': 0, 'b': 0}
+      'textColor': textColor ?? {'r': 0,'g': 0, 'b': 0},
+      'backgroundColor': backgroundColor ?? {'r': 255,'g': 255, 'b': 255}, // No impact if has iconName
+      'strokeColor': strokeColor ?? {'r': 0,'g': 0, 'b': 0}, // No impact if has iconName
     });
     final collection = ClusterizedPlacemarkCollection(index);
     clusterizedCollections.add(collection);

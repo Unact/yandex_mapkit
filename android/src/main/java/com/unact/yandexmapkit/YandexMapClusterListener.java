@@ -53,6 +53,10 @@ public class YandexMapClusterListener implements ClusterListener {
         cluster.getAppearance().setIcon(imageProvider);
     }
 
+    public void setBitmap(Bitmap bitmap) {
+        outerBitmap = bitmap;
+    }
+
     public void loadBitmap(String assetName) {
         if(assetName == "") {
             return;

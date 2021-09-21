@@ -107,9 +107,25 @@ public class MapClusterDefaultImageProvider extends ImageProvider {
             Paint backgroundPaint = new Paint();
             backgroundPaint.setAntiAlias(true);
             backgroundPaint.setColor(Color.BLACK);
+            // Radius border color
+            if(options.containsKey("strokeColor")) {
+                Map<String, Integer> strokeColor = (Map<String, Integer>) options.get("strokeColor");
+                if(strokeColor.containsKey("r") && strokeColor.containsKey("g") && strokeColor.containsKey("b")) {
+                    backgroundPaint.setColor(Color.rgb(strokeColor.get("r"), strokeColor.get("g"), strokeColor.get("b")));
+                }
+            }
+
             canvas.drawCircle(width / 2, width / 2, externalRadius, backgroundPaint);
 
+            // Circle background color
             backgroundPaint.setColor(Color.WHITE);
+            if(options.containsKey("backgroundColor")) {
+                Map<String, Integer> backgroundColor = (Map<String, Integer>) options.get("backgroundColor");
+                if(backgroundColor.containsKey("r") && backgroundColor.containsKey("g") && backgroundColor.containsKey("b")) {
+                    backgroundPaint.setColor(Color.rgb(backgroundColor.get("r"), backgroundColor.get("g"), backgroundColor.get("b")));
+                }
+            }
+
             canvas.drawCircle(width / 2, width / 2, internalRadius, backgroundPaint);
         }
 
