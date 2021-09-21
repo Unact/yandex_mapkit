@@ -291,17 +291,17 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func setBounds(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsSouthWestPoint = params["southWestPoint"] as! [String: Any]
-    let paramsNorthEastPoint = params["northEastPoint"] as! [String: Any]
-    let cameraPosition = mapView.mapWindow.map.cameraPosition(with:
-      YMKBoundingBox(
+    let paramsBoundingBox = params["boundingBox"] as! [String:Any]
+    let southWest = paramsBoundingBox["southWest"] as! [String:Any]
+    let northEast = paramsBoundingBox["northEast"] as! [String:Any]
+    let cameraPosition = mapView.mapWindow.map.cameraPosition(with: YMKBoundingBox(
         southWest: YMKPoint(
-          latitude: (paramsSouthWestPoint["latitude"] as! NSNumber).doubleValue,
-          longitude: (paramsSouthWestPoint["longitude"] as! NSNumber).doubleValue
+          latitude: (southWest["latitude"] as! NSNumber).doubleValue,
+          longitude: (southWest["longitude"] as! NSNumber).doubleValue
         ),
         northEast: YMKPoint(
-          latitude: (paramsNorthEastPoint["latitude"] as! NSNumber).doubleValue,
-          longitude: (paramsNorthEastPoint["longitude"] as! NSNumber).doubleValue
+          latitude: (northEast["latitude"] as! NSNumber).doubleValue,
+          longitude: (northEast["longitude"] as! NSNumber).doubleValue
         )
       )
     )

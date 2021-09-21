@@ -218,11 +218,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void setBounds(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsSouthWestPoint = ((Map<String, Object>) params.get("southWestPoint"));
-    Map<String, Object> paramsNorthEastPoint = ((Map<String, Object>) params.get("northEastPoint"));
+    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
+    Map<String, Object> southWest = (Map<String, Object>) paramsBoundingBox.get("southWest");
+    Map<String, Object> northEast = (Map<String, Object>) paramsBoundingBox.get("northEast");
     BoundingBox boundingBox = new BoundingBox(
-      new Point(((Double) paramsSouthWestPoint.get("latitude")), ((Double) paramsSouthWestPoint.get("longitude"))),
-      new Point(((Double) paramsNorthEastPoint.get("latitude")), ((Double) paramsNorthEastPoint.get("longitude")))
+      new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
+      new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
     );
 
     moveWithParams(params, mapView.getMap().cameraPosition(boundingBox));

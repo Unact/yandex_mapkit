@@ -121,21 +121,13 @@ class YandexMapController extends ChangeNotifier {
 
   /// Moves map to include area inside [southWestPoint] and [northEastPoint]
   Future<void> setBounds({
-    required Point southWestPoint,
-    required Point northEastPoint,
+    required BoundingBox boundingBox,
     MapAnimation? animation
   }) async {
     await _channel.invokeMethod<void>(
       'setBounds',
       <String, dynamic>{
-        'southWestPoint': <String, dynamic>{
-          'latitude': southWestPoint.latitude,
-          'longitude': southWestPoint.longitude,
-        },
-        'northEastPoint': <String, dynamic>{
-          'latitude': northEastPoint.latitude,
-          'longitude': northEastPoint.longitude,
-        },
+        'boundingBox': boundingBox.toJson(),
         'animation': <String, dynamic>{
           'animate': animation != null,
           'smoothAnimation': animation?.smooth,

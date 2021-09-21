@@ -102,8 +102,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       await controller!.setBounds(
-                        southWestPoint: const Point(latitude: 60.0, longitude: 30.0),
-                        northEastPoint: const Point(latitude: 65.0, longitude: 40.0),
+                        boundingBox: BoundingBox(
+                          northEast: const Point(latitude: 65.0, longitude: 40.0),
+                          southWest: const Point(latitude: 60.0, longitude: 30.0),
+                        )
                       );
                     },
                     title: 'Set bounds'
