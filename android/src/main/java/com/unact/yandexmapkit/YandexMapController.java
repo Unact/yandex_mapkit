@@ -130,7 +130,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @SuppressWarnings("unchecked")
   private int addClusterizedPlacemarkCollection(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, String> params = ((Map<String, String>) call.arguments);
+    String iconName = params.get("iconName");
+    if(iconName != null && iconName != "") {
+        yandexMapClusterListener.setImageProvider(ImageProvider.fromAsset(mapView.getContext(), FlutterMain.getLookupKeyForAsset(iconName)));
+    }
     ClusterizedPlacemarkCollection c = mapView.getMap().getMapObjects().addClusterizedPlacemarkCollection(yandexMapClusterListener);
     clusterizedPlacemarkCollections.add(c);
     return clusterizedPlacemarkCollections.indexOf(c);

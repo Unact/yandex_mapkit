@@ -186,8 +186,8 @@ class YandexMapController extends ChangeNotifier {
     clusterizedPlacemarks.add(placemark);
   }
 
-  Future<ClusterizedPlacemarkCollection> addClusterizedPlacemarkCollection() async {
-    final int index = await _channel.invokeMethod('addClusterizedPlacemarkCollection');
+  Future<ClusterizedPlacemarkCollection> addClusterizedPlacemarkCollection(String? iconName) async {
+    final int index = await _channel.invokeMethod('addClusterizedPlacemarkCollection', <String, String>{'iconName': iconName ?? ''});
     final collection = ClusterizedPlacemarkCollection(index);
     clusterizedCollections.add(collection);
 

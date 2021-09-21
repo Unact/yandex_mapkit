@@ -7,7 +7,7 @@ import android.graphics.Paint;
 
 import com.yandex.runtime.image.ImageProvider;
 
-public class MapClusterIconTextImageProvider extends ImageProvider {
+public class MapClusterDefaultImageProvider extends ImageProvider {
 
     private static final float FONT_SIZE = 15;
     private static final float MARGIN_SIZE = 3;
@@ -16,9 +16,9 @@ public class MapClusterIconTextImageProvider extends ImageProvider {
     private float density;
     private int backgroundPaintColor;
 
-    public MapClusterIconTextImageProvider(int clusterSize, int color, float density) {
+    public MapClusterDefaultImageProvider(int clusterSize, int backgroundPaintColor, float density) {
         this.text = Integer.toString(clusterSize);
-        backgroundPaintColor = color;
+        this.backgroundPaintColor = backgroundPaintColor;
         this.density = density;
     }
 

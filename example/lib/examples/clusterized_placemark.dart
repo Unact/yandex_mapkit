@@ -33,7 +33,7 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
                   controller = yandexMapController;
                   await controller!.move(point: Point(latitude: 54.790246, longitude: 32.048847), zoom: 10.0);
                   // Create collection here!
-                  clusterizedPlacemarkCollection = await controller!.addClusterizedPlacemarkCollection();
+                  clusterizedPlacemarkCollection = await controller!.addClusterizedPlacemarkCollection('lib/assets/user.png');
                   <dynamic>[
                     [54.790246, 32.048847],
                     [54.789960, 32.048933],
