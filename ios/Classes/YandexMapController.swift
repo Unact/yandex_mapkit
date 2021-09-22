@@ -17,6 +17,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
   private var circles: [YMKCircleMapObject] = []
+  private var clusterizedPlacemarkCollections: [YMKClusterizedPlacemarkCollection] = []
+  private var yandexMapClusterListener: YandexMapClusterListener
   public let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -30,7 +32,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     self.mapObjectTapListener = MapObjectTapListener(channel: methodChannel)
     self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
     self.userLocationLayer = YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
-
+    self.yandexMapClusterListener = YandexMapClusterListener()
     super.init()
 
     weak var weakSelf = self
@@ -46,6 +48,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "addClusterizedPlacemark":
+        addClusterizedPlacemark(call)
+        result(nil)
+      case "addClusterizedPlacemarkCollection":
+        let index = addClusterizedPlacemarkCollection(call)
+        result(index)
     case "logoAlignment":
       logoAlignment(call)
       result(nil)
@@ -332,6 +340,73 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     return nil
   }
+    
+  public func addClusterizedPlacemarkCollection(_ call: FlutterMethodCall) -> Int {
+    let params = call.arguments as! [String: Any]
+    let iconName = params["iconName"] as! String
+    if(iconName != nil && iconName != "" && iconName != "flutter_assets/") {
+        yandexMapClusterListener.loadImage(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))!)
+    }
+    if let rawImageData = params["rawImageData"] as? FlutterStandardTypedData,
+      let image = UIImage(data: rawImageData.data) {
+        yandexMapClusterListener.loadImage(image)
+    }
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let c = mapObjects.addClusterizedPlacemarkCollection(with: yandexMapClusterListener)
+    clusterizedPlacemarkCollections.append(c);
+  
+    return clusterizedPlacemarkCollections.index(of: c) ?? 0;
+  }
+    
+    public func addClusterizedPlacemark(_ call: FlutterMethodCall) {
+        let params = call.arguments as! [String: Any]
+        let paramsPoint = params["point"] as! [String: Any]
+        let paramsStyle = params["style"] as! [String: Any]
+        let point = YMKPoint(
+          latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
+          longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
+        )
+    
+        let collectionIndex = params["collection_index"] as! Int
+        if let coll = clusterizedPlacemarkCollections[collectionIndex] as? YMKClusterizedPlacemarkCollection {
+            let placemark = coll.addPlacemark(with: point)
+            
+            let iconName = paramsStyle["iconName"] as? String
+
+            placemark.addTapListener(with: mapObjectTapListener)
+            placemark.userData = (params["hashCode"] as! NSNumber).intValue
+            placemark.opacity = (paramsStyle["opacity"] as! NSNumber).floatValue
+            placemark.isDraggable = (paramsStyle["isDraggable"] as! NSNumber).boolValue
+            placemark.direction = (paramsStyle["direction"] as! NSNumber).floatValue
+
+            if (iconName != nil) {
+              placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+            }
+
+            if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
+              let image = UIImage(data: rawImageData.data) {
+                placemark.setIconWith(image)
+            }
+
+            let iconStyle = YMKIconStyle()
+            let rotationType = (paramsStyle["rotationType"] as! NSNumber).intValue
+            if (rotationType == YMKRotationType.rotate.rawValue) {
+              iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
+            }
+            iconStyle.anchor = NSValue(cgPoint:
+              CGPoint(
+                x: (paramsStyle["anchorX"] as! NSNumber).doubleValue,
+                y: (paramsStyle["anchorY"] as! NSNumber).doubleValue
+              )
+            )
+            iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
+            iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
+            placemark.setIconStyleWith(iconStyle)
+
+            placemarks.append(placemark)
+        }
+        
+    }
 
   public func addPlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
