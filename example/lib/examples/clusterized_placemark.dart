@@ -35,12 +35,12 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
                   await controller!.move(point: Point(latitude: 54.790246, longitude: 32.048847), zoom: 10.0);
                   // Create collection here!
                   clusterizedPlacemarkCollection = await controller!.addClusterizedPlacemarkCollection(
-                      iconName: 'lib/assets/user.png',
+                      iconName: '', // 'lib/assets/user.png',
                       textAlign: 'center',
                       textColor: {'r': 211, 'g': 165, 'b': 103},
                       backgroundColor: {'r': 19, 'g': 43, 'b': 32},
                       strokeColor: {'r': 173, 'g': 171, 'b': 118},
-		      fontSize: 10
+		      fontSize: 15
                   );
                   <dynamic>[
                     [54.790246, 32.048847],

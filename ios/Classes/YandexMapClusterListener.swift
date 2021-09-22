@@ -10,6 +10,7 @@ class YandexMapClusterListener: NSObject, YMKClusterListener
     private var strokeColor: UIColor = UIColor.black
     private var fontSize: CGFloat = 15
     private var image: UIImage?
+    private var textAlign: String?
     
     func onClusterAdded(with cluster: YMKCluster) {
         cluster.appearance.setIconWith(clusterImage(cluster.size))
@@ -17,12 +18,12 @@ class YandexMapClusterListener: NSObject, YMKClusterListener
     
     func clusterImage(_ clusterSize: UInt) -> UIImage {
             let FONT_SIZE: CGFloat = self.fontSize
-            let MARGIN_SIZE: CGFloat = 3
-            let STROKE_SIZE: CGFloat = 3
+            let MARGIN_SIZE: CGFloat = 3 // TODO: add as dart param like fontSize
+            let STROKE_SIZE: CGFloat = 3 // TODO: add as dart param like fontSize
             let scale = UIScreen.main.scale
             let text = (clusterSize as NSNumber).stringValue
             let font = UIFont.systemFont(ofSize: FONT_SIZE * scale)
-            let size = text.size(withAttributes: [NSAttributedString.Key.font: font])
+            var size = text.size(withAttributes: [NSAttributedString.Key.font: font])
             let textRadius = sqrt(size.height * size.height + size.width * size.width) / 2
             let internalRadius = textRadius + MARGIN_SIZE * scale
             let externalRadius = internalRadius + STROKE_SIZE * scale
@@ -35,13 +36,12 @@ class YandexMapClusterListener: NSObject, YMKClusterListener
             let ctx = UIGraphicsGetCurrentContext()!
 
         if (self.image != nil) {
-            self.image!.draw(in: CGRect(x: 0, y: 0, width: self.image!.size.width, height: self.image!.size.height))
-
-            
+            let imageRect = CGRect(x: 0, y: 0, width: self.image!.size.width, height: self.image!.size.height)
+            self.image!.draw(in: imageRect)
+            // TODO: here add impact of textAlign!
+            size = self.image!.size;
                 (text as NSString).draw(
-                    in: CGRect(
-                        origin: CGPoint(x: externalRadius - size.width / 2, y: externalRadius - size.height / 2),
-                        size: size),
+                    in: imageRect,
                     withAttributes: [
                         NSAttributedString.Key.font: font,
                         NSAttributedString.Key.foregroundColor: self.textColor])
@@ -61,9 +61,20 @@ class YandexMapClusterListener: NSObject, YMKClusterListener
                 origin: CGPoint(x: externalRadius - internalRadius, y: externalRadius - internalRadius),
                 size: CGSize(width: 2 * internalRadius, height: 2 * internalRadius)));
 
+        // Default align is center
+        var textAlignPoint = CGPoint(x: externalRadius - size.width / 2, y: externalRadius - size.height / 2)
+        if(textAlign != nil) {
+            // TODO: add more aligns
+            switch (textAlign) {
+            case "left":
+                textAlignPoint = CGPoint(x: 0, y: 0)
+            default:
+                textAlignPoint = CGPoint(x: externalRadius - size.width / 2, y: externalRadius - size.height / 2)
+            }
+        }
             (text as NSString).draw(
                 in: CGRect(
-                    origin: CGPoint(x: externalRadius - size.width / 2, y: externalRadius - size.height / 2),
+                    origin: textAlignPoint,
                     size: size),
                 withAttributes: [
                     NSAttributedString.Key.font: font,
@@ -80,16 +91,10 @@ class YandexMapClusterListener: NSObject, YMKClusterListener
     
     public func setOptions(_ params: [String: Any]) {
         self.options = params
-        // TODO: textAlignment
-//        let textAlign = params["textAlign"] as String!
-//        if(textAlign != nil) {
-//            switch textAlign {
-//            case "center":
-//
-//            default:
-//                <#code#>
-//            }
-//        }
+        let textAlign = params["textAlign"] as? String
+        if(textAlign != nil) {
+            self.textAlign = textAlign
+        }
         let textColor = params["textColor"] as! [String: CGFloat]
         if(textColor["r"] != nil && textColor["g"] != nil && textColor["b"] != nil) {
             self.textColor = UIColor.init(red: CGFloat(textColor["r"]!) / 255 , green: CGFloat(textColor["g"]!) / 255, blue: CGFloat(textColor["b"]!) / 255, alpha: 1.0)

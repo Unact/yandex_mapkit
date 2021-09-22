@@ -356,6 +356,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
     yandexMapClusterListener.setOptions(params)
     let mapObjects = mapView.mapWindow.map.mapObjects
+    // TODO: maybe need to add posibility to set own yandexMapClusterListener
+    // For example in AppDelegate.swift setCustomClusterListener
+    // it will be useful if we need hard logic for building
+    // need to think about this -> addClusterizedPlacemarkCollection(with: myRegistereClusterListener)
     let c = mapObjects.addClusterizedPlacemarkCollection(with: yandexMapClusterListener)
     clusterizedPlacemarkCollections.append(c);
   
