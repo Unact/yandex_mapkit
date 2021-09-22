@@ -48,6 +48,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "clearClusterizedPlacemarkCollection":
+        clearClusterizedPlacemarkCollection(call)
+        result(nil)
     case "addClusterizedPlacemark":
         addClusterizedPlacemark(call)
         result(nil)
@@ -358,6 +361,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     return clusterizedPlacemarkCollections.index(of: c) ?? 0;
   }
     
+    public func clearClusterizedPlacemarkCollection(_ call: FlutterMethodCall) {
+        let params = call.arguments as! [String: Any]
+        let index = params["collection_index"] as! Int;
+        let coll = clusterizedPlacemarkCollections[index] as! YMKClusterizedPlacemarkCollection
+        if(coll != nil) {
+            coll.clear()
+        }
+    }
+    
     public func addClusterizedPlacemark(_ call: FlutterMethodCall) {
         let params = call.arguments as! [String: Any]
         let paramsPoint = params["point"] as! [String: Any]
@@ -404,6 +416,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
             placemark.setIconStyleWith(iconStyle)
 
             placemarks.append(placemark)
+            coll.clusterPlacemarks(withClusterRadius: 50, minZoom: 15)
         }
         
     }
