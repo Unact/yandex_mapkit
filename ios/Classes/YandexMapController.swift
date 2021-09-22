@@ -354,6 +354,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       let image = UIImage(data: rawImageData.data) {
         yandexMapClusterListener.loadImage(image)
     }
+    yandexMapClusterListener.setOptions(params)
     let mapObjects = mapView.mapWindow.map.mapObjects
     let c = mapObjects.addClusterizedPlacemarkCollection(with: yandexMapClusterListener)
     clusterizedPlacemarkCollections.append(c);

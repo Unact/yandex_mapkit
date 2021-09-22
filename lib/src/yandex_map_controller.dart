@@ -196,11 +196,13 @@ class YandexMapController extends ChangeNotifier {
     String? iconName,
     Uint8List? rawImageData,
     Map<String, int>? textColor,
+    int? fontSize,
     Map<String, int>? backgroundColor,
     Map<String, int>? strokeColor,
     String? textAlign}) async {
     final int index = await _channel.invokeMethod('addClusterizedPlacemarkCollection', <String, dynamic>{
       'iconName': iconName,
+      'fontSize': fontSize ?? 15,
       'rawImageData': rawImageData,
       'textAlign': textAlign ?? 'center',
       'textColor': textColor ?? {'r': 0,'g': 0, 'b': 0},
