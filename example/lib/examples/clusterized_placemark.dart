@@ -40,7 +40,7 @@ class _ClusterizedPlacemarkExampleState extends State<_ClusterizedPlacemarkExamp
                       textColor: {'r': 211, 'g': 165, 'b': 103},
                       backgroundColor: {'r': 19, 'g': 43, 'b': 32},
                       strokeColor: {'r': 173, 'g': 171, 'b': 118},
-		      fontSize: 15
+		                  fontSize: 15
                   );
                   <dynamic>[
                     [54.790246, 32.048847],

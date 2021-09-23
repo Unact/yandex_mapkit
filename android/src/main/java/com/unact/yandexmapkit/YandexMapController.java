@@ -162,6 +162,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     if(textAlign != null && textAlign.equals("")) {
       options.put("textAlign", textAlign);
     }
+    Object fontSize = paramsObj.get("fontSize");
+    if(fontSize != null) {
+      options.put("fontSize", fontSize);
+    }
 
     Map<String, Integer> textColor = (Map<String, Integer>) paramsObj.get("textColor");
     Map<String, Integer> backgroundColor = (Map<String, Integer>) paramsObj.get("backgroundColor");

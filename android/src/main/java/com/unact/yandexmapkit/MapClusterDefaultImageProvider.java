@@ -12,8 +12,6 @@ import java.util.Map;
 import io.flutter.Log;
 
 public class MapClusterDefaultImageProvider extends ImageProvider {
-
-    private static final float FONT_SIZE = 15;
     private static final float MARGIN_SIZE = 3;
     private static final float STROKE_SIZE = 3;
 
@@ -44,6 +42,11 @@ public class MapClusterDefaultImageProvider extends ImageProvider {
     private final String text;
     @Override
     public Bitmap getImage() {
+        Integer FONT_SIZE = 15;
+        if(options.containsKey("fontSize")) {
+            FONT_SIZE = (Integer) options.get("fontSize");
+            Log.d("android", "FontSize="+Integer.toString(FONT_SIZE));
+        }
         // Styling text
         Paint textPaint = new Paint();
         textPaint.setTextSize(FONT_SIZE * density);
