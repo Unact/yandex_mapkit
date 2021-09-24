@@ -23,7 +23,7 @@ class YandexMap extends StatefulWidget {
   ///
   /// The difference between [YandexMap.onMapCreated] and this callback
   /// is that [YandexMap.onMapCreated] is called before the map is actually rendered,
-  /// which can cause some buggy behaivour in iOS.
+  /// which can cause some buggy behaviour in iOS.
   ///
   /// This happens because native view creation is asynchronous.
   /// Our widget is created before flutter sizes and paints the corresponding native view.
