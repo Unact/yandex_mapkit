@@ -7,7 +7,12 @@ import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
@@ -64,19 +69,17 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.view.FlutterMain;
 
-
-public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler {
-
+public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler, DefaultLifecycleObserver {
   private final MapView mapView;
   private final MethodChannel methodChannel;
-
-  private YandexUserLocationObjectListener  yandexUserLocationObjectListener;
-  private YandexCameraListener              yandexCameraListener;
-  private YandexMapObjectTapListener        yandexMapObjectTapListener;
-  private YandexMapInputListener            yandexMapInputListener;
-  private YandexMapSizeChangedListener      yandexMapSizeChangedListener;
-  private YandexClusterListener             yandexClusterListener;
-  private YandexClusterTapListener          yandexClusterTapListener;
+  private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
+  private YandexUserLocationObjectListener yandexUserLocationObjectListener;
+  private YandexCameraListener yandexCameraListener;
+  private YandexMapObjectTapListener yandexMapObjectTapListener;
+  private YandexMapInputListener yandexMapInputListener;
+  private YandexMapSizeChangedListener yandexMapSizeChangedListener;
+  private YandexClusterListener yandexClusterListener;
+  private YandexClusterTapListener yandexClusterTapListener;
 
   private List<MapObjectCollection>             collections            = new ArrayList<>();
   private List<ClusterizedPlacemarkCollection>  clusterizedCollections = new ArrayList<>();
@@ -101,15 +104,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   private String userArrowIconName;
   private Boolean userArrowOrientation;
   private int accuracyCircleFillColor = 0;
+  private boolean disposed = false;
 
-  public YandexMapController(int id, Context context, BinaryMessenger messenger) {
-
-    MapKitFactory.initialize(context);
-
+  public YandexMapController(int id, Context context, BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
+    this.lifecycleProvider = lifecycleProvider;
     mapView = new MapView(context);
-
-    MapKitFactory.getInstance().onStart();
-
     mapView.onStart();
 
     yandexMapObjectTapListener = new YandexMapObjectTapListener();
@@ -123,6 +122,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     mapView.getMap().addInputListener(yandexMapInputListener);
     mapView.getMapWindow().addSizeChangedListener(yandexMapSizeChangedListener);
+
+    lifecycleProvider.getLifecycle().addObserver(this);
   }
 
   @Override
@@ -132,8 +133,17 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   @Override
   public void dispose() {
-    mapView.onStop();
-    MapKitFactory.getInstance().onStop();
+    if (disposed) {
+      return;
+    }
+
+    disposed = true;
+    methodChannel.setMethodCallHandler(null);
+
+    Lifecycle lifecycle = lifecycleProvider.getLifecycle();
+    if (lifecycle != null) {
+      lifecycle.removeObserver(this);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -231,11 +241,12 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings("unchecked")
   private void setBounds(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsSouthWestPoint = ((Map<String, Object>) params.get("southWestPoint"));
-    Map<String, Object> paramsNorthEastPoint = ((Map<String, Object>) params.get("northEastPoint"));
+    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
+    Map<String, Object> southWest = (Map<String, Object>) paramsBoundingBox.get("southWest");
+    Map<String, Object> northEast = (Map<String, Object>) paramsBoundingBox.get("northEast");
     BoundingBox boundingBox = new BoundingBox(
-      new Point(((Double) paramsSouthWestPoint.get("latitude")), ((Double) paramsSouthWestPoint.get("longitude"))),
-      new Point(((Double) paramsNorthEastPoint.get("latitude")), ((Double) paramsNorthEastPoint.get("longitude")))
+      new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
+      new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
     );
 
     moveWithParams(params, mapView.getMap().cameraPosition(boundingBox));
@@ -1036,6 +1047,44 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     );
   }
 
+  private boolean isZoomGesturesEnabled() {
+    return mapView.getMap().isZoomGesturesEnabled();
+  }
+
+  public void toggleZoomGestures(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    boolean enabled = (Boolean) params.get("enabled");
+
+    mapView.getMap().setZoomGesturesEnabled(enabled);
+  }
+
+  public float getMinZoom() {
+    return mapView.getMap().getMinZoom();
+  }
+
+  public float getMaxZoom() {
+    return mapView.getMap().getMaxZoom();
+  }
+
+  public float getZoom() {
+    return mapView.getMap().getCameraPosition().getZoom();
+  }
+
+  private boolean isTiltGesturesEnabled() {
+    return mapView.getMap().isTiltGesturesEnabled();
+  }
+
+  public void toggleTiltGestures(MethodCall call) {
+
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    boolean enabled = (Boolean) params.get("enabled");
+
+    mapView.getMap().setTiltGesturesEnabled(enabled);
+  }
+
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
@@ -1147,6 +1196,26 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         zoomOut();
         result.success(null);
         break;
+      case "isZoomGesturesEnabled":
+        boolean isZoomGesturesEnabledValue = isZoomGesturesEnabled();
+        result.success(isZoomGesturesEnabledValue);
+        break;
+      case "toggleZoomGestures":
+        toggleZoomGestures(call);
+        result.success(null);
+        break;
+      case "getMinZoom":
+        float minZoom = getMinZoom();
+        result.success(minZoom);
+        break;
+      case "getMaxZoom":
+        float maxZoom = getMaxZoom();
+        result.success(maxZoom);
+        break;
+      case "getZoom":
+        float zoom = getZoom();
+        result.success(zoom);
+        break;
       case "getTargetPoint":
         Map<String, Object> targetPoint = getTargetPoint();
         result.success(targetPoint);
@@ -1159,9 +1228,53 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         Map<String, Object> userTargetPoint = getUserTargetPoint();
         result.success(userTargetPoint);
         break;
+      case "isTiltGesturesEnabled":
+        boolean isTiltGesturesEnabledValue = isTiltGesturesEnabled();
+        result.success(isTiltGesturesEnabledValue);
+        break;
+      case "toggleTiltGestures":
+        toggleTiltGestures(call);
+        result.success(null);
+        break;
       default:
         result.notImplemented();
         break;
+    }
+  }
+
+  @Override
+  public void onCreate(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onStart(@NonNull LifecycleOwner owner) {
+    if (disposed) {
+      return;
+    }
+
+    mapView.onStart();
+  }
+
+  @Override
+  public void onResume(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onPause(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onStop(@NonNull LifecycleOwner owner) {
+    if (disposed) {
+      return;
+    }
+
+    mapView.onStop();
+  }
+
+  @Override
+  public void onDestroy(@NonNull LifecycleOwner owner) {
+    owner.getLifecycle().removeObserver(this);
+
+    if (disposed) {
+      return;
     }
   }
 

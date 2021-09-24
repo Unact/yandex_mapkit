@@ -24,4 +24,7 @@ flutter:
     - lib/assets/user.png
     - lib/assets/place.png
     - lib/assets/arrow.png
+    - lib/assets/route_start.png
+    - lib/assets/route_stop_by.png
+    - lib/assets/route_end.png
   uses-material-design: true

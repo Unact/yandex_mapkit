@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 import 'package:yandex_mapkit_example/examples/camera_tracking_page.dart';
+import 'package:yandex_mapkit_example/examples/circle_page.dart';
+import 'package:yandex_mapkit_example/examples/driving_page.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
-import 'package:yandex_mapkit_example/examples/circle_page.dart';
+import 'package:yandex_mapkit_example/examples/reverse_search_page.dart';
 import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
+import 'package:yandex_mapkit_example/examples/suggest_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
@@ -17,6 +21,7 @@ void main() {
 
 const List<MapPage> _allPages = <MapPage>[
   CameraTrackingPage(),
+  DrivingPage(),
   LayersPage(),
   MapControlsPage(),
   PlacemarkPage(),
@@ -24,7 +29,9 @@ const List<MapPage> _allPages = <MapPage>[
   PolygonPage(),
   CirclePage(),
   RotationPage(),
+  SuggestionsPage(),
   SearchPage(),
+  ReverseSearchPage(),
 ];
 
 class MainPage extends StatelessWidget {

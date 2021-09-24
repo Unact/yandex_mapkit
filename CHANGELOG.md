@@ -1,3 +1,13 @@
+## 1.1.1
+
+* Fix compiling errors for swift versions lower than 5.4 [#119, cream-cheeze]
+
+## 1.1.0
+
+* Add gesture manipulation [#120, cream-cheeze]
+* Add additional zoom features(min/max, disabling/enabling) [#116, cream-cheeze]
+* Add the ability to work with `Circle` objects [#115, cream-cheeze]
+
 ## 1.0.1
 
 * Fix memory leak on iOS #107

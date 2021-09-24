@@ -126,21 +126,13 @@ class YandexMapController extends ChangeNotifier {
 
   /// Moves map to include area inside [southWestPoint] and [northEastPoint]
   Future<void> setBounds({
-    required Point southWestPoint,
-    required Point northEastPoint,
+    required BoundingBox boundingBox,
     MapAnimation? animation
   }) async {
     await _channel.invokeMethod<void>(
       'setBounds',
       <String, dynamic>{
-        'southWestPoint': <String, dynamic>{
-          'latitude': southWestPoint.latitude,
-          'longitude': southWestPoint.longitude,
-        },
-        'northEastPoint': <String, dynamic>{
-          'latitude': northEastPoint.latitude,
-          'longitude': northEastPoint.longitude,
-        },
+        'boundingBox': boundingBox.toJson(),
         'animation': <String, dynamic>{
           'animate': animation != null,
           'smoothAnimation': animation?.smooth,
@@ -456,6 +448,34 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod<void>('zoomOut');
   }
 
+  Future<bool> isZoomGesturesEnabled() async {
+    final bool value = await _channel.invokeMethod<dynamic>('isZoomGesturesEnabled');
+    return value;
+  }
+
+  /// Toggles isZoomGesturesEnabled (enable/disable zoom gestures)
+  Future<void> toggleZoomGestures({required bool enabled}) async {
+    await _channel.invokeMethod<void>('toggleZoomGestures', <String, dynamic>{'enabled': enabled});
+  }
+
+  // Returns min available zoom for visible map region
+  Future<double> getMinZoom() async {
+    final double minZoom = await _channel.invokeMethod<dynamic>('getMinZoom');
+    return minZoom;
+  }
+
+  // Returns max available zoom for visible map region
+  Future<double> getMaxZoom() async {
+    final double maxZoom = await _channel.invokeMethod<dynamic>('getMaxZoom');
+    return maxZoom;
+  }
+
+  /// Returns current camera position point
+  Future<double> getZoom() async {
+    final double zoom = await _channel.invokeMethod<dynamic>('getZoom');
+    return zoom;
+  }
+
   /// Returns current user position point only if user layer is visible
   Future<Point?> getUserTargetPoint() async {
     final dynamic point = await _channel.invokeMethod<dynamic>('getUserTargetPoint');
@@ -517,7 +537,7 @@ class YandexMapController extends ChangeNotifier {
         _onClusterTap(call.arguments);
         break;
       default:
-        throw MissingPluginException();
+        throw YandexMapkitException();
     }
   }
 
@@ -626,5 +646,15 @@ class YandexMapController extends ChangeNotifier {
         'isGeodesic':  style.isGeodesic,
       }
     };
+  }
+
+  Future<bool> isTiltGesturesEnabled() async {
+    final bool value = await _channel.invokeMethod<dynamic>('isTiltGesturesEnabled');
+    return value;
+  }
+
+  /// Toggles isTiltGesturesEnabled (enable/disable tilt gestures)
+  Future<void> toggleTiltGestures({required bool enabled}) async {
+    await _channel.invokeMethod<void>('toggleTiltGestures', <String, dynamic>{'enabled': enabled});
   }
 }

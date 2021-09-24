@@ -5,21 +5,21 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class SearchPage extends MapPage {
-  const SearchPage() : super('Search example');
+class SuggestionsPage extends MapPage {
+  const SuggestionsPage() : super('Suggest example');
 
   @override
   Widget build(BuildContext context) {
-    return _SearchExample();
+    return _SuggestionsExample();
   }
 }
 
-class _SearchExample extends StatefulWidget {
+class _SuggestionsExample extends StatefulWidget {
   @override
-  _SearchExampleState createState() => _SearchExampleState();
+  _SuggestionsExampleState createState() => _SuggestionsExampleState();
 }
 
-class _SearchExampleState extends State<_SearchExample> {
+class _SuggestionsExampleState extends State<_SuggestionsExample> {
   final TextEditingController queryController = TextEditingController();
 
   @override
@@ -39,11 +39,11 @@ class _SearchExampleState extends State<_SearchExample> {
                     Flexible(
                       child: TextField(
                         controller: queryController,
-                        decoration: InputDecoration(hintText: 'Search'),
+                        decoration: InputDecoration(hintText: 'Address part'),
                       ),
                     ),
                     ControlButton(
-                      onPressed: _search,
+                      onPressed: _suggest,
                       title: 'Query'
                     ),
                   ],
@@ -56,23 +56,19 @@ class _SearchExampleState extends State<_SearchExample> {
     );
   }
 
-  void _search() async {
+  Future<void> _suggest() async {
     var query = queryController.text;
 
-    print('Search query: $query');
+    print('Suggest query: $query');
 
-    var resultWithSession = YandexSearch.searchByText(
-      searchText: query,
-      geometry: Geometry.fromBoundingBox(
-        BoundingBox(
-          southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
-          northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
-        )
+    var resultWithSession = YandexSuggest.getSuggestions(
+      address: query,
+      boundingBox: BoundingBox(
+        northEast: Point(latitude: 56.0421, longitude: 38.0284),
+        southWest: Point(latitude: 55.5143, longitude: 37.24841)
       ),
-      searchOptions: SearchOptions(
-        searchType: SearchType.geo,
-        geometry: false,
-      ),
+      suggestType: SuggestType.geo,
+      suggestWords: true,
     );
 
     await Navigator.push(
@@ -85,8 +81,8 @@ class _SearchExampleState extends State<_SearchExample> {
 }
 
 class _SessionPage extends StatefulWidget {
-  final Future<SearchSessionResult> result;
-  final SearchSession session;
+  final Future<SuggestSessionResult> result;
+  final SuggestSession session;
   final String query;
 
   _SessionPage(this.query, this.session, this.result);
@@ -96,7 +92,7 @@ class _SessionPage extends StatefulWidget {
 }
 
 class _SessionState extends State<_SessionPage> {
-  final List<SearchSessionResult> results = [];
+  final List<SuggestSessionResult> results = [];
   bool _progress = true;
 
   @override
@@ -116,7 +112,7 @@ class _SessionState extends State<_SessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search ${widget.session.id}')),
+      appBar: AppBar(title: Text('Suggest ${widget.session.id}')),
       body: Container(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -137,8 +133,8 @@ class _SessionState extends State<_SessionPage> {
                           Text(widget.query, style: TextStyle(fontSize: 20,)),
                           !_progress ? Container() : TextButton.icon(
                             icon: const CircularProgressIndicator(),
-                            label: const Text('Cancel'),
-                            onPressed: _cancel
+                            label: const Text('Reset'),
+                            onPressed: _reset
                           )
                         ],
                       )
@@ -175,21 +171,16 @@ class _SessionState extends State<_SessionPage> {
     }
 
     for (var r in results) {
-      list.add(Text('Page: ${r.page}'));
-      list.add(Container(height: 20));
-
       r.items!.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+        list.add(Text('Item $i: ${item.title}'));
       });
-
-      list.add(Container(height: 20));
     }
 
     return list;
   }
 
-  Future<void> _cancel() async {
-    await widget.session.cancel();
+  Future<void> _reset() async {
+    await widget.session.reset();
 
     setState(() { _progress = false; });
   }
@@ -202,21 +193,13 @@ class _SessionState extends State<_SessionPage> {
     await _handleResult(await widget.result);
   }
 
-  Future<void> _handleResult(SearchSessionResult result) async {
+  Future<void> _handleResult(SuggestSessionResult result) async {
     if (result.error != null) {
       print('Error: ${result.error}');
       return;
     }
 
-    print('Page ${result.page}: ${result.toString()}');
-
     setState(() { results.add(result); });
-
-    if (await widget.session.hasNextPage()) {
-      print('Got ${result.found} items, fetching next page...');
-      setState(() { _progress = true; });
-      await _handleResult(await widget.session.fetchNextPage());
-    }
 
     setState(() { _progress = false; });
   }

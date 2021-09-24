@@ -1,6 +1,6 @@
 part of yandex_mapkit;
 
-class Polygon extends Equatable{
+class Polygon extends Equatable {
   const Polygon({
     required this.outerRingCoordinates,
     this.innerRingsCoordinates = const <List<Point>>[],

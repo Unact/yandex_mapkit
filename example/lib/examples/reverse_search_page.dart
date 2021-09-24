@@ -5,70 +5,83 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class SearchPage extends MapPage {
-  const SearchPage() : super('Search example');
+class ReverseSearchPage extends MapPage {
+  const ReverseSearchPage() : super('Reverse search example');
 
   @override
   Widget build(BuildContext context) {
-    return _SearchExample();
+    return _ReverseSearchExample();
   }
 }
 
-class _SearchExample extends StatefulWidget {
+class _ReverseSearchExample extends StatefulWidget {
   @override
-  _SearchExampleState createState() => _SearchExampleState();
+  _ReverseSearchExampleState createState() => _ReverseSearchExampleState();
 }
 
-class _SearchExampleState extends State<_SearchExample> {
+class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   final TextEditingController queryController = TextEditingController();
+  YandexMapController? controller;
+
+  static const Point _point = Point(latitude: 55.755848, longitude: 37.620409);
 
   @override
   Widget build(BuildContext context) {
+    var mapHeight = 300.0;
+
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Flexible(
-                      child: TextField(
-                        controller: queryController,
-                        decoration: InputDecoration(hintText: 'Search'),
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: mapHeight,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                YandexMap(
+                  onMapCreated: (YandexMapController yandexMapController) async {
+                    controller = yandexMapController;
+                    await controller!.move(point: _point, zoom: 17);
+                    await controller!.enableCameraTracking(
+                      onCameraPositionChange: (_) {},
+                      style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      ControlButton(
+                        onPressed: _search,
+                        title: 'What is here?'
                       ),
-                    ),
-                    ControlButton(
-                      onPressed: _search,
-                      title: 'Query'
-                    ),
-                  ],
-                ),
-              ]
+                    ],
+                  ),
+                ]
+              )
             )
           )
-        )
-      ]
+        ]
     );
   }
 
   void _search() async {
-    var query = queryController.text;
+    var point = await controller!.getTargetPoint();
 
-    print('Search query: $query');
+    print('Point: $point');
 
-    var resultWithSession = YandexSearch.searchByText(
-      searchText: query,
-      geometry: Geometry.fromBoundingBox(
-        BoundingBox(
-          southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
-          northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
-        )
-      ),
+    var resultWithSession = YandexSearch.searchByPoint(
+      point: point,
+      zoom: 20,
       searchOptions: SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
@@ -78,7 +91,7 @@ class _SearchExampleState extends State<_SearchExample> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(query, resultWithSession.session, resultWithSession.result)
+        builder: (BuildContext context) => _SessionPage(point, resultWithSession.session, resultWithSession.result)
       )
     );
   }
@@ -87,9 +100,9 @@ class _SearchExampleState extends State<_SearchExample> {
 class _SessionPage extends StatefulWidget {
   final Future<SearchSessionResult> result;
   final SearchSession session;
-  final String query;
+  final Point point;
 
-  _SessionPage(this.query, this.session, this.result);
+  _SessionPage(this.point, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -123,6 +136,24 @@ class _SessionState extends State<_SessionPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: 300,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  YandexMap(
+                    onMapCreated: (YandexMapController yandexMapController) async {
+                      await yandexMapController.move(point: widget.point, zoom: 17);
+                      await yandexMapController.addPlacemark(Placemark(
+                        point: widget.point,
+                        style: PlacemarkStyle(iconName: 'lib/assets/place.png', scale: 0.75)
+                      ));
+                    },
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
@@ -134,7 +165,10 @@ class _SessionState extends State<_SessionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(widget.query, style: TextStyle(fontSize: 20,)),
+                          Text(
+                            'Point',
+                            style: TextStyle(fontSize: 20),
+                          ),
                           !_progress ? Container() : TextButton.icon(
                             icon: const CircularProgressIndicator(),
                             label: const Text('Cancel'),
@@ -143,6 +177,11 @@ class _SessionState extends State<_SessionPage> {
                         ],
                       )
                     ),
+                    Row(children: [
+                      Flexible(child:
+                        Text('Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}')
+                      )
+                    ]),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
