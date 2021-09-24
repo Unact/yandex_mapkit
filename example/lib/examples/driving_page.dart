@@ -22,15 +22,24 @@ class _DrivingExample extends StatefulWidget {
 class _DrivingExampleState extends State<_DrivingExample> {
   Placemark startPlacemark = Placemark(
     point: Point(latitude: 55.7558, longitude: 37.6173),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_start.png', scale: 0.3)
+    icon: PlacemarkIcon.fromIconName(
+      iconName: 'lib/assets/route_start.png',
+      style: PlacemarkStyle(scale: 0.3)
+    ),
   );
   Placemark stopByPlacemark = Placemark(
     point: Point(latitude: 45.0360, longitude: 38.9746),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_stop_by.png', scale: 0.3)
+    icon: PlacemarkIcon.fromIconName(
+      iconName: 'lib/assets/route_stop_by.png',
+      style: PlacemarkStyle(scale: 0.3)
+    ),
   );
   Placemark endPlacemark = Placemark(
     point: Point(latitude: 48.4814, longitude: 135.0721),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_end.png', scale: 0.3)
+    icon: PlacemarkIcon.fromIconName(
+      iconName: 'lib/assets/route_end.png',
+      style: PlacemarkStyle(scale: 0.3)
+    ),
   );
 
   @override
@@ -141,12 +150,18 @@ class _SessionState extends State<_SessionPage> {
                       var placemarks = [
                         Placemark(
                           point: widget.startPoint,
-                          style: PlacemarkStyle(iconName: 'lib/assets/route_start.png', scale: 0.3)
+                          icon: PlacemarkIcon.fromIconName(
+                            iconName: 'lib/assets/route_start.png',
+                            style: PlacemarkStyle(scale: 0.3)
+                          ),
                         ),
                         Placemark(
                           point: widget.endPoint,
-                          style: PlacemarkStyle(iconName: 'lib/assets/route_end.png', scale: 0.3)
-                        )
+                          icon: PlacemarkIcon.fromIconName(
+                            iconName: 'lib/assets/route_end.png',
+                            style: PlacemarkStyle(scale: 0.3)
+                          ),
+                        ),
                       ];
 
                       await Future.forEach(placemarks, (Placemark element) async {
