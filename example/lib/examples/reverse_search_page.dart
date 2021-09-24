@@ -42,9 +42,9 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                 YandexMap(
                   onMapCreated: (YandexMapController yandexMapController) async {
                     controller = yandexMapController;
-                    await controller!.move(point: _point, zoom: 17);
+                    await controller!.move(cameraPosition: CameraPosition(target: _point, zoom: 17));
                     await controller!.enableCameraTracking(
-                      onCameraPositionChange: (_) {},
+                      onCameraPositionChange: (_, __) {},
                       style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
                     );
                   },
@@ -144,7 +144,7 @@ class _SessionState extends State<_SessionPage> {
                 children: [
                   YandexMap(
                     onMapCreated: (YandexMapController yandexMapController) async {
-                      await yandexMapController.move(point: widget.point, zoom: 17);
+                      await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
                       await yandexMapController.addPlacemark(Placemark(
                         point: widget.point,
                         style: PlacemarkStyle(iconName: 'lib/assets/place.png', scale: 0.75)

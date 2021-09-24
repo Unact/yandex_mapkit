@@ -82,10 +82,9 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
     );
   }
 
-  Future<void> cameraPositionChanged(dynamic arguments) async {
-    final bool bFinal = arguments['final'];
-    if (bFinal) {
-      await addPlacemark(Point(latitude: arguments['latitude'], longitude: arguments['longitude']));
+  Future<void> cameraPositionChanged(CameraPosition cameraPosition, bool finished) async {
+    if (finished) {
+      await addPlacemark(cameraPosition.target);
     }
   }
 

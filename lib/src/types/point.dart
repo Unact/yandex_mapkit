@@ -19,12 +19,10 @@ class Point extends Equatable {
   bool get stringify => true;
 
   Map<String, dynamic> toJson() {
-    var json = <String, dynamic>{
+    return {
       'latitude': latitude,
       'longitude': longitude,
     };
-
-    return json;
   }
 
   factory Point.fromJson(Map<dynamic, dynamic> json) {

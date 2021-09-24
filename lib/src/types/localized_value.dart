@@ -1,7 +1,7 @@
 part of yandex_mapkit;
 
 class LocalizedValue extends Equatable {
-  LocalizedValue._(this.value, this.text);
+  const LocalizedValue._(this.value, this.text);
 
   final double? value;
   final String text;

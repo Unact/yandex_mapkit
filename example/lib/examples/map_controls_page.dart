@@ -113,7 +113,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       await controller!.move(
-                        point: _point,
+                        cameraPosition: const CameraPosition(target: _point),
                         animation: const MapAnimation(smooth: true, duration: 2.0)
                       );
                     },
@@ -143,7 +143,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       final region = await controller!.getVisibleRegion();
-                      print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
+                      print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
                     },
                     title: 'Visible map region'
                   ),
@@ -166,8 +166,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       await controller!.logoAlignment(
-                        horizontal: HorizontalAlignment.center,
-                        vertical: VerticalAlignment.bottom
+                        alignment: MapAlignment(
+                          horizontal: HorizontalAlignment.center,
+                          vertical: VerticalAlignment.bottom
+                        )
                       );
                     },
                     title: 'Logo position'
@@ -209,8 +211,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     ControlButton(
                       onPressed: () async {
                         await controller!.setFocusRect(
-                          topLeft: const ScreenPoint(x: 200, y: 200),
-                          bottomRight: const ScreenPoint(x: 600, y: 600),
+                          screenRect: const ScreenRect(
+                            bottomRight: ScreenPoint(x: 600, y: 600),
+                            topLeft: ScreenPoint(x: 200, y: 200)
+                          )
                         );
                       },
                       title: 'Focus rect'
