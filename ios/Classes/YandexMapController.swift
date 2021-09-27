@@ -328,6 +328,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     applyPlacemarkStyle(placemark, params["style"] as! [String: Any])
     placemark.addTapListener(with: mapObjectTapListener)
     placemark.userData = params["id"] as! String
+    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
 
     placemarks.append(placemark)
   }
@@ -394,11 +395,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
     polylineMapObject.userData = params["id"] as! String
+    polylineMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polylineMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineColor = uiColor(fromInt: (paramsStyle["outlineColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineWidth = (paramsStyle["outlineWidth"] as! NSNumber).floatValue
     polylineMapObject.strokeWidth = (paramsStyle["strokeWidth"] as! NSNumber).floatValue
-    polylineMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
     polylineMapObject.dashLength = (paramsStyle["dashLength"] as! NSNumber).floatValue
     polylineMapObject.dashOffset = (paramsStyle["dashOffset"] as! NSNumber).floatValue
     polylineMapObject.gapLength = (paramsStyle["gapLength"] as! NSNumber).floatValue
@@ -433,9 +434,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let polygonMapObject = mapObjects.addPolygon(with: polylgon)
 
     polygonMapObject.userData = params["id"] as! String
+    polygonMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polygonMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polygonMapObject.strokeWidth = (paramsStyle["strokeWidth"] as! NSNumber).floatValue
-    polygonMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
     polygonMapObject.fillColor = uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
 
     polygons.append(polygonMapObject)
@@ -468,7 +469,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
     )
     circleMapObject.userData = params["id"] as! String
-    circleMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
+    circleMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
 
     circles.append(circleMapObject)
   }
@@ -494,7 +495,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     mapView.mapWindow.map.isTiltGesturesEnabled = enabled
   }
-  
+
   private func uiColor(fromInt value: Int64) -> UIColor {
     return UIColor(
       red: CGFloat((value & 0xFF0000) >> 16) / 0xFF,
@@ -518,7 +519,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       return false
     }
   }
-  
+
   private func moveWithParams(_ paramsAnimation: [String: Any]?, _ cameraPosition: YMKCameraPosition) {
     if paramsAnimation == nil {
       mapView.mapWindow.map.move(with: cameraPosition)
@@ -573,7 +574,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let iconAnchor = style["iconAnchor"] as! [String: NSNumber]
 
     placemark.opacity = (style["opacity"] as! NSNumber).floatValue
-    placemark.isDraggable = (style["isDraggable"] as! NSNumber).boolValue
     placemark.direction = (style["direction"] as! NSNumber).floatValue
 
     if (iconName != nil) {

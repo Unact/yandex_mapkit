@@ -4,6 +4,7 @@ class Circle extends Equatable {
   Circle({
     required this.center,
     required this.radius,
+    this.isGeodesic = false,
     this.style = const CircleStyle(),
   }) : id = _nextIdVal;
 
@@ -13,13 +14,15 @@ class Circle extends Equatable {
   final String id;
   final Point center;
   final double radius;
+  final bool isGeodesic;
   final CircleStyle style;
 
   @override
   List<Object> get props => <Object>[
     center,
     radius,
-    style
+    isGeodesic,
+    style,
   ];
 
   @override
@@ -30,7 +33,8 @@ class Circle extends Equatable {
       'id': id,
       'center': center.toJson(),
       'radius': radius,
-      'style': style.toJson()
+      'isGeodesic': isGeodesic,
+      'style': style.toJson(),
     };
   }
 }
@@ -40,20 +44,17 @@ class CircleStyle extends Equatable {
     this.strokeColor = const Color(0xFF0066FF),
     this.strokeWidth = 5.0,
     this.fillColor = const Color(0xFF64B5F6),
-    this.isGeodesic = false,
   });
 
   final Color strokeColor;
   final double strokeWidth;
   final Color fillColor;
-  final bool isGeodesic;
 
   @override
   List<Object> get props => <Object>[
     strokeColor,
     strokeWidth,
     fillColor,
-    isGeodesic,
   ];
 
   @override
@@ -64,7 +65,6 @@ class CircleStyle extends Equatable {
       'strokeColor': strokeColor.value,
       'strokeWidth': strokeWidth,
       'fillColor': fillColor.value,
-      'isGeodesic': isGeodesic,
     };
   }
 }

@@ -241,8 +241,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     PlacemarkMapObject placemark = mapObjects.addPlacemark(pointFromJson(paramsPoint));
 
     applyPlacemarkStyle(placemark, paramsStyle);
-    placemark.setUserData(params.get("id"));
     placemark.addTapListener(yandexMapObjectTapListener);
+    placemark.setUserData(params.get("id"));
+    placemark.setDraggable((Boolean) params.get("isDraggable"));
 
     placemarks.add(placemark);
   }
@@ -342,11 +343,11 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
 
     polyline.setUserData(params.get("id"));
+    polyline.setGeodesic((boolean) params.get("isGeodesic"));
     polyline.setOutlineColor(((Number) paramsStyle.get("outlineColor")).intValue());
     polyline.setOutlineWidth(((Double) paramsStyle.get("outlineWidth")).floatValue());
     polyline.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
     polyline.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
-    polyline.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
     polyline.setDashLength(((Double) paramsStyle.get("dashLength")).floatValue());
     polyline.setDashOffset(((Double) paramsStyle.get("dashOffset")).floatValue());
     polyline.setGapLength(((Double) paramsStyle.get("gapLength")).floatValue());
@@ -398,6 +399,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     PolygonMapObject polygon = mapObjects.addPolygon(new Polygon(new LinearRing(outerRingPolygonPoints), innerRings));
 
     polygon.setUserData(params.get("id"));
+    polygon.setGeodesic((boolean) params.get("isGeodesic"));
     polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
     polygon.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
     polygon.setFillColor(((Number) paramsStyle.get("fillColor")).intValue());
@@ -436,7 +438,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     );
 
     circle.setUserData(params.get("id"));
-    circle.setGeodesic((boolean) paramsStyle.get("isGeodesic"));
+    circle.setGeodesic((boolean) params.get("isGeodesic"));
 
     circles.add(circle);
   }
@@ -752,7 +754,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     byte[] rawImageData = (byte[]) style.get("rawImageData");
 
     placemark.setOpacity(((Double) style.get("opacity")).floatValue());
-    placemark.setDraggable((Boolean) style.get("isDraggable"));
     placemark.setDirection(((Double) style.get("direction")).floatValue());
 
     if (iconName != null) {

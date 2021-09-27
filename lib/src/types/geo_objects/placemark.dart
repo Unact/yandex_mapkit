@@ -3,6 +3,7 @@ part of yandex_mapkit;
 class Placemark extends Equatable {
   Placemark({
     required this.point,
+    this.isDraggable = false,
     this.style = const PlacemarkStyle(),
     this.onTap,
   }) : id = _nextIdVal;
@@ -12,6 +13,7 @@ class Placemark extends Equatable {
 
   final String id;
   final Point point;
+  final bool isDraggable;
   final PlacemarkStyle style;
   final TapCallback<Placemark, Point>? onTap;
 
@@ -19,8 +21,9 @@ class Placemark extends Equatable {
   List<Object?> get props => <Object?>[
     id,
     point,
+    isDraggable,
     style,
-    onTap
+    onTap,
   ];
 
   @override
@@ -30,7 +33,8 @@ class Placemark extends Equatable {
     return {
       'id': id,
       'point': point.toJson(),
-      'style': style.toJson()
+      'style': style.toJson(),
+      'isDraggable': isDraggable,
     };
   }
 }
@@ -41,7 +45,6 @@ class PlacemarkStyle extends Equatable {
     this.zIndex = 0.0,
     this.iconAnchor = const Offset(0.5, 0.5),
     this.opacity = 0.5,
-    this.isDraggable = false,
     this.iconName,
     this.rawImageData,
     this.direction = 0,
@@ -52,7 +55,6 @@ class PlacemarkStyle extends Equatable {
   final double zIndex;
   final Offset iconAnchor;
   final double opacity;
-  final bool isDraggable;
   final String? iconName;
   final RotationType rotationType;
   final double direction;
@@ -79,9 +81,8 @@ class PlacemarkStyle extends Equatable {
     zIndex,
     iconAnchor,
     opacity,
-    isDraggable,
     rotationType,
-    direction
+    direction,
   ];
 
   @override
@@ -96,11 +97,10 @@ class PlacemarkStyle extends Equatable {
       'scale': scale,
       'zIndex' : zIndex,
       'opacity': opacity,
-      'isDraggable': isDraggable,
       'iconName': iconName,
       'rawImageData': rawImageData,
       'rotationType': rotationType.index,
-      'direction': direction
+      'direction': direction,
     };
   }
 }

@@ -28,7 +28,6 @@ class _CircleExampleState extends State<_CircleExample> {
       strokeColor: Colors.blue[700]!,
       strokeWidth: 5,
       fillColor: Colors.blue[300]!,
-      isGeodesic: false,
     ),
   );
 
