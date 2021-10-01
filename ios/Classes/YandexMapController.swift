@@ -329,6 +329,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     placemark.addTapListener(with: mapObjectTapListener)
     placemark.userData = params["id"] as! String
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
+    placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
 
     placemarks.append(placemark)
   }
@@ -394,8 +395,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
+    polylineMapObject.addTapListener(with: mapObjectTapListener)
     polylineMapObject.userData = params["id"] as! String
     polylineMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    polylineMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polylineMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineColor = uiColor(fromInt: (paramsStyle["outlineColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineWidth = (paramsStyle["outlineWidth"] as! NSNumber).floatValue
@@ -433,8 +436,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let polylgon = YMKPolygon(outerRing: outerRing, innerRings: innerRings)
     let polygonMapObject = mapObjects.addPolygon(with: polylgon)
 
+    polygonMapObject.addTapListener(with: mapObjectTapListener)
     polygonMapObject.userData = params["id"] as! String
     polygonMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    polygonMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polygonMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polygonMapObject.strokeWidth = (paramsStyle["strokeWidth"] as! NSNumber).floatValue
     polygonMapObject.fillColor = uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
@@ -468,8 +473,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       strokeWidth: (paramsStyle["strokeWidth"] as! NSNumber).floatValue,
       fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
     )
+    circleMapObject.addTapListener(with: mapObjectTapListener)
     circleMapObject.userData = params["id"] as! String
     circleMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    circleMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
 
     circles.append(circleMapObject)
   }
@@ -591,7 +598,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
     }
     iconStyle.anchor = NSValue(cgPoint: CGPoint(x: iconAnchor["dx"]!.doubleValue, y: iconAnchor["dy"]!.doubleValue))
-    iconStyle.zIndex = (style["zIndex"] as! NSNumber)
     iconStyle.scale = (style["scale"] as! NSNumber)
 
     placemark.setIconStyleWith(iconStyle)
@@ -661,7 +667,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       ]
       methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
 
-      return false
+      return true
     }
   }
 

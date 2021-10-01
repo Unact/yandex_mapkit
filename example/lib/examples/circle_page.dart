@@ -29,6 +29,7 @@ class _CircleExampleState extends State<_CircleExample> {
       strokeWidth: 5,
       fillColor: Colors.blue[300]!,
     ),
+    onTap: (Circle self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
   );
 
   @override

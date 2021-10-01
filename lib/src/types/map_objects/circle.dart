@@ -1,33 +1,21 @@
 part of yandex_mapkit;
 
-class Circle extends Equatable {
+class Circle extends MapObject {
   Circle({
     required this.center,
     required this.radius,
     this.isGeodesic = false,
     this.style = const CircleStyle(),
-  }) : id = _nextIdVal;
+    double zIndex = 0.0,
+    TapCallback<Circle>? onTap
+  }) : super._(zIndex, onTap);
 
-  static int _nextId = 0;
-  static String get _nextIdVal => '${(Circle)}_${_nextId++}';
-
-  final String id;
   final Point center;
   final double radius;
   final bool isGeodesic;
   final CircleStyle style;
 
   @override
-  List<Object> get props => <Object>[
-    center,
-    radius,
-    isGeodesic,
-    style,
-  ];
-
-  @override
-  bool get stringify => true;
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -35,6 +23,7 @@ class Circle extends Equatable {
       'radius': radius,
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
+      'zIndex': zIndex
     };
   }
 }

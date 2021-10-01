@@ -1,33 +1,21 @@
 part of yandex_mapkit;
 
-class Polygon extends Equatable {
+class Polygon extends MapObject {
   Polygon({
     required this.outerRingCoordinates,
     this.innerRingsCoordinates = const <List<Point>>[],
     this.isGeodesic = false,
     this.style = const PolygonStyle(),
-  }) : id = _nextIdVal;
+    double zIndex = 0.0,
+    TapCallback<Polygon>? onTap
+  }) : super._(zIndex, onTap);
 
-  static int _nextId = 0;
-  static String get _nextIdVal => '${(Polygon)}_${_nextId++}';
-
-  final String id;
   final List<Point> outerRingCoordinates;
   final List<List<Point>> innerRingsCoordinates;
   final bool isGeodesic;
   final PolygonStyle style;
 
   @override
-  List<Object> get props => <Object>[
-    outerRingCoordinates,
-    innerRingsCoordinates,
-    isGeodesic,
-    style,
-  ];
-
-  @override
-  bool get stringify => true;
-
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
@@ -37,6 +25,7 @@ class Polygon extends Equatable {
       ).toList(),
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
+      'zIndex': zIndex
     };
   }
 }

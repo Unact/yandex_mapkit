@@ -244,6 +244,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     placemark.addTapListener(yandexMapObjectTapListener);
     placemark.setUserData(params.get("id"));
     placemark.setDraggable((Boolean) params.get("isDraggable"));
+    placemark.setZIndex(((Double) params.get("zIndex")).floatValue());
 
     placemarks.add(placemark);
   }
@@ -342,8 +343,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolylineMapObject polyline = mapObjects.addPolyline(new Polyline(polylineCoordinates));
 
+    polyline.addTapListener(yandexMapObjectTapListener);
     polyline.setUserData(params.get("id"));
     polyline.setGeodesic((boolean) params.get("isGeodesic"));
+    polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
     polyline.setOutlineColor(((Number) paramsStyle.get("outlineColor")).intValue());
     polyline.setOutlineWidth(((Double) paramsStyle.get("outlineWidth")).floatValue());
     polyline.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
@@ -398,7 +401,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     MapObjectCollection mapObjects = mapView.getMap().getMapObjects();
     PolygonMapObject polygon = mapObjects.addPolygon(new Polygon(new LinearRing(outerRingPolygonPoints), innerRings));
 
+    polygon.addTapListener(yandexMapObjectTapListener);
     polygon.setUserData(params.get("id"));
+    polygon.setGeodesic((boolean) params.get("isGeodesic"));
+    polygon.setZIndex(((Double) params.get("zIndex")).floatValue());
     polygon.setGeodesic((boolean) params.get("isGeodesic"));
     polygon.setStrokeWidth(((Double) paramsStyle.get("strokeWidth")).floatValue());
     polygon.setStrokeColor(((Number) paramsStyle.get("strokeColor")).intValue());
@@ -437,8 +443,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       ((Number) paramsStyle.get("fillColor")).intValue()
     );
 
+    circle.addTapListener(yandexMapObjectTapListener);
     circle.setUserData(params.get("id"));
     circle.setGeodesic((boolean) params.get("isGeodesic"));
+    circle.setZIndex(((Double) params.get("zIndex")).floatValue());
 
     circles.add(circle);
   }
@@ -772,7 +780,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         ((Double) iconAnchor.get("dy")).floatValue()
       )
     );
-    iconStyle.setZIndex(((Double) style.get("zIndex")).floatValue());
     iconStyle.setScale(((Double) style.get("scale")).floatValue());
 
     int rotationType = ((Number) style.get("rotationType")).intValue();
@@ -838,7 +845,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       methodChannel.invokeMethod("onMapObjectTap", arguments);
 
-      return false;
+      return true;
     }
   }
 

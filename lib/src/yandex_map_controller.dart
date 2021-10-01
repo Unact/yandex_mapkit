@@ -298,11 +298,13 @@ class YandexMapController extends ChangeNotifier {
 
   void _onMapObjectTap(dynamic arguments) {
     final point = Point.fromJson(arguments['point']);
-    final placemark = placemarks.firstWhere((Placemark placemark) => placemark.id == arguments['id']);
+    [circles, polygons, polylines, placemarks].forEach((mapObjects) {
+      final mapObject = mapObjects.firstWhereOrNull((mapObject) => mapObject.id == arguments['id']);
 
-    if (placemark.onTap != null) {
-      placemark.onTap!(placemark, point);
-    }
+      if (mapObject != null && mapObject.onTap != null) {
+        mapObject.onTap!(mapObject, point);
+      }
+    });
   }
 
   void _onMapSizeChanged(dynamic arguments) {

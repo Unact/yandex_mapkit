@@ -1,36 +1,26 @@
 part of yandex_mapkit;
 
-class Polyline extends Equatable {
+class Polyline extends MapObject {
   Polyline({
     required this.coordinates,
     this.isGeodesic = false,
     this.style = const PolylineStyle(),
-  }) : id = _nextIdVal;
+    double zIndex = 0.0,
+    TapCallback<Polyline>? onTap
+  }) : super._(zIndex, onTap);
 
-  static int _nextId = 0;
-  static String get _nextIdVal => '${(Polyline)}_${_nextId++}';
-
-  final String id;
   final List<Point> coordinates;
   final bool isGeodesic;
   final PolylineStyle style;
 
   @override
-  List<Object> get props => <Object>[
-    coordinates,
-    isGeodesic,
-    style,
-  ];
-
-  @override
-  bool get stringify => true;
-
-   Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': id,
       'coordinates': coordinates.map((Point p) => p.toJson()).toList(),
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
+      'zIndex': zIndex
     };
   }
 }
