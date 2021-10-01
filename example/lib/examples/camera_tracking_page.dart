@@ -18,7 +18,7 @@ class _CameraTrackingExample extends StatefulWidget {
 }
 
 class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        final currentCameraTracking = await controller!.enableCameraTracking(
+                        final currentCameraTracking = await controller.enableCameraTracking(
                           onCameraPositionChange: cameraPositionChanged,
                           style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                         );
@@ -53,7 +53,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                     ),
                     ControlButton(
                       onPressed: () async {
-                        final currentCameraTracking = await controller!.enableCameraTracking(
+                        final currentCameraTracking = await controller.enableCameraTracking(
                           onCameraPositionChange: cameraPositionChanged
                         );
                         await addPlacemark(currentCameraTracking);
@@ -68,7 +68,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.disableCameraTracking();
+                        await controller.disableCameraTracking();
                       },
                       title: 'Disable tracking'
                     ),
@@ -89,7 +89,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   }
 
   Future<void> addPlacemark(Point point) async {
-    await controller!.addPlacemark(Placemark(
+    await controller.addPlacemark(Placemark(
       point: point,
       style: const PlacemarkStyle(
         iconName: 'lib/assets/user.png',

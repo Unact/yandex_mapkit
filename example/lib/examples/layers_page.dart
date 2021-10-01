@@ -19,7 +19,7 @@ class _LayersExample extends StatefulWidget {
 }
 
 class _LayersExampleState extends State<_LayersExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
 
   Future<bool> get locationPermissionGranted async => await Permission.location.request().isGranted;
 
@@ -51,7 +51,7 @@ class _LayersExampleState extends State<_LayersExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionGranted) {
-                          await controller!.showUserLayer(
+                          await controller.showUserLayer(
                             iconName: 'lib/assets/user.png',
                             arrowName: 'lib/assets/arrow.png',
                             accuracyCircleFillColor: Colors.green.withOpacity(0.5)
@@ -64,7 +64,7 @@ class _LayersExampleState extends State<_LayersExample> {
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.hideUserLayer();
+                        await controller.hideUserLayer();
                       },
                       title:'Hide user layer'
                     )
@@ -76,7 +76,7 @@ class _LayersExampleState extends State<_LayersExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionGranted) {
-                          print(await controller!.getUserTargetPoint());
+                          print(await controller.getUserTargetPoint());
                         } else {
                           _showMessage(context, const Text('Location permission was NOT granted'));
                         }

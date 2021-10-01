@@ -19,7 +19,7 @@ class _PlacemarkExample extends StatefulWidget {
 }
 
 class _PlacemarkExampleState extends State<_PlacemarkExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   final Placemark _placemark = Placemark(
     point: _point,
@@ -63,13 +63,13 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPlacemark(_placemark);
+                        await controller.addPlacemark(_placemark);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePlacemark(_placemark);
+                        await controller.removePlacemark(_placemark);
                       },
                       title: 'Remove'
                     ),
@@ -81,13 +81,13 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPlacemark(_placemarkWithDynamicIcon);
+                        await controller.addPlacemark(_placemarkWithDynamicIcon);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePlacemark(_placemarkWithDynamicIcon);
+                        await controller.removePlacemark(_placemarkWithDynamicIcon);
                       },
                       title: 'Remove'
                     ),
