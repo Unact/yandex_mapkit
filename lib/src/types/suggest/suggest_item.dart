@@ -10,7 +10,7 @@ class SuggestItem extends Equatable {
     required this.tags
   });
 
-  factory SuggestItem.fromJson(Map<dynamic, dynamic> json) {
+  factory SuggestItem._fromJson(Map<dynamic, dynamic> json) {
     return SuggestItem._(
       title: json['title'],
       subtitle: json['subtitle'],

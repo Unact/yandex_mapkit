@@ -24,12 +24,12 @@ class VisibleRegion extends Equatable {
   @override
   bool get stringify => true;
 
-  factory VisibleRegion.fromJson(Map<dynamic, dynamic> json) {
+  factory VisibleRegion._fromJson(Map<dynamic, dynamic> json) {
     return VisibleRegion._(
-      Point.fromJson(json['topLeft']),
-      Point.fromJson(json['topRight']),
-      Point.fromJson(json['bottomLeft']),
-      Point.fromJson(json['bottomRight']),
+      Point._fromJson(json['topLeft']),
+      Point._fromJson(json['topRight']),
+      Point._fromJson(json['bottomLeft']),
+      Point._fromJson(json['bottomRight']),
     );
   }
 }

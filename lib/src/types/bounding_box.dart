@@ -25,10 +25,10 @@ class BoundingBox extends Equatable {
     };
   }
 
-  factory BoundingBox.fromJson(Map<dynamic, dynamic> json) {
+  factory BoundingBox._fromJson(Map<dynamic, dynamic> json) {
     return BoundingBox(
-      northEast: Point.fromJson(json['northEast']),
-      southWest: Point.fromJson(json['southWest'])
+      northEast: Point._fromJson(json['northEast']),
+      southWest: Point._fromJson(json['southWest'])
     );
   }
 }

@@ -145,7 +145,7 @@ class YandexMapController extends ChangeNotifier {
       }
     );
 
-    return Point.fromJson(result['point']);
+    return Point._fromJson(result['point']);
   }
 
   /// Does nothing if passed `Placemark` is `null`
@@ -246,7 +246,7 @@ class YandexMapController extends ChangeNotifier {
     final dynamic result = await _channel.invokeMethod('getUserTargetPoint');
 
     if (result['point'] != null) {
-      return Point.fromJson(result['point']);
+      return Point._fromJson(result['point']);
     }
 
     return null;
@@ -256,14 +256,14 @@ class YandexMapController extends ChangeNotifier {
   Future<Point> getTargetPoint() async {
     final dynamic result = await _channel.invokeMethod('getTargetPoint');
 
-    return Point.fromJson(result['point']);
+    return Point._fromJson(result['point']);
   }
 
   /// Get bounds of visible map area
   Future<VisibleRegion> getVisibleRegion() async {
     final dynamic result = await _channel.invokeMethod('getVisibleRegion');
 
-    return VisibleRegion.fromJson(result['visibleRegion']);
+    return VisibleRegion._fromJson(result['visibleRegion']);
   }
 
   Future<void> _handleMethodCall(MethodCall call) async {
@@ -289,15 +289,15 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onMapTap(dynamic arguments) {
-    _yandexMapState.onMapTap(Point.fromJson(arguments['point']));
+    _yandexMapState.onMapTap(Point._fromJson(arguments['point']));
   }
 
   void _onMapLongTap(dynamic arguments) {
-    _yandexMapState.onMapLongTap(Point.fromJson(arguments['point']));
+    _yandexMapState.onMapLongTap(Point._fromJson(arguments['point']));
   }
 
   void _onMapObjectTap(dynamic arguments) {
-    final point = Point.fromJson(arguments['point']);
+    final point = Point._fromJson(arguments['point']);
     [circles, polygons, polylines, placemarks].forEach((mapObjects) {
       final mapObject = mapObjects.firstWhereOrNull((mapObject) => mapObject.id == arguments['id']);
 
@@ -313,12 +313,12 @@ class YandexMapController extends ChangeNotifier {
       _yandexMapState.onMapRendered();
     }
 
-    _yandexMapState.onMapSizeChanged(MapSize.fromJson(arguments['mapSize']));
+    _yandexMapState.onMapSizeChanged(MapSize._fromJson(arguments['mapSize']));
   }
 
   void _onCameraPositionChanged(dynamic arguments) {
     _cameraPositionCallback!(
-      CameraPosition.fromJson(arguments['cameraPosition']),
+      CameraPosition._fromJson(arguments['cameraPosition']),
       arguments['finished']
     );
   }

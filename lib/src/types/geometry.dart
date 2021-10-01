@@ -3,7 +3,7 @@ part of yandex_mapkit;
 class GeometryException implements YandexMapkitException {
   final String message;
 
-  GeometryException(this.message);
+  GeometryException._(this.message);
 }
 class Geometry extends Equatable {
   const Geometry.fromPoint(Point point) : point = point, boundingBox = null;
@@ -28,15 +28,15 @@ class Geometry extends Equatable {
     };
   }
 
-  factory Geometry.fromJson(Map<dynamic, dynamic> json) {
+  factory Geometry._fromJson(Map<dynamic, dynamic> json) {
     if (json['point'] != null) {
-      return Geometry.fromPoint(Point.fromJson(json['point']));
+      return Geometry.fromPoint(Point._fromJson(json['point']));
     }
 
     if (json['boundingBox'] != null) {
-      return Geometry.fromBoundingBox(BoundingBox.fromJson(json['boundingBox']));
+      return Geometry.fromBoundingBox(BoundingBox._fromJson(json['boundingBox']));
     }
 
-    throw GeometryException('Invalid data: point or boundingBox keys required');
+    throw GeometryException._('Invalid data: point or boundingBox keys required');
   }
 }

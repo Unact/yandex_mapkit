@@ -6,7 +6,7 @@ class LocalizedValue extends Equatable {
   final double? value;
   final String text;
 
-  factory LocalizedValue.fromJson(Map<dynamic, dynamic> json) {
+  factory LocalizedValue._fromJson(Map<dynamic, dynamic> json) {
     return LocalizedValue._(json['value'], json['text']);
   }
 

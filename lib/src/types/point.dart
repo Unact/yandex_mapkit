@@ -25,7 +25,7 @@ class Point extends Equatable {
     };
   }
 
-  factory Point.fromJson(Map<dynamic, dynamic> json) {
+  factory Point._fromJson(Map<dynamic, dynamic> json) {
     return Point(
       latitude: json['latitude'],
       longitude: json['longitude']

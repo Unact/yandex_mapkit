@@ -33,9 +33,9 @@ class CameraPosition extends Equatable {
     };
   }
 
-  factory CameraPosition.fromJson(Map<dynamic, dynamic> json) {
+  factory CameraPosition._fromJson(Map<dynamic, dynamic> json) {
     return CameraPosition(
-      target: Point.fromJson(json['target']),
+      target: Point._fromJson(json['target']),
       zoom: json['zoom'],
       tilt: json['tilt'],
       azimuth: json['azimuth'],

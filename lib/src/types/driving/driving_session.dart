@@ -60,9 +60,9 @@ class DrivingSessionResult {
 
   DrivingSessionResult._(this.routes, this.error);
 
-  factory DrivingSessionResult.fromJson(Map<dynamic, dynamic> json) {
+  factory DrivingSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return DrivingSessionResult._(
-      json['routes']?.map<DrivingRoute>((dynamic route) => DrivingRoute.fromJson(route)).toList(),
+      json['routes']?.map<DrivingRoute>((dynamic route) => DrivingRoute._fromJson(route)).toList(),
       json['error']
     );
   }

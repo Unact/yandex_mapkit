@@ -49,9 +49,9 @@ class SuggestSessionResult {
 
   SuggestSessionResult._(this.items, this.error);
 
-  factory SuggestSessionResult.fromJson(Map<dynamic, dynamic> json) {
+  factory SuggestSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return SuggestSessionResult._(
-      json['items']?.map<SuggestItem>((dynamic item) => SuggestItem.fromJson(item)).toList(),
+      json['items']?.map<SuggestItem>((dynamic item) => SuggestItem._fromJson(item)).toList(),
       json['error']
     );
   }

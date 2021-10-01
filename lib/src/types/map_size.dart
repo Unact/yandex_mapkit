@@ -15,7 +15,7 @@ class MapSize extends Equatable {
   @override
   bool get stringify => true;
 
-  factory MapSize.fromJson(Map<dynamic, dynamic> json) {
+  factory MapSize._fromJson(Map<dynamic, dynamic> json) {
     return MapSize._(json['width'], json['height']);
   }
 }
