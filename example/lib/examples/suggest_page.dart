@@ -194,13 +194,13 @@ class _SessionState extends State<_SessionPage> {
   }
 
   Future<void> _handleResult(SuggestSessionResult result) async {
+    setState(() { _progress = false; });
+
     if (result.error != null) {
       print('Error: ${result.error}');
       return;
     }
 
     setState(() { results.add(result); });
-
-    setState(() { _progress = false; });
   }
 }

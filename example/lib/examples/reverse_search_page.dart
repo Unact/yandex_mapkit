@@ -242,6 +242,8 @@ class _SessionState extends State<_SessionPage> {
   }
 
   Future<void> _handleResult(SearchSessionResult result) async {
+    setState(() { _progress = false; });
+
     if (result.error != null) {
       print('Error: ${result.error}');
       return;
@@ -256,7 +258,5 @@ class _SessionState extends State<_SessionPage> {
       setState(() { _progress = true; });
       await _handleResult(await widget.session.fetchNextPage());
     }
-
-    setState(() { _progress = false; });
   }
 }

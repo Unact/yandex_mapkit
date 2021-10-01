@@ -235,6 +235,8 @@ class _SessionState extends State<_SessionPage> {
   }
 
   Future<void> _handleResult(DrivingSessionResult result) async {
+    setState(() { _progress = false; });
+
     if (result.error != null) {
       print('Error: ${result.error}');
       return;
@@ -251,7 +253,5 @@ class _SessionState extends State<_SessionPage> {
         ),
       ));
     });
-
-    setState(() { _progress = false; });
   }
 }
