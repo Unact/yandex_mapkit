@@ -13,7 +13,7 @@ class SearchItemBusinessMetadata extends Equatable {
     this.shortName,
   });
 
-  factory SearchItemBusinessMetadata.fromJson(Map<dynamic, dynamic> json) {
+  factory SearchItemBusinessMetadata._fromJson(Map<dynamic, dynamic> json) {
 
     String? shortName;
     if (json.containsKey('shortName')) {

@@ -1,12 +1,12 @@
 part of yandex_mapkit;
 
 class LocalizedValue extends Equatable {
-  LocalizedValue._(this.value, this.text);
+  const LocalizedValue._(this.value, this.text);
 
   final double? value;
   final String text;
 
-  factory LocalizedValue.fromJson(Map<dynamic, dynamic> json) {
+  factory LocalizedValue._fromJson(Map<dynamic, dynamic> json) {
     return LocalizedValue._(json['value'], json['text']);
   }
 

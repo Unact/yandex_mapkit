@@ -5,8 +5,8 @@ class DrivingSectionMetadata extends Equatable {
 
   DrivingSectionMetadata._(this.weight);
 
-  factory DrivingSectionMetadata.fromJson(Map<dynamic, dynamic> json) {
-    return DrivingSectionMetadata._(DrivingWeight.fromJson(json['weight']));
+  factory DrivingSectionMetadata._fromJson(Map<dynamic, dynamic> json) {
+    return DrivingSectionMetadata._(DrivingWeight._fromJson(json['weight']));
   }
 
   @override
@@ -25,11 +25,11 @@ class DrivingWeight extends Equatable {
 
   DrivingWeight._(this.time, this.timeWithTraffic, this.distance);
 
-  factory DrivingWeight.fromJson(Map<dynamic, dynamic> json) {
+  factory DrivingWeight._fromJson(Map<dynamic, dynamic> json) {
     return DrivingWeight._(
-      LocalizedValue.fromJson(json['time']),
-      LocalizedValue.fromJson(json['timeWithTraffic']),
-      LocalizedValue.fromJson(json['distance']),
+      LocalizedValue._fromJson(json['time']),
+      LocalizedValue._fromJson(json['timeWithTraffic']),
+      LocalizedValue._fromJson(json['distance']),
     );
   }
 

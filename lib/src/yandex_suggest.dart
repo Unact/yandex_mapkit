@@ -21,7 +21,7 @@ class YandexSuggest {
     };
     var result = _channel
       .invokeMethod('getSuggestions', params)
-      .then((result) => SuggestSessionResult.fromJson(result));
+      .then((result) => SuggestSessionResult._fromJson(result));
 
     return SuggestResultWithSession._(
       session: SuggestSession._(id: params['sessionId']),

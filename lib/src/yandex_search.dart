@@ -19,7 +19,7 @@ class YandexSearch {
     };
     var result = _channel
       .invokeMethod('searchByText', params)
-      .then((result) => SearchSessionResult.fromJson(result));
+      .then((result) => SearchSessionResult._fromJson(result));
 
     return SearchResultWithSession._(
       session: SearchSession._(id: params['sessionId']),
@@ -40,7 +40,7 @@ class YandexSearch {
     };
     var result = _channel
       .invokeMethod('searchByPoint', params)
-      .then((result) => SearchSessionResult.fromJson(result));
+      .then((result) => SearchSessionResult._fromJson(result));
 
     return SearchResultWithSession._(
       session: SearchSession._(id: params['sessionId']),

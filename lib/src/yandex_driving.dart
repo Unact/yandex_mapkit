@@ -15,7 +15,7 @@ class YandexDriving {
     };
     var result = _channel
       .invokeMethod('requestRoutes', params)
-      .then((result) => DrivingSessionResult.fromJson(result));
+      .then((result) => DrivingSessionResult._fromJson(result));
 
     return DrivingResultWithSession._(
       session: DrivingSession._(id: params['sessionId']),

@@ -210,7 +210,7 @@ class _SessionState extends State<_SessionPage> {
       return;
     }
 
-    print('Page ${result.page}: ${result.toString()}');
+    print('Page ${result.page}: $result');
 
     setState(() { results.add(result); });
 

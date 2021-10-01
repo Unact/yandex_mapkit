@@ -101,7 +101,7 @@ class _SessionPage extends StatefulWidget {
 }
 
 class _SessionState extends State<_SessionPage> {
-  YandexMapController? _controller;
+  late YandexMapController _controller;
   final List<DrivingSessionResult> results = [];
   bool _progress = true;
 
@@ -150,7 +150,7 @@ class _SessionState extends State<_SessionPage> {
                       ];
 
                       await Future.forEach(placemarks, (Placemark element) async {
-                        await _controller!.addPlacemark(element);
+                        await _controller.addPlacemark(element);
                       });
                     },
                   ),
@@ -245,7 +245,7 @@ class _SessionState extends State<_SessionPage> {
     setState(() { results.add(result); });
 
     await Future.forEach(result.routes!, (DrivingRoute route) async {
-      await _controller!.addPolyline(Polyline(
+      await _controller.addPolyline(Polyline(
         coordinates: route.geometry,
         style: PolylineStyle(
           strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],

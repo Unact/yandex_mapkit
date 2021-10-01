@@ -18,7 +18,7 @@ class _PolygonExample extends StatefulWidget {
 }
 
 class _PolygonExampleState extends State<_PolygonExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
   final Polygon polygon = Polygon(
     outerRingCoordinates: const <Point>[
       Point(latitude: 56.34295, longitude: 74.62829),
@@ -37,6 +37,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
       strokeWidth: 3.0,
       fillColor: Colors.yellow[200]!,
     ),
+    onTap: (Polygon self, Point point) => print('Tapped me at $point'),
   );
 
   @override
@@ -62,13 +63,13 @@ class _PolygonExampleState extends State<_PolygonExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPolygon(polygon);
+                        await controller.addPolygon(polygon);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePolygon(polygon);
+                        await controller.removePolygon(polygon);
                       },
                       title: 'Remove'
                     )

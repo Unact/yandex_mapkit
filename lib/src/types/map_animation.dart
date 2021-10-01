@@ -3,13 +3,11 @@ part of yandex_mapkit;
 class MapAnimation extends Equatable {
   const MapAnimation({
     this.smooth = true,
-    this.duration = kAnimationDuration
+    this.duration = 2.0
   });
 
   final double duration;
   final bool smooth;
-
-  static const double kAnimationDuration = 2.0;
 
   @override
   List<Object> get props => <Object>[
@@ -19,4 +17,11 @@ class MapAnimation extends Equatable {
 
   @override
   bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'smooth': smooth,
+      'duration': duration
+    };
+  }
 }

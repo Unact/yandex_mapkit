@@ -18,15 +18,14 @@ class _RotateExample extends StatefulWidget {
 }
 
 class _RotateExampleState extends State<_RotateExample> {
-
-  YandexMapController? controller;
+  late YandexMapController controller;
   bool rotationBlocked = false;
 
   void _addPlacemarkPinnedRotated() {
     const point = Point(latitude: 59.945933, longitude: 30.320045);
     final placemark = Placemark(
       point: point,
-      onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      onTap: (Placemark self, Point point) => print('Tapped me at $point'),
       style: const PlacemarkStyle(
         opacity: 0.7,
         iconName: 'lib/assets/place.png',
@@ -34,25 +33,25 @@ class _RotateExampleState extends State<_RotateExample> {
         direction: 90,
       ),
     );
-    controller!.addPlacemark(placemark);
+    controller.addPlacemark(placemark);
   }
 
   void _addPlacemarkPinned() {
     const point = Point(latitude: 59.945933, longitude: 30.320045);
     final placemark = Placemark(
       point: point,
-      onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      onTap: (Placemark self, Point point) => print('Tapped me at $point'),
       style: const PlacemarkStyle(
         opacity: 0.7,
         iconName: 'lib/assets/place.png',
       )
     );
-    controller!.addPlacemark(placemark);
+    controller.addPlacemark(placemark);
   }
 
   void _blockCameraRotate() {
     setState(() => rotationBlocked = !rotationBlocked);
-    controller!.toggleMapRotation(enabled: !rotationBlocked);
+    controller.toggleMapRotation(enabled: !rotationBlocked);
   }
 
   @override

@@ -3,46 +3,14 @@ part of yandex_mapkit;
 class GeometryException implements YandexMapkitException {
   final String message;
 
-  GeometryException(this.message);
+  GeometryException._(this.message);
 }
 class Geometry extends Equatable {
+  const Geometry.fromPoint(Point point) : point = point, boundingBox = null;
+  const Geometry.fromBoundingBox(BoundingBox boundingBox) : point = null, boundingBox = boundingBox;
+
   final Point? point;
   final BoundingBox? boundingBox;
-
-  Geometry.fromPoint(Point point) : point = point, boundingBox = null;
-  Geometry.fromBoundingBox(BoundingBox boundingBox) : point = null, boundingBox = boundingBox;
-
-  factory Geometry.fromJson(Map<dynamic, dynamic> json) {
-    Point? point;
-    BoundingBox? boundingBox;
-
-    if (json.containsKey('point')) {
-      point = Point.fromJson(json['point']);
-
-      return Geometry.fromPoint(point);
-    } else if (json.containsKey('boundingBox')) {
-      boundingBox = BoundingBox(
-        southWest: Point.fromJson(json['southWest']),
-        northEast: Point.fromJson(json['northEast']),
-      );
-
-      return Geometry.fromBoundingBox(boundingBox);
-    }
-
-    throw GeometryException('Invalid data: point or boundingBox keys required');
-  }
-
-  Map<String, dynamic> toJson() {
-    var json = <String, dynamic>{};
-
-    if (point != null) {
-      json['point'] = point!.toJson();
-    } else {
-      json['boundingBox'] = boundingBox!.toJson();
-    }
-
-    return json;
-  }
 
   @override
   List<Object?> get props => <Object?>[
@@ -52,4 +20,23 @@ class Geometry extends Equatable {
 
   @override
   bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'point': point?.toJson(),
+      'boundingBox': boundingBox?.toJson()
+    };
+  }
+
+  factory Geometry._fromJson(Map<dynamic, dynamic> json) {
+    if (json['point'] != null) {
+      return Geometry.fromPoint(Point._fromJson(json['point']));
+    }
+
+    if (json['boundingBox'] != null) {
+      return Geometry.fromBoundingBox(BoundingBox._fromJson(json['boundingBox']));
+    }
+
+    throw GeometryException._('Invalid data: point or boundingBox keys required');
+  }
 }

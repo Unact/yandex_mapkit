@@ -1,28 +1,44 @@
 part of yandex_mapkit;
 
-enum RotationType {
-  noRotation,
-  rotate
+class Placemark extends MapObject {
+  Placemark({
+    required this.point,
+    this.style = const PlacemarkStyle(),
+    this.isDraggable = false,
+    double zIndex = 0.0,
+    TapCallback<Placemark>? onTap
+  }) : super._(zIndex, onTap);
+
+  final Point point;
+  final bool isDraggable;
+  final PlacemarkStyle style;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'point': point.toJson(),
+      'isDraggable': isDraggable,
+      'style': style.toJson(),
+      'zIndex': zIndex
+    };
+  }
 }
 
 class PlacemarkStyle extends Equatable {
   const PlacemarkStyle({
-    this.scale = kScale,
-    this.zIndex = kZIndex,
-    this.iconAnchor = kIconAnchor,
-    this.opacity = kOpacity,
-    this.isDraggable = false,
+    this.scale = 1.0,
+    this.iconAnchor = const Offset(0.5, 0.5),
+    this.opacity = 0.5,
     this.iconName,
     this.rawImageData,
-    this.direction = kDirection,
+    this.direction = 0,
     this.rotationType = RotationType.noRotation,
   });
 
   final double scale;
-  final double zIndex;
-  final Point iconAnchor;
+  final Offset iconAnchor;
   final double opacity;
-  final bool isDraggable;
   final String? iconName;
   final RotationType rotationType;
   final double direction;
@@ -43,23 +59,35 @@ class PlacemarkStyle extends Equatable {
   ///
   final Uint8List? rawImageData;
 
-  static const double kScale = 1.0;
-  static const double kZIndex = 0.0;
-  static const Point kIconAnchor = Point(latitude: 0.5, longitude: 0.5);
-  static const double kOpacity = 0.5;
-  static const double kDirection = 0;
-
   @override
   List<Object> get props => <Object>[
     scale,
-    zIndex,
     iconAnchor,
     opacity,
-    isDraggable,
     rotationType,
-    direction
+    direction,
   ];
 
   @override
   bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'iconAnchor': {
+        'dx': iconAnchor.dx,
+        'dy': iconAnchor.dy
+      },
+      'scale': scale,
+      'opacity': opacity,
+      'iconName': iconName,
+      'rawImageData': rawImageData,
+      'rotationType': rotationType.index,
+      'direction': direction,
+    };
+  }
+}
+
+enum RotationType {
+  noRotation,
+  rotate
 }

@@ -6,10 +6,10 @@ class DrivingRoute extends Equatable {
 
   const DrivingRoute._(this.geometry, this.metadata);
 
-  factory DrivingRoute.fromJson(Map<dynamic, dynamic> json) {
+  factory DrivingRoute._fromJson(Map<dynamic, dynamic> json) {
     return DrivingRoute._(
-      json['geometry'].map<Point>((dynamic resultPoint) => Point.fromJson(resultPoint)).toList(),
-      DrivingSectionMetadata.fromJson(json['metadata']),
+      json['geometry'].map<Point>((dynamic resultPoint) => Point._fromJson(resultPoint)).toList(),
+      DrivingSectionMetadata._fromJson(json['metadata']),
     );
   }
 

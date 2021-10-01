@@ -19,11 +19,11 @@ class _PlacemarkExample extends StatefulWidget {
 }
 
 class _PlacemarkExampleState extends State<_PlacemarkExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   final Placemark _placemark = Placemark(
     point: _point,
-    onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    onTap: (Placemark self, Point point) => print('Tapped me at $point'),
     style: const PlacemarkStyle(
       opacity: 0.7,
       iconName: 'lib/assets/place.png',
@@ -32,7 +32,7 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
 
   final Placemark _placemarkWithDynamicIcon = Placemark(
     point: const Point(latitude: 30.320045, longitude: 59.945933),
-    onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    onTap: (Placemark self, Point point) => print('Tapped me at $point'),
     style: PlacemarkStyle(
       opacity: 0.95,
       rawImageData: rawImageData,
@@ -63,13 +63,13 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPlacemark(_placemark);
+                        await controller.addPlacemark(_placemark);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePlacemark(_placemark);
+                        await controller.removePlacemark(_placemark);
                       },
                       title: 'Remove'
                     ),
@@ -81,13 +81,13 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPlacemark(_placemarkWithDynamicIcon);
+                        await controller.addPlacemark(_placemarkWithDynamicIcon);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePlacemark(_placemarkWithDynamicIcon);
+                        await controller.removePlacemark(_placemarkWithDynamicIcon);
                       },
                       title: 'Remove'
                     ),

@@ -37,7 +37,7 @@ class SearchSession {
 
     var result = await _methodChannel.invokeMethod('retry');
 
-    return SearchSessionResult.fromJson(result);
+    return SearchSessionResult._fromJson(result);
   }
 
   /// Returns true/false depending on if the next page is available
@@ -61,7 +61,7 @@ class SearchSession {
 
     var result = await _methodChannel.invokeMethod('fetchNextPage');
 
-    return SearchSessionResult.fromJson(result);
+    return SearchSessionResult._fromJson(result);
   }
 
   /// Closes current session
@@ -95,10 +95,10 @@ class SearchSessionResult {
     this.error
   );
 
-  factory SearchSessionResult.fromJson(Map<dynamic, dynamic> json) {
+  factory SearchSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return SearchSessionResult._(
       json['found'],
-      json['items']?.map<SearchItem>((dynamic item) => SearchItem.fromJson(item)).toList(),
+      json['items']?.map<SearchItem>((dynamic item) => SearchItem._fromJson(item)).toList(),
       json['page'],
       json['error']
     );

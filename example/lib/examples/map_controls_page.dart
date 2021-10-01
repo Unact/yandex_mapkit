@@ -18,17 +18,12 @@ class _MapControlsExample extends StatefulWidget {
 }
 
 class _MapControlsExampleState extends State<_MapControlsExample> {
-
-  YandexMapController? controller;
-
-  bool isNightModeEnabled = false;
-
-  bool isZoomGesturesEnabled = false;
-
-  bool isTiltGesturesEnabled = false;
+  late YandexMapController controller;
 
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-
+  bool isNightModeEnabled = false;
+  bool isZoomGesturesEnabled = false;
+  bool isTiltGesturesEnabled = false;
   final String emptyStyle = '''
     [
       {
@@ -42,7 +37,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       }
     ]
   ''';
-
   final String nonEmptyStyle = '''
     [
       {
@@ -57,7 +51,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       }
     ]
   ''';
-
   double _height = 0;
 
   @override
@@ -73,12 +66,12 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
             onMapRendered: () async {
               print('Map rendered');
-              var tiltGesturesEnabled = await controller!.isTiltGesturesEnabled();
-              var zoomGesturesEnabled = await controller!.isZoomGesturesEnabled();
+              var tiltGesturesEnabled = await controller.isTiltGesturesEnabled();
+              var zoomGesturesEnabled = await controller.isZoomGesturesEnabled();
 
-              var zoom    = await controller!.getZoom();
-              var minZoom = await controller!.getMinZoom();
-              var maxZoom = await controller!.getMaxZoom();
+              var zoom = await controller.getZoom();
+              var minZoom = await controller.getMinZoom();
+              var maxZoom = await controller.getMaxZoom();
 
               print('Current zoom: $zoom, minZoom: $minZoom, maxZoom: $maxZoom');
 
@@ -87,9 +80,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 isZoomGesturesEnabled = zoomGesturesEnabled;
               });
             },
-            onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
-            onMapTap: (Point point) => print('Tapped map at ${point.latitude},${point.longitude}'),
-            onMapLongTap: (Point point) => print('Long tapped map at ${point.latitude},${point.longitude}')
+            onMapSizeChanged: (MapSize size) => print('Map size changed to $size'),
+            onMapTap: (Point point) => print('Tapped map at $point'),
+            onMapLongTap: (Point point) => print('Long tapped map at $point')
           )
         ),
         SizedBox(height: _height),
@@ -101,7 +94,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller!.setBounds(
+                      await controller.setBounds(
                         boundingBox: BoundingBox(
                           northEast: const Point(latitude: 65.0, longitude: 40.0),
                           southWest: const Point(latitude: 60.0, longitude: 30.0),
@@ -112,8 +105,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller!.move(
-                        point: _point,
+                      await controller.move(
+                        cameraPosition: const CameraPosition(target: _point),
                         animation: const MapAnimation(smooth: true, duration: 2.0)
                       );
                     },
@@ -122,11 +115,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
-                    onPressed: () => controller!.zoomIn(),
+                    onPressed: () => controller.zoomIn(),
                     title: 'Zoom in'
                   ),
                   ControlButton(
-                    onPressed: () => controller!.zoomOut(),
+                    onPressed: () => controller.zoomOut(),
                     title: 'Zoom out'
                   ),
                 ]),
@@ -136,14 +129,14 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       setState(() {
                         isZoomGesturesEnabled = !isZoomGesturesEnabled;
                       });
-                      await controller!.toggleZoomGestures(enabled: isZoomGesturesEnabled);
+                      await controller.toggleZoomGestures(enabled: isZoomGesturesEnabled);
                     },
                     title: 'Zoom gestures: ${isZoomGesturesEnabled ? 'on' : 'off'}'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      final region = await controller!.getVisibleRegion();
-                      print('TopLeft: ${region['topLeftPoint']}, BottomRight: ${region['bottomRightPoint']}');
+                      final region = await controller.getVisibleRegion();
+                      print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
                     },
                     title: 'Visible map region'
                   ),
@@ -151,9 +144,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller!.addPlacemark(
+                      await controller.addPlacemark(
                         Placemark(
-                          point: await controller!.getTargetPoint(),
+                          point: await controller.getTargetPoint(),
                           style: const PlacemarkStyle(
                             opacity: 0.7,
                             iconName: 'lib/assets/place.png'
@@ -165,9 +158,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller!.logoAlignment(
-                        horizontal: HorizontalAlignment.center,
-                        vertical: VerticalAlignment.bottom
+                      await controller.logoAlignment(
+                        alignment: MapAlignment(
+                          horizontal: HorizontalAlignment.center,
+                          vertical: VerticalAlignment.bottom
+                        )
                       );
                     },
                     title: 'Logo position'
@@ -176,13 +171,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller!.setMapStyle(style: nonEmptyStyle);
+                      await controller.setMapStyle(style: nonEmptyStyle);
                     },
                     title: 'Set Style'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller!.setMapStyle(style: emptyStyle);
+                      await controller.setMapStyle(style: emptyStyle);
                     },
                     title: 'Remove style'
                   ),
@@ -191,7 +186,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       isNightModeEnabled = !isNightModeEnabled;
-                      await controller!.toggleNightMode(enabled: isNightModeEnabled);
+                      await controller.toggleNightMode(enabled: isNightModeEnabled);
                     },
                     title: 'Night mode'
                   ),
@@ -208,16 +203,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.setFocusRect(
-                          topLeft: const ScreenPoint(x: 200, y: 200),
-                          bottomRight: const ScreenPoint(x: 600, y: 600),
+                        await controller.setFocusRect(
+                          screenRect: const ScreenRect(
+                            bottomRight: ScreenPoint(x: 600, y: 600),
+                            topLeft: ScreenPoint(x: 200, y: 200)
+                          )
                         );
                       },
                       title: 'Focus rect'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.clearFocusRect();
+                        await controller.clearFocusRect();
                       },
                       title: 'Clear focus rect'
                     )
@@ -229,7 +226,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         setState(() {
                           isTiltGesturesEnabled = !isTiltGesturesEnabled;
                         });
-                        await controller!.toggleTiltGestures(enabled: isTiltGesturesEnabled);
+                        await controller.toggleTiltGestures(enabled: isTiltGesturesEnabled);
                       },
                       title: 'Tilt gestures: ${isTiltGesturesEnabled ? 'on' : 'off'}'
                   ),

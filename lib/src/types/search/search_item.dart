@@ -13,20 +13,20 @@ class SearchItem extends Equatable {
     this.businessMetadata,
   });
 
-  factory SearchItem.fromJson(Map<dynamic, dynamic> json) {
+  factory SearchItem._fromJson(Map<dynamic, dynamic> json) {
     var geometryItems = json['geometry'] as List;
 
     List<Geometry>? geometryList;
-    geometryList = geometryItems.map((i) => Geometry.fromJson(i)).toList();
+    geometryList = geometryItems.map((i) => Geometry._fromJson(i)).toList();
 
     SearchItemToponymMetadata? toponymMetadata;
     if (json.containsKey('toponymMetadata')) {
-      toponymMetadata = SearchItemToponymMetadata.fromJson(json['toponymMetadata']);
+      toponymMetadata = SearchItemToponymMetadata._fromJson(json['toponymMetadata']);
     }
 
     SearchItemBusinessMetadata? businessMetadata;
     if (json.containsKey('businessMetadata')) {
-      businessMetadata = SearchItemBusinessMetadata.fromJson(json['businessMetadata']);
+      businessMetadata = SearchItemBusinessMetadata._fromJson(json['businessMetadata']);
     }
 
     return SearchItem._(

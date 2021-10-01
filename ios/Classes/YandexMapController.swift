@@ -144,7 +144,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "toggleTiltGestures":
       toggleTiltGestures(call)
       result(nil)
-    
+
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -162,17 +162,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func setFocusRect(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let topLeftScreenPoint = params["topLeftScreenPoint"] as? [String: Any]
-    let bottomRightScreenPoint = params["bottomRightScreenPoint"] as? [String: Any]
+    let topLeft = params["topLeft"] as! [String: NSNumber]
+    let bottomRight = params["bottomRight"] as! [String: NSNumber]
     let screenRect = YMKScreenRect(
-      topLeft: YMKScreenPoint(
-        x: (topLeftScreenPoint!["x"]  as! NSNumber).floatValue,
-        y: (topLeftScreenPoint!["y"]  as! NSNumber).floatValue
-      ),
-      bottomRight: YMKScreenPoint(
-        x: (bottomRightScreenPoint!["x"]  as! NSNumber).floatValue,
-        y: (bottomRightScreenPoint!["y"]  as! NSNumber).floatValue
-      )
+      topLeft: YMKScreenPoint(x: topLeft["x"]!.floatValue, y: topLeft["y"]!.floatValue),
+      bottomRight: YMKScreenPoint(x: bottomRight["x"]!.floatValue, y: bottomRight["y"]!.floatValue)
     )
 
     mapView.mapWindow.focusRect = screenRect
@@ -187,8 +181,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func logoAlignment(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let logoPosition = YMKLogoAlignment(
-      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue : params["x"] as! UInt)!,
-      verticalAlignment: YMKLogoVerticalAlignment(rawValue : params["y"] as! UInt)!
+      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: params["horizontal"] as! UInt)!,
+      verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
     )
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
@@ -203,9 +197,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       iconName: params["iconName"] as! String,
       arrowName: params["arrowName"] as! String,
       userArrowOrientation: (params["userArrowOrientation"] as! NSNumber).boolValue,
-      accuracyCircleFillColor: uiColor(
-        fromInt: (params["accuracyCircleFillColor"] as! NSNumber).int64Value
-      )
+      accuracyCircleFillColor: uiColor(fromInt: (params["accuracyCircleFillColor"] as! NSNumber).int64Value)
     )
     userLocationLayer?.setVisibleWithOn(true)
     userLocationLayer!.isHeadingEnabled = true
@@ -231,39 +223,21 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func zoomOut() {
     zoom(-1)
   }
-  
-  private func zoom(_ step: Float) {
-    let point = mapView.mapWindow.map.cameraPosition.target
-    let zoom = mapView.mapWindow.map.cameraPosition.zoom
-    let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
-    let tilt = mapView.mapWindow.map.cameraPosition.tilt
-    let currentPosition = YMKCameraPosition(
-      target: point,
-      zoom: zoom + step,
-      azimuth: azimuth,
-      tilt: tilt
-    )
-    mapView.mapWindow.map.move(
-      with: currentPosition,
-      animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1),
-      cameraCallback: nil
-    )
-  }
-  
+
   public func isZoomGesturesEnabled() -> Bool {
     return mapView.mapWindow.map.isZoomGesturesEnabled
   }
-  
+
   public func toggleZoomGestures(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let enabled = params["enabled"] as! Bool
     mapView.mapWindow.map.isZoomGesturesEnabled = enabled
   }
-  
+
   public func getMinZoom() -> Float {
     return mapView.mapWindow.map.getMinZoom()
   }
-  
+
   public func getMaxZoom() -> Float {
     return mapView.mapWindow.map.getMaxZoom()
   }
@@ -274,47 +248,43 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsPoint = params["point"] as! [String: Any]
-    let point = YMKPoint(
-      latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
-      longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
-    )
+    let paramsAnimation = params["animation"] as? [String: Any]
+    let paramsCameraPosition = params["cameraPosition"] as! [String: Any]
+    let paramsTarget = paramsCameraPosition["target"] as! [String: NSNumber]
     let cameraPosition = YMKCameraPosition(
-      target: point,
-      zoom: (params["zoom"] as! NSNumber).floatValue,
-      azimuth: (params["azimuth"] as! NSNumber).floatValue,
-      tilt: (params["tilt"] as! NSNumber).floatValue
+      target: YandexMapController.pointFromJson(paramsTarget),
+      zoom: (paramsCameraPosition["zoom"] as! NSNumber).floatValue,
+      azimuth: (paramsCameraPosition["azimuth"] as! NSNumber).floatValue,
+      tilt: (paramsCameraPosition["tilt"] as! NSNumber).floatValue
     )
 
-    moveWithParams(params, cameraPosition)
+    moveWithParams(paramsAnimation, cameraPosition)
   }
 
   public func setBounds(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsBoundingBox = params["boundingBox"] as! [String:Any]
-    let southWest = paramsBoundingBox["southWest"] as! [String:Any]
-    let northEast = paramsBoundingBox["northEast"] as! [String:Any]
+    let paramsAnimation = params["animation"] as? [String: Any]
+    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
+    let southWest = paramsBoundingBox["southWest"] as! [String: NSNumber]
+    let northEast = paramsBoundingBox["northEast"] as! [String: NSNumber]
     let cameraPosition = mapView.mapWindow.map.cameraPosition(with: YMKBoundingBox(
-        southWest: YMKPoint(
-          latitude: (southWest["latitude"] as! NSNumber).doubleValue,
-          longitude: (southWest["longitude"] as! NSNumber).doubleValue
-        ),
-        northEast: YMKPoint(
-          latitude: (northEast["latitude"] as! NSNumber).doubleValue,
-          longitude: (northEast["longitude"] as! NSNumber).doubleValue
-        )
+        southWest: YandexMapController.pointFromJson(southWest),
+        northEast: YandexMapController.pointFromJson(northEast)
       )
     )
 
-    moveWithParams(params, cameraPosition)
+    moveWithParams(paramsAnimation, cameraPosition)
   }
 
   public func getTargetPoint() -> [String: Any] {
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
     let arguments: [String: Any] = [
-      "latitude": targetPoint.latitude,
-      "longitude": targetPoint.longitude
+      "point": [
+        "latitude": targetPoint.latitude,
+        "longitude": targetPoint.longitude
+      ]
     ]
+
     return arguments
   }
 
@@ -323,8 +293,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     if let targetPoint = userLocationLayer?.cameraPosition()?.target {
       let arguments: [String: Any] = [
-        "latitude": targetPoint.latitude,
-        "longitude": targetPoint.longitude
+        "point": [
+          "latitude": targetPoint.latitude,
+          "longitude": targetPoint.longitude
+        ]
       ]
 
       return arguments
@@ -333,70 +305,43 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     return nil
   }
 
-  public func addPlacemark(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let paramsPoint = params["point"] as! [String: Any]
-    let paramsStyle = params["style"] as! [String: Any]
-    let point = YMKPoint(
-      latitude: (paramsPoint["latitude"] as! NSNumber).doubleValue,
-      longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
-    )
-    let mapObjects = mapView.mapWindow.map.mapObjects
-    let placemark = mapObjects.addPlacemark(with: point)
-    let iconName = paramsStyle["iconName"] as? String
-
-    placemark.addTapListener(with: mapObjectTapListener)
-    placemark.userData = (params["hashCode"] as! NSNumber).intValue
-    placemark.opacity = (paramsStyle["opacity"] as! NSNumber).floatValue
-    placemark.isDraggable = (paramsStyle["isDraggable"] as! NSNumber).boolValue
-    placemark.direction = (paramsStyle["direction"] as! NSNumber).floatValue
-
-    if (iconName != nil) {
-      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-    }
-
-    if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-      let image = UIImage(data: rawImageData.data) {
-        placemark.setIconWith(image)
-    }
-
-    let iconStyle = YMKIconStyle()
-    let rotationType = (paramsStyle["rotationType"] as! NSNumber).intValue
-    if (rotationType == YMKRotationType.rotate.rawValue) {
-      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
-    }
-    iconStyle.anchor = NSValue(cgPoint:
-      CGPoint(
-        x: (paramsStyle["anchorX"] as! NSNumber).doubleValue,
-        y: (paramsStyle["anchorY"] as! NSNumber).doubleValue
-      )
-    )
-    iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
-    iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
-    placemark.setIconStyleWith(iconStyle)
-
-    placemarks.append(placemark)
-  }
-
   public func getVisibleRegion() -> [String: Any] {
     let region = mapView.mapWindow.map.visibleRegion
-    var arguments = [String: Any]()
-    arguments["bottomLeftPoint"] = ["latitude": region.bottomLeft.latitude, "longitude": region.bottomLeft.longitude]
-    arguments["bottomRightPoint"] = ["latitude": region.bottomRight.latitude, "longitude": region.bottomRight.longitude]
-    arguments["topLeftPoint"] = ["latitude": region.topLeft.latitude, "longitude": region.topLeft.longitude]
-    arguments["topRightPoint"] = ["latitude": region.topRight.latitude, "longitude": region.topRight.longitude]
+    let arguments = [
+      "visibleRegion": [
+        "bottomLeft": YandexMapController.pointToJson(region.bottomLeft),
+        "bottomRight": YandexMapController.pointToJson(region.bottomRight),
+        "topLeft": YandexMapController.pointToJson(region.topLeft),
+        "topRight": YandexMapController.pointToJson(region.bottomLeft)
+      ]
+    ]
+
     return arguments
+  }
+
+  public func addPlacemark(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let paramsPoint = params["point"] as! [String: NSNumber]
+    let mapObjects = mapView.mapWindow.map.mapObjects
+    let placemark = mapObjects.addPlacemark(with: YandexMapController.pointFromJson(paramsPoint))
+
+    applyPlacemarkStyle(placemark, params["style"] as! [String: Any])
+    placemark.addTapListener(with: mapObjectTapListener)
+    placemark.userData = params["id"] as! String
+    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
+    placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
+
+    placemarks.append(placemark)
   }
 
   public func removePlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let mapObjects = mapView.mapWindow.map.mapObjects
-    let hashCode = (params["hashCode"] as! NSNumber).intValue
-    let placemark = placemarks.first(where: { $0.userData as! Int == hashCode })
+    let id = params["id"] as! String
 
-    if (placemark != nil) {
-      mapObjects.remove(with: placemark!)
-      placemarks.remove(at: placemarks.firstIndex(of: placemark!)!)
+    if let placemark = placemarks.first(where: { $0.userData as! String == id }) {
+      mapObjects.remove(with: placemark)
+      placemarks.remove(at: placemarks.firstIndex(of: placemark)!)
     }
   }
 
@@ -414,79 +359,50 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   public func enableCameraTracking(_ call: FlutterMethodCall) -> [String: Any] {
+    let params = call.arguments as! [String: Any]
+    let mapObjects = mapView.mapWindow.map.mapObjects
+
     if mapCameraListener == nil {
       mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
       mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
     }
 
     if cameraTarget != nil {
-      let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: cameraTarget!)
       cameraTarget = nil
     }
 
     let targetPoint = mapView.mapWindow.map.cameraPosition.target;
-    if call.arguments != nil {
-      let params = call.arguments as! [String: Any]
-      let paramsStyle = params["style"] as! [String: Any]
+    let arguments: [String: Any] = [
+      "point": YandexMapController.pointToJson(targetPoint)
+    ]
 
-      let mapObjects = mapView.mapWindow.map.mapObjects
+    if let style = params["style"] as? [String: Any] {
       cameraTarget = mapObjects.addPlacemark(with: targetPoint)
 
-      let iconName = paramsStyle["iconName"] as? String
-
+      applyPlacemarkStyle(cameraTarget!, style)
       cameraTarget!.addTapListener(with: mapObjectTapListener)
-      cameraTarget!.opacity = (paramsStyle["opacity"] as! NSNumber).floatValue
-      cameraTarget!.isDraggable = (paramsStyle["isDraggable"] as! NSNumber).boolValue
-
-      if (iconName != nil) {
-        cameraTarget!.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-      }
-
-      if let rawImageData = paramsStyle["rawImageData"] as? FlutterStandardTypedData,
-        let image = UIImage(data: rawImageData.data) {
-        cameraTarget!.setIconWith(image)
-      }
-
-      let iconStyle = YMKIconStyle()
-      iconStyle.anchor = NSValue(cgPoint:
-        CGPoint(
-          x: (paramsStyle["anchorX"] as! NSNumber).doubleValue,
-          y: (paramsStyle["anchorY"] as! NSNumber).doubleValue
-        )
-      )
-
-      iconStyle.zIndex = (paramsStyle["zIndex"] as! NSNumber)
-      iconStyle.scale = (paramsStyle["scale"] as! NSNumber)
-      cameraTarget!.setIconStyleWith(iconStyle)
     }
 
-    let arguments: [String: Any] = [
-      "latitude": targetPoint.latitude,
-      "longitude": targetPoint.longitude
-    ]
     return arguments
   }
 
-  private func addPolyline(_ call: FlutterMethodCall) {
+  public func addPolyline(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsCoordinates = params["coordinates"] as! [[String: Any]]
+    let paramsCoordinates = params["coordinates"] as! [[String: NSNumber]]
     let paramsStyle = params["style"] as! [String: Any]
-    let coordinatesPrepared = paramsCoordinates.map {
-      YMKPoint(
-        latitude: ($0["latitude"] as! NSNumber).doubleValue,
-        longitude: ($0["longitude"] as! NSNumber).doubleValue
-      )
-    }
+    let coordinatesPrepared = paramsCoordinates.map { YandexMapController.pointFromJson($0) }
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polyline = YMKPolyline(points: coordinatesPrepared)
     let polylineMapObject = mapObjects.addPolyline(with: polyline)
-    polylineMapObject.userData = (params["hashCode"] as! NSNumber).intValue
+    polylineMapObject.addTapListener(with: mapObjectTapListener)
+    polylineMapObject.userData = params["id"] as! String
+    polylineMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    polylineMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polylineMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineColor = uiColor(fromInt: (paramsStyle["outlineColor"] as! NSNumber).int64Value)
     polylineMapObject.outlineWidth = (paramsStyle["outlineWidth"] as! NSNumber).floatValue
     polylineMapObject.strokeWidth = (paramsStyle["strokeWidth"] as! NSNumber).floatValue
-    polylineMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
     polylineMapObject.dashLength = (paramsStyle["dashLength"] as! NSNumber).floatValue
     polylineMapObject.dashOffset = (paramsStyle["dashOffset"] as! NSNumber).floatValue
     polylineMapObject.gapLength = (paramsStyle["gapLength"] as! NSNumber).floatValue
@@ -494,11 +410,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     polylines.append(polylineMapObject)
   }
 
-  private func removePolyline(_ call: FlutterMethodCall) {
+  public func removePolyline(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let hashCode = (params["hashCode"] as! NSNumber).intValue
+    let id = params["id"] as! String
 
-    if let polyline = polylines.first(where: { $0.userData as! Int ==  hashCode}) {
+    if let polyline = polylines.first(where: { $0.userData as! String == id }) {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polyline)
       polylines.remove(at: polylines.firstIndex(of: polyline)!)
@@ -507,33 +423,25 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func addPolygon(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let paramsOuterRingCoordinates = params["outerRingCoordinates"] as! [[String: Any]]
-    let paramsInnerRingsCoordinates = params["innerRingsCoordinates"] as! [[[String: Any]]]
+    let paramsOuterRingCoordinates = params["outerRingCoordinates"] as! [[String: NSNumber]]
+    let paramsInnerRingsCoordinates = params["innerRingsCoordinates"] as! [[[String: NSNumber]]]
     let paramsStyle = params["style"] as! [String: Any]
     let outerRing = YMKLinearRing(points: paramsOuterRingCoordinates.map {
-        YMKPoint(
-          latitude: ($0["latitude"] as! NSNumber).doubleValue,
-          longitude: ($0["longitude"] as! NSNumber).doubleValue
-        )
-      }
-    )
+      YandexMapController.pointFromJson($0)
+    })
     let innerRings = paramsInnerRingsCoordinates.map {
-      YMKLinearRing(points: $0.map {
-          YMKPoint(
-            latitude: ($0["latitude"] as! NSNumber).doubleValue,
-            longitude: ($0["longitude"] as! NSNumber).doubleValue
-          )
-        }
-      )
+      YMKLinearRing(points: $0.map { YandexMapController.pointFromJson($0) })
     }
     let mapObjects = mapView.mapWindow.map.mapObjects
     let polylgon = YMKPolygon(outerRing: outerRing, innerRings: innerRings)
     let polygonMapObject = mapObjects.addPolygon(with: polylgon)
 
-    polygonMapObject.userData = (params["hashCode"] as! NSNumber).intValue
+    polygonMapObject.addTapListener(with: mapObjectTapListener)
+    polygonMapObject.userData = params["id"] as! String
+    polygonMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    polygonMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polygonMapObject.strokeColor = uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value)
     polygonMapObject.strokeWidth = (paramsStyle["strokeWidth"] as! NSNumber).floatValue
-    polygonMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
     polygonMapObject.fillColor = uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
 
     polygons.append(polygonMapObject)
@@ -541,74 +449,67 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func removePolygon(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let hashCode = (params["hashCode"] as! NSNumber).intValue
+    let id = params["id"] as! String
 
-    if let polygon = polygons.first(where: { $0.userData as! Int ==  hashCode}) {
+    if let polygon = polygons.first(where: { $0.userData as! String ==  id }) {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: polygon)
       polygons.remove(at: polygons.firstIndex(of: polygon)!)
     }
   }
 
-  private func addCircle(_ call: FlutterMethodCall) {
-
+  public func addCircle(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-
-    let paramsCenter = params["center"] as! [String: Any]
+    let paramsCenter = params["center"] as! [String: NSNumber]
     let paramsRadius = params["radius"] as! NSNumber
     let paramsStyle = params["style"] as! [String: Any]
 
-    let centerPrepared = YMKPoint(
-      latitude: (paramsCenter["latitude"] as! NSNumber).doubleValue,
-      longitude: (paramsCenter["longitude"] as! NSNumber).doubleValue
-    )
-  
-    let radiusPrepared = paramsRadius.floatValue
-
     let mapObjects = mapView.mapWindow.map.mapObjects
+    let circle = YMKCircle(center: YandexMapController.pointFromJson(paramsCenter), radius: paramsRadius.floatValue)
 
-    let circle = YMKCircle(center: centerPrepared, radius: radiusPrepared)
-  
     let circleMapObject = mapObjects.addCircle(
       with: circle,
       stroke: uiColor(fromInt: (paramsStyle["strokeColor"] as! NSNumber).int64Value),
       strokeWidth: (paramsStyle["strokeWidth"] as! NSNumber).floatValue,
-      fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value))
+      fill: uiColor(fromInt: (paramsStyle["fillColor"] as! NSNumber).int64Value)
+    )
+    circleMapObject.addTapListener(with: mapObjectTapListener)
+    circleMapObject.userData = params["id"] as! String
+    circleMapObject.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+    circleMapObject.zIndex = (params["zIndex"] as! NSNumber).floatValue
 
-    circleMapObject.userData = (params["hashCode"] as! NSNumber).intValue
-    circleMapObject.isGeodesic = (paramsStyle["isGeodesic"] as! NSNumber).boolValue
-    
     circles.append(circleMapObject)
   }
 
-  private func removeCircle(_ call: FlutterMethodCall) {
-        
+  public func removeCircle(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let hashCode = (params["hashCode"] as! NSNumber).intValue
+    let id = params["id"] as! String
 
-    if let circle = circles.first(where: { $0.userData as! Int == hashCode}) {
+    if let circle = circles.first(where: { $0.userData as! String == id }) {
       let mapObjects = mapView.mapWindow.map.mapObjects
       mapObjects.remove(with: circle)
       circles.remove(at: circles.firstIndex(of: circle)!)
     }
   }
 
-  private func moveWithParams(_ params: [String: Any], _ cameraPosition: YMKCameraPosition) {
-    let paramsAnimation = params["animation"] as! [String: Any]
+  public func isTiltGesturesEnabled() -> Bool {
+    return mapView.mapWindow.map.isTiltGesturesEnabled
+  }
 
-    if ((paramsAnimation["animate"] as! NSNumber).boolValue) {
-      let type = (paramsAnimation["smoothAnimation"] as! NSNumber).boolValue ?
-        YMKAnimationType.smooth :
-        YMKAnimationType.linear
-      let animationType = YMKAnimation(
-        type: type,
-        duration: (paramsAnimation["animationDuration"] as! NSNumber).floatValue
-      )
+  public func toggleTiltGestures(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let enabled = params["enabled"] as! Bool
 
-      mapView.mapWindow.map.move(with: cameraPosition, animationType: animationType)
-    } else {
-      mapView.mapWindow.map.move(with: cameraPosition)
-    }
+    mapView.mapWindow.map.isTiltGesturesEnabled = enabled
+  }
+
+  private func uiColor(fromInt value: Int64) -> UIColor {
+    return UIColor(
+      red: CGFloat((value & 0xFF0000) >> 16) / 0xFF,
+      green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
+      blue: CGFloat(value & 0x0000FF) / 0xFF,
+      alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF
+    )
   }
 
   private func hasLocationPermission() -> Bool {
@@ -626,13 +527,80 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
 
-  private func uiColor(fromInt value: Int64) -> UIColor {
-    return UIColor(
-      red: CGFloat((value & 0xFF0000) >> 16) / 0xFF,
-      green: CGFloat((value & 0x00FF00) >> 8) / 0xFF,
-      blue: CGFloat(value & 0x0000FF) / 0xFF,
-      alpha: CGFloat((value & 0xFF000000) >> 24) / 0xFF
+  private func moveWithParams(_ paramsAnimation: [String: Any]?, _ cameraPosition: YMKCameraPosition) {
+    if paramsAnimation == nil {
+      mapView.mapWindow.map.move(with: cameraPosition)
+      return
+    }
+
+    let type = (paramsAnimation!["smooth"] as! NSNumber).boolValue ?
+      YMKAnimationType.smooth :
+      YMKAnimationType.linear
+    let animationType = YMKAnimation(
+      type: type,
+      duration: (paramsAnimation!["duration"] as! NSNumber).floatValue
     )
+
+    mapView.mapWindow.map.move(with: cameraPosition, animationType: animationType)
+  }
+
+  private func zoom(_ step: Float) {
+    let point = mapView.mapWindow.map.cameraPosition.target
+    let zoom = mapView.mapWindow.map.cameraPosition.zoom
+    let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
+    let tilt = mapView.mapWindow.map.cameraPosition.tilt
+    let currentPosition = YMKCameraPosition(
+      target: point,
+      zoom: zoom + step,
+      azimuth: azimuth,
+      tilt: tilt
+    )
+    mapView.mapWindow.map.move(
+      with: currentPosition,
+      animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1),
+      cameraCallback: nil
+    )
+  }
+
+  private static func pointFromJson(_ json: [String: NSNumber]) -> YMKPoint {
+    YMKPoint(
+      latitude: json["latitude"]!.doubleValue,
+      longitude: json["longitude"]!.doubleValue
+    )
+  }
+
+  private static func pointToJson(_ point: YMKPoint) -> [String: Any] {
+    return [
+      "latitude": point.latitude,
+      "longitude": point.longitude
+    ]
+  }
+
+  private func applyPlacemarkStyle(_ placemark: YMKPlacemarkMapObject, _ style: [String: Any]) {
+    let iconName = style["iconName"] as? String
+    let iconAnchor = style["iconAnchor"] as! [String: NSNumber]
+
+    placemark.opacity = (style["opacity"] as! NSNumber).floatValue
+    placemark.direction = (style["direction"] as! NSNumber).floatValue
+
+    if (iconName != nil) {
+      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+    }
+
+    if let rawImageData = style["rawImageData"] as? FlutterStandardTypedData,
+      let image = UIImage(data: rawImageData.data) {
+      placemark.setIconWith(image)
+    }
+
+    let iconStyle = YMKIconStyle()
+    let rotationType = (style["rotationType"] as! NSNumber).intValue
+    if (rotationType == YMKRotationType.rotate.rawValue) {
+      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
+    }
+    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: iconAnchor["dx"]!.doubleValue, y: iconAnchor["dy"]!.doubleValue))
+    iconStyle.scale = (style["scale"] as! NSNumber)
+
+    placemark.setIconStyleWith(iconStyle)
   }
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
@@ -693,14 +661,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-      let arguments: [String:Any?] = [
-        "hashCode": mapObject.userData,
-        "latitude": point.latitude,
-        "longitude": point.longitude
+      let arguments: [String: Any?] = [
+        "id": mapObject.userData,
+        "point": pointToJson(point)
       ]
       methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
 
-      return false
+      return true
     }
   }
 
@@ -712,17 +679,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     func onMapTap(with map: YMKMap, point: YMKPoint) {
-      let arguments: [String:Any?] = [
-        "latitude": point.latitude,
-        "longitude": point.longitude
+      let arguments: [String: Any?] = [
+        "point": pointToJson(point)
       ]
       methodChannel.invokeMethod("onMapTap", arguments: arguments)
     }
 
     func onMapLongTap(with map: YMKMap, point: YMKPoint) {
-      let arguments: [String:Any?] = [
-        "latitude": point.latitude,
-        "longitude": point.longitude
+      let arguments: [String: Any?] = [
+        "point": pointToJson(point)
       ]
       methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
     }
@@ -748,13 +713,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
       yandexMapController.cameraTarget?.geometry = targetPoint
 
-      let arguments: [String:Any?] = [
-        "latitude": targetPoint.latitude,
-        "longitude": targetPoint.longitude,
-        "zoom": cameraPosition.zoom,
-        "tilt": cameraPosition.tilt,
-        "azimuth": cameraPosition.azimuth,
-        "final": finished
+      let arguments: [String: Any?] = [
+        "cameraPosition": [
+          "target": pointToJson(targetPoint),
+          "zoom": cameraPosition.zoom,
+          "tilt": cameraPosition.tilt,
+          "azimuth": cameraPosition.azimuth,
+        ],
+        "finished": finished
       ]
       methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
     }
@@ -768,22 +734,14 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
 
     func onMapWindowSizeChanged(with mapWindow: YMKMapWindow, newWidth: Int, newHeight: Int) {
-      let arguments: [String:Any?] = [
-        "width": newWidth,
-        "height": newHeight
-      ]
+      let arguments: [String: Any?] = [
+        "mapSize": [
+            "width": newWidth,
+            "height": newHeight
+          ]
+        ]
 
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
     }
-  }
-  
-  public func isTiltGesturesEnabled() -> Bool {
-    return mapView.mapWindow.map.isTiltGesturesEnabled
-  }
-    
-  public func toggleTiltGestures(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let enabled = params["enabled"] as! Bool
-    mapView.mapWindow.map.isTiltGesturesEnabled = enabled
   }
 }

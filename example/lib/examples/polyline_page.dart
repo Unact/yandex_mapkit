@@ -18,7 +18,7 @@ class _PolylineExample extends StatefulWidget {
 }
 
 class _PolylineExampleState extends State<_PolylineExample> {
-  YandexMapController? controller;
+  late YandexMapController controller;
   final Polyline polyline = Polyline(
     coordinates: const <Point>[
       Point(latitude: 59.945933, longitude: 30.320045),
@@ -45,6 +45,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
       outlineColor: Colors.yellow[200]!,
       outlineWidth: 2.0,
     ),
+    onTap: (Polyline self, Point point) => print('Tapped me at $point'),
   );
 
   @override
@@ -70,13 +71,13 @@ class _PolylineExampleState extends State<_PolylineExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPolyline(polyline);
+                        await controller.addPolyline(polyline);
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePolyline(polyline);
+                        await controller.removePolyline(polyline);
                       },
                       title: 'Remove'
                     )
