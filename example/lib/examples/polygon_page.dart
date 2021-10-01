@@ -37,7 +37,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
       strokeWidth: 3.0,
       fillColor: Colors.yellow[200]!,
     ),
-    onTap: (Polygon self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    onTap: (Polygon self, Point point) => print('Tapped me at $point'),
   );
 
   @override

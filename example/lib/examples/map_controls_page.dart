@@ -87,9 +87,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 isZoomGesturesEnabled = zoomGesturesEnabled;
               });
             },
-            onMapSizeChanged: (MapSize size) => print('Map size changed to ${size.width}x${size.height}'),
-            onMapTap: (Point point) => print('Tapped map at ${point.latitude},${point.longitude}'),
-            onMapLongTap: (Point point) => print('Long tapped map at ${point.latitude},${point.longitude}')
+            onMapSizeChanged: (MapSize size) => print('Map size changed to $size'),
+            onMapTap: (Point point) => print('Tapped map at $point'),
+            onMapLongTap: (Point point) => print('Long tapped map at $point')
           )
         ),
         SizedBox(height: _height),

@@ -26,7 +26,7 @@ class _RotateExampleState extends State<_RotateExample> {
     const point = Point(latitude: 59.945933, longitude: 30.320045);
     final placemark = Placemark(
       point: point,
-      onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      onTap: (Placemark self, Point point) => print('Tapped me at $point'),
       style: const PlacemarkStyle(
         opacity: 0.7,
         iconName: 'lib/assets/place.png',
@@ -41,7 +41,7 @@ class _RotateExampleState extends State<_RotateExample> {
     const point = Point(latitude: 59.945933, longitude: 30.320045);
     final placemark = Placemark(
       point: point,
-      onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+      onTap: (Placemark self, Point point) => print('Tapped me at $point'),
       style: const PlacemarkStyle(
         opacity: 0.7,
         iconName: 'lib/assets/place.png',

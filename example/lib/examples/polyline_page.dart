@@ -45,7 +45,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
       outlineColor: Colors.yellow[200]!,
       outlineWidth: 2.0,
     ),
-    onTap: (Polyline self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
+    onTap: (Polyline self, Point point) => print('Tapped me at $point'),
   );
 
   @override
