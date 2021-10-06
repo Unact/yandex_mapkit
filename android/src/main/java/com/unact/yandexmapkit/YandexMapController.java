@@ -533,6 +533,9 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @Override
   public void onMethodCall(MethodCall call, MethodChannel.Result result) {
     switch (call.method) {
+      case "waitForInit":
+        result.success(null);
+        break;
       case "logoAlignment":
         logoAlignment(call);
         result.success(null);

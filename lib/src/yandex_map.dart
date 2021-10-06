@@ -8,7 +8,6 @@ class YandexMap extends StatefulWidget {
     this.onMapTap,
     this.onMapLongTap,
     this.onMapSizeChanged,
-    this.onMapRendered,
   }) : super(key: key);
 
   static const String viewType = 'yandex_mapkit/yandex_map';
@@ -18,16 +17,6 @@ class YandexMap extends StatefulWidget {
   /// Pass to [YandexMap.onMapCreated] to receive a [YandexMapController] when the
   /// map is created.
   final MapCreatedCallback? onMapCreated;
-
-  /// Called once when [YandexMap] is first rendered on screen.
-  ///
-  /// The difference between [YandexMap.onMapCreated] and this callback
-  /// is that [YandexMap.onMapCreated] is called before the map is actually rendered,
-  /// which can cause some buggy behaviour in iOS.
-  ///
-  /// This happens because native view creation is asynchronous.
-  /// Our widget is created before flutter sizes and paints the corresponding native view.
-  final GenericCallback? onMapRendered;
 
   /// Called every time a [YandexMap] is resized.
   final ArgumentCallback<MapSize>? onMapSizeChanged;
@@ -43,7 +32,7 @@ class YandexMap extends StatefulWidget {
 }
 
 class _YandexMapState extends State<YandexMap> {
-  YandexMapController? _controller;
+  late YandexMapController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -66,17 +55,11 @@ class _YandexMapState extends State<YandexMap> {
     }
   }
 
-  void _onPlatformViewCreated(int id) {
-    _controller = YandexMapController.init(id, this);
+  Future<void> _onPlatformViewCreated(int id) async {
+    _controller = await YandexMapController.init(id, this);
 
     if (widget.onMapCreated != null) {
-      widget.onMapCreated!(_controller!);
-    }
-  }
-
-  void onMapRendered() {
-    if (widget.onMapRendered != null) {
-      widget.onMapRendered!();
+      widget.onMapCreated!(_controller);
     }
   }
 

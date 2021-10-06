@@ -63,9 +63,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-            },
-            onMapRendered: () async {
-              print('Map rendered');
               var tiltGesturesEnabled = await controller.isTiltGesturesEnabled();
               var zoomGesturesEnabled = await controller.isZoomGesturesEnabled();
 

@@ -17,11 +17,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
   private var circles: [YMKCircleMapObject] = []
-  public let mapView: YMKMapView
+  private let mapView: FLYMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
-    self.mapView = YMKMapView(frame: frame)
+    self.mapView = FLYMKMapView(frame: frame)
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
@@ -46,6 +46,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "waitForInit":
+      if (mapView.frame.isEmpty) {
+        mapView.initResult = result
+      } else {
+        result(nil)
+      }
     case "logoAlignment":
       logoAlignment(call)
       result(nil)
@@ -742,6 +748,20 @@ public class YandexMapController: NSObject, FlutterPlatformView {
         ]
 
       methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
+    }
+  }
+
+  // Fix https://github.com/flutter/flutter/issues/67514
+  internal class FLYMKMapView: YMKMapView {
+    public var initResult: FlutterResult?
+
+    override var frame: CGRect {
+        didSet {
+          if initResult != nil {
+            initResult!(nil)
+            initResult = nil
+          }
+        }
     }
   }
 }

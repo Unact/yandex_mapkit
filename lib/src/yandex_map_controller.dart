@@ -8,9 +8,6 @@ class YandexMapController extends ChangeNotifier {
   final MethodChannel _channel;
   final _YandexMapState _yandexMapState;
 
-  /// Has the native view been rendered
-  bool _viewRendered = false;
-
   final List<Placemark> placemarks = <Placemark>[];
   final List<Polyline> polylines = <Polyline>[];
   final List<Polygon> polygons = <Polygon>[];
@@ -18,8 +15,9 @@ class YandexMapController extends ChangeNotifier {
 
   CameraPositionCallback? _cameraPositionCallback;
 
-  static YandexMapController init(int id, _YandexMapState yandexMapState) {
+  static Future<YandexMapController> init(int id, _YandexMapState yandexMapState) async {
     final methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
+    await methodChannel.invokeMethod('waitForInit');
 
     return YandexMapController._(methodChannel, yandexMapState);
   }
@@ -308,11 +306,6 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onMapSizeChanged(dynamic arguments) {
-    if (!_viewRendered) {
-      _viewRendered = true;
-      _yandexMapState.onMapRendered();
-    }
-
     _yandexMapState.onMapSizeChanged(MapSize._fromJson(arguments['mapSize']));
   }
 
