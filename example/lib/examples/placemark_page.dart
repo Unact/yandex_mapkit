@@ -121,13 +121,13 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller!.addPlacemark(_compositeIconPlacemark);  // Add to the root collection (mapObjects)
+                        await controller.addPlacemark(_compositeIconPlacemark);  // Add to the root collection (mapObjects)
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller!.removePlacemark(_compositeIconPlacemark);
+                        await controller.removePlacemark(_compositeIconPlacemark);
                       },
                       title: 'Remove'
                     ),

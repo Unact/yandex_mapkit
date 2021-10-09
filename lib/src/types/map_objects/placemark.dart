@@ -29,6 +29,7 @@ class Placemark extends MapObject {
   final double  direction;
   final bool    isVisible;
 
+  @override
   Map<String, dynamic> toJson() {
 
     var json = <String, dynamic>{
