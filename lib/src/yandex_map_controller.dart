@@ -205,7 +205,7 @@ class YandexMapController extends ChangeNotifier {
     return null;
   }
 
-  /// Does nothing if passed `Placemark` is `null`
+  /// Adds single placemark
   Future<void> addPlacemark(Placemark placemark) async {
 
     var arguments = placemark.toJson();
@@ -215,7 +215,7 @@ class YandexMapController extends ChangeNotifier {
     placemarks.add(placemark);
   }
 
-  /// Does nothing if passed `Placemark` is `null`
+  /// Adds list of placemarks with same icon
   Future<List<Placemark>> addPlacemarks({required List<Point> points, required PlacemarkIcon icon, int? collectionId}) async {
 
     var arguments = <String,dynamic>{};
@@ -284,7 +284,9 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  /// Does nothing if passed `Placemark` is `null`
+  /// Sets cluster icon after it is added on map
+  ///
+  /// Useful for setting dynamic icons - for example, containing number of placemarks in the cluster.
   Future<void> setClusterIcon({required int hashValue, required PlacemarkIcon icon}) async {
 
     var arguments = {};
