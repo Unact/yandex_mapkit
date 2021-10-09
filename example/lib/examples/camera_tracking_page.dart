@@ -45,7 +45,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                       onPressed: () async {
                         final currentCameraTracking = await controller.enableCameraTracking(
                           onCameraPositionChange: cameraPositionChanged,
-                          style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
+                          // style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
                         );
                         await addPlacemark(currentCameraTracking);
                       },
@@ -91,10 +91,10 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   Future<void> addPlacemark(Point point) async {
     await controller.addPlacemark(Placemark(
       point: point,
-      style: const PlacemarkStyle(
-        iconName: 'lib/assets/user.png',
-        opacity: 0.9,
-      ),
+      // style: const PlacemarkStyle(
+      //   iconName: 'lib/assets/user.png',
+      //   opacity: 0.9,
+      // ),
     ));
   }
 }

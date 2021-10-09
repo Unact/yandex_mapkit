@@ -144,10 +144,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       await controller.addPlacemark(
                         Placemark(
                           point: await controller.getTargetPoint(),
-                          style: const PlacemarkStyle(
-                            opacity: 0.7,
-                            iconName: 'lib/assets/place.png'
+                          icon: PlacemarkIcon.fromIconName(
+                            iconName: 'lib/assets/place.png',
                           ),
+                          opacity: 0.7,
                         )
                       );
                     },
