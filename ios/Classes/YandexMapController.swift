@@ -66,6 +66,9 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "toggleMapRotation":
       toggleMapRotation(call)
       result(nil)
+    case "toggleMapTilting":
+      toggleMapTilting(call)
+      result(nil)
     case "showUserLayer":
       showUserLayer(call)
       result(nil)
@@ -134,6 +137,11 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   public func toggleMapRotation(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     mapView.mapWindow.map.isRotateGesturesEnabled = (params["enabled"] as! NSNumber).boolValue
+  }
+
+  public func toggleMapTilting(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    mapView.mapWindow.map.isTiltGesturesEnabled = (params["enabled"] as! NSNumber).boolValue
   }
 
   public func toggleNightMode(_ call: FlutterMethodCall) {

@@ -24,8 +24,7 @@ class YandexMapController extends ChangeNotifier {
   ClusterizedPlacemarkCollection _clusterizedPlacemarkCollection;
 
   static YandexMapController init(int id, _YandexMapState yandexMapState) {
-    final MethodChannel methodChannel =
-        MethodChannel('yandex_mapkit/yandex_map_$id');
+    final MethodChannel methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
 
     return YandexMapController._(methodChannel, yandexMapState);
   }
@@ -53,6 +52,14 @@ class YandexMapController extends ChangeNotifier {
   Future<void> toggleMapRotation({@required bool enabled}) async {
     await _channel.invokeMethod<void>(
       'toggleMapRotation',
+      <String, dynamic>{'enabled': enabled},
+    );
+  }
+
+  /// Toggles tilting of map
+  Future<void> toggleMapTilting({@required bool enabled}) async {
+    await _channel.invokeMethod<void>(
+      'toggleMapTilting',
       <String, dynamic>{'enabled': enabled},
     );
   }
@@ -253,15 +260,13 @@ class YandexMapController extends ChangeNotifier {
 
   /// Returns current camera position point
   Future<Point> getTargetPoint() async {
-    final dynamic point =
-        await _channel.invokeMethod<dynamic>('getTargetPoint');
+    final dynamic point = await _channel.invokeMethod<dynamic>('getTargetPoint');
     return Point(latitude: point['latitude'], longitude: point['longitude']);
   }
 
   /// Get bounds of visible map area
   Future<Map<String, Point>> getVisibleRegion() async {
-    final dynamic region =
-        await _channel.invokeMethod<dynamic>('getVisibleRegion');
+    final dynamic region = await _channel.invokeMethod<dynamic>('getVisibleRegion');
     return Map<String, Point>.of(<String, Point>{
       'bottomLeftPoint': Point(
         latitude: region['bottomLeftPoint']['latitude'],
@@ -428,29 +433,22 @@ class YandexMapController extends ChangeNotifier {
     };
   }
 
-  Map<String, dynamic> _clusterizedPlacemarkCollectionParams(
-      ClusterizedPlacemarkCollection collection) {
+  Map<String, dynamic> _clusterizedPlacemarkCollectionParams(ClusterizedPlacemarkCollection collection) {
     return <String, dynamic>{
-      'placemarks': collection.placemarks
-          .map((x) => _placemarkCollectionParams(x))
-          .toList(),
+      'placemarks': collection.placemarks.map((x) => _placemarkCollectionParams(x)).toList(),
       'clusterStyle': _placemarkStyleInternalParams(collection.clusterStyle),
       'clusterRadius': collection.clusterRadius,
       'minZoom': collection.minZoom,
     };
   }
 
-  Map<String, dynamic> _placemarkCollectionParams(
-      PlacemarkCollection collection) {
+  Map<String, dynamic> _placemarkCollectionParams(PlacemarkCollection collection) {
     return <String, dynamic>{
-      'items': collection.items
-          .map((x) => _placemarkCollectionItemParams(x))
-          .toList(),
+      'items': collection.items.map((x) => _placemarkCollectionItemParams(x)).toList(),
     }..addAll(_placemarkStyleParams(collection.style));
   }
 
-  Map<String, dynamic> _placemarkCollectionItemParams(
-      PlacemarkCollectionItem item) {
+  Map<String, dynamic> _placemarkCollectionItemParams(PlacemarkCollectionItem item) {
     return <String, dynamic>{
       'point': <String, dynamic>{
         'latitude': item.point.latitude,
@@ -462,14 +460,11 @@ class YandexMapController extends ChangeNotifier {
 
   Map<String, dynamic> _polylineParams(Polyline polyline) {
     final List<Map<String, double>> coordinates = polyline.coordinates
-        .map((Point p) =>
-            <String, double>{'latitude': p.latitude, 'longitude': p.longitude})
+        .map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude})
         .toList();
 
-    return <String, dynamic>{
-      'hashCode': polyline.hashCode,
-      'coordinates': coordinates
-    }..addAll(_polylineStyleParams(polyline.style));
+    return <String, dynamic>{'hashCode': polyline.hashCode, 'coordinates': coordinates}
+      ..addAll(_polylineStyleParams(polyline.style));
   }
 
   Map<String, dynamic> _polylineStyleParams(PolylineStyle style) {
@@ -489,8 +484,7 @@ class YandexMapController extends ChangeNotifier {
 
   Map<String, dynamic> _polygonParams(Polygon polygon) {
     final List<Map<String, double>> coordinates = polygon.coordinates
-        .map((Point p) =>
-            <String, double>{'latitude': p.latitude, 'longitude': p.longitude})
+        .map((Point p) => <String, double>{'latitude': p.latitude, 'longitude': p.longitude})
         .toList();
 
     return <String, dynamic>{

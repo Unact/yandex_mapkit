@@ -137,6 +137,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings("unchecked")
+  private void toggleMapTilting(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    mapView.getMap().setTiltGesturesEnabled((Boolean) params.get("enabled"));
+  }
+
+  @SuppressWarnings("unchecked")
   private void logoAlignment(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     Alignment logoPosition = new Alignment(
@@ -658,6 +665,10 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         break;
       case "toggleMapRotation":
         toggleMapRotation(call);
+        result.success(null);
+        break;
+      case "toggleMapTilting":
+        toggleMapTilting(call);
         result.success(null);
         break;
       case "showUserLayer":
