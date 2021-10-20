@@ -75,7 +75,7 @@ public class YandexDriving: NSObject, FlutterPlugin {
       longitude: (paramsPoint["longitude"] as! NSNumber).doubleValue
     )
     let pointType = YMKRequestPointType(rawValue: (data["requestPointType"] as! NSNumber).uintValue)!
-    
+
     return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
   }
 }

@@ -8,10 +8,12 @@ class YandexMapController extends ChangeNotifier {
   final MethodChannel _channel;
   final _YandexMapState _yandexMapState;
 
-  final List<Placemark> placemarks = <Placemark>[];
-  final List<Polyline> polylines = <Polyline>[];
-  final List<Polygon> polygons = <Polygon>[];
-  final List<Circle> circles = <Circle>[];
+  List<MapObject> get mapObjects => _mapObjectCollection.mapObjects;
+
+  MapObjectCollection _mapObjectCollection = MapObjectCollection(
+    mapObjectCollectionId: MapObjectCollectionId('root_map_object_collection'),
+    mapObjects: []
+  );
 
   CameraPositionCallback? _cameraPositionCallback;
 
@@ -131,68 +133,26 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Enables listening for map camera updates
-  Future<Point> enableCameraTracking({
+  Future<void> enableCameraTracking({
     required CameraPositionCallback onCameraPositionChange,
-    PlacemarkStyle? style,
   }) async {
     _cameraPositionCallback = onCameraPositionChange;
-    final dynamic result = await _channel.invokeMethod(
-      'enableCameraTracking',
-      {
-        'style': style?.toJson()
-      }
-    );
-
-    return Point._fromJson(result['point']);
+    await _channel.invokeMethod('enableCameraTracking');
   }
 
-  /// Does nothing if passed `Placemark` is `null`
-  Future<void> addPlacemark(Placemark placemark) async {
-    await _channel.invokeMethod('addPlacemark', placemark.toJson());
-    placemarks.add(placemark);
-  }
+  /// Changes map objects on the map
+  /// This method allows manipulating(adding, updating, deleting) map objects on the map
+  /// [updatedMapObjects] defines all map objects that should be present on the map
+  /// After this call:
+  /// 1. All currently present map objects not in [updatedMapObjects] will be removed from the map
+  /// 2. All new map objects in [updatedMapObjects] that aren't present on the map will be added
+  /// 3. All map objects present in [updatedMapObjects] and are on the map will be updated
+  Future<void> updateMapObjects(List<MapObject> updatedMapObjects) async {
+    final updatedMapObjectCollection = _mapObjectCollection.copyWith(mapObjects: updatedMapObjects);
+    final mapObjectUpdates = MapObjectUpdates.from({_mapObjectCollection}, {updatedMapObjectCollection});
 
-  /// Does nothing if passed `Placemark` wasn't added before
-  Future<void> removePlacemark(Placemark placemark) async {
-    if (placemarks.remove(placemark)) {
-      await _channel.invokeMethod('removePlacemark', placemark.toJson());
-    }
-  }
-
-  Future<void> addPolyline(Polyline polyline) async {
-    await _channel.invokeMethod('addPolyline', polyline.toJson());
-    polylines.add(polyline);
-  }
-
-  /// Does nothing if passed `Polyline` wasn't added before
-  Future<void> removePolyline(Polyline polyline) async {
-    if (polylines.remove(polyline)) {
-      await _channel.invokeMethod('removePolyline', polyline.toJson());
-    }
-  }
-
-  Future<void> addPolygon(Polygon polygon) async {
-    await _channel.invokeMethod('addPolygon', polygon.toJson());
-    polygons.add(polygon);
-  }
-
-  /// Does nothing if passed `Polygon` wasn't added before
-  Future<void> removePolygon(Polygon polygon) async {
-    if (polygons.remove(polygon)) {
-      await _channel.invokeMethod('removePolygon', polygon.toJson());
-    }
-  }
-
-  Future<void> addCircle(Circle circle) async {
-    await _channel.invokeMethod('addCircle', circle.toJson());
-    circles.add(circle);
-  }
-
-  /// Does nothing if passed `Circle` wasn't added before
-  Future<void> removeCircle(Circle circle) async {
-    if (circles.remove(circle)) {
-      await _channel.invokeMethod('removeCircle', circle.toJson());
-    }
+    await _channel.invokeMethod('updateMapObjects', mapObjectUpdates.toJson());
+    _mapObjectCollection = updatedMapObjectCollection;
   }
 
   /// Increases current zoom by 1
@@ -296,13 +256,31 @@ class YandexMapController extends ChangeNotifier {
 
   void _onMapObjectTap(dynamic arguments) {
     final point = Point._fromJson(arguments['point']);
-    [circles, polygons, polylines, placemarks].forEach((mapObjects) {
-      final mapObject = mapObjects.firstWhereOrNull((mapObject) => mapObject.id == arguments['id']);
+    final mapObject = _findMapObject(_mapObjectCollection, arguments['id']);
 
-      if (mapObject != null && mapObject.onTap != null) {
-        mapObject.onTap!(mapObject, point);
+    mapObject!._tap(point);
+  }
+
+  MapObject? _findMapObject(MapObjectCollection mapObjectCollection, String id) {
+    if (mapObjectCollection.mapId.value == id) {
+      return mapObjectCollection;
+    }
+
+    for (var mapObject in mapObjectCollection.mapObjects) {
+      if (mapObject.mapId.value == id) {
+        return mapObject;
       }
-    });
+
+      if (mapObject is MapObjectCollection) {
+        final foundMapObject = _findMapObject(mapObject, id);
+
+        if (foundMapObject != null) {
+          return foundMapObject;
+        }
+      }
+    }
+
+    return null;
   }
 
   void _onMapSizeChanged(dynamic arguments) {

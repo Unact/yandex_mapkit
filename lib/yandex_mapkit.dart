@@ -26,6 +26,8 @@ part 'src/types/localized_value.dart';
 part 'src/types/map_alignment.dart';
 part 'src/types/map_animation.dart';
 part 'src/types/map_objects/circle.dart';
+part 'src/types/map_objects/map_object_collection.dart';
+part 'src/types/map_objects/map_object_updates.dart';
 part 'src/types/map_objects/map_object.dart';
 part 'src/types/map_objects/placemark.dart';
 part 'src/types/map_objects/polygon.dart';

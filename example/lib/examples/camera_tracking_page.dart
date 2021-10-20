@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -19,6 +20,10 @@ class _CameraTrackingExample extends StatefulWidget {
 
 class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   late YandexMapController controller;
+  final List<MapObject> mapObjects = [];
+
+  int _placemarkIdCounter = 1;
+  final PlacemarkId cameraPlacemarkId = PlacemarkId('camera_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -43,37 +48,28 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        final currentCameraTracking = await controller.enableCameraTracking(
-                          onCameraPositionChange: cameraPositionChanged,
-                          style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5),
-                        );
-                        await addPlacemark(currentCameraTracking);
+                        mapObjects.add(Placemark(
+                          placemarkId: cameraPlacemarkId,
+                          point: await controller.getTargetPoint(),
+                          style: const PlacemarkStyle(iconName: 'lib/assets/user.png', opacity: 0.9),
+                        ));
+
+                        await controller.updateMapObjects(mapObjects);
+                        await controller.enableCameraTracking(onCameraPositionChange: cameraPositionChanged);
                       },
-                      title: 'Tracking'
+                      title: 'Enable tracking'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        final currentCameraTracking = await controller.enableCameraTracking(
-                          onCameraPositionChange: cameraPositionChanged
-                        );
-                        await addPlacemark(currentCameraTracking);
-                      },
-                      title: 'Tracking (without marker)'
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    ControlButton(
-                      onPressed: () async {
+                        mapObjects.clear();
+
                         await controller.disableCameraTracking();
+                        await controller.updateMapObjects(mapObjects);
                       },
                       title: 'Disable tracking'
                     ),
                   ],
-                ),
+                )
               ]
             )
           )
@@ -83,18 +79,19 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   }
 
   Future<void> cameraPositionChanged(CameraPosition cameraPosition, bool finished) async {
-    if (finished) {
-      await addPlacemark(cameraPosition.target);
-    }
-  }
+    final cameraPlacemark = mapObjects.firstWhere((el) => el.mapId == cameraPlacemarkId) as Placemark;
+    mapObjects[mapObjects.indexOf(cameraPlacemark)] = cameraPlacemark.copyWith(point: cameraPosition.target);
 
-  Future<void> addPlacemark(Point point) async {
-    await controller.addPlacemark(Placemark(
-      point: point,
-      style: const PlacemarkStyle(
-        iconName: 'lib/assets/user.png',
-        opacity: 0.9,
-      ),
-    ));
+    if (finished) {
+      final placemark = Placemark(
+        placemarkId: PlacemarkId('placemark_${_placemarkIdCounter++}'),
+        point: cameraPosition.target,
+        style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.9),
+      );
+
+      mapObjects.add(placemark);
+    }
+
+    await controller.updateMapObjects(mapObjects);
   }
 }
