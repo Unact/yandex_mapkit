@@ -337,18 +337,16 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     placemarks.append(placemark)
   }
-
+  
   public func removePlacemark(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let mapObjects = mapView.mapWindow.map.mapObjects
-    
-    let id = (params["id"] as! NSNumber).intValue
-    guard let placemark = placemarks.first(where: { $0.userData as! Int == id }), let i = placemarks.firstIndex(of: placemark) else {
-      return
-    }
+    let id = params["id"] as! String
 
-    mapObjects.remove(with: placemark)
-    placemarks.remove(at: i)
+    if let placemark = placemarks.first(where: { $0.userData as! String == id }) {
+      mapObjects.remove(with: placemark)
+      placemarks.remove(at: placemarks.firstIndex(of: placemark)!)
+    }
   }
 
   public func disableCameraTracking() {
