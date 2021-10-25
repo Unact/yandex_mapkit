@@ -27,38 +27,45 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
   final Placemark _placemark = Placemark(
     point: _point,
     onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-    icon: PlacemarkIcon.fromIconName(
-      iconName: 'lib/assets/place.png',
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/place.png',
+      ),
+      opacity: 0.7,
     ),
-    opacity: 0.7,
   );
 
   final Placemark _placemarkWithDynamicIcon = Placemark(
     point: const Point(latitude: 30.320045, longitude: 59.945933),
     onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-    icon: PlacemarkIcon.fromRawImageData(
-      rawImageData: rawImageData,
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromRawImageData(
+        rawImageData: rawImageData,
+      ),
+      opacity: 0.95,
     ),
-    opacity: 0.95,
   );
 
   final Placemark _compositeIconPlacemark = Placemark(
       point: const Point(latitude: 34.820045, longitude: 45.945933),
       onTap: (Placemark self, Point point) => print('Tapped me at ${point.latitude},${point.longitude}'),
-      compositeIcon: {
-        'user': PlacemarkIcon.fromIconName(
-          iconName: 'lib/assets/user.png',
-          style: PlacemarkStyle(
-            anchor: Offset(0.5, 0.5),
+      style: PlacemarkStyle(
+        compositeIcon: {
+          'user': PlacemarkIcon.fromIconName(
+            iconName: 'lib/assets/user.png',
+            style: PlacemarkIconStyle(
+              anchor: Offset(0.5, 0.5),
+            ),
           ),
-        ),
-        'arrow': PlacemarkIcon.fromIconName(
-          iconName: 'lib/assets/arrow.png',
-          style: PlacemarkStyle(
-            anchor: Offset(0.5, 1.5),
+          'arrow': PlacemarkIcon.fromIconName(
+            iconName: 'lib/assets/arrow.png',
+            style: PlacemarkIconStyle(
+              anchor: Offset(0.5, 1.5),
+            ),
           ),
-        ),
-      }
+        },
+        opacity: 0.7,
+      ),
   );
 
   @override

@@ -91,10 +91,10 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   Future<void> addPlacemark(Point point) async {
     await controller.addPlacemark(Placemark(
       point: point,
-      // style: const PlacemarkStyle(
-      //   iconName: 'lib/assets/user.png',
-      //   opacity: 0.9,
-      // ),
+      style: PlacemarkStyle(
+        icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/user.png'),
+        opacity: 0.9,
+      ),
     ));
   }
 }

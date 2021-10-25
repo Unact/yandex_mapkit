@@ -22,23 +22,29 @@ class _DrivingExample extends StatefulWidget {
 class _DrivingExampleState extends State<_DrivingExample> {
   Placemark startPlacemark = Placemark(
     point: Point(latitude: 55.7558, longitude: 37.6173),
-    icon: PlacemarkIcon.fromIconName(
-      iconName: 'lib/assets/route_start.png',
-      style: PlacemarkStyle(scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_start.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
     ),
   );
   Placemark stopByPlacemark = Placemark(
     point: Point(latitude: 45.0360, longitude: 38.9746),
-    icon: PlacemarkIcon.fromIconName(
-      iconName: 'lib/assets/route_stop_by.png',
-      style: PlacemarkStyle(scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_stop_by.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
     ),
   );
   Placemark endPlacemark = Placemark(
     point: Point(latitude: 48.4814, longitude: 135.0721),
-    icon: PlacemarkIcon.fromIconName(
-      iconName: 'lib/assets/route_end.png',
-      style: PlacemarkStyle(scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_end.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
     ),
   );
 
@@ -150,16 +156,20 @@ class _SessionState extends State<_SessionPage> {
                       var placemarks = [
                         Placemark(
                           point: widget.startPoint,
-                          icon: PlacemarkIcon.fromIconName(
-                            iconName: 'lib/assets/route_start.png',
-                            style: PlacemarkStyle(scale: 0.3)
+                          style: PlacemarkStyle(
+                            icon: PlacemarkIcon.fromIconName(
+                              iconName: 'lib/assets/route_start.png',
+                              style: PlacemarkIconStyle(scale: 0.3),
+                            ),
                           ),
                         ),
                         Placemark(
                           point: widget.endPoint,
-                          icon: PlacemarkIcon.fromIconName(
-                            iconName: 'lib/assets/route_end.png',
-                            style: PlacemarkStyle(scale: 0.3)
+                          style: PlacemarkStyle(
+                            icon: PlacemarkIcon.fromIconName(
+                              iconName: 'lib/assets/route_end.png',
+                              style: PlacemarkIconStyle(scale: 0.3),
+                            ),
                           ),
                         )
                       ];

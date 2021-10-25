@@ -26,14 +26,16 @@ class _RotateExampleState extends State<_RotateExample> {
     final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at $point'),
-      icon: PlacemarkIcon.fromIconName(
-        iconName: 'lib/assets/place.png',
-        style: const PlacemarkStyle(
-          rotationType: RotationType.rotate,
+      style: PlacemarkStyle(
+        icon: PlacemarkIcon.fromIconName(
+          iconName: 'lib/assets/place.png',
+          style: PlacemarkIconStyle(
+            rotationType: RotationType.rotate
+          ),
         ),
+        opacity: 0.7,
+        direction: 90,
       ),
-      opacity: 0.7,
-      direction: 90,
     );
     controller.addPlacemark(placemark);
   }
@@ -43,8 +45,12 @@ class _RotateExampleState extends State<_RotateExample> {
     final placemark = Placemark(
       point: point,
       onTap: (Placemark self, Point point) => print('Tapped me at $point'),
-      icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
-      opacity: 0.7,
+      style: PlacemarkStyle(
+        icon: PlacemarkIcon.fromIconName(
+          iconName: 'lib/assets/place.png',
+        ),
+        opacity: 0.7,
+      ),
     );
     controller.addPlacemark(placemark);
   }

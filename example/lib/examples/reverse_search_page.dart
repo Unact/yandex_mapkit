@@ -145,13 +145,17 @@ class _SessionState extends State<_SessionPage> {
                   YandexMap(
                     onMapCreated: (YandexMapController yandexMapController) async {
                       await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
-                      await yandexMapController.addPlacemark(Placemark(
-                        point: widget.point,
-                        icon: PlacemarkIcon.fromIconName(
-                          iconName: 'lib/assets/place.png',
-                          style: PlacemarkStyle(scale: 0.75),
+                      await yandexMapController.addPlacemark(
+                        Placemark(
+                          point: widget.point,
+                          style: PlacemarkStyle(
+                            icon: PlacemarkIcon.fromIconName(
+                              iconName: 'lib/assets/place.png',
+                              style: PlacemarkIconStyle(scale: 0.75),
+                            ),
+                          ),
                         ),
-                      ));
+                      );
                     },
                   ),
                 ],

@@ -329,11 +329,18 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     
     let params = call.arguments as! [String: Any]
     let paramsPoint = params["point"] as! [String: NSNumber]
+    let paramsStyle = params["style"] as! [String: Any]
+    
     let mapObjects = mapView.mapWindow.map.mapObjects
     let placemark = mapObjects.addPlacemark(with: YandexMapController.pointFromJson(paramsPoint))
     
+    placemark.userData = params["id"] as! String
+    placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
+    placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
+    
     placemark.addTapListener(with: mapObjectTapListener)
-    setupPlacemark(placemark: placemark, params: params)
+    applyPlacemarkStyle(placemark: placemark, params: paramsStyle)
 
     placemarks.append(placemark)
   }
@@ -381,12 +388,12 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       "point": YandexMapController.pointToJson(targetPoint)
     ]
 
-//    if let style = params["style"] as? [String: Any] {
-//      cameraTarget = mapObjects.addPlacemark(with: targetPoint)
-//
-//      applyPlacemarkStyle(cameraTarget!, style)
-//      cameraTarget!.addTapListener(with: mapObjectTapListener)
-//    }
+    if let style = params["style"] as? [String: Any] {
+      cameraTarget = mapObjects.addPlacemark(with: targetPoint)
+
+      applyPlacemarkStyle(placemark: cameraTarget!, params: style)
+      cameraTarget!.addTapListener(with: mapObjectTapListener)
+    }
 
     return arguments
   }
@@ -507,18 +514,10 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     mapView.mapWindow.map.isTiltGesturesEnabled = enabled
   }
 
-  private func setupPlacemark(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
+  private func applyPlacemarkStyle(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
     
-    placemark.userData = (params["id"] as! NSNumber).intValue
-    
-    placemark.opacity     = (params["opacity"] as! NSNumber).floatValue
-    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
-    placemark.direction   = (params["direction"] as! NSNumber).floatValue
-    placemark.isVisible   = (params["isVisible"] as! NSNumber).boolValue
-    
-    if let zIndex = (params["zIndex"] as? NSNumber)?.floatValue {
-      placemark.zIndex = zIndex
-    }
+    placemark.opacity   = (params["opacity"] as! NSNumber).floatValue
+    placemark.direction = (params["direction"] as! NSNumber).floatValue
     
     if let icon = params["icon"] as? [String: Any] {
       
@@ -557,7 +556,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
           style: style
         )
       }
-      
     }
   }
   
@@ -689,33 +687,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       "longitude": point.longitude
     ]
   }
-
-//  private func applyPlacemarkStyle(_ placemark: YMKPlacemarkMapObject, _ style: [String: Any]) {
-//    let iconName = style["iconName"] as? String
-//    let iconAnchor = style["iconAnchor"] as! [String: NSNumber]
-//
-//    placemark.opacity = (style["opacity"] as! NSNumber).floatValue
-//    placemark.direction = (style["direction"] as! NSNumber).floatValue
-//
-//    if (iconName != nil) {
-//      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
-//    }
-//
-//    if let rawImageData = style["rawImageData"] as? FlutterStandardTypedData,
-//      let image = UIImage(data: rawImageData.data) {
-//      placemark.setIconWith(image)
-//    }
-//
-//    let iconStyle = YMKIconStyle()
-//    let rotationType = (style["rotationType"] as! NSNumber).intValue
-//    if (rotationType == YMKRotationType.rotate.rawValue) {
-//      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
-//    }
-//    iconStyle.anchor = NSValue(cgPoint: CGPoint(x: iconAnchor["dx"]!.doubleValue, y: iconAnchor["dy"]!.doubleValue))
-//    iconStyle.scale = (style["scale"] as! NSNumber)
-//
-//    placemark.setIconStyleWith(iconStyle)
-//  }
 
   internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
     private let pluginRegistrar: FlutterPluginRegistrar!

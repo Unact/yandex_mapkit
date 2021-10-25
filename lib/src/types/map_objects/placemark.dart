@@ -1,48 +1,68 @@
 part of yandex_mapkit;
 
 class Placemark extends MapObject {
-
-  static const double kOpacity   = 1;
-  static const double kDirection = 0;
-
-  /// If both icon and compositeIcon are passed - icon has priority
   Placemark({
     required this.point,
-    this.icon,
-    this.compositeIcon,
-    this.opacity = kOpacity,
-    this.isDraggable = false,
-    this.direction = kDirection,
-    this.isVisible = true,
+    required this.style,
     double zIndex = 0.0,
+    bool isVisible = true,
+    bool isDraggable = false,
     TapCallback<Placemark>? onTap
-  }) : assert((icon != null || compositeIcon != null), 'Either icon or compositeIcon must be provided'), super._(zIndex, onTap);
+  }) : super._(zIndex, isVisible, isDraggable, onTap);
 
   final Point point;
-
-  /// One of two is possible.
-  final PlacemarkIcon?              icon;
-  final Map<String,PlacemarkIcon>?  compositeIcon;
-
-  final double  opacity;
-  final bool    isDraggable;
-  final double  direction;
-  final bool    isVisible;
+  final PlacemarkStyle style;
 
   @override
   Map<String, dynamic> toJson() {
 
     var json = <String, dynamic>{
-      'id': hashCode,
+      'id': id,
       'point': <String, dynamic>{
         'latitude': point.latitude,
         'longitude': point.longitude,
       },
-      'opacity': opacity,
-      'isDraggable': isDraggable,
-      'direction': direction,
-      'isVisible': isVisible,
       'zIndex': zIndex,
+      'isVisible': isVisible,
+      'isDraggable': isDraggable,
+      'style': style.toJson(),
+    };
+
+    return json;
+  }
+}
+
+class PlacemarkStyle extends Equatable {
+  const PlacemarkStyle({
+    this.icon,
+    this.compositeIcon,
+    this.opacity = 0.5,
+    this.direction = 0,
+  }) : assert((icon != null || compositeIcon != null), 'Either icon or compositeIcon must be provided');
+
+  /// One of two icon types is required.
+  /// If both passed icon and compositeIcon are passed - icon has priority.
+  final PlacemarkIcon?              icon;
+  final Map<String,PlacemarkIcon>?  compositeIcon;
+
+  final double  opacity;
+  final double  direction;
+
+  @override
+  List<Object?> get props => <Object?>[
+    icon,
+    compositeIcon,
+    opacity,
+    direction,
+  ];
+
+  @override
+  bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    var json = <String, dynamic>{
+      'opacity': opacity,
+      'direction': direction,
     };
 
     if (icon != null) {
@@ -87,12 +107,64 @@ class Placemark extends MapObject {
   }
 }
 
-class PlacemarkStyle extends Equatable {
+enum RotationType {
+  noRotation,
+  rotate
+}
 
-  static const double kScale = 1.0;
-  static const double kZIndex = 0.0;
-  static const Offset kIconAnchor = Offset(0.5, 0.5);
+class PlacemarkIcon {
 
+  final String? iconName;
+  /// Provides ability to use binary image data as Placemark icon.
+  ///
+  /// You can use this property to assign dynamically generated images as [Placemark icon].
+  /// For example:
+  ///
+  /// 1) Loaded image from network
+  /// http.Response response = await http.get('image.url/image.png');
+  /// PlacemarkStyle(rawImageData: response.bodyBytes);
+  ///
+  /// 2) Generated image on client side (with Flutter), using dynamic color and icon:
+  /// ByteData data = await rootBundle.load(path);
+  /// //apply size/color transformations to data, and use it afterwards
+  /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
+  ///
+  final Uint8List? rawImageData;
+  final PlacemarkIconStyle? style;
+
+  PlacemarkIcon({
+    this.iconName,
+    this.rawImageData,
+    this.style,
+  }) : assert((iconName != null || rawImageData != null), 'Either iconName or rawImageData must be provided');
+
+  PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle? style}) :
+    iconName = iconName, rawImageData = null, style = style;
+
+  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkIconStyle? style}) :
+    iconName = null, rawImageData = rawImageData, style = style;
+
+  Map<String, dynamic> toJson() {
+
+    var json = <String, dynamic>{};
+
+    if (iconName != null) {
+      json['iconName'] = iconName!;
+    }
+
+    if (rawImageData != null) {
+      json['rawImageData'] = rawImageData!;
+    }
+
+    if (style != null) {
+      json['style'] = style!.toJson();
+    }
+
+    return json;
+  }
+}
+
+class PlacemarkIconStyle extends Equatable {
   final Offset        anchor;
   final RotationType  rotationType;
   final double        zIndex;
@@ -101,13 +173,13 @@ class PlacemarkStyle extends Equatable {
   final double        scale;
   final Rect?         tappableArea;
 
-  const PlacemarkStyle({
-    this.anchor       = kIconAnchor,
+  const PlacemarkIconStyle({
+    this.anchor       = const Offset(0.5, 0.5),
     this.rotationType = RotationType.noRotation,
-    this.zIndex       = kZIndex,
+    this.zIndex       = 0.0,
     this.flat         = false,
     this.visible      = true,
-    this.scale        = kScale,
+    this.scale        = 1.0,
     this.tappableArea,
   });
 
@@ -162,61 +234,4 @@ class PlacemarkStyle extends Equatable {
 
   @override
   bool get stringify => true;
-}
-
-enum RotationType {
-  noRotation,
-  rotate
-}
-
-class PlacemarkIcon {
-
-  final String? iconName;
-  /// Provides ability to use binary image data as Placemark icon.
-  ///
-  /// You can use this property to assign dynamically generated images as [Placemark icon].
-  /// For example:
-  ///
-  /// 1) Loaded image from network
-  /// http.Response response = await http.get('image.url/image.png');
-  /// PlacemarkStyle(rawImageData: response.bodyBytes);
-  ///
-  /// 2) Generated image on client side (with Flutter), using dynamic color and icon:
-  /// ByteData data = await rootBundle.load(path);
-  /// //apply size/color transformations to data, and use it afterwards
-  /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
-  ///
-  final Uint8List? rawImageData;
-  final PlacemarkStyle? style;
-
-  PlacemarkIcon({
-    this.iconName,
-    this.rawImageData,
-    this.style,
-  }) : assert((iconName != null || rawImageData != null), 'Either iconName or rawImageData must be provided');
-
-  PlacemarkIcon.fromIconName({required String iconName, PlacemarkStyle? style}) :
-    iconName = iconName, rawImageData = null, style = style;
-
-  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkStyle? style}) :
-    iconName = null, rawImageData = rawImageData, style = style;
-
-  Map<String, dynamic> toJson() {
-
-    var json = <String, dynamic>{};
-
-    if (iconName != null) {
-      json['iconName'] = iconName!;
-    }
-
-    if (rawImageData != null) {
-      json['rawImageData'] = rawImageData!;
-    }
-
-    if (style != null) {
-      json['style'] = style!.toJson();
-    }
-
-    return json;
-  }
 }

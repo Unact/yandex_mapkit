@@ -6,8 +6,10 @@ class Polyline extends MapObject {
     this.isGeodesic = false,
     this.style = const PolylineStyle(),
     double zIndex = 0.0,
+    bool isVisible = true,
+    bool isDraggable = false,
     TapCallback<Polyline>? onTap
-  }) : super._(zIndex, onTap);
+  }) : super._(zIndex, isVisible, isDraggable, onTap);
 
   final List<Point> coordinates;
   final bool isGeodesic;
