@@ -1,29 +1,26 @@
 import YandexMapsMobile
 
 class YandexPlacemarkController: NSObject, YandexMapObjectController {
-  private let pluginRegistrar: FlutterPluginRegistrar
-  private let methodChannel: FlutterMethodChannel
   private let placemark: YMKPlacemarkMapObject
-  private let parent: YMKMapObjectCollection
+  private let tapListener: YandexMapObjectTapListener
+  private unowned var controller: YandexMapController
   public let id: String
 
   public required init(
     parent: YMKMapObjectCollection,
     params: [String: Any],
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     let placemark = parent.addPlacemark(with: Utils.pointFromJson(params["point"] as! [String: NSNumber]))
 
     self.placemark = placemark
     self.id = params["id"] as! String
-    self.parent = parent
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
-    placemark.addTapListener(with: YandexMapObjectTapListener(id: id, methodChannel: methodChannel))
+    placemark.addTapListener(with: tapListener)
     update(params)
   }
 
@@ -38,12 +35,11 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     placemark.direction = (style["direction"] as! NSNumber).floatValue
 
     if (iconName != nil) {
-      placemark.setIconWith(UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName!))!)
+      placemark.setIconWith(UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: iconName!))!)
     }
 
-    if let rawImageData = style["rawImageData"] as? FlutterStandardTypedData,
-      let image = UIImage(data: rawImageData.data) {
-      placemark.setIconWith(image)
+    if let rawImageData = style["rawImageData"] as? FlutterStandardTypedData {
+      placemark.setIconWith(UIImage(data: rawImageData.data)!)
     }
 
     let iconStyle = YMKIconStyle()
@@ -61,6 +57,6 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
   }
 
   public func remove(_ params: [String: Any]) {
-    parent.remove(with: placemark)
+    placemark.parent.remove(with: placemark)
   }
 }

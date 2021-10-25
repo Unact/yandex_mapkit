@@ -1,6 +1,5 @@
 package com.unact.yandexmapkit;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
@@ -11,35 +10,31 @@ import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.runtime.image.ImageProvider;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import io.flutter.FlutterInjector;
-import io.flutter.plugin.common.MethodChannel;
 
 public class YandexPlacemarkController extends YandexMapObjectController {
-  private final Context context;
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final MethodChannel methodChannel;
   private final PlacemarkMapObject placemark;
-  private final MapObjectCollection parent;
+  private final YandexMapObjectTapListener tapListener;
+  private final WeakReference<YandexMapController> controller;
   public final String id;
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public YandexPlacemarkController(
     MapObjectCollection parent,
     Map<String, Object> params,
-    MethodChannel methodChannel,
-    Context context
+    WeakReference<YandexMapController> controller
   ) {
     PlacemarkMapObject placemark = parent.addPlacemark(Utils.pointFromJson((Map<String, Object>) params.get("point")));
 
     this.placemark = placemark;
     this.id = (String) params.get("id");
-    this.parent = parent;
-    this.context = context;
-    this.methodChannel = methodChannel;
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
-    placemark.addTapListener(new YandexMapObjectTapListener(id, methodChannel));
+    placemark.addTapListener(tapListener);
     update(params);
   }
 
@@ -56,7 +51,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
 
     if (iconName != null) {
       placemark.setIcon(ImageProvider.fromAsset(
-        context,
+        controller.get().context,
         FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(iconName)
       ));
     }
@@ -87,6 +82,6 @@ public class YandexPlacemarkController extends YandexMapObjectController {
   }
 
   public void remove(Map<String, Object> params) {
-    parent.remove(placemark);
+    placemark.getParent().remove(placemark);
   }
 }

@@ -6,18 +6,17 @@ import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectTapListener;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.flutter.plugin.common.MethodChannel;
-
 public class YandexMapObjectTapListener implements MapObjectTapListener {
-  final MethodChannel methodChannel;
+  private final WeakReference<YandexMapController> controller;
   final String id;
 
-  public YandexMapObjectTapListener(String id, MethodChannel methodChannel) {
+  public YandexMapObjectTapListener(String id, WeakReference<YandexMapController> controller) {
     this.id = id;
-    this.methodChannel = methodChannel;
+    this.controller = controller;
   }
 
   @Override
@@ -26,8 +25,8 @@ public class YandexMapObjectTapListener implements MapObjectTapListener {
     arguments.put("id", id);
     arguments.put("point", Utils.pointToJson(point));
 
-    methodChannel.invokeMethod("onMapObjectTap", arguments);
+    controller.get().methodChannel.invokeMethod("onMapObjectTap", arguments);
 
-    return true;
+    return false;
   }
 }

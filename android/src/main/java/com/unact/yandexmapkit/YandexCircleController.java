@@ -1,29 +1,23 @@
 package com.unact.yandexmapkit;
 
-import android.content.Context;
-
 import com.yandex.mapkit.map.CircleMapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import io.flutter.plugin.common.MethodChannel;
-
 public class YandexCircleController extends YandexMapObjectController {
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final Context context;
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final MethodChannel methodChannel;
   private final CircleMapObject circle;
-  private final MapObjectCollection parent;
+  private final YandexMapObjectTapListener tapListener;
+  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+  private final WeakReference<YandexMapController> controller;
   public final String id;
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public YandexCircleController(
     MapObjectCollection parent,
     Map<String, Object> params,
-    MethodChannel methodChannel,
-    Context context
+    WeakReference<YandexMapController> controller
   ) {
     Map<String, Object> style = ((Map<String, Object>) params.get("style"));
     CircleMapObject circle = parent.addCircle(
@@ -35,11 +29,10 @@ public class YandexCircleController extends YandexMapObjectController {
 
     this.circle = circle;
     this.id = (String) params.get("id");
-    this.parent = parent;
-    this.context = context;
-    this.methodChannel = methodChannel;
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
-    circle.addTapListener(new YandexMapObjectTapListener(id, methodChannel));
+    circle.addTapListener(tapListener);
     update(params);
   }
 
@@ -56,6 +49,6 @@ public class YandexCircleController extends YandexMapObjectController {
   }
 
   public void remove(Map<String, Object> params) {
-    parent.remove(circle);
+    circle.getParent().remove(circle);
   }
 }

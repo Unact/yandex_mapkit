@@ -4,8 +4,8 @@ import UIKit
 import YandexMapsMobile
 
 public class YandexMapController: NSObject, FlutterPlatformView {
-  private let methodChannel: FlutterMethodChannel!
-  private let pluginRegistrar: FlutterPluginRegistrar!
+  public let methodChannel: FlutterMethodChannel!
+  public let pluginRegistrar: FlutterPluginRegistrar!
   private let mapTapListener: MapTapListener!
   private var mapCameraListener: MapCameraListener!
   private let mapSizeChangedListener: MapSizeChangedListener!
@@ -16,7 +16,13 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   private var polygons: [YMKPolygonMapObject] = []
   private var circles: [YMKCircleMapObject] = []
   private var mapObjectCollections: [YMKMapObjectCollection] = []
-  private let rootController: YandexMapObjectCollectionController
+  private lazy var rootController: YandexMapObjectCollectionController = {
+    YandexMapObjectCollectionController.init(
+      root: mapView.mapWindow.map.mapObjects,
+      id: "root_map_object_collection",
+      controller: self
+    )
+  }()
   private let mapView: FLYMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
@@ -29,13 +35,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     self.mapTapListener = MapTapListener(channel: methodChannel)
     self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
     self.userLocationLayer = YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
-
-    self.rootController = YandexMapObjectCollectionController.init(
-      root: mapView.mapWindow.map.mapObjects,
-      id: "root_map_object_collection",
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
-    )
 
     super.init()
 
@@ -465,7 +464,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
   }
 
   internal class MapCameraListener: NSObject, YMKMapCameraListener {
-    weak private var yandexMapController: YandexMapController!
+    unowned private var yandexMapController: YandexMapController
     private let methodChannel: FlutterMethodChannel!
 
     public required init(controller: YandexMapController, channel: FlutterMethodChannel) {

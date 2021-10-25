@@ -1,29 +1,26 @@
 import YandexMapsMobile
 
 class YandexPolylineController: NSObject, YandexMapObjectController {
-  private let pluginRegistrar: FlutterPluginRegistrar
-  private let methodChannel: FlutterMethodChannel
   private let polyline: YMKPolylineMapObject
-  private let parent: YMKMapObjectCollection
+  private let tapListener: YandexMapObjectTapListener
+  private unowned var controller: YandexMapController
   public let id: String
 
   public required init(
     parent: YMKMapObjectCollection,
     params: [String: Any],
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     let polyline = parent.addPolyline(with: Utils.polylineFromJson(params))
 
     self.polyline = polyline
     self.id = params["id"] as! String
-    self.parent = parent
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
-    polyline.addTapListener(with: YandexMapObjectTapListener(id: id, methodChannel: methodChannel))
+    polyline.addTapListener(with: tapListener)
     update(params)
   }
 
@@ -43,6 +40,6 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
   }
 
   public func remove(_ params: [String: Any]) {
-    parent.remove(with: polyline)
+    polyline.parent.remove(with: polyline)
   }
 }

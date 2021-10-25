@@ -37,6 +37,7 @@ import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,8 @@ import io.flutter.plugin.platform.PlatformView;
 
 public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler, DefaultLifecycleObserver {
   private final MapView mapView;
-  private final MethodChannel methodChannel;
+  public final Context context;
+  public final MethodChannel methodChannel;
   private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
   private final YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
@@ -64,6 +66,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   @SuppressWarnings({"ConstantConditions"})
   public YandexMapController(int id, Context context, BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
     this.lifecycleProvider = lifecycleProvider;
+    this.context = context;
     mapView = new MapView(context);
     mapView.onStart();
 
@@ -76,8 +79,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     rootController = new YandexMapObjectCollectionController(
       mapView.getMap().getMapObjects(),
       "root_map_object_collection",
-      methodChannel,
-      mapView.getContext()
+      new WeakReference<>(this)
     );
 
     mapView.getMap().addInputListener(new YandexMapInputListener());
@@ -479,7 +481,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
   private boolean hasLocationPermission() {
     int permissionState = ActivityCompat.checkSelfPermission(
-      mapView.getContext(),
+      context,
       Manifest.permission.ACCESS_FINE_LOCATION
     );
     return permissionState == PackageManager.PERMISSION_GRANTED;
@@ -545,13 +547,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     public void onObjectAdded(UserLocationView view) {
       view.getPin().setIcon(
         ImageProvider.fromAsset(
-          mapView.getContext(),
+          context,
           FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(userLocationIconName)
         )
       );
       view.getArrow().setIcon(
         ImageProvider.fromAsset(
-          mapView.getContext(),
+          context,
           FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(userArrowIconName)
         )
       );

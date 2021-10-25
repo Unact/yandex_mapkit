@@ -6,42 +6,39 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
   private var circleControllers: [YandexCircleController] = []
   private var polylineControllers: [YandexPolylineController] = []
   private var polygonControllers: [YandexPolygonController] = []
-  private let pluginRegistrar: FlutterPluginRegistrar
-  private let methodChannel: FlutterMethodChannel
   private let mapObjectCollection: YMKMapObjectCollection
-  private let parent: YMKMapObjectCollection?
+  private let tapListener: YandexMapObjectTapListener
+  private unowned var controller: YandexMapController
   public let id: String
 
   internal init(
     root: YMKMapObjectCollection,
     id: String,
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     self.mapObjectCollection = root
     self.id = id
-    self.parent = nil
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+
+    mapObjectCollection.addTapListener(with: tapListener)
   }
 
   public required init(
     parent: YMKMapObjectCollection,
     params: [String: Any],
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     let mapObjectCollection = parent.add()
 
     self.mapObjectCollection = mapObjectCollection
     self.id = params["id"] as! String
-    self.parent = parent
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
-    mapObjectCollection.addTapListener(with: YandexMapObjectTapListener(id: id, methodChannel: methodChannel))
+    mapObjectCollection.addTapListener(with: tapListener)
     update(params)
   }
 
@@ -52,7 +49,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
   public func remove(_ params: [String: Any]) {
     updateMapObjects(params["mapObjects"] as! [String: Any])
-    parent?.remove(with: mapObjectCollection)
+    mapObjectCollection.parent.remove(with: mapObjectCollection)
   }
 
   private func updateMapObjects(_ mapObjects: [String: Any]) {
@@ -137,8 +134,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let mapObjectCollectionController = YandexMapObjectCollectionController(
       parent: mapObjectCollection,
       params: params,
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
+      controller: controller
     )
 
     mapObjectCollectionControllers.append(mapObjectCollectionController)
@@ -164,8 +160,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let placemarkController = YandexPlacemarkController(
       parent: mapObjectCollection,
       params: params,
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
+      controller: controller
     )
 
     placemarkControllers.append(placemarkController)
@@ -191,8 +186,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let circleController = YandexCircleController(
       parent: mapObjectCollection,
       params: params,
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
+      controller: controller
     )
 
     circleControllers.append(circleController)
@@ -218,8 +212,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let polylineController = YandexPolylineController(
       parent: mapObjectCollection,
       params: params,
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
+      controller: controller
     )
 
     polylineControllers.append(polylineController)
@@ -245,8 +238,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let polygonController = YandexPolygonController(
       parent: mapObjectCollection,
       params: params,
-      pluginRegistrar: pluginRegistrar,
-      methodChannel: methodChannel
+      controller: controller
     )
 
     polygonControllers.append(polygonController)

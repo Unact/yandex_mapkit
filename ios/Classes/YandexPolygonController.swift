@@ -1,29 +1,26 @@
 import YandexMapsMobile
 
 class YandexPolygonController: NSObject, YandexMapObjectController {
-  private let pluginRegistrar: FlutterPluginRegistrar
-  private let methodChannel: FlutterMethodChannel
   private let polygon: YMKPolygonMapObject
-  private let parent: YMKMapObjectCollection
+  private let tapListener: YandexMapObjectTapListener
+  private unowned var controller: YandexMapController
   public let id: String
 
   public required init(
     parent: YMKMapObjectCollection,
     params: [String: Any],
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     let polygon = parent.addPolygon(with: Utils.polygonFromJson(params))
 
     self.polygon = polygon
     self.id = params["id"] as! String
-    self.parent = parent
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
-    polygon.addTapListener(with: YandexMapObjectTapListener(id: id, methodChannel: methodChannel))
+    polygon.addTapListener(with: tapListener)
     update(params)
   }
 
@@ -39,6 +36,6 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
   }
 
   public func remove(_ params: [String: Any]) {
-    parent.remove(with: polygon)
+    polygon.parent.remove(with: polygon)
   }
 }

@@ -1,38 +1,31 @@
 package com.unact.yandexmapkit;
 
-import android.content.Context;
-
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.PolylineMapObject;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
-import io.flutter.plugin.common.MethodChannel;
-
 public class YandexPolylineController extends YandexMapObjectController {
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final Context context;
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final MethodChannel methodChannel;
   private final PolylineMapObject polyline;
-  private final MapObjectCollection parent;
+  private final YandexMapObjectTapListener tapListener;
+  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+  private final WeakReference<YandexMapController> controller;
   public final String id;
 
   public YandexPolylineController(
     MapObjectCollection parent,
     Map<String, Object> params,
-    MethodChannel methodChannel,
-    Context context
+    WeakReference<YandexMapController> controller
   ) {
     PolylineMapObject polyline = parent.addPolyline(Utils.polylineFromJson(params));
 
     this.polyline = polyline;
     this.id = (String) params.get("id");
-    this.parent = parent;
-    this.context = context;
-    this.methodChannel = methodChannel;
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
-    polyline.addTapListener(new YandexMapObjectTapListener(id, methodChannel));
+    polyline.addTapListener(tapListener);
     update(params);
   }
 
@@ -53,6 +46,6 @@ public class YandexPolylineController extends YandexMapObjectController {
   }
 
   public void remove(Map<String, Object> params) {
-    parent.remove(polyline);
+    polyline.getParent().remove(polyline);
   }
 }

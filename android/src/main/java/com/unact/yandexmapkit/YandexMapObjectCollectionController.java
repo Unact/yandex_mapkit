@@ -1,14 +1,11 @@
 package com.unact.yandexmapkit;
 
-import android.content.Context;
-
 import com.yandex.mapkit.map.MapObjectCollection;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import io.flutter.plugin.common.MethodChannel;
 
 public class YandexMapObjectCollectionController extends YandexMapObjectController {
   private final List<YandexCircleController> circleControllers = new ArrayList<>();
@@ -16,40 +13,35 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   private final List<YandexPlacemarkController> placemarkControllers = new ArrayList<>();
   private final List<YandexPolygonController> polygonControllers = new ArrayList<>();
   private final List<YandexPolylineController> polylineControllers = new ArrayList<>();
-  private final Context context;
-  private final MethodChannel methodChannel;
   private final MapObjectCollection mapObjectCollection;
-  private final MapObjectCollection parent;
+  private final YandexMapObjectTapListener tapListener;
+  private final WeakReference<YandexMapController> controller;
   public final String id;
 
   public YandexMapObjectCollectionController(
     MapObjectCollection root,
     String id,
-    MethodChannel methodChannel,
-    Context context
+    WeakReference<YandexMapController> controller
   ) {
     this.mapObjectCollection = root;
     this.id = id;
-    this.parent = null;
-    this.methodChannel = methodChannel;
-    this.context = context;
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
   }
 
   public YandexMapObjectCollectionController(
     MapObjectCollection parent,
     Map<String, Object> params,
-    MethodChannel methodChannel,
-    Context context
+    WeakReference<YandexMapController> controller
   ) {
     MapObjectCollection mapObjectCollection = parent.addCollection();
 
     this.mapObjectCollection = mapObjectCollection;
     this.id = (String) params.get("id");
-    this.parent = parent;
-    this.context = context;
-    this.methodChannel = methodChannel;
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
-    mapObjectCollection.addTapListener(new YandexMapObjectTapListener(id, methodChannel));
+    mapObjectCollection.addTapListener(tapListener);
     update(params);
   }
 
@@ -63,9 +55,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   public void remove(Map<String, Object> params) {
     updateMapObjects((Map<String, Object>) params.get("mapObjects"));
 
-    if (parent != null) {
-      parent.remove(mapObjectCollection);
-    }
+    mapObjectCollection.getParent().remove(mapObjectCollection);
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -154,8 +144,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     YandexCircleController circleController = new YandexCircleController(
       mapObjectCollection,
       params,
-      methodChannel,
-      context
+      controller
     );
 
     circleControllers.add(circleController);
@@ -188,8 +177,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     YandexMapObjectCollectionController mapObjectCollectionController = new YandexMapObjectCollectionController(
       mapObjectCollection,
       params,
-      methodChannel,
-      context
+      controller
     );
 
     mapObjectCollectionControllers.add(mapObjectCollectionController);
@@ -222,8 +210,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     YandexPlacemarkController placemarkController = new YandexPlacemarkController(
       mapObjectCollection,
       params,
-      methodChannel,
-      context
+      controller
     );
 
     placemarkControllers.add(placemarkController);
@@ -256,8 +243,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     YandexPolygonController polygonController = new YandexPolygonController(
       mapObjectCollection,
       params,
-      methodChannel,
-      context
+      controller
     );
 
     polygonControllers.add(polygonController);
@@ -290,8 +276,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     YandexPolylineController polylineController = new YandexPolylineController(
       mapObjectCollection,
       params,
-      methodChannel,
-      context
+      controller
     );
 
     polylineControllers.add(polylineController);

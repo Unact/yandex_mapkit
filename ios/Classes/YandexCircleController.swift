@@ -1,17 +1,15 @@
 import YandexMapsMobile
 
 class YandexCircleController: NSObject, YandexMapObjectController {
-  private let pluginRegistrar: FlutterPluginRegistrar
-  private let methodChannel: FlutterMethodChannel
   private let circle: YMKCircleMapObject
-  private let parent: YMKMapObjectCollection
+  private let tapListener: YandexMapObjectTapListener
+  private unowned var controller: YandexMapController
   public let id: String
 
   public required init(
     parent: YMKMapObjectCollection,
     params: [String: Any],
-    pluginRegistrar: FlutterPluginRegistrar,
-    methodChannel: FlutterMethodChannel
+    controller: YandexMapController
   ) {
     let style = params["style"] as! [String: Any]
     let circle = parent.addCircle(
@@ -23,13 +21,12 @@ class YandexCircleController: NSObject, YandexMapObjectController {
 
     self.circle = circle
     self.id = params["id"] as! String
-    self.parent = parent
-    self.pluginRegistrar = pluginRegistrar
-    self.methodChannel = methodChannel
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
-    circle.addTapListener(with: YandexMapObjectTapListener(id: id, methodChannel: methodChannel))
+    circle.addTapListener(with: tapListener)
     update(params)
   }
 
@@ -45,6 +42,6 @@ class YandexCircleController: NSObject, YandexMapObjectController {
   }
 
   public func remove(_ params: [String: Any]) {
-    parent.remove(with: circle)
+    circle.parent.remove(with: circle)
   }
 }

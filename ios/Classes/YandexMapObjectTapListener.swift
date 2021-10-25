@@ -1,12 +1,12 @@
 import YandexMapsMobile
 
 class YandexMapObjectTapListener: NSObject, YMKMapObjectTapListener {
-  private let methodChannel: FlutterMethodChannel
+  private unowned var controller: YandexMapController
   public let id: String
 
-  public required init(id: String, methodChannel: FlutterMethodChannel) {
+  public required init(id: String, controller: YandexMapController) {
     self.id = id
-    self.methodChannel = methodChannel
+    self.controller = controller
   }
 
   internal func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
@@ -14,8 +14,8 @@ class YandexMapObjectTapListener: NSObject, YMKMapObjectTapListener {
       "id": id,
       "point": Utils.pointToJson(point)
     ]
-    methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
+    controller.methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
 
-    return true
+    return false
   }
 }
