@@ -48,7 +48,7 @@ public class YandexCircleController extends YandexMapObjectController {
     circle.setGeometry(Utils.circleFromJson(params));
   }
 
-  public void remove(Map<String, Object> params) {
+  public void remove() {
     circle.getParent().remove(circle);
   }
 }

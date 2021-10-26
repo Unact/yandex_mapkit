@@ -47,8 +47,12 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     updateMapObjects(params["mapObjects"] as! [String: Any])
   }
 
-  public func remove(_ params: [String: Any]) {
-    updateMapObjects(params["mapObjects"] as! [String: Any])
+  public func remove() {
+    mapObjectCollectionControllers.forEach({ $0.remove() })
+    placemarkControllers.forEach({ $0.remove() })
+    circleControllers.forEach({ $0.remove() })
+    polylineControllers.forEach({ $0.remove() })
+    polygonControllers.forEach({ $0.remove() })
     mapObjectCollection.parent.remove(with: mapObjectCollection)
   }
 
@@ -152,7 +156,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let mapObjectCollectionController = mapObjectCollectionControllers.first(where: { $0.id == id })!
     let idx = mapObjectCollectionControllers.firstIndex(of: mapObjectCollectionController)!
 
-    mapObjectCollectionController.remove(params)
+    mapObjectCollectionController.remove()
     mapObjectCollectionControllers.remove(at: idx)
   }
 
@@ -178,7 +182,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let placemarkController = placemarkControllers.first(where: { $0.id == id })!
     let idx = placemarkControllers.firstIndex(of: placemarkController)!
 
-    placemarkController.remove(params)
+    placemarkController.remove()
     placemarkControllers.remove(at: idx)
   }
 
@@ -204,7 +208,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let circleController = circleControllers.first(where: { $0.id == id })!
     let idx = circleControllers.firstIndex(of: circleController)!
 
-    circleController.remove(params)
+    circleController.remove()
     circleControllers.remove(at: idx)
   }
 
@@ -230,7 +234,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let polylineController = polylineControllers.first(where: { $0.id == id })!
     let idx = polylineControllers.firstIndex(of: polylineController)!
 
-    polylineController.remove(params)
+    polylineController.remove()
     polylineControllers.remove(at: idx)
   }
 
@@ -256,7 +260,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     let polygonController = polygonControllers.first(where: { $0.id == id })!
     let idx = polygonControllers.firstIndex(of: polygonController)!
 
-    polygonController.remove(params)
+    polygonController.remove()
     polygonControllers.remove(at: idx)
   }
 }

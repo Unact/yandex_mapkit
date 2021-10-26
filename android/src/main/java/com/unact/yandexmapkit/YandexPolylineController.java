@@ -45,7 +45,7 @@ public class YandexPolylineController extends YandexMapObjectController {
     polyline.setGeometry(Utils.polylineFromJson(params));
   }
 
-  public void remove(Map<String, Object> params) {
+  public void remove() {
     polyline.getParent().remove(polyline);
   }
 }

@@ -39,7 +39,7 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
     polyline.geometry = Utils.polylineFromJson(params)
   }
 
-  public func remove(_ params: [String: Any]) {
+  public func remove() {
     polyline.parent.remove(with: polyline)
   }
 }

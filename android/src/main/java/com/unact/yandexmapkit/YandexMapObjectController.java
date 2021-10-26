@@ -7,5 +7,5 @@ abstract public class YandexMapObjectController {
 
   abstract public void update(Map<String, Object> params);
 
-  abstract public void remove(Map<String, Object> params);
+  abstract public void remove();
 }

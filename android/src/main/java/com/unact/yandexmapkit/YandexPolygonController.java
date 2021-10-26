@@ -42,7 +42,7 @@ public class YandexPolygonController extends YandexMapObjectController {
     polygon.setGeometry(Utils.polygonFromJson(params));
   }
 
-  public void remove(Map<String, Object> params) {
+  public void remove() {
     polygon.getParent().remove(polygon);
   }
 }

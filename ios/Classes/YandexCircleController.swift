@@ -41,7 +41,7 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     circle.geometry = Utils.circleFromJson(params)
   }
 
-  public func remove(_ params: [String: Any]) {
+  public func remove() {
     circle.parent.remove(with: circle)
   }
 }

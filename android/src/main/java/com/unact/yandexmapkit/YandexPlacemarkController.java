@@ -81,7 +81,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
   }
 
-  public void remove(Map<String, Object> params) {
+  public void remove() {
     placemark.getParent().remove(placemark);
   }
 }

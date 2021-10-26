@@ -56,7 +56,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     placemark.geometry = Utils.pointFromJson(paramsPoint)
   }
 
-  public func remove(_ params: [String: Any]) {
+  public func remove() {
     placemark.parent.remove(with: placemark)
   }
 }

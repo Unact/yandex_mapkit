@@ -35,7 +35,7 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
     polygon.geometry = Utils.polygonFromJson(params)
   }
 
-  public func remove(_ params: [String: Any]) {
+  public func remove() {
     polygon.parent.remove(with: polygon)
   }
 }

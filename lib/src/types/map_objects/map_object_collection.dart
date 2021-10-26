@@ -82,11 +82,7 @@ class MapObjectCollection extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString(),
-      'mapObjects': MapObjectUpdates.from(
-        mapObjects.toSet(),
-        <MapObjectCollection>{...[]},
-      ).toJson()
+      'type': runtimeType.toString()
     };
   }
 

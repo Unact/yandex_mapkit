@@ -52,8 +52,22 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void remove(Map<String, Object> params) {
-    updateMapObjects((Map<String, Object>) params.get("mapObjects"));
+  public void remove() {
+    for (YandexCircleController circleController : circleControllers) {
+      circleController.remove();
+    }
+    for (YandexMapObjectController mapObjectCollectionController : mapObjectCollectionControllers) {
+      mapObjectCollectionController.remove();
+    }
+    for (YandexPlacemarkController placemarkController : placemarkControllers) {
+      placemarkController.remove();
+    }
+    for (YandexPolygonController polygonController : polygonControllers) {
+      polygonController.remove();
+    }
+    for (YandexPolylineController polylineController : polylineControllers) {
+      polylineController.remove();
+    }
 
     mapObjectCollection.getParent().remove(mapObjectCollection);
   }
@@ -166,7 +180,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
     for (YandexCircleController circleController : circleControllers) {
       if (circleController.id.equals(id)) {
-        circleController.remove(params);
+        circleController.remove();
         circleControllers.remove(circleController);
         break;
       }
@@ -199,7 +213,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
     for (YandexMapObjectCollectionController mapObjectCollectionController : mapObjectCollectionControllers) {
       if (mapObjectCollectionController.id.equals(id)) {
-        mapObjectCollectionController.remove(params);
+        mapObjectCollectionController.remove();
         mapObjectCollectionControllers.remove(mapObjectCollectionController);
         break;
       }
@@ -232,7 +246,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
     for (YandexPlacemarkController placemarkController : placemarkControllers) {
       if (placemarkController.id.equals(id)) {
-        placemarkController.remove(params);
+        placemarkController.remove();
         placemarkControllers.remove(placemarkController);
         break;
       }
@@ -265,7 +279,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
     for (YandexPolygonController polygonController : polygonControllers) {
       if (polygonController.id.equals(id)) {
-        polygonController.remove(params);
+        polygonController.remove();
         polygonControllers.remove(polygonController);
         break;
       }
@@ -298,7 +312,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
     for (YandexPolylineController polylineController : polylineControllers) {
       if (polylineController.id.equals(id)) {
-        polylineController.remove(params);
+        polylineController.remove();
         polylineControllers.remove(polylineController);
         break;
       }
