@@ -1,14 +1,9 @@
 part of yandex_mapkit;
 
-class PolylineId extends MapObjectId<Polyline> {
-  /// Creates an immutable identifier for a [Polyline].
-  const PolylineId(String value) : super(value);
-}
-
 /// Collection of points connected by lines to be displayed on [YandexMap]
 class Polyline extends Equatable implements MapObject {
   const Polyline({
-    required this.polylineId,
+    required this.mapId,
     required this.coordinates,
     this.isGeodesic = false,
     this.style = const PolylineStyle(),
@@ -22,8 +17,6 @@ class Polyline extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Polyline>? onTap;
 
-  final PolylineId polylineId;
-
   Polyline copyWith({
     List<Point>? coordinates,
     bool? isGeodesic,
@@ -32,7 +25,7 @@ class Polyline extends Equatable implements MapObject {
     TapCallback<Polyline>? onTap,
   }) {
     return Polyline(
-      polylineId: polylineId,
+      mapId: mapId,
       coordinates: coordinates ?? this.coordinates,
       isGeodesic: isGeodesic ?? this.isGeodesic,
       style: style ?? this.style,
@@ -42,7 +35,7 @@ class Polyline extends Equatable implements MapObject {
   }
 
   @override
-  PolylineId get mapId => polylineId;
+  final MapObjectId mapId;
 
   @override
   Polyline clone() => copyWith();
@@ -91,7 +84,7 @@ class Polyline extends Equatable implements MapObject {
 
   @override
   List<Object> get props => <Object>[
-    polylineId,
+    mapId,
     coordinates,
     isGeodesic,
     style,

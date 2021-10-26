@@ -22,7 +22,7 @@ class _CircleExampleState extends State<_CircleExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  late CircleId circleId = CircleId('circle');
+  final MapObjectId circleId = MapObjectId('circle');
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class _CircleExampleState extends State<_CircleExample> {
                         }
 
                         mapObjects.add(Circle(
-                          circleId: circleId,
+                          mapId: circleId,
                           center: const Point(latitude: 55.781863, longitude: 37.451159),
                           radius: 1000000,
                           style: CircleStyle(

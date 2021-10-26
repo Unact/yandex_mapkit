@@ -23,8 +23,8 @@ class _RotateExampleState extends State<_RotateExample> {
   final List<MapObject> mapObjects = [];
 
   bool rotationBlocked = false;
-  final PlacemarkId rotatedPlacemarkId = PlacemarkId('pinned_rotated_placemark');
-  final PlacemarkId normalPlacemarkId = PlacemarkId('normal_placemark');
+  final MapObjectId rotatedPlacemarkId = MapObjectId('pinned_rotated_placemark');
+  final MapObjectId normalPlacemarkId = MapObjectId('normal_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _RotateExampleState extends State<_RotateExample> {
               controller = yandexMapController;
 
               mapObjects.add(Placemark(
-                placemarkId: normalPlacemarkId,
+                mapId: normalPlacemarkId,
                 point: Point(latitude: 59.945933, longitude: 30.320045),
                 onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                 style: PlacemarkStyle(
@@ -47,7 +47,7 @@ class _RotateExampleState extends State<_RotateExample> {
                 )
               ));
               mapObjects.add(Placemark(
-                placemarkId: rotatedPlacemarkId,
+                mapId: rotatedPlacemarkId,
                 point: Point(latitude: 40.945933, longitude: 32.320045),
                 onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                 style: PlacemarkStyle(

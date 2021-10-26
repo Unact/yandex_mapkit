@@ -3,28 +3,28 @@ part of yandex_mapkit;
 /// Update specification for a set of objects.
 class MapObjectUpdates<T extends MapObject> extends Equatable {
   MapObjectUpdates.from(this.previous, this.current) {
-    final previousObjects = Map<MapObjectId<T>, T>.fromEntries(
-      previous.map((T object) => MapEntry(object.mapId as MapObjectId<T>, object))
+    final previousObjects = Map<MapObjectId, T>.fromEntries(
+      previous.map((T object) => MapEntry(object.mapId, object))
     );
-    final currentObjects = Map<MapObjectId<T>, T>.fromEntries(
-      current.map((T object) => MapEntry(object.mapId as MapObjectId<T>, object))
+    final currentObjects = Map<MapObjectId, T>.fromEntries(
+      current.map((T object) => MapEntry(object.mapId, object))
     );
     final previousObjectIds = previousObjects.keys.toSet();
     final currentObjectIds = currentObjects.keys.toSet();
 
     _objectsToRemove = previousObjectIds
       .difference(currentObjectIds)
-      .map((MapObjectId<T> id) => previousObjects[id]!).
+      .map((MapObjectId id) => previousObjects[id]!).
       toSet();
 
     _objectsToAdd = currentObjectIds
       .difference(previousObjectIds)
-      .map((MapObjectId<T> id) => currentObjects[id]!)
+      .map((MapObjectId id) => currentObjects[id]!)
       .toSet();
 
     _objectsToChange = currentObjectIds
       .intersection(previousObjectIds)
-      .map((MapObjectId<T> id) => currentObjects[id]!)
+      .map((MapObjectId id) => currentObjects[id]!)
       .where((T current) => current != previousObjects[current.mapId])
       .toSet();
   }

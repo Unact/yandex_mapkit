@@ -22,17 +22,17 @@ class _DrivingExample extends StatefulWidget {
 
 class _DrivingExampleState extends State<_DrivingExample> {
   final Placemark startPlacemark = Placemark(
-    placemarkId: PlacemarkId('start_placemark'),
+    mapId: MapObjectId('start_placemark'),
     point: Point(latitude: 55.7558, longitude: 37.6173),
     style: PlacemarkStyle(iconName: 'lib/assets/route_start.png', scale: 0.3)
   );
   final Placemark stopByPlacemark = Placemark(
-    placemarkId: PlacemarkId('stop_by_placemark'),
+    mapId: MapObjectId('stop_by_placemark'),
     point: Point(latitude: 45.0360, longitude: 38.9746),
     style: PlacemarkStyle(iconName: 'lib/assets/route_stop_by.png', scale: 0.3)
   );
   final Placemark endPlacemark = Placemark(
-    placemarkId: PlacemarkId('end_placemark'),
+    mapId: MapObjectId('end_placemark'),
     point: Point(latitude: 48.4814, longitude: 135.0721),
     style: PlacemarkStyle(iconName: 'lib/assets/route_end.png', scale: 0.3)
   );
@@ -244,7 +244,7 @@ class _SessionState extends State<_SessionPage> {
 
     result.routes!.asMap().forEach((i, route) {
       mapObjects.add(Polyline(
-        polylineId: PolylineId('route_${i}_polyline'),
+        mapId: MapObjectId('route_${i}_polyline'),
         coordinates: route.geometry,
         style: PolylineStyle(
           strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],

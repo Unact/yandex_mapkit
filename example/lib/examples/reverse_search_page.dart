@@ -25,7 +25,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final PlacemarkId cameraPlacemarkId = PlacemarkId('camera_placemark');
+  final MapObjectId cameraMapObjectId = MapObjectId('camera_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                     controller = yandexMapController;
 
                     final placemark = Placemark(
-                      placemarkId: cameraPlacemarkId,
+                      mapId: cameraMapObjectId,
                       point: Point(latitude: 55.755848, longitude: 37.620409),
                       style: PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
                     );
@@ -56,7 +56,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                     await controller.move(cameraPosition: CameraPosition(target: placemark.point, zoom: 17));
                     await controller.enableCameraTracking(
                       onCameraPositionChange: (CameraPosition cameraPosition, bool finished) async {
-                        final placemark = mapObjects.firstWhere((el) => el.mapId == cameraPlacemarkId) as Placemark;
+                        final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
                         mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
 
                         await controller.updateMapObjects(mapObjects);
@@ -162,7 +162,7 @@ class _SessionState extends State<_SessionPage> {
                       await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
                       await yandexMapController.updateMapObjects([
                         Placemark(
-                          placemarkId: PlacemarkId('search_placemark'),
+                          mapId: MapObjectId('search_placemark'),
                           point: widget.point,
                           style: PlacemarkStyle(iconName: 'lib/assets/place.png', scale: 0.75)
                         )

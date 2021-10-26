@@ -22,7 +22,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final PlacemarkId targetPlacemarkId = PlacemarkId('target_placemark');
+  final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   bool isNightModeEnabled = false;
   bool isZoomGesturesEnabled = false;
@@ -145,7 +145,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       final placemark = Placemark(
-                        placemarkId: targetPlacemarkId,
+                        mapId: targetMapObjectId,
                         point: await controller.getTargetPoint(),
                         style: const PlacemarkStyle(
                           opacity: 0.7,
@@ -153,7 +153,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         ),
                       );
 
-                      mapObjects.removeWhere((el) => el.mapId == targetPlacemarkId);
+                      mapObjects.removeWhere((el) => el.mapId == targetMapObjectId);
                       mapObjects.add(placemark);
                       await controller.updateMapObjects(mapObjects);
                     },

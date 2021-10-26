@@ -24,7 +24,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final PolygonId polygonId = PolygonId('polygon');
+  final MapObjectId polygonId = MapObjectId('polygon');
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
                         }
 
                         mapObjects.add(Polygon(
-                          polygonId: polygonId,
+                          mapId: polygonId,
                           outerRingCoordinates: const <Point>[
                             Point(latitude: 56.34295, longitude: 74.62829),
                             Point(latitude: 70.12669, longitude: 98.97399),

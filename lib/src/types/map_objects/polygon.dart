@@ -1,14 +1,9 @@
 part of yandex_mapkit;
 
-class PolygonId extends MapObjectId<Polygon> {
-  /// Creates an immutable identifier for a [Polygon].
-  const PolygonId(String value) : super(value);
-}
-
 /// A polygon to be displayed on [YandexMap]
 class Polygon extends Equatable implements MapObject {
   const Polygon({
-    required this.polygonId,
+    required this.mapId,
     required this.outerRingCoordinates,
     this.innerRingsCoordinates = const <List<Point>>[],
     this.isGeodesic = false,
@@ -24,8 +19,6 @@ class Polygon extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Polygon>? onTap;
 
-  final PolygonId polygonId;
-
   Polygon copyWith({
     List<Point>? outerRingCoordinates,
     List<List<Point>>? innerRingsCoordinates,
@@ -35,7 +28,7 @@ class Polygon extends Equatable implements MapObject {
     TapCallback<Polygon>? onTap,
   }) {
     return Polygon(
-      polygonId: polygonId,
+      mapId: mapId,
       outerRingCoordinates: outerRingCoordinates ?? this.outerRingCoordinates,
       innerRingsCoordinates: innerRingsCoordinates ?? this.innerRingsCoordinates,
       isGeodesic: isGeodesic ?? this.isGeodesic,
@@ -46,7 +39,7 @@ class Polygon extends Equatable implements MapObject {
   }
 
   @override
-  PolygonId get mapId => polygonId;
+  final MapObjectId mapId;
 
   @override
   Polygon clone() => copyWith();
@@ -98,7 +91,7 @@ class Polygon extends Equatable implements MapObject {
 
   @override
   List<Object> get props => <Object>[
-    polygonId,
+    mapId,
     outerRingCoordinates,
     innerRingsCoordinates,
     isGeodesic,

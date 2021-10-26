@@ -1,7 +1,7 @@
 part of yandex_mapkit;
 
 /// Uniquely identifies object an among all [MapObjectCollection.mapObjects] of a specific type.
-class MapObjectId<T> extends Equatable {
+class MapObjectId extends Equatable {
   const MapObjectId(this.value);
 
   final String value;
@@ -18,7 +18,7 @@ class MapObjectId<T> extends Equatable {
 /// A common interface for maps types.
 abstract class MapObject<T> {
   /// A identifier for this object.
-  MapObjectId<T> get mapId;
+  MapObjectId get mapId;
 
   /// Always process tap
   void _tap(Point point);

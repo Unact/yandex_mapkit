@@ -23,8 +23,8 @@ class placemarkExampleState extends State<placemarkExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final PlacemarkId placemarkId = PlacemarkId('normal_icon_placemark');
-  final PlacemarkId placemarkWithDynamicIconId = PlacemarkId('dynamic_icon_placemark');
+  final MapObjectId placemarkId = MapObjectId('normal_icon_placemark');
+  final MapObjectId placemarkWithDynamicIconId = MapObjectId('dynamic_icon_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class placemarkExampleState extends State<placemarkExample> {
                         }
 
                         mapObjects.add(Placemark(
-                          placemarkId: placemarkId,
+                          mapId: placemarkId,
                           point: Point(latitude: 59.945933, longitude: 30.320045),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           style: PlacemarkStyle(
@@ -107,7 +107,7 @@ class placemarkExampleState extends State<placemarkExample> {
                         }
 
                         mapObjects.add(Placemark(
-                          placemarkId: placemarkWithDynamicIconId,
+                          mapId: placemarkWithDynamicIconId,
                           point: Point(latitude: 30.320045, longitude: 59.945933),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           style: PlacemarkStyle(

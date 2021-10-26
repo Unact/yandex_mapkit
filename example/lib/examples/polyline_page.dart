@@ -24,7 +24,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final PolylineId polylineId = PolylineId('polyline');
+  final MapObjectId polylineId = MapObjectId('polyline');
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
                         }
 
                         mapObjects.add(Polyline(
-                          polylineId: polylineId,
+                          mapId: polylineId,
                           coordinates: <Point>[
                             Point(latitude: 59.945933, longitude: 30.320045),
                             Point(latitude: 55.75222, longitude: 37.88398),

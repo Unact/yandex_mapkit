@@ -23,7 +23,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
   final List<MapObject> mapObjects = [];
 
   int _placemarkIdCounter = 1;
-  final PlacemarkId cameraPlacemarkId = PlacemarkId('camera_placemark');
+  final MapObjectId cameraPlacemarkId = MapObjectId('camera_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                     ControlButton(
                       onPressed: () async {
                         mapObjects.add(Placemark(
-                          placemarkId: cameraPlacemarkId,
+                          mapId: cameraPlacemarkId,
                           point: await controller.getTargetPoint(),
                           style: const PlacemarkStyle(iconName: 'lib/assets/user.png', opacity: 0.9),
                         ));
@@ -84,7 +84,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
 
     if (finished) {
       final placemark = Placemark(
-        placemarkId: PlacemarkId('placemark_${_placemarkIdCounter++}'),
+        mapId: MapObjectId('placemark_${_placemarkIdCounter++}'),
         point: cameraPosition.target,
         style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.9),
       );

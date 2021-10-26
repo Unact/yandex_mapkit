@@ -22,7 +22,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final MapObjectCollectionId mapObjectCollectionId = MapObjectCollectionId('map_object_collection');
+  final MapObjectId mapObjectCollectionId = MapObjectId('map_object_collection');
 
   @override
   Widget build(BuildContext context) {
@@ -52,22 +52,22 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                         }
 
                         mapObjects.add(MapObjectCollection(
-                          mapObjectCollectionId: mapObjectCollectionId,
+                          mapId: mapObjectCollectionId,
                           mapObjects: [
                             Circle(
-                              circleId: CircleId('circle'),
+                              mapId: MapObjectId('circle'),
                               center: Point(latitude: 59.945933, longitude: 30.320045),
                               radius: 100000
                             ),
                             Placemark(
-                              placemarkId: PlacemarkId('placemark'),
+                              mapId: MapObjectId('placemark'),
                               point: Point(latitude: 59.945933, longitude: 30.320045)
                             ),
                             MapObjectCollection(
-                              mapObjectCollectionId: MapObjectCollectionId('inner_map_object_collection'),
+                              mapId: MapObjectId('inner_map_object_collection'),
                               mapObjects: [
                                 Placemark(
-                                  placemarkId: PlacemarkId('inner_placemark'),
+                                  mapId: MapObjectId('inner_placemark'),
                                   point: Point(latitude: 57.945933, longitude: 28.320045),
                                   style:PlacemarkStyle(
                                     opacity: 0.7,
@@ -94,12 +94,12 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                           .firstWhere((el) => el.mapId == mapObjectCollectionId) as MapObjectCollection;
                         mapObjects[mapObjects.indexOf(mapObjectCollection)] = mapObjectCollection.copyWith(mapObjects: [
                           Circle(
-                            circleId: CircleId('circle'),
+                            mapId: MapObjectId('circle'),
                             center: Point(latitude: 59.945933, longitude: 30.320045),
                             radius: 10000
                           ),
                           Placemark(
-                            placemarkId: PlacemarkId('placemark_new'),
+                            mapId: MapObjectId('placemark_new'),
                             point: Point(latitude: 59.945933, longitude: 30.320045),
                             style: PlacemarkStyle(scale: 0.2, iconName: 'lib/assets/arrow.png',)
                           ),

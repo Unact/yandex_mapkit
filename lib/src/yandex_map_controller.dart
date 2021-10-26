@@ -11,7 +11,7 @@ class YandexMapController extends ChangeNotifier {
   List<MapObject> get mapObjects => _mapObjectCollection.mapObjects;
 
   MapObjectCollection _mapObjectCollection = MapObjectCollection(
-    mapObjectCollectionId: MapObjectCollectionId('root_map_object_collection'),
+    mapId: MapObjectId('root_map_object_collection'),
     mapObjects: []
   );
 

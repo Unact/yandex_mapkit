@@ -1,14 +1,9 @@
 part of yandex_mapkit;
 
-class PlacemarkId extends MapObjectId<Placemark> {
-  /// Creates an immutable identifier for a [Placemark].
-  const PlacemarkId(String value) : super(value);
-}
-
 /// A placemark to be displayed on [YandexMap] at a specific point
 class Placemark extends Equatable implements MapObject {
   const Placemark({
-    required this.placemarkId,
+    required this.mapId,
     required this.point,
     this.style = const PlacemarkStyle(),
     this.isDraggable = false,
@@ -22,8 +17,6 @@ class Placemark extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Placemark>? onTap;
 
-  final PlacemarkId placemarkId;
-
   Placemark copyWith({
     Point? point,
     PlacemarkStyle? style,
@@ -32,7 +25,7 @@ class Placemark extends Equatable implements MapObject {
     TapCallback<Placemark>? onTap,
   }) {
     return Placemark(
-      placemarkId: placemarkId,
+      mapId: mapId,
       point: point ?? this.point,
       style: style ?? this.style,
       isDraggable: isDraggable ?? this.isDraggable,
@@ -42,7 +35,7 @@ class Placemark extends Equatable implements MapObject {
   }
 
   @override
-  PlacemarkId get mapId => placemarkId;
+  final MapObjectId mapId;
 
   @override
   Placemark clone() => copyWith();
@@ -91,7 +84,7 @@ class Placemark extends Equatable implements MapObject {
 
   @override
   List<Object> get props => <Object>[
-    placemarkId,
+    mapId,
     point,
     style,
     isDraggable,

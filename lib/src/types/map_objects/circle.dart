@@ -1,14 +1,9 @@
 part of yandex_mapkit;
 
-class CircleId extends MapObjectId<Circle> {
-  /// Creates an immutable identifier for a [Circle].
-  const CircleId(String value) : super(value);
-}
-
 /// A circle to be displayed on [YandexMap].
 class Circle extends Equatable implements MapObject<Circle> {
   const Circle({
-    required this.circleId,
+    required this.mapId,
     required this.center,
     required this.radius,
     this.isGeodesic = false,
@@ -24,8 +19,6 @@ class Circle extends Equatable implements MapObject<Circle> {
   final double zIndex;
   final TapCallback<Circle>? onTap;
 
-  final CircleId circleId;
-
   Circle copyWith({
     Point? center,
     double? radius,
@@ -35,7 +28,7 @@ class Circle extends Equatable implements MapObject<Circle> {
     TapCallback<Circle>? onTap,
   }) {
     return Circle(
-      circleId: circleId,
+      mapId: mapId,
       center: center ?? this.center,
       radius: radius ?? this.radius,
       isGeodesic: isGeodesic ?? this.isGeodesic,
@@ -46,7 +39,7 @@ class Circle extends Equatable implements MapObject<Circle> {
   }
 
   @override
-  CircleId get mapId => circleId;
+  final MapObjectId mapId;
 
   @override
   Circle clone() => copyWith();
@@ -96,7 +89,7 @@ class Circle extends Equatable implements MapObject<Circle> {
 
   @override
   List<Object> get props => <Object>[
-    circleId,
+    mapId,
     center,
     radius,
     isGeodesic,
