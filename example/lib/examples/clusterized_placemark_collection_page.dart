@@ -67,13 +67,18 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           },
                           placemarks: [
                             Placemark(
-                              mapId: MapObjectId('placemark1'),
+                              mapId: MapObjectId('placemark_1'),
                               point: Point(latitude: 55.756, longitude: 37.618),
                               style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
                             ),
                             Placemark(
-                              mapId: MapObjectId('placemark2'),
+                              mapId: MapObjectId('placemark_2'),
                               point: Point(latitude: 59.956, longitude: 30.313),
+                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                            ),
+                            Placemark(
+                              mapId: MapObjectId('placemark_3'),
+                              point: Point(latitude: 39.956, longitude: 30.313),
                               style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
                             ),
                           ],
@@ -95,13 +100,18 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                         mapObjects[mapObjects.indexOf(clusterizedPlacemarkCollection)] =
                           clusterizedPlacemarkCollection.copyWith(placemarks: [
                             Placemark(
-                              mapId: MapObjectId('placemark_new'),
-                              point: Point(latitude: 59.945933, longitude: 30.320045),
+                              mapId: MapObjectId('placemark_2'),
+                              point: Point(latitude: 59.956, longitude: 30.313),
                               style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
                             ),
                             Placemark(
-                              mapId: MapObjectId('placemark2'),
-                              point: Point(latitude: 59.956, longitude: 30.313),
+                              mapId: MapObjectId('placemark_3'),
+                              point: Point(latitude: 39.956, longitude: 31.313),
+                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                            ),
+                            Placemark(
+                              mapId: MapObjectId('placemark_4'),
+                              point: Point(latitude: 59.945933, longitude: 30.320045),
                               style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
                             ),
                           ]);
