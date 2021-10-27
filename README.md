@@ -156,15 +156,12 @@ This way XCode won't try to build for Silicon Macs iOS Simulators
 
 - [X] iOS Support
 - [X] Android Support
-- [X] Adding and removing Placemarks
-- [X] Receiving Placemark tap events
+- [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
+- [X] Working with collections of map objects
 - [X] Moving around the map
 - [X] Setting map bounds
 - [X] Showing current user location
 - [X] Styling the map
-- [X] Adding and removing Polylines
-- [X] Adding and removing Polygons
-- [X] Adding and removing Circles
 - [X] Address suggestions
 - [X] Basic driving routing
 - [X] Basic address direct/reverse search

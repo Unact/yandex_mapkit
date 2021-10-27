@@ -7,6 +7,7 @@ import 'package:yandex_mapkit_example/examples/circle_page.dart';
 import 'package:yandex_mapkit_example/examples/driving_page.dart';
 import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
+import 'package:yandex_mapkit_example/examples/map_object_collection_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
@@ -24,6 +25,7 @@ const List<MapPage> _allPages = <MapPage>[
   DrivingPage(),
   LayersPage(),
   MapControlsPage(),
+  MapObjectCollectionPage(),
   PlacemarkPage(),
   PolylinePage(),
   PolygonPage(),
