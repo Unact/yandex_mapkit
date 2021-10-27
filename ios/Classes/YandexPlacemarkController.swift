@@ -7,26 +7,23 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
   public let id: String
-  
+
   public required init(
     parent: YMKMapObject,
     params: [String: Any],
     controller: YandexMapController
   ) {
     var placemark: YMKPlacemarkMapObject? = nil
+    let point = Utils.pointFromJson(params["point"] as! [String: NSNumber])
 
     if (parent is YMKClusterizedPlacemarkCollection) {
-      placemark = (parent as! YMKClusterizedPlacemarkCollection).addPlacemark(
-        with: Utils.pointFromJson(params["point"] as! [String: NSNumber])
-      )
+      placemark = (parent as! YMKClusterizedPlacemarkCollection).addPlacemark(with: point)
     }
 
     if (parent is YMKMapObjectCollection) {
-      placemark = (parent as! YMKMapObjectCollection).addPlacemark(
-        with: Utils.pointFromJson(params["point"] as! [String: NSNumber])
-      )
+      placemark = (parent as! YMKMapObjectCollection).addPlacemark(with: point)
     }
-    
+
     self.parent = parent
     self.placemark = placemark!
     self.id = params["id"] as! String
@@ -100,7 +97,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     if (internallyControlled) {
       return
     }
-    
+
     if (parent is YMKClusterizedPlacemarkCollection) {
       (parent as! YMKClusterizedPlacemarkCollection).remove(withPlacemark: placemark)
     }

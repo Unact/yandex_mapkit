@@ -130,11 +130,11 @@ public class YandexClusterizedPlacemarkCollectionController
 
   public void removeClusters() {
     List<String> appearancePlacemarkIds = new ArrayList<>();
-
     for (YandexPlacemarkController placemarkController : clusters.values()) {
       appearancePlacemarkIds.add(placemarkController.id);
       placemarkController.remove();
     }
+
     clusters.clear();
 
     Map<String, Object> arguments = new HashMap<>();
@@ -190,7 +190,6 @@ public class YandexClusterizedPlacemarkCollectionController
   @Override
   public boolean onClusterTap(@NonNull Cluster cluster) {
     List<String> placemarkIds = new ArrayList<>();
-
     for (YandexPlacemarkController placemarkController : placemarkControllers) {
       if (cluster.getPlacemarks().contains(placemarkController.placemark)) {
         placemarkIds.add(placemarkController.id);

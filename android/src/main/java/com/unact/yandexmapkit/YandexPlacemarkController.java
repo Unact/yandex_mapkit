@@ -3,6 +3,7 @@ package com.unact.yandexmapkit;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 
+import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.MapObject;
@@ -31,13 +32,14 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     WeakReference<YandexMapController> controller
   ) {
     PlacemarkMapObject placemark = null;
+    Point point = Utils.pointFromJson((Map<String, Object>) params.get("point"));
 
     if (parent instanceof ClusterizedPlacemarkCollection) {
-      placemark = ((ClusterizedPlacemarkCollection) parent).addPlacemark(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+      placemark = ((ClusterizedPlacemarkCollection) parent).addPlacemark(point);
     }
 
     if (parent instanceof MapObjectCollection) {
-       placemark = ((MapObjectCollection) parent).addPlacemark(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+       placemark = ((MapObjectCollection) parent).addPlacemark(point);
     }
 
     this.parent = parent;

@@ -102,7 +102,7 @@ class YandexClusterizedPlacemarkCollectionController:
     let arguments: [String: Any?] = [
       "appearancePlacemarkIds": clusters.values.map({ $0.id })
     ]
-    
+
     clusters.values.forEach({ $0.remove() })
     clusters.removeAll()
 
@@ -125,7 +125,7 @@ class YandexClusterizedPlacemarkCollectionController:
       if (!cluster.isValid) {
         return
       }
-      
+
       self.clusters[cluster] = YandexPlacemarkController(
         parent: self.clusterizedPlacemarkCollection,
         placemark: cluster.appearance,
