@@ -45,6 +45,19 @@ class Polygon extends Equatable implements MapObject {
   Polygon clone() => copyWith();
 
   @override
+  Polygon dup(MapObjectId mapId) {
+    return Polygon(
+      mapId: mapId,
+      outerRingCoordinates: outerRingCoordinates,
+      innerRingsCoordinates: innerRingsCoordinates,
+      isGeodesic: isGeodesic,
+      style: style,
+      zIndex: zIndex,
+      onTap: onTap
+    );
+  }
+
+  @override
   void _tap(Point point) {
     if (onTap != null) {
       onTap!(this, point);

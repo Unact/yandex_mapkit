@@ -17,7 +17,7 @@ class MapObjectId extends Equatable {
 
 /// A common interface for maps types.
 abstract class MapObject<T> {
-  /// A identifier for this object.
+  /// A unique identifier for this object in the scope of a single [YandexMap]
   MapObjectId get mapId;
 
   /// Always process tap
@@ -25,6 +25,9 @@ abstract class MapObject<T> {
 
   /// Returns a duplicate of this object.
   T clone();
+
+  /// Creates a new copy of [T] with the same attributes as the original except its id
+  T dup(MapObjectId mapId);
 
   /// Converts this object to something serializable in JSON.
   Map<String, dynamic> toJson();

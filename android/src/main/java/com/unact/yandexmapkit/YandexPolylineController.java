@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class YandexPolylineController extends YandexMapObjectController {
-  private final PolylineMapObject polyline;
+  public final PolylineMapObject polyline;
   private final YandexMapObjectTapListener tapListener;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;

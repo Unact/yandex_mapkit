@@ -41,6 +41,18 @@ class Polyline extends Equatable implements MapObject {
   Polyline clone() => copyWith();
 
   @override
+  Polyline dup(MapObjectId mapId) {
+    return Polyline(
+      mapId: mapId,
+      coordinates: coordinates,
+      isGeodesic: isGeodesic,
+      style: style,
+      zIndex: zIndex,
+      onTap: onTap
+    );
+  }
+
+  @override
   void _tap(Point point) {
     if (onTap != null) {
       onTap!(this, point);

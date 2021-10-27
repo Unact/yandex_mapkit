@@ -22,6 +22,7 @@ dev_dependencies:
 flutter:
   assets:
     - lib/assets/user.png
+    - lib/assets/cluster.png
     - lib/assets/place.png
     - lib/assets/arrow.png
     - lib/assets/route_start.png

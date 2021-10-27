@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 public class YandexMapObjectCollectionController extends YandexMapObjectController {
-  private final List<YandexCircleController> circleControllers = new ArrayList<>();
   private final List<YandexMapObjectCollectionController> mapObjectCollectionControllers = new ArrayList<>();
+  private final List<YandexClusterizedPlacemarkCollectionController> clusterizedPlacemarkCollectionControllers =
+    new ArrayList<>();
+  private final List<YandexCircleController> circleControllers = new ArrayList<>();
   private final List<YandexPlacemarkController> placemarkControllers = new ArrayList<>();
   private final List<YandexPolygonController> polygonControllers = new ArrayList<>();
   private final List<YandexPolylineController> polylineControllers = new ArrayList<>();
-  private final MapObjectCollection mapObjectCollection;
+  public final MapObjectCollection mapObjectCollection;
   private final YandexMapObjectTapListener tapListener;
   private final WeakReference<YandexMapController> controller;
   public final String id;
@@ -53,6 +55,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void remove() {
+    for (YandexClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollectionControllers) {
+      colController.remove();
+    }
     for (YandexCircleController circleController : circleControllers) {
       circleController.remove();
     }
@@ -98,6 +103,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
         case "Polyline":
           addPolyline(el);
           break;
+        case "ClusterizedPlacemarkCollection":
+          addClusterizedPlacemarkCollection(el);
+          break;
         default:
           break;
       }
@@ -123,6 +131,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
         case "Polyline":
           changePolyline(el);
           break;
+        case "ClusterizedPlacemarkCollection":
+          changeClusterizedPlacemarkCollection(el);
+          break;
         default:
           break;
       }
@@ -147,6 +158,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
           break;
         case "Polyline":
           removePolyline(el);
+          break;
+        case "ClusterizedPlacemarkCollection":
+          removeClusterizedPlacemarkCollection(el);
           break;
         default:
           break;
@@ -314,6 +328,39 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
       if (polylineController.id.equals(id)) {
         polylineController.remove();
         polylineControllers.remove(polylineController);
+        break;
+      }
+    }
+  }
+
+  private void addClusterizedPlacemarkCollection(Map<String, Object> params) {
+    YandexClusterizedPlacemarkCollectionController colController = new YandexClusterizedPlacemarkCollectionController(
+      mapObjectCollection,
+      params,
+      controller
+    );
+
+    clusterizedPlacemarkCollectionControllers.add(colController);
+  }
+
+  private void changeClusterizedPlacemarkCollection(Map<String, Object> params) {
+    String id = (String) params.get("id");
+
+    for (YandexClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollectionControllers) {
+      if (colController.id.equals(id)) {
+        colController.update(params);
+        break;
+      }
+    }
+  }
+
+  private void removeClusterizedPlacemarkCollection(Map<String, Object> params) {
+    String id = (String) params.get("id");
+
+    for (YandexClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollectionControllers) {
+      if (colController.id.equals(id)) {
+        colController.remove();
+        clusterizedPlacemarkCollectionControllers.remove(colController);
         break;
       }
     }

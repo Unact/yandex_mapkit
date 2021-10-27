@@ -1,7 +1,7 @@
 import YandexMapsMobile
 
 class YandexPolygonController: NSObject, YandexMapObjectController {
-  private let polygon: YMKPolygonMapObject
+  public let polygon: YMKPolygonMapObject
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
   public let id: String

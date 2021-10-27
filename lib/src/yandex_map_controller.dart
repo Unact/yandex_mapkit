@@ -8,14 +8,24 @@ class YandexMapController extends ChangeNotifier {
   final MethodChannel _channel;
   final _YandexMapState _yandexMapState;
 
-  List<MapObject> get mapObjects => _mapObjectCollection.mapObjects;
-
+  /// Root object which contains all [MapObject] which were created by [YandexMapController]
   MapObjectCollection _mapObjectCollection = MapObjectCollection(
     mapId: MapObjectId('root_map_object_collection'),
     mapObjects: []
   );
 
+  /// All [MapObject] which were created natively by [YandexMap]
+  ///
+  /// This mainly refers to objects that can't be created by normal means
+  /// Cluster placemarks, user location objects, etc.
+  final List<MapObject> _nonRootMapObjects = [];
+
   CameraPositionCallback? _cameraPositionCallback;
+
+  /// All [MapObject] in [YandexMap]
+  ///
+  /// This contains all objects that were created by any means
+  List<MapObject> get _allMapObjects => _mapObjectCollection.mapObjects + _nonRootMapObjects;
 
   static Future<YandexMapController> init(int id, _YandexMapState yandexMapState) async {
     final methodChannel = MethodChannel('yandex_mapkit/yandex_map_$id');
@@ -224,23 +234,24 @@ class YandexMapController extends ChangeNotifier {
     return VisibleRegion._fromJson(result['visibleRegion']);
   }
 
-  Future<void> _handleMethodCall(MethodCall call) async {
+  Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onMapTap':
-        _onMapTap(call.arguments);
-        break;
+        return _onMapTap(call.arguments);
+      case 'onClustersRemoved':
+        return _onClustersRemoved(call.arguments);
+      case 'onClusterAdded':
+        return _onClusterAdded(call.arguments);
+      case 'onClusterTap':
+        return _onClusterTap(call.arguments);
       case 'onMapLongTap':
-        _onMapLongTap(call.arguments);
-        break;
+        return _onMapLongTap(call.arguments);
       case 'onMapObjectTap':
-        _onMapObjectTap(call.arguments);
-        break;
+        return _onMapObjectTap(call.arguments);
       case 'onMapSizeChanged':
-        _onMapSizeChanged(call.arguments);
-        break;
+        return _onMapSizeChanged(call.arguments);
       case 'onCameraPositionChanged':
-        _onCameraPositionChanged(call.arguments);
-        break;
+        return _onCameraPositionChanged(call.arguments);
       default:
         throw YandexMapkitException();
     }
@@ -250,33 +261,76 @@ class YandexMapController extends ChangeNotifier {
     _yandexMapState.onMapTap(Point._fromJson(arguments['point']));
   }
 
+  void _onClustersRemoved(dynamic arguments) {
+    final appearancePlacemarkIds = arguments['appearancePlacemarkIds'];
+
+    for (var appearancePlacemarkId in appearancePlacemarkIds) {
+      _nonRootMapObjects.remove(_findMapObject(_allMapObjects, appearancePlacemarkId));
+    }
+  }
+
+  Map<String, dynamic> _onClusterAdded(dynamic arguments) {
+    final id = arguments['id'];
+    final size = arguments['size'];
+    final mapObject = _findMapObject(_allMapObjects, id) as ClusterizedPlacemarkCollection;
+    final placemarks = arguments['placemarkIds']
+      .map<Placemark>((el) => _findMapObject(mapObject.placemarks, el) as Placemark)
+      .toList();
+    final appearance = Placemark(
+      mapId: MapObjectId(arguments['appearancePlacemarkId']),
+      point: Point._fromJson(arguments['point'])
+    );
+    final cluster = Cluster._(size: size, appearance: appearance, placemarks: placemarks);
+    final newAppearance = mapObject._clusterAdd(cluster)?.appearance ?? cluster.appearance;
+
+    _nonRootMapObjects.add(newAppearance);
+
+    return newAppearance.toJson();
+  }
+
+  void _onClusterTap(dynamic arguments) {
+    final id = arguments['id'];
+    final size = arguments['size'];
+    final mapObject = _findMapObject(_allMapObjects, id) as ClusterizedPlacemarkCollection;
+    final placemarks = arguments['placemarkIds']
+      .map<Placemark>((el) => _findMapObject(mapObject.placemarks, el) as Placemark)
+      .toList();
+    final appearance = _findMapObject(_allMapObjects, arguments['appearancePlacemarkId']) as Placemark;
+    final cluster = Cluster._(size: size, appearance: appearance, placemarks: placemarks);
+
+    mapObject._clusterTap(cluster);
+  }
+
   void _onMapLongTap(dynamic arguments) {
     _yandexMapState.onMapLongTap(Point._fromJson(arguments['point']));
   }
 
   void _onMapObjectTap(dynamic arguments) {
+    final id = arguments['id'];
     final point = Point._fromJson(arguments['point']);
-    final mapObject = _findMapObject(_mapObjectCollection, arguments['id']);
+    final mapObject = _findMapObject(_allMapObjects, id);
 
     mapObject!._tap(point);
   }
 
-  MapObject? _findMapObject(MapObjectCollection mapObjectCollection, String id) {
-    if (mapObjectCollection.mapId.value == id) {
-      return mapObjectCollection;
-    }
+  MapObject? _findMapObject(List<MapObject> mapObjects, String id) {
+    for (var mapObject in mapObjects) {
+      var foundMapObject;
 
-    for (var mapObject in mapObjectCollection.mapObjects) {
       if (mapObject.mapId.value == id) {
-        return mapObject;
+        foundMapObject = mapObject;
       }
 
-      if (mapObject is MapObjectCollection) {
-        final foundMapObject = _findMapObject(mapObject, id);
+      if (foundMapObject == null && mapObject is MapObjectCollection) {
+        foundMapObject = _findMapObject(mapObject.mapObjects, id);
+      }
 
-        if (foundMapObject != null) {
-          return foundMapObject;
-        }
+      if (foundMapObject == null && mapObject is ClusterizedPlacemarkCollection) {
+        foundMapObject = _findMapObject(mapObject.placemarks, id);
+      }
+
+      if (foundMapObject != null) {
+        return foundMapObject;
       }
     }
 

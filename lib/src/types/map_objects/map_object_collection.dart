@@ -39,6 +39,16 @@ class MapObjectCollection extends Equatable implements MapObject {
   MapObjectCollection clone() => copyWith();
 
   @override
+  MapObjectCollection dup(MapObjectId mapId) {
+    return MapObjectCollection(
+      mapId: mapId,
+      mapObjects: mapObjects,
+      zIndex: zIndex,
+      onTap: onTap
+    );
+  }
+
+  @override
   void _tap(Point point) {
     if (onTap != null) {
       onTap!(this, point);
