@@ -55,7 +55,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           mapId: clusterizedPlacemarkCollectionId,
                           radius: 30,
                           minZoom: 15,
-                          onClusterAdded: (ClusterizedPlacemarkCollection self, Cluster cluster) {
+                          onClusterAdded: (ClusterizedPlacemarkCollection self, Cluster cluster) async {
                             return cluster.copyWith(
                               appearance: cluster.appearance.copyWith(
                                 style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/cluster.png')

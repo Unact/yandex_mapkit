@@ -77,7 +77,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     );
   }
 
-  Cluster? _clusterAdd(Cluster cluster) {
+  Future<Cluster?> _clusterAdd(Cluster cluster) async {
     if (onClusterAdded != null) {
       return onClusterAdded!(this, cluster);
     }

@@ -269,7 +269,7 @@ class YandexMapController extends ChangeNotifier {
     }
   }
 
-  Map<String, dynamic> _onClusterAdded(dynamic arguments) {
+  Future<Map<String, dynamic>> _onClusterAdded(dynamic arguments) async {
     final id = arguments['id'];
     final size = arguments['size'];
     final mapObject = _findMapObject(_allMapObjects, id) as ClusterizedPlacemarkCollection;
@@ -281,7 +281,7 @@ class YandexMapController extends ChangeNotifier {
       point: Point._fromJson(arguments['point'])
     );
     final cluster = Cluster._(size: size, appearance: appearance, placemarks: placemarks);
-    final newAppearance = mapObject._clusterAdd(cluster)?.appearance ?? cluster.appearance;
+    final newAppearance = (await mapObject._clusterAdd(cluster))?.appearance ?? cluster.appearance;
 
     _nonRootMapObjects.add(newAppearance);
 
