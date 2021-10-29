@@ -8,6 +8,7 @@ import com.yandex.mapkit.map.ClusterListener;
 import com.yandex.mapkit.map.ClusterTapListener;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.PlacemarkMapObject;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class YandexClusterizedPlacemarkCollectionController
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    clusterizedPlacemarkCollection.setUserData(this.id);
     clusterizedPlacemarkCollection.addTapListener(tapListener);
     update(params);
   }
@@ -148,11 +150,8 @@ public class YandexClusterizedPlacemarkCollectionController
     final YandexClusterizedPlacemarkCollectionController self = this;
     clusterCnt += 1;
     List<String> placemarkIds = new ArrayList<>();
-
-    for (YandexPlacemarkController placemarkController : placemarkControllers) {
-      if (cluster.getPlacemarks().contains(placemarkController.placemark)) {
-        placemarkIds.add(placemarkController.id);
-      }
+    for (PlacemarkMapObject placemark : cluster.getPlacemarks()) {
+        placemarkIds.add((String) placemark.getUserData());
     }
 
     Map<String, Object> arguments = new HashMap<>();
@@ -190,10 +189,8 @@ public class YandexClusterizedPlacemarkCollectionController
   @Override
   public boolean onClusterTap(@NonNull Cluster cluster) {
     List<String> placemarkIds = new ArrayList<>();
-    for (YandexPlacemarkController placemarkController : placemarkControllers) {
-      if (cluster.getPlacemarks().contains(placemarkController.placemark)) {
-        placemarkIds.add(placemarkController.id);
-      }
+    for (PlacemarkMapObject placemark : cluster.getPlacemarks()) {
+      placemarkIds.add((String) placemark.getUserData());
     }
 
     Map<String, Object> arguments = new HashMap<>();

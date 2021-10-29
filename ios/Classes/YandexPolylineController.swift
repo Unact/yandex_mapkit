@@ -20,6 +20,7 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    polyline.userData = self.id
     polyline.addTapListener(with: tapListener)
     update(params)
   }

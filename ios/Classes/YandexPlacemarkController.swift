@@ -33,6 +33,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    placemark!.userData = self.id
     placemark!.addTapListener(with: tapListener)
     update(params)
   }
@@ -52,6 +53,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    placemark.userData = self.id
     placemark.addTapListener(with: tapListener)
     update(params)
   }

@@ -22,6 +22,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     self.controller = controller
     self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
+    mapObjectCollection.userData = self.id
     mapObjectCollection.addTapListener(with: tapListener)
   }
 
@@ -39,6 +40,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    mapObjectCollection.userData = self.id
     mapObjectCollection.addTapListener(with: tapListener)
     update(params)
   }

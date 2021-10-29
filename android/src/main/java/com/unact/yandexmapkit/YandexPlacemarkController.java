@@ -49,6 +49,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.tapListener = new YandexMapObjectTapListener(id, controller);
     this.internallyControlled = false;
 
+    placemark.setUserData(id);
     placemark.addTapListener(tapListener);
     update(params);
   }
@@ -66,6 +67,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.tapListener = new YandexMapObjectTapListener(id, controller);
     this.internallyControlled = true;
 
+    placemark.setUserData(id);
     placemark.addTapListener(tapListener);
     update(params);
   }

@@ -29,6 +29,7 @@ class YandexClusterizedPlacemarkCollectionController:
 
     super.init()
 
+    clusterizedPlacemarkCollection.userData = self.id
     clusterizedPlacemarkCollection.addTapListener(with: tapListener)
     update(params)
   }
@@ -116,7 +117,7 @@ class YandexClusterizedPlacemarkCollectionController:
       "appearancePlacemarkId": id + "_appearance_placemark_" + String(clusterCnt),
       "size": cluster.size,
       "point": Utils.pointToJson(cluster.appearance.geometry),
-      "placemarkIds": placemarkControllers.filter({ cluster.placemarks.contains($0.placemark)}).map({ $0.id })
+      "placemarkIds": cluster.placemarks.map({$0.userData as! String})
     ]
 
     controller.methodChannel.invokeMethod("onClusterAdded", arguments: arguments) { result in
@@ -142,7 +143,7 @@ class YandexClusterizedPlacemarkCollectionController:
       "appearancePlacemarkId": clusters[cluster]!.id,
       "size": cluster.size,
       "point": Utils.pointToJson(cluster.appearance.geometry),
-      "placemarkIds": placemarkControllers.filter({ cluster.placemarks.contains($0.placemark)}).map({ $0.id })
+      "placemarkIds": cluster.placemarks.map({$0.userData as! String})
     ]
 
     controller.methodChannel.invokeMethod("onClusterTap", arguments: arguments)

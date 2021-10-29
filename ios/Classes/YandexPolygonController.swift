@@ -20,6 +20,7 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    polygon.userData = self.id
     polygon.addTapListener(with: tapListener)
     update(params)
   }

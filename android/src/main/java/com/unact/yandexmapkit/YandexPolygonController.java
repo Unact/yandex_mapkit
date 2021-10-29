@@ -25,6 +25,7 @@ public class YandexPolygonController extends YandexMapObjectController {
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    polygon.setUserData(this.id);
     polygon.addTapListener(tapListener);
     update(params);
   }

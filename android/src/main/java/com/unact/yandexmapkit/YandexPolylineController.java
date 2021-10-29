@@ -25,6 +25,7 @@ public class YandexPolylineController extends YandexMapObjectController {
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    polyline.setUserData(this.id);
     polyline.addTapListener(tapListener);
     update(params);
   }

@@ -32,6 +32,7 @@ public class YandexCircleController extends YandexMapObjectController {
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    circle.setUserData(this.id);
     circle.addTapListener(tapListener);
     update(params);
   }

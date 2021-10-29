@@ -29,6 +29,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     this.id = id;
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
+
+    mapObjectCollection.setUserData(this.id);
+    mapObjectCollection.addTapListener(tapListener);
   }
 
   public YandexMapObjectCollectionController(
@@ -43,6 +46,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    mapObjectCollection.setUserData(this.id);
     mapObjectCollection.addTapListener(tapListener);
     update(params);
   }
