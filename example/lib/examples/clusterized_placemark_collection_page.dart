@@ -67,6 +67,10 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
     return pngBytes!.buffer.asUint8List();
   }
 
+  double _randomDouble() {
+    return (500 - seed.nextInt(1000))/1000;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -204,10 +208,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           placemarks: List<Placemark>.generate(kPlacemarkCount, (i) {
                             return Placemark(
                               mapId: MapObjectId('placemark_$i'),
-                              point: Point(
-                                latitude: 55.756 + (500 - seed.nextInt(1000))/1000,
-                                longitude: 37.618 + (500 - seed.nextInt(1000))/1000
-                              ),
+                              point: Point(latitude: 55.756 + _randomDouble(), longitude: 37.618 + _randomDouble()),
                               style: PlacemarkStyle(scale: 0.75, iconName: 'lib/assets/place.png',)
                             );
                           }),
