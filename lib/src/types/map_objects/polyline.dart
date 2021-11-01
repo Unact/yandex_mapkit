@@ -9,7 +9,7 @@ class Polyline extends MapObject {
     bool isVisible = true,
     bool isDraggable = false,
     TapCallback<Polyline>? onTap
-  }) : super._(zIndex, isVisible, isDraggable, onTap);
+  }) : super._(zIndex, onTap);
 
   final List<Point> coordinates;
   final bool isGeodesic;

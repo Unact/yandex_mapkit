@@ -335,8 +335,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     let placemark = mapObjects.addPlacemark(with: YandexMapController.pointFromJson(paramsPoint))
     
     placemark.userData = params["id"] as! String
-    placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
-    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     
     placemark.addTapListener(with: mapObjectTapListener)
@@ -522,36 +520,26 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     if let icon = params["icon"] as? [String: Any] {
       
       let img = getIconImage(icon)
-      
-      if img != nil {
-        placemark.setIconWith(img!)
-      }
+      placemark.setIconWith(img)
       
       if let iconStyle = icon["style"] as? [String: Any] {
         let style = getIconStyle(iconStyle)
         placemark.setIconStyleWith(style)
       }
       
-    } else if let composite = params["composite"] as? [String: Any] {
+    } else if let composite = params["composite"] as? [Any] {
       
-      for (name, iconData) in composite {
+      for iconData in composite {
         
         guard let icon = iconData as? [String: Any] else {
           continue
         }
         
-        guard let img = getIconImage(icon) else {
-          continue
-        }
-        
-        var style: YMKIconStyle = YMKIconStyle()
-        
-        if let iconStyle = icon["style"] as? [String: Any] {
-          style = getIconStyle(iconStyle)
-        }
+        let img = getIconImage(icon)
+        let style = getIconStyle(icon["style"] as! [String: Any])
         
         placemark.useCompositeIcon().setIconWithName(
-          name,
+          icon["layerName"] as! String,
           image: img,
           style: style
         )
@@ -559,14 +547,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     }
   }
   
-  private func getIconImage(_ iconData: [String: Any]) -> UIImage? {
+  private func getIconImage(_ iconData: [String: Any]) -> UIImage {
    
-    var img: UIImage?;
+    var img: UIImage
     
     if let iconName = iconData["iconName"] as? String {
-      img = UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))
-    } else if let rawImageData = iconData["rawImageData"] as? FlutterStandardTypedData {
-      img = UIImage(data: rawImageData.data)
+      img = UIImage(named: pluginRegistrar.lookupKey(forAsset: iconName))!
+    } else {
+      let rawImageData = iconData["rawImageData"] as! FlutterStandardTypedData
+      img = UIImage(data: rawImageData.data)!
     }
     
     return img

@@ -10,7 +10,7 @@ class Circle extends MapObject {
     bool isVisible = true,
     bool isDraggable = false,
     TapCallback<Circle>? onTap
-  }) : super._(zIndex, isVisible, isDraggable, onTap);
+  }) : super._(zIndex, onTap);
 
   final Point center;
   final double radius;

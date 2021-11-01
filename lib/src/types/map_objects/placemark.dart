@@ -5,10 +5,8 @@ class Placemark extends MapObject {
     required this.point,
     required this.style,
     double zIndex = 0.0,
-    bool isVisible = true,
-    bool isDraggable = false,
     TapCallback<Placemark>? onTap
-  }) : super._(zIndex, isVisible, isDraggable, onTap);
+  }) : super._(zIndex, onTap);
 
   final Point point;
   final PlacemarkStyle style;
@@ -23,8 +21,6 @@ class Placemark extends MapObject {
         'longitude': point.longitude,
       },
       'zIndex': zIndex,
-      'isVisible': isVisible,
-      'isDraggable': isDraggable,
       'style': style.toJson(),
     };
 
@@ -38,12 +34,12 @@ class PlacemarkStyle extends Equatable {
     this.compositeIcon,
     this.opacity = 0.5,
     this.direction = 0,
-  }) : assert((icon != null || compositeIcon != null), 'Either icon or compositeIcon must be provided');
+  });
 
   /// One of two icon types is required.
   /// If both passed icon and compositeIcon are passed - icon has priority.
-  final PlacemarkIcon?              icon;
-  final Map<String,PlacemarkIcon>?  compositeIcon;
+  final PlacemarkIcon? icon;
+  final List<PlacemarkCompositeIcon>? compositeIcon;
 
   final double  opacity;
   final double  direction;
@@ -66,41 +62,9 @@ class PlacemarkStyle extends Equatable {
     };
 
     if (icon != null) {
-
-      json['icon'] = <String, dynamic>{};
-
-      if (icon!.iconName != null) {
-        json['icon']['iconName'] = icon!.iconName!;
-      }
-
-      if (icon!.rawImageData != null) {
-        json['icon']['rawImageData'] = icon!.rawImageData!;
-      }
-
-      if (icon!.style != null) {
-        json['icon']['style'] = icon!.style!.toJson();
-      }
-
+      json['icon'] = icon!.toJson();
     } else {
-
-      json['composite'] = <String, dynamic>{};
-
-      compositeIcon!.forEach((k,v) {
-
-        json['composite'][k] = <String, dynamic>{};
-
-        if (v.iconName != null) {
-          json['composite'][k]['iconName'] = v.iconName!;
-        }
-
-        if (v.rawImageData != null) {
-          json['composite'][k]['rawImageData'] = v.rawImageData!;
-        }
-
-        if (v.style != null) {
-          json['composite'][k]['style'] = v.style!.toJson();
-        }
-      });
+      json['composite'] = compositeIcon!.map((icon) => icon.toJson()).toList();
     }
 
     return json;
@@ -130,18 +94,18 @@ class PlacemarkIcon {
   /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
   ///
   final Uint8List? rawImageData;
-  final PlacemarkIconStyle? style;
+  final PlacemarkIconStyle style;
 
-  PlacemarkIcon({
+  PlacemarkIcon._({
     this.iconName,
     this.rawImageData,
-    this.style,
+    this.style = const PlacemarkIconStyle(),
   }) : assert((iconName != null || rawImageData != null), 'Either iconName or rawImageData must be provided');
 
-  PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle? style}) :
+  PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
     iconName = iconName, rawImageData = null, style = style;
 
-  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkIconStyle? style}) :
+  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
     iconName = null, rawImageData = rawImageData, style = style;
 
   Map<String, dynamic> toJson() {
@@ -156,9 +120,37 @@ class PlacemarkIcon {
       json['rawImageData'] = rawImageData!;
     }
 
-    if (style != null) {
-      json['style'] = style!.toJson();
-    }
+    json['style'] = style.toJson();
+
+    return json;
+  }
+}
+
+class PlacemarkCompositeIcon extends PlacemarkIcon {
+
+  /// Used by MapKit to create a separate layer for each component of composite icon.
+  ///
+  /// If same name is specified for several icons then layer with that name will be reset with the last one.
+  final String layerName;
+
+  PlacemarkCompositeIcon.fromIconName({
+    required this.layerName,
+    required String iconName,
+    PlacemarkIconStyle style = const PlacemarkIconStyle(),
+  }) : super.fromIconName(iconName: iconName, style: style);
+
+  PlacemarkCompositeIcon.fromRawImageData({
+    required this.layerName,
+    required Uint8List rawImageData,
+    PlacemarkIconStyle style = const PlacemarkIconStyle(),
+  }) : super.fromRawImageData(rawImageData: rawImageData, style: style);
+
+  @override
+  Map<String, dynamic> toJson() {
+
+    var json = super.toJson();
+
+    json['layerName'] = layerName;
 
     return json;
   }
@@ -198,36 +190,24 @@ class PlacemarkIconStyle extends Equatable {
     };
 
     if (tappableArea != null) {
-      json['tappableArea'] = {
-        'min': {
-          'x': tappableArea!.min.dx,
-          'y': tappableArea!.min.dy,
-        },
-        'max': {
-          'x': tappableArea!.max.dx,
-          'y': tappableArea!.max.dy,
-        }
-      };
+      json['tappableArea'] = tappableArea!.toJson();
     }
 
     return json;
   }
 
   @override
-  List<Object> get props {
+  List<Object?> get props {
 
-    var props = <Object>[
+    var props = <Object?>[
       anchor,
       rotationType,
       zIndex,
       flat,
       visible,
       scale,
+      tappableArea,
     ];
-
-    if (tappableArea != null) {
-      props.add(tappableArea!);
-    }
 
     return props;
   }
