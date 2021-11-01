@@ -1,7 +1,7 @@
 import YandexMapsMobile
 
 class YandexCircleController: NSObject, YandexMapObjectController {
-  private let circle: YMKCircleMapObject
+  public let circle: YMKCircleMapObject
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
   public let id: String
@@ -26,6 +26,7 @@ class YandexCircleController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    circle.userData = self.id
     circle.addTapListener(with: tapListener)
     update(params)
   }

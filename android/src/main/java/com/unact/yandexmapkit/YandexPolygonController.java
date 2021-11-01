@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class YandexPolygonController extends YandexMapObjectController {
-  private final PolygonMapObject polygon;
+  public final PolygonMapObject polygon;
   private final YandexMapObjectTapListener tapListener;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
@@ -25,6 +25,7 @@ public class YandexPolygonController extends YandexMapObjectController {
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    polygon.setUserData(this.id);
     polygon.addTapListener(tapListener);
     update(params);
   }

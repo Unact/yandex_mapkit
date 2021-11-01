@@ -1,7 +1,7 @@
 import YandexMapsMobile
 
 class YandexPolylineController: NSObject, YandexMapObjectController {
-  private let polyline: YMKPolylineMapObject
+  public let polyline: YMKPolylineMapObject
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
   public let id: String
@@ -20,6 +20,7 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    polyline.userData = self.id
     polyline.addTapListener(with: tapListener)
     update(params)
   }

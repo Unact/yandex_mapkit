@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class YandexCircleController extends YandexMapObjectController {
-  private final CircleMapObject circle;
+  public final CircleMapObject circle;
   private final YandexMapObjectTapListener tapListener;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
@@ -32,6 +32,7 @@ public class YandexCircleController extends YandexMapObjectController {
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
 
+    circle.setUserData(this.id);
     circle.addTapListener(tapListener);
     update(params);
   }

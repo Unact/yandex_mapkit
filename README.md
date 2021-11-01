@@ -158,6 +158,7 @@ This way XCode won't try to build for Silicon Macs iOS Simulators
 - [X] Android Support
 - [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
 - [X] Working with collections of map objects
+- [X] Working with clusters
 - [X] Moving around the map
 - [X] Setting map bounds
 - [X] Showing current user location

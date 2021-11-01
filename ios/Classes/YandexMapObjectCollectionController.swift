@@ -2,11 +2,12 @@ import YandexMapsMobile
 
 class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
   private var mapObjectCollectionControllers: [YandexMapObjectCollectionController] = []
+  private var clusterizedPlacemarkCollectionControllers: [YandexClusterizedPlacemarkCollectionController] = []
   private var placemarkControllers: [YandexPlacemarkController] = []
   private var circleControllers: [YandexCircleController] = []
   private var polylineControllers: [YandexPolylineController] = []
   private var polygonControllers: [YandexPolygonController] = []
-  private let mapObjectCollection: YMKMapObjectCollection
+  public let mapObjectCollection: YMKMapObjectCollection
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
   public let id: String
@@ -21,6 +22,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     self.controller = controller
     self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
+    mapObjectCollection.userData = self.id
     mapObjectCollection.addTapListener(with: tapListener)
   }
 
@@ -38,6 +40,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    mapObjectCollection.userData = self.id
     mapObjectCollection.addTapListener(with: tapListener)
     update(params)
   }
@@ -49,6 +52,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
   public func remove() {
     mapObjectCollectionControllers.forEach({ $0.remove() })
+    clusterizedPlacemarkCollectionControllers.forEach({ $0.remove() })
     placemarkControllers.forEach({ $0.remove() })
     circleControllers.forEach({ $0.remove() })
     polylineControllers.forEach({ $0.remove() })
@@ -80,6 +84,9 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
       case "Polyline":
         addPolyline(el)
         break
+      case "ClusterizedPlacemarkCollection":
+        addClusterizedPlacemarkCollection(el)
+        break
       default:
         break
       }
@@ -104,6 +111,9 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
       case "Polyline":
         changePolyline(el)
         break
+      case "ClusterizedPlacemarkCollection":
+        changeClusterizedPlacemarkCollection(el)
+        break
       default:
         break
       }
@@ -127,6 +137,9 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
         break
       case "Polyline":
         removePolyline(el)
+        break
+      case "ClusterizedPlacemarkCollection":
+        removeClusterizedPlacemarkCollection(el)
         break
       default:
         break
@@ -262,5 +275,35 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
     polygonController.remove()
     polygonControllers.remove(at: idx)
+  }
+
+  private func addClusterizedPlacemarkCollection(_ params: [String: Any]) {
+    let clusterizedPlacemarkCollectionController = YandexClusterizedPlacemarkCollectionController(
+      parent: mapObjectCollection,
+      params: params,
+      controller: controller
+    )
+
+    clusterizedPlacemarkCollectionControllers.append(clusterizedPlacemarkCollectionController)
+  }
+
+  private func changeClusterizedPlacemarkCollection(_ params: [String: Any]) {
+    let id = params["id"] as! String
+    let clusterizedPlacemarkCollectionController = clusterizedPlacemarkCollectionControllers.first(
+      where: { $0.id == id }
+    )!
+
+    clusterizedPlacemarkCollectionController.update(params)
+  }
+
+  private func removeClusterizedPlacemarkCollection(_ params: [String: Any]) {
+    let id = params["id"] as! String
+    let clusterizedPlacemarkCollectionController = clusterizedPlacemarkCollectionControllers.first(
+      where: { $0.id == id }
+    )!
+    let idx = clusterizedPlacemarkCollectionControllers.firstIndex(of: clusterizedPlacemarkCollectionController)!
+
+    clusterizedPlacemarkCollectionController.remove()
+    clusterizedPlacemarkCollectionControllers.remove(at: idx)
   }
 }

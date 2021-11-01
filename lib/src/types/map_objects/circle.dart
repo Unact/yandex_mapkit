@@ -45,6 +45,19 @@ class Circle extends Equatable implements MapObject<Circle> {
   Circle clone() => copyWith();
 
   @override
+  Circle dup(MapObjectId mapId) {
+    return Circle(
+      mapId: mapId,
+      center: center,
+      radius: radius,
+      isGeodesic: isGeodesic,
+      style: style,
+      zIndex: zIndex,
+      onTap: onTap
+    );
+  }
+
+  @override
   void _tap(Point point) {
     if (onTap != null) {
       onTap!(this, point);
