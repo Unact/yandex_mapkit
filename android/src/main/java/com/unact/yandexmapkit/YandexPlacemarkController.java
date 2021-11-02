@@ -99,8 +99,6 @@ public class YandexPlacemarkController extends YandexMapObjectController {
   
   private void applyPlacemarkStyle(PlacemarkMapObject placemark, Map<String, Object> params) {
     
-    placemark.setUserData(params.get("id"));
-    
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDirection(((Double) params.get("direction")).floatValue());
     
