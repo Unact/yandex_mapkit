@@ -107,8 +107,7 @@ class PlacemarkStyle extends Equatable {
     this.opacity = 0.5,
     this.direction = 0,
   });
-
-  /// One of two icon types is required.
+  
   /// If both passed icon and compositeIcon are passed - icon has priority.
   final PlacemarkIcon? icon;
   final List<PlacemarkCompositeIcon>? compositeIcon;
@@ -135,7 +134,7 @@ class PlacemarkStyle extends Equatable {
 
     if (icon != null) {
       json['icon'] = icon!.toJson();
-    } else {
+    } else if (compositeIcon != null)  {
       json['composite'] = compositeIcon!.map((icon) => icon.toJson()).toList();
     }
 
