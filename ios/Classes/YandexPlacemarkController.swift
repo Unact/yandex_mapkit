@@ -92,20 +92,16 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
       let img = getIconImage(icon)
       placemark.setIconWith(img)
       
-      if let iconStyle = icon["style"] as? [String: Any] {
-        let style = getIconStyle(iconStyle)
-        placemark.setIconStyleWith(style)
-      }
+      let style = getIconStyle(icon["style"] as! [String: Any])
+      placemark.setIconStyleWith(style)
       
     } else if let composite = params["composite"] as? [Any] {
       
       for iconData in composite {
         
-        guard let icon = iconData as? [String: Any] else {
-          continue
-        }
+        let icon = iconData as! [String: Any]
         
-        let img = getIconImage(icon)
+        let img = getIconImage(iconData as! [String: Any])
         let style = getIconStyle(icon["style"] as! [String: Any])
         
         placemark.useCompositeIcon().setIconWithName(

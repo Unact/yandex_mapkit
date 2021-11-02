@@ -102,10 +102,6 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDirection(((Double) params.get("direction")).floatValue());
     
-    if (params.get("zIndex") != null) {
-      placemark.setZIndex((float) params.get("zIndex"));
-    }
-    
     Map<String, Object> icon = ((Map<String, Object>) params.get("icon"));
     List<Map<String, Object>> composite = (List<Map<String, Object>>) params.get("composite");
     
@@ -182,21 +178,18 @@ public class YandexPlacemarkController extends YandexMapObjectController {
       Map<String, Object> tappableAreaMin = ((Map<String, Object>) tappableArea.get("min"));
       Map<String, Object> tappableAreaMax = ((Map<String, Object>) tappableArea.get("max"));
       
-      if (tappableAreaMin != null && tappableAreaMax != null) {
-        
-        iconStyle.setTappableArea(
-          new Rect(
-            new PointF(
-              ((Double) tappableAreaMin.get("x")).floatValue(),
-              ((Double) tappableAreaMin.get("y")).floatValue()
-            ),
-            new PointF(
-              ((Double) tappableAreaMax.get("x")).floatValue(),
-              ((Double) tappableAreaMax.get("y")).floatValue()
-            )
+      iconStyle.setTappableArea(
+        new Rect(
+          new PointF(
+            ((Double) tappableAreaMin.get("x")).floatValue(),
+            ((Double) tappableAreaMin.get("y")).floatValue()
+          ),
+          new PointF(
+            ((Double) tappableAreaMax.get("x")).floatValue(),
+            ((Double) tappableAreaMax.get("y")).floatValue()
           )
-        );
-      }
+        )
+      );
     }
     
     return iconStyle;

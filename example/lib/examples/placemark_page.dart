@@ -193,6 +193,25 @@ class placemarkExampleState extends State<placemarkExample> {
                     ),
                     ControlButton(
                       onPressed: () async {
+                        if (!mapObjects.any((el) => el.mapId == placemarkWithCompositeIconId)) {
+                          return;
+                        }
+
+                        final placemarkWithCompositeIcon = mapObjects
+                            .firstWhere((el) => el.mapId == placemarkWithCompositeIconId) as Placemark;
+                        mapObjects[mapObjects.indexOf(placemarkWithCompositeIcon)] = placemarkWithCompositeIcon.copyWith(
+                            point: Point(
+                              latitude: placemarkWithCompositeIcon.point.latitude + 1,
+                              longitude: placemarkWithCompositeIcon.point.longitude + 1
+                            )
+                        );
+
+                        await controller.updateMapObjects(mapObjects);
+                      },
+                      title: 'Update'
+                    ),
+                    ControlButton(
+                      onPressed: () async {
                         mapObjects.removeWhere((el) => el.mapId == placemarkWithCompositeIconId);
 
                         await controller.updateMapObjects(mapObjects);

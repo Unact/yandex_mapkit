@@ -1,5 +1,10 @@
 part of yandex_mapkit;
 
+enum RotationType {
+  noRotation,
+  rotate
+}
+
 /// A placemark to be displayed on [YandexMap] at a specific point
 class Placemark extends Equatable implements MapObject {
   const Placemark({
@@ -107,7 +112,7 @@ class PlacemarkStyle extends Equatable {
     this.opacity = 0.5,
     this.direction = 0,
   });
-  
+
   /// If both passed icon and compositeIcon are passed - icon has priority.
   final PlacemarkIcon? icon;
   final List<PlacemarkCompositeIcon>? compositeIcon;
@@ -127,24 +132,15 @@ class PlacemarkStyle extends Equatable {
   bool get stringify => true;
 
   Map<String, dynamic> toJson() {
-    var json = <String, dynamic>{
+    final json = <String, dynamic>{
       'opacity': opacity,
       'direction': direction,
+      'icon': icon?.toJson(),
+      'composite': compositeIcon?.map((icon) => icon.toJson()).toList(),
     };
-
-    if (icon != null) {
-      json['icon'] = icon!.toJson();
-    } else if (compositeIcon != null)  {
-      json['composite'] = compositeIcon!.map((icon) => icon.toJson()).toList();
-    }
 
     return json;
   }
-}
-
-enum RotationType {
-  noRotation,
-  rotate
 }
 
 class PlacemarkIcon {
@@ -167,12 +163,6 @@ class PlacemarkIcon {
   final Uint8List? rawImageData;
   final PlacemarkIconStyle style;
 
-  PlacemarkIcon._({
-    this.iconName,
-    this.rawImageData,
-    this.style = const PlacemarkIconStyle(),
-  }) : assert((iconName != null || rawImageData != null), 'Either iconName or rawImageData must be provided');
-
   PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
     iconName = iconName, rawImageData = null, style = style;
 
@@ -180,18 +170,11 @@ class PlacemarkIcon {
     iconName = null, rawImageData = rawImageData, style = style;
 
   Map<String, dynamic> toJson() {
-
-    var json = <String, dynamic>{};
-
-    if (iconName != null) {
-      json['iconName'] = iconName!;
-    }
-
-    if (rawImageData != null) {
-      json['rawImageData'] = rawImageData!;
-    }
-
-    json['style'] = style.toJson();
+    final json = <String, dynamic>{
+      'iconName': iconName,
+      'rawImageData': rawImageData,
+      'style': style.toJson(),
+    };
 
     return json;
   }
@@ -234,7 +217,7 @@ class PlacemarkIconStyle extends Equatable {
   final bool          flat;
   final bool          visible;
   final double        scale;
-  final Rect?         tappableArea;
+  final MapRect?      tappableArea;
 
   const PlacemarkIconStyle({
     this.anchor       = const Offset(0.5, 0.5),
@@ -268,20 +251,15 @@ class PlacemarkIconStyle extends Equatable {
   }
 
   @override
-  List<Object?> get props {
-
-    var props = <Object?>[
-      anchor,
-      rotationType,
-      zIndex,
-      flat,
-      visible,
-      scale,
-      tappableArea,
-    ];
-
-    return props;
-  }
+  List<Object?> get props => <Object?>[
+    anchor,
+    rotationType,
+    zIndex,
+    flat,
+    visible,
+    scale,
+    tappableArea,
+  ];
 
   @override
   bool get stringify => true;

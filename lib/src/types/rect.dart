@@ -1,11 +1,11 @@
 part of yandex_mapkit;
 
-class Rect {
+class MapRect {
 
   final Offset min;
   final Offset max;
 
-  Rect({
+  MapRect({
     required this.min,
     required this.max,
   });

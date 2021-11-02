@@ -340,7 +340,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     mapView.mapWindow.map.isTiltGesturesEnabled = enabled
   }
-  
+
   private func hasLocationPermission() -> Bool {
     if CLLocationManager.locationServicesEnabled() {
       switch CLLocationManager.authorizationStatus() {

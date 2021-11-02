@@ -28,7 +28,6 @@ import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
-import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.map.SizeChangedListener;
