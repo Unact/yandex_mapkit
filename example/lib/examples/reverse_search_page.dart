@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -22,8 +23,9 @@ class _ReverseSearchExample extends StatefulWidget {
 class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   final TextEditingController queryController = TextEditingController();
   late YandexMapController controller;
+  final List<MapObject> mapObjects = [];
 
-  static const Point _point = Point(latitude: 55.755848, longitude: 37.620409);
+  final MapObjectId cameraMapObjectId = MapObjectId('camera_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +44,29 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                 YandexMap(
                   onMapCreated: (YandexMapController yandexMapController) async {
                     controller = yandexMapController;
-                    await controller.move(cameraPosition: CameraPosition(target: _point, zoom: 17));
+
+                    final placemark = Placemark(
+                      mapId: cameraMapObjectId,
+                      point: Point(latitude: 55.755848, longitude: 37.620409),
+                      style: PlacemarkStyle(
+                        icon: PlacemarkIcon.fromIconName(
+                          iconName: 'lib/assets/place.png',
+                          style: PlacemarkIconStyle(scale: 0.75),
+                        ),
+                        opacity: 0.5,
+                      )
+                    );
+                    mapObjects.add(placemark);
+
+                    await controller.updateMapObjects(mapObjects);
+                    await controller.move(cameraPosition: CameraPosition(target: placemark.point, zoom: 17));
                     await controller.enableCameraTracking(
-                      onCameraPositionChange: (_, __) {},
-                      //style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
+                      onCameraPositionChange: (CameraPosition cameraPosition, bool finished) async {
+                        final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
+                        mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
+
+                        await controller.updateMapObjects(mapObjects);
+                      }
                     );
                   },
                 )
@@ -145,17 +166,18 @@ class _SessionState extends State<_SessionPage> {
                   YandexMap(
                     onMapCreated: (YandexMapController yandexMapController) async {
                       await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
-                      await yandexMapController.addPlacemark(
+                      await yandexMapController.updateMapObjects([
                         Placemark(
+                          mapId: MapObjectId('search_placemark'),
                           point: widget.point,
                           style: PlacemarkStyle(
                             icon: PlacemarkIcon.fromIconName(
                               iconName: 'lib/assets/place.png',
                               style: PlacemarkIconStyle(scale: 0.75),
                             ),
-                          ),
-                        ),
-                      );
+                          )
+                        )
+                      ]);
                     },
                   ),
                 ],

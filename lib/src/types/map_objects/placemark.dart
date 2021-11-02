@@ -1,31 +1,103 @@
 part of yandex_mapkit;
 
-class Placemark extends MapObject {
-  Placemark({
+/// A placemark to be displayed on [YandexMap] at a specific point
+class Placemark extends Equatable implements MapObject {
+  const Placemark({
+    required this.mapId,
     required this.point,
-    required this.style,
-    double zIndex = 0.0,
-    TapCallback<Placemark>? onTap
-  }) : super._(zIndex, onTap);
+    this.style = const PlacemarkStyle(),
+    this.zIndex = 0.0,
+    this.onTap
+  });
 
   final Point point;
   final PlacemarkStyle style;
+  final double zIndex;
+  final TapCallback<Placemark>? onTap;
+
+  Placemark copyWith({
+    Point? point,
+    PlacemarkStyle? style,
+    double? zIndex,
+    TapCallback<Placemark>? onTap,
+  }) {
+    return Placemark(
+      mapId: mapId,
+      point: point ?? this.point,
+      style: style ?? this.style,
+      zIndex: zIndex ?? this.zIndex,
+      onTap: onTap ?? this.onTap
+    );
+  }
+
+  @override
+  final MapObjectId mapId;
+
+  @override
+  Placemark clone() => copyWith();
+
+  @override
+  Placemark dup(MapObjectId mapId) {
+    return Placemark(
+      mapId: mapId,
+      point: point,
+      style: style,
+      zIndex: zIndex,
+      onTap: onTap,
+    );
+  }
+
+  @override
+  void _tap(Point point) {
+    if (onTap != null) {
+      onTap!(this, point);
+    }
+  }
 
   @override
   Map<String, dynamic> toJson() {
-
-    var json = <String, dynamic>{
-      'id': id,
-      'point': <String, dynamic>{
-        'latitude': point.latitude,
-        'longitude': point.longitude,
-      },
-      'zIndex': zIndex,
+    return {
+      'id': mapId.value,
+      'point': point.toJson(),
       'style': style.toJson(),
+      'zIndex': zIndex,
     };
-
-    return json;
   }
+
+  @override
+  Map<String, dynamic> _createJson() {
+    return toJson()..addAll({
+      'type': runtimeType.toString()
+    });
+  }
+
+  @override
+  Map<String, dynamic> _updateJson(MapObject previous) {
+    assert(mapId == previous.mapId);
+
+    return toJson()..addAll({
+      'type': runtimeType.toString(),
+    });
+  }
+
+  @override
+  Map<String, dynamic> _removeJson() {
+    return {
+      'id': mapId.value,
+      'type': runtimeType.toString()
+    };
+  }
+
+  @override
+  List<Object> get props => <Object>[
+    mapId,
+    point,
+    style,
+    zIndex
+  ];
+
+  @override
+  bool get stringify => true;
 }
 
 class PlacemarkStyle extends Equatable {

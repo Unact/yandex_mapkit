@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -19,7 +20,9 @@ class _MapControlsExample extends StatefulWidget {
 
 class _MapControlsExampleState extends State<_MapControlsExample> {
   late YandexMapController controller;
+  final List<MapObject> mapObjects = [];
 
+  final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
   bool isNightModeEnabled = false;
   bool isZoomGesturesEnabled = false;
@@ -141,17 +144,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.addPlacemark(
-                        Placemark(
-                          point: await controller.getTargetPoint(),
-                          style: PlacemarkStyle(
-                            icon: PlacemarkIcon.fromIconName(
-                              iconName: 'lib/assets/place.png',
-                            ),
-                            opacity: 0.7,
-                          ),
-                        )
+                      final placemark = Placemark(
+                        mapId: targetMapObjectId,
+                        point: await controller.getTargetPoint(),
+                        style: PlacemarkStyle(
+                          opacity: 0.7,
+                          icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
+                        ),
                       );
+
+                      mapObjects.removeWhere((el) => el.mapId == targetMapObjectId);
+                      mapObjects.add(placemark);
+                      await controller.updateMapObjects(mapObjects);
                     },
                     title: 'Target point'
                   ),

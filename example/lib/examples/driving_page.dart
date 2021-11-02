@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
+
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -20,7 +21,8 @@ class _DrivingExample extends StatefulWidget {
 }
 
 class _DrivingExampleState extends State<_DrivingExample> {
-  Placemark startPlacemark = Placemark(
+  final Placemark startPlacemark = Placemark(
+    mapId: MapObjectId('start_placemark'),
     point: Point(latitude: 55.7558, longitude: 37.6173),
     style: PlacemarkStyle(
       icon: PlacemarkIcon.fromIconName(
@@ -29,7 +31,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
       ),
     ),
   );
-  Placemark stopByPlacemark = Placemark(
+  final Placemark stopByPlacemark = Placemark(
+    mapId: MapObjectId('stop_by_placemark'),
     point: Point(latitude: 45.0360, longitude: 38.9746),
     style: PlacemarkStyle(
       icon: PlacemarkIcon.fromIconName(
@@ -38,7 +41,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
       ),
     ),
   );
-  Placemark endPlacemark = Placemark(
+  final Placemark endPlacemark = Placemark(
+    mapId: MapObjectId('end_placemark'),
     point: Point(latitude: 48.4814, longitude: 135.0721),
     style: PlacemarkStyle(
       icon: PlacemarkIcon.fromIconName(
@@ -56,10 +60,13 @@ class _DrivingExampleState extends State<_DrivingExample> {
       children: <Widget>[
         Expanded(child: YandexMap(
           onMapCreated: (YandexMapController yandexMapController) async {
-            await Future.forEach(
-              [startPlacemark, stopByPlacemark, endPlacemark],
-              (Placemark element) => yandexMapController.addPlacemark(element)
-            );
+            final placemarks = [
+              startPlacemark,
+              stopByPlacemark,
+              endPlacemark
+            ];
+
+            await yandexMapController.updateMapObjects(placemarks);
           },
         )),
         const SizedBox(height: 20),
@@ -92,8 +99,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => _SessionPage(
-          startPlacemark.point,
-          endPlacemark.point,
+          startPlacemark,
+          endPlacemark,
           resultWithSession.session,
           resultWithSession.result
         )
@@ -106,17 +113,19 @@ class _DrivingExampleState extends State<_DrivingExample> {
 class _SessionPage extends StatefulWidget {
   final Future<DrivingSessionResult> result;
   final DrivingSession session;
-  final Point startPoint;
-  final Point endPoint;
+  final Placemark startPlacemark;
+  final Placemark endPlacemark;
 
-  _SessionPage(this.startPoint, this.endPoint, this.session, this.result);
+  _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
 }
 
 class _SessionState extends State<_SessionPage> {
-  late YandexMapController _controller;
+  late YandexMapController controller;
+  final List<MapObject> mapObjects = [];
+
   final List<DrivingSessionResult> results = [];
   bool _progress = true;
 
@@ -152,31 +161,10 @@ class _SessionState extends State<_SessionPage> {
                 children: [
                   YandexMap(
                     onMapCreated: (YandexMapController yandexMapController) async {
-                      _controller = yandexMapController;
-                      var placemarks = [
-                        Placemark(
-                          point: widget.startPoint,
-                          style: PlacemarkStyle(
-                            icon: PlacemarkIcon.fromIconName(
-                              iconName: 'lib/assets/route_start.png',
-                              style: PlacemarkIconStyle(scale: 0.3),
-                            ),
-                          ),
-                        ),
-                        Placemark(
-                          point: widget.endPoint,
-                          style: PlacemarkStyle(
-                            icon: PlacemarkIcon.fromIconName(
-                              iconName: 'lib/assets/route_end.png',
-                              style: PlacemarkIconStyle(scale: 0.3),
-                            ),
-                          ),
-                        )
-                      ];
+                      controller = yandexMapController;
+                      mapObjects.addAll([widget.startPlacemark, widget.endPlacemark]);
 
-                      await Future.forEach(placemarks, (Placemark element) async {
-                        await _controller.addPlacemark(element);
-                      });
+                      await controller.updateMapObjects(mapObjects);
                     },
                   ),
                 ],
@@ -269,8 +257,9 @@ class _SessionState extends State<_SessionPage> {
 
     setState(() { results.add(result); });
 
-    await Future.forEach(result.routes!, (DrivingRoute route) async {
-      await _controller.addPolyline(Polyline(
+    result.routes!.asMap().forEach((i, route) {
+      mapObjects.add(Polyline(
+        mapId: MapObjectId('route_${i}_polyline'),
         coordinates: route.geometry,
         style: PolylineStyle(
           strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
@@ -278,5 +267,7 @@ class _SessionState extends State<_SessionPage> {
         ),
       ));
     });
+
+    await controller.updateMapObjects(mapObjects);
   }
 }
