@@ -57,13 +57,12 @@ public class YandexSearch implements MethodCallHandler {
     Map<String, Object> geometry = (Map<String, Object>) params.get("geometry");
     Map<String, Object> options = (Map<String, Object>) params.get("options");
     Geometry geometryObj;
+    Map<String, Object> point = (Map<String, Object>) geometry.get("point");
+    Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
 
-    if (geometry.containsKey("point")) {
-      Map<String, Object> point = (Map<String, Object>) geometry.get("point");
-
+    if (point != null) {
       geometryObj = Geometry.fromPoint(new Point(((Double) point.get("latitude")), ((Double) point.get("longitude"))));
     } else {
-      Map<String, Object> boundingBox = (Map<String, Object>) geometry.get("boundingBox");
       Map<String, Object> southWest = (Map<String, Object>) boundingBox.get("southWest");
       Map<String, Object> northEast = (Map<String, Object>) boundingBox.get("northEast");
 
