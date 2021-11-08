@@ -1,3 +1,21 @@
+## Unreleased
+
+* Implement `YandexDriving`
+* Implement `YandexSearch`, move suggest functionality to `YandexSuggest`
+* Added the ability to add composite icon Placemark
+* Added the ability to work with MapObjectCollection
+* Added placemark clusterization
+* **Breaking change**. Change `YandexSuggest.getSuggestions` method signature
+* **Breaking change**. Rework working with map objects.
+Removed addPlacemark/removePlacemark; addPolygon/removePolygon; addPolyline/removePolyline; addCircle/removeCircle
+Instead updateMapObjects method should be used to control which map objects should be visible on map
+* **Breaking change**. `YandexMapController.enableCameraTracking` method signature has been changed.
+* **Breaking change**. `YandexMapController.logoAlignment` method signature has been changed.
+* **Breaking change**. `YandexMapController.move` method signature has been changed.
+* **Breaking change**. `YandexMapController.setBounds` method signature has been changed.
+* **Breaking change**. `YandexMapController.setFocusRect` method signature has been changed.
+* **Breaking change**. `YandexMapController.getVisibleRegion` method signature has been changed.
+
 ## 1.1.1
 
 * Fix compiling errors for swift versions lower than 5.4 [#119, cream-cheeze]
