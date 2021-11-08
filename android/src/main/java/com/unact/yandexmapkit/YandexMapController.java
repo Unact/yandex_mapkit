@@ -216,7 +216,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
     moveWithParams(paramsAnimation, cameraPosition);
   }
-  
+
   public Map<String, Object> getTargetPoint() {
     Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
     Map<String, Object> arguments = new HashMap<>();
@@ -518,7 +518,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
       null
     );
   }
-  
+
   private class YandexCameraListener implements CameraListener {
     @Override
     public void onCameraPositionChanged(
