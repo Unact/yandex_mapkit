@@ -1,18 +1,21 @@
 part of yandex_mapkit;
 
+enum RotationType {
+  noRotation,
+  rotate
+}
+
 /// A placemark to be displayed on [YandexMap] at a specific point
 class Placemark extends Equatable implements MapObject {
   const Placemark({
     required this.mapId,
     required this.point,
     this.style = const PlacemarkStyle(),
-    this.isDraggable = false,
     this.zIndex = 0.0,
     this.onTap
   });
 
   final Point point;
-  final bool isDraggable;
   final PlacemarkStyle style;
   final double zIndex;
   final TapCallback<Placemark>? onTap;
@@ -20,7 +23,6 @@ class Placemark extends Equatable implements MapObject {
   Placemark copyWith({
     Point? point,
     PlacemarkStyle? style,
-    bool? isDraggable,
     double? zIndex,
     TapCallback<Placemark>? onTap,
   }) {
@@ -28,7 +30,6 @@ class Placemark extends Equatable implements MapObject {
       mapId: mapId,
       point: point ?? this.point,
       style: style ?? this.style,
-      isDraggable: isDraggable ?? this.isDraggable,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap
     );
@@ -46,7 +47,6 @@ class Placemark extends Equatable implements MapObject {
       mapId: mapId,
       point: point,
       style: style,
-      isDraggable: isDraggable,
       zIndex: zIndex,
       onTap: onTap,
     );
@@ -64,9 +64,8 @@ class Placemark extends Equatable implements MapObject {
     return {
       'id': mapId.value,
       'point': point.toJson(),
-      'isDraggable': isDraggable,
       'style': style.toJson(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
     };
   }
 
@@ -99,7 +98,6 @@ class Placemark extends Equatable implements MapObject {
     mapId,
     point,
     style,
-    isDraggable,
     zIndex
   ];
 
@@ -109,22 +107,45 @@ class Placemark extends Equatable implements MapObject {
 
 class PlacemarkStyle extends Equatable {
   const PlacemarkStyle({
-    this.scale = 1.0,
-    this.iconAnchor = const Offset(0.5, 0.5),
+    this.icon,
+    this.compositeIcon,
     this.opacity = 0.5,
-    this.iconName,
-    this.rawImageData,
     this.direction = 0,
-    this.rotationType = RotationType.noRotation,
   });
 
-  final double scale;
-  final Offset iconAnchor;
-  final double opacity;
-  final String? iconName;
-  final RotationType rotationType;
-  final double direction;
+  /// If both passed icon and compositeIcon are passed - icon has priority.
+  final PlacemarkIcon? icon;
+  final List<PlacemarkCompositeIcon>? compositeIcon;
 
+  final double  opacity;
+  final double  direction;
+
+  @override
+  List<Object?> get props => <Object?>[
+    icon,
+    compositeIcon,
+    opacity,
+    direction,
+  ];
+
+  @override
+  bool get stringify => true;
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{
+      'opacity': opacity,
+      'direction': direction,
+      'icon': icon?.toJson(),
+      'composite': compositeIcon?.map((icon) => icon.toJson()).toList(),
+    };
+
+    return json;
+  }
+}
+
+class PlacemarkIcon {
+
+  final String? iconName;
   /// Provides ability to use binary image data as Placemark icon.
   ///
   /// You can use this property to assign dynamically generated images as [Placemark icon].
@@ -140,36 +161,106 @@ class PlacemarkStyle extends Equatable {
   /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
   ///
   final Uint8List? rawImageData;
+  final PlacemarkIconStyle style;
+
+  PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
+    iconName = iconName, rawImageData = null, style = style;
+
+  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
+    iconName = null, rawImageData = rawImageData, style = style;
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{
+      'iconName': iconName,
+      'rawImageData': rawImageData,
+      'style': style.toJson(),
+    };
+
+    return json;
+  }
+}
+
+class PlacemarkCompositeIcon extends PlacemarkIcon {
+
+  /// Used by MapKit to create a separate layer for each component of composite icon.
+  ///
+  /// If same name is specified for several icons then layer with that name will be reset with the last one.
+  final String layerName;
+
+  PlacemarkCompositeIcon.fromIconName({
+    required this.layerName,
+    required String iconName,
+    PlacemarkIconStyle style = const PlacemarkIconStyle(),
+  }) : super.fromIconName(iconName: iconName, style: style);
+
+  PlacemarkCompositeIcon.fromRawImageData({
+    required this.layerName,
+    required Uint8List rawImageData,
+    PlacemarkIconStyle style = const PlacemarkIconStyle(),
+  }) : super.fromRawImageData(rawImageData: rawImageData, style: style);
 
   @override
-  List<Object> get props => <Object>[
-    scale,
-    iconAnchor,
-    opacity,
+  Map<String, dynamic> toJson() {
+
+    var json = super.toJson();
+
+    json['layerName'] = layerName;
+
+    return json;
+  }
+}
+
+class PlacemarkIconStyle extends Equatable {
+  final Offset        anchor;
+  final RotationType  rotationType;
+  final double        zIndex;
+  final bool          flat;
+  final bool          visible;
+  final double        scale;
+  final MapRect?      tappableArea;
+
+  const PlacemarkIconStyle({
+    this.anchor       = const Offset(0.5, 0.5),
+    this.rotationType = RotationType.noRotation,
+    this.zIndex       = 0.0,
+    this.flat         = false,
+    this.visible      = true,
+    this.scale        = 1.0,
+    this.tappableArea,
+  });
+
+  Map<String, dynamic> toJson() {
+
+    var json = {
+      'anchor': {
+        'dx': anchor.dx,
+        'dy': anchor.dy,
+      },
+      'rotationType': rotationType.index,
+      'zIndex': zIndex,
+      'flat': flat,
+      'visible': visible,
+      'scale': scale,
+    };
+
+    if (tappableArea != null) {
+      json['tappableArea'] = tappableArea!.toJson();
+    }
+
+    return json;
+  }
+
+  @override
+  List<Object?> get props => <Object?>[
+    anchor,
     rotationType,
-    direction,
+    zIndex,
+    flat,
+    visible,
+    scale,
+    tappableArea,
   ];
 
   @override
   bool get stringify => true;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'iconAnchor': {
-        'dx': iconAnchor.dx,
-        'dy': iconAnchor.dy
-      },
-      'scale': scale,
-      'opacity': opacity,
-      'iconName': iconName,
-      'rawImageData': rawImageData,
-      'rotationType': rotationType.index,
-      'direction': direction,
-    };
-  }
-}
-
-enum RotationType {
-  noRotation,
-  rotate
 }

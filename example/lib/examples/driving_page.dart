@@ -24,17 +24,32 @@ class _DrivingExampleState extends State<_DrivingExample> {
   final Placemark startPlacemark = Placemark(
     mapId: MapObjectId('start_placemark'),
     point: Point(latitude: 55.7558, longitude: 37.6173),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_start.png', scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_start.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
+    ),
   );
   final Placemark stopByPlacemark = Placemark(
     mapId: MapObjectId('stop_by_placemark'),
     point: Point(latitude: 45.0360, longitude: 38.9746),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_stop_by.png', scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_stop_by.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
+    ),
   );
   final Placemark endPlacemark = Placemark(
     mapId: MapObjectId('end_placemark'),
     point: Point(latitude: 48.4814, longitude: 135.0721),
-    style: PlacemarkStyle(iconName: 'lib/assets/route_end.png', scale: 0.3)
+    style: PlacemarkStyle(
+      icon: PlacemarkIcon.fromIconName(
+        iconName: 'lib/assets/route_end.png',
+        style: PlacemarkIconStyle(scale: 0.3),
+      ),
+    ),
   );
 
   @override

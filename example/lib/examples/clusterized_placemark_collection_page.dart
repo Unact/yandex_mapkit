@@ -105,7 +105,12 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           onClusterAdded: (ClusterizedPlacemarkCollection self, Cluster cluster) async {
                             return cluster.copyWith(
                               appearance: cluster.appearance.copyWith(
-                                style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/cluster.png')
+                                style: PlacemarkStyle(
+                                  icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/cluster.png',
+                                    style: PlacemarkIconStyle(scale: 1)
+                                  ),
+                                )
                               )
                             );
                           },
@@ -116,17 +121,32 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             Placemark(
                               mapId: MapObjectId('placemark_1'),
                               point: Point(latitude: 55.756, longitude: 37.618),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/place.png',
+                                    style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark_2'),
                               point: Point(latitude: 59.956, longitude: 30.313),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark_3'),
                               point: Point(latitude: 39.956, longitude: 30.313),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                           ],
                           onTap: (ClusterizedPlacemarkCollection self, Point point) => print('Tapped me at $point'),
@@ -149,17 +169,32 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             Placemark(
                               mapId: MapObjectId('placemark_2'),
                               point: Point(latitude: 59.956, longitude: 30.313),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark_3'),
                               point: Point(latitude: 39.956, longitude: 31.313),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark_4'),
                               point: Point(latitude: 59.945933, longitude: 30.320045),
-                              style: PlacemarkStyle(scale: 1, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 1)
+                                ),
+                              )
                             ),
                           ]);
 
@@ -196,8 +231,10 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                               appearance: cluster.appearance.copyWith(
                                 style: PlacemarkStyle(
                                   opacity: 0.75,
-                                  scale: 1,
-                                  rawImageData: await _buildClusterAppearance(cluster)
+                                  icon: PlacemarkIcon.fromRawImageData(
+                                    rawImageData: await _buildClusterAppearance(cluster),
+                                    style: PlacemarkIconStyle(scale: 1)
+                                  ),
                                 )
                               )
                             );
@@ -209,7 +246,12 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             return Placemark(
                               mapId: MapObjectId('placemark_$i'),
                               point: Point(latitude: 55.756 + _randomDouble(), longitude: 37.618 + _randomDouble()),
-                              style: PlacemarkStyle(scale: 0.75, iconName: 'lib/assets/place.png',)
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/place.png',
+                                  style: PlacemarkIconStyle(scale: 0.75)
+                                ),
+                              )
                             );
                           }),
                           onTap: (ClusterizedPlacemarkCollection self, Point point) => print('Tapped me at $point'),

@@ -20,6 +20,7 @@ class _RotateExample extends StatefulWidget {
 
 class _RotateExampleState extends State<_RotateExample> {
   late YandexMapController controller;
+
   final List<MapObject> mapObjects = [];
 
   bool rotationBlocked = false;
@@ -43,7 +44,7 @@ class _RotateExampleState extends State<_RotateExample> {
                 onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                 style: PlacemarkStyle(
                   opacity: 0.7,
-                  iconName: 'lib/assets/place.png',
+                  icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
                 )
               ));
               mapObjects.add(Placemark(
@@ -52,8 +53,12 @@ class _RotateExampleState extends State<_RotateExample> {
                 onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                 style: PlacemarkStyle(
                   opacity: 0.7,
-                  iconName: 'lib/assets/arrow.png',
-                  rotationType: RotationType.rotate,
+                  icon: PlacemarkIcon.fromIconName(
+                    iconName: 'lib/assets/arrow.png',
+                    style: PlacemarkIconStyle(
+                      rotationType: RotationType.rotate,
+                    )
+                  ),
                   direction: 90,
                 ),
               ));
@@ -72,8 +77,12 @@ class _RotateExampleState extends State<_RotateExample> {
                     mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(style:
                       PlacemarkStyle(
                         opacity: 0.7,
-                        iconName: 'lib/assets/arrow.png',
-                        rotationType: RotationType.rotate,
+                        icon: PlacemarkIcon.fromIconName(
+                          iconName: 'lib/assets/arrow.png',
+                          style: PlacemarkIconStyle(
+                            rotationType: RotationType.rotate,
+                          )
+                        ),
                         direction: placemark.style.direction + 5.0
                       ),
                     );

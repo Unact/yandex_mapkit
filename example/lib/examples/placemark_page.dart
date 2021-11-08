@@ -25,6 +25,7 @@ class placemarkExampleState extends State<placemarkExample> {
 
   final MapObjectId placemarkId = MapObjectId('normal_icon_placemark');
   final MapObjectId placemarkWithDynamicIconId = MapObjectId('dynamic_icon_placemark');
+  final MapObjectId placemarkWithCompositeIconId = MapObjectId('composite_icon_placemark');
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,7 @@ class placemarkExampleState extends State<placemarkExample> {
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           style: PlacemarkStyle(
                             opacity: 0.7,
-                            iconName: 'lib/assets/place.png',
+                            icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
                           ),
                         ));
 
@@ -112,7 +113,7 @@ class placemarkExampleState extends State<placemarkExample> {
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           style: PlacemarkStyle(
                             opacity: 0.95,
-                            rawImageData: rawImageData,
+                            icon: PlacemarkIcon.fromRawImageData(rawImageData: rawImageData),
                           ),
                         ));
 
@@ -148,7 +149,77 @@ class placemarkExampleState extends State<placemarkExample> {
                       title: 'Remove'
                     ),
                   ],
-                )
+                ),
+                const Text('Placemark with Composite Icon:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    ControlButton(
+                      onPressed: () async {
+                        if (mapObjects.any((el) => el.mapId == placemarkId)) {
+                          return;
+                        }
+
+                        mapObjects.add(
+                          Placemark(
+                            mapId: placemarkWithCompositeIconId,
+                            point: const Point(latitude: 34.820045, longitude: 45.945933),
+                            onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                            style: PlacemarkStyle(
+                              compositeIcon: [
+                                PlacemarkCompositeIcon.fromIconName(
+                                  layerName: 'user',
+                                  iconName: 'lib/assets/user.png',
+                                  style: PlacemarkIconStyle(
+                                    anchor: Offset(0.5, 0.5),
+                                  ),
+                                ),
+                                PlacemarkCompositeIcon.fromIconName(
+                                  layerName: 'arrow',
+                                  iconName: 'lib/assets/arrow.png',
+                                  style: PlacemarkIconStyle(
+                                    anchor: Offset(0.5, 1.5),
+                                  ),
+                                ),
+                              ],
+                              opacity: 0.7,
+                            ),
+                          )
+                        );
+
+                        await controller.updateMapObjects(mapObjects);
+                      },
+                      title: 'Add'
+                    ),
+                    ControlButton(
+                      onPressed: () async {
+                        if (!mapObjects.any((el) => el.mapId == placemarkWithCompositeIconId)) {
+                          return;
+                        }
+
+                        final placemarkWithCompositeIcon = mapObjects
+                            .firstWhere((el) => el.mapId == placemarkWithCompositeIconId) as Placemark;
+                        mapObjects[mapObjects.indexOf(placemarkWithCompositeIcon)] = placemarkWithCompositeIcon.copyWith(
+                            point: Point(
+                              latitude: placemarkWithCompositeIcon.point.latitude + 1,
+                              longitude: placemarkWithCompositeIcon.point.longitude + 1
+                            )
+                        );
+
+                        await controller.updateMapObjects(mapObjects);
+                      },
+                      title: 'Update'
+                    ),
+                    ControlButton(
+                      onPressed: () async {
+                        mapObjects.removeWhere((el) => el.mapId == placemarkWithCompositeIconId);
+
+                        await controller.updateMapObjects(mapObjects);
+                      },
+                      title: 'Remove'
+                    ),
+                  ],
+                ),
               ]
             )
           )

@@ -48,7 +48,13 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                     final placemark = Placemark(
                       mapId: cameraMapObjectId,
                       point: Point(latitude: 55.755848, longitude: 37.620409),
-                      style: PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.5, scale: 0.75)
+                      style: PlacemarkStyle(
+                        icon: PlacemarkIcon.fromIconName(
+                          iconName: 'lib/assets/place.png',
+                          style: PlacemarkIconStyle(scale: 0.75),
+                        ),
+                        opacity: 0.5,
+                      )
                     );
                     mapObjects.add(placemark);
 
@@ -164,7 +170,12 @@ class _SessionState extends State<_SessionPage> {
                         Placemark(
                           mapId: MapObjectId('search_placemark'),
                           point: widget.point,
-                          style: PlacemarkStyle(iconName: 'lib/assets/place.png', scale: 0.75)
+                          style: PlacemarkStyle(
+                            icon: PlacemarkIcon.fromIconName(
+                              iconName: 'lib/assets/place.png',
+                              style: PlacemarkIconStyle(scale: 0.75),
+                            ),
+                          )
                         )
                       ]);
                     },

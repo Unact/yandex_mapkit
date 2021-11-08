@@ -48,11 +48,18 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.add(Placemark(
-                          mapId: cameraPlacemarkId,
-                          point: await controller.getTargetPoint(),
-                          style: const PlacemarkStyle(iconName: 'lib/assets/user.png', opacity: 0.9),
-                        ));
+                        mapObjects.add(
+                          Placemark(
+                            mapId: cameraPlacemarkId,
+                            point: await controller.getTargetPoint(),
+                            style: PlacemarkStyle(
+                              icon: PlacemarkIcon.fromIconName(
+                                iconName: 'lib/assets/user.png',
+                              ),
+                              opacity: 0.9,
+                            ),
+                          )
+                        );
 
                         await controller.updateMapObjects(mapObjects);
                         await controller.enableCameraTracking(onCameraPositionChange: cameraPositionChanged);
@@ -86,7 +93,12 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
       final placemark = Placemark(
         mapId: MapObjectId('placemark_${_placemarkIdCounter++}'),
         point: cameraPosition.target,
-        style: const PlacemarkStyle(iconName: 'lib/assets/place.png', opacity: 0.9),
+        style: PlacemarkStyle(
+          icon: PlacemarkIcon.fromIconName(
+            iconName: 'lib/assets/place.png',
+          ),
+          opacity: 0.9,
+        ),
       );
 
       mapObjects.add(placemark);

@@ -62,35 +62,8 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     let paramsPoint = params["point"] as! [String: NSNumber]
     let style = params["style"] as! [String: Any]
 
-    let iconName = style["iconName"] as? String
-    let rawImageData = style["rawImageData"] as? FlutterStandardTypedData
-    let iconAnchor = style["iconAnchor"] as! [String: NSNumber]
-    var image = nil as UIImage?
+    applyPlacemarkStyle(placemark: placemark, params: style)
 
-    placemark.opacity = (style["opacity"] as! NSNumber).floatValue
-    placemark.direction = (style["direction"] as! NSNumber).floatValue
-
-    if iconName != nil {
-      image = UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: iconName!))!
-    }
-
-    if rawImageData != nil {
-      image = UIImage(data: rawImageData!.data)
-    }
-
-    if image != nil {
-      let iconStyle = YMKIconStyle()
-      let rotationType = (style["rotationType"] as! NSNumber).intValue
-      if (rotationType == YMKRotationType.rotate.rawValue) {
-        iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
-      }
-      iconStyle.anchor = NSValue(cgPoint: CGPoint(x: iconAnchor["dx"]!.doubleValue, y: iconAnchor["dy"]!.doubleValue))
-      iconStyle.scale = (style["scale"] as! NSNumber)
-      placemark.setIconWith(image!)
-      placemark.setIconStyleWith(iconStyle)
-    }
-
-    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.geometry = Utils.pointFromJson(paramsPoint)
   }
@@ -107,5 +80,93 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     if (parent is YMKMapObjectCollection) {
       (parent as! YMKMapObjectCollection).remove(with: placemark)
     }
+  }
+  
+  private func applyPlacemarkStyle(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
+    
+    placemark.opacity   = (params["opacity"] as! NSNumber).floatValue
+    placemark.direction = (params["direction"] as! NSNumber).floatValue
+    
+    if let icon = params["icon"] as? [String: Any] {
+      
+      let img = getIconImage(icon)
+      placemark.setIconWith(img)
+      
+      let style = getIconStyle(icon["style"] as! [String: Any])
+      placemark.setIconStyleWith(style)
+      
+    } else if let composite = params["composite"] as? [Any] {
+      
+      for iconData in composite {
+        
+        let icon = iconData as! [String: Any]
+        
+        let img = getIconImage(iconData as! [String: Any])
+        let style = getIconStyle(icon["style"] as! [String: Any])
+        
+        placemark.useCompositeIcon().setIconWithName(
+          icon["layerName"] as! String,
+          image: img,
+          style: style
+        )
+      }
+    }
+  }
+  
+  private func getIconImage(_ iconData: [String: Any]) -> UIImage {
+   
+    var img: UIImage
+    
+    if let iconName = iconData["iconName"] as? String {
+      img = UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: iconName))!
+    } else {
+      let rawImageData = iconData["rawImageData"] as! FlutterStandardTypedData
+      img = UIImage(data: rawImageData.data)!
+    }
+    
+    return img
+  }
+  
+  private func getIconStyle(_ styleParams: [String: Any]) -> YMKIconStyle {
+    
+    let iconStyle = YMKIconStyle()
+
+    let rotationType = (styleParams["rotationType"] as! NSNumber).intValue
+    if (rotationType == YMKRotationType.rotate.rawValue) {
+      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
+    }
+    
+    let anchor = styleParams["anchor"] as! [String: Any]
+    
+    iconStyle.anchor = NSValue(cgPoint:
+      CGPoint(
+        x: (anchor["dx"] as! NSNumber).doubleValue,
+        y: (anchor["dy"] as! NSNumber).doubleValue
+      )
+    )
+    
+    iconStyle.zIndex = (styleParams["zIndex"] as! NSNumber)
+    iconStyle.scale = (styleParams["scale"] as! NSNumber)
+    
+    let tappableArea = styleParams["tappableArea"] as? [String: Any]
+    
+    if (tappableArea != nil) {
+      
+      let tappableAreaMin = tappableArea!["min"] as! [String: Any]
+      let tappableAreaMax = tappableArea!["max"] as! [String: Any]
+      
+      iconStyle.tappableArea = YMKRect(
+        min: CGPoint(
+          x: (tappableAreaMin["x"] as! NSNumber).doubleValue,
+          y: (tappableAreaMin["y"] as! NSNumber).doubleValue
+        ),
+        max: CGPoint(
+          x: (tappableAreaMax["x"] as! NSNumber).doubleValue,
+          y: (tappableAreaMax["y"] as! NSNumber).doubleValue
+        )
+      )
+    }
+    
+    return iconStyle
   }
 }
