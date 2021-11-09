@@ -7,6 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class YandexCircleController extends YandexMapObjectController {
+  private final boolean internallyControlled;
   public final CircleMapObject circle;
   private final YandexMapObjectTapListener tapListener;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
@@ -31,8 +32,25 @@ public class YandexCircleController extends YandexMapObjectController {
     this.id = (String) params.get("id");
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
+    this.internallyControlled = false;
 
     circle.setUserData(this.id);
+    circle.addTapListener(tapListener);
+    update(params);
+  }
+
+  public YandexCircleController(
+    CircleMapObject circle,
+    Map<String, Object> params,
+    WeakReference<YandexMapController> controller
+  ) {
+    this.circle = circle;
+    this.id = (String) params.get("id");
+    this.controller = controller;
+    this.tapListener = new YandexMapObjectTapListener(id, controller);
+    this.internallyControlled = true;
+
+    circle.setUserData(id);
     circle.addTapListener(tapListener);
     update(params);
   }
@@ -50,6 +68,10 @@ public class YandexCircleController extends YandexMapObjectController {
   }
 
   public void remove() {
+    if (internallyControlled) {
+      return;
+    }
+
     circle.getParent().remove(circle);
   }
 }

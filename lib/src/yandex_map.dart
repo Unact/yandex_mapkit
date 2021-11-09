@@ -8,6 +8,7 @@ class YandexMap extends StatefulWidget {
     this.onMapTap,
     this.onMapLongTap,
     this.onMapSizeChanged,
+    this.onUserLocationAdded
   }) : super(key: key);
 
   static const String viewType = 'yandex_mapkit/yandex_map';
@@ -26,6 +27,15 @@ class YandexMap extends StatefulWidget {
 
   /// Called every time a [YandexMap] is long tapped.
   final ArgumentCallback<Point>? onMapLongTap;
+
+  /// Callback to be called when a user location layer icon elements have been added to [YandexMap].
+  ///
+  /// Use this method if you want to change how users current position is displayed
+  /// You can return [UserLocationView] with changed [UserLocationView.pin], [UserLocationView.arrow],
+  /// [UserLocationView.accuracyCircle] to change how it is shown on the map.
+  ///
+  /// This is called only once when the layer is made visible for the first time
+  final UserLocationCallback? onUserLocationAdded;
 
   @override
   _YandexMapState createState() => _YandexMapState();

@@ -5,24 +5,24 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class LayersPage extends MapPage {
-  const LayersPage() : super('Layers example');
+class UserLayerPage extends MapPage {
+  const UserLayerPage() : super('User layer example');
 
   @override
   Widget build(BuildContext context) {
-    return _LayersExample();
+    return _UserLayerExample();
   }
 }
 
-class _LayersExample extends StatefulWidget {
+class _UserLayerExample extends StatefulWidget {
   @override
-  _LayersExampleState createState() => _LayersExampleState();
+  _UserLayerExampleState createState() => _UserLayerExampleState();
 }
 
-class _LayersExampleState extends State<_LayersExample> {
+class _UserLayerExampleState extends State<_UserLayerExample> {
   late YandexMapController controller;
 
-  Future<bool> get locationPermissionGranted async => await Permission.location.request().isGranted;
+  Future<bool> get locationPermissionNotGranted async => !(await Permission.location.request().isGranted);
 
   void _showMessage(BuildContext context, Text text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: text));
@@ -39,6 +39,19 @@ class _LayersExampleState extends State<_LayersExample> {
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
             },
+            onUserLocationAdded: (UserLocationView view) async {
+              return view.copyWith(
+                pin: view.pin.copyWith(
+                  style: PlacemarkStyle(icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/user.png'))
+                ),
+                arrow: view.arrow.copyWith(
+                  style: PlacemarkStyle(icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/arrow.png'))
+                ),
+                accuracyCircle: view.accuracyCircle.copyWith(
+                  style: CircleStyle(fillColor: Colors.green.withOpacity(0.5))
+                )
+              );
+            },
           )
         ),
         const SizedBox(height: 20),
@@ -51,21 +64,23 @@ class _LayersExampleState extends State<_LayersExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (await locationPermissionGranted) {
-                          await controller.showUserLayer(
-                            iconName: 'lib/assets/user.png',
-                            arrowName: 'lib/assets/arrow.png',
-                            accuracyCircleFillColor: Colors.green.withOpacity(0.5)
-                          );
-                        } else {
+                        if (await locationPermissionNotGranted) {
                           _showMessage(context, const Text('Location permission was NOT granted'));
+                          return;
                         }
+
+                        await controller.toggleUserLayer(visible: true);
                       },
                       title:'Show user layer'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller.hideUserLayer();
+                        if (await locationPermissionNotGranted) {
+                          _showMessage(context, const Text('Location permission was NOT granted'));
+                          return;
+                        }
+
+                        await controller.toggleUserLayer(visible: false);
                       },
                       title:'Hide user layer'
                     )
@@ -76,13 +91,14 @@ class _LayersExampleState extends State<_LayersExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (await locationPermissionGranted) {
-                          print(await controller.getUserTargetPoint());
-                        } else {
+                        if (await locationPermissionNotGranted) {
                           _showMessage(context, const Text('Location permission was NOT granted'));
+                          return;
                         }
+
+                        print(await controller.getUserTargetPoint());
                       },
-                      title: 'Get user point'
+                      title: 'Get user target'
                     )
                   ],
                 )

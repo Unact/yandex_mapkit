@@ -51,43 +51,27 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod('toggleMapRotation', {'enabled': enabled});
   }
 
-  /// Shows an icon at current user location
+  /// Toggles current user location layer
   ///
   /// Requires location permissions:
   ///
-  /// `NSLocationWhenInUseUsageDescription`
+  /// iOS: `NSLocationWhenInUseUsageDescription`
+  /// Android: `android.permission.ACCESS_FINE_LOCATION`
   ///
-  /// `android.permission.ACCESS_FINE_LOCATION`
-  ///
-  /// Does nothing if these permissions where denied
-  Future<void> showUserLayer({
-    required String iconName,
-    required String arrowName,
-    bool userArrowOrientation = true,
-    Color accuracyCircleFillColor = Colors.blueGrey
+  /// Does nothing if these permissions were denied
+  Future<void> toggleUserLayer({
+    required bool visible,
+    bool headingEnabled = true,
+    bool autoZoomEnabled = false
   }) async {
     await _channel.invokeMethod(
-      'showUserLayer',
+      'toggleUserLayer',
       {
-        'iconName': iconName,
-        'arrowName': arrowName,
-        'userArrowOrientation': userArrowOrientation,
-        'accuracyCircleFillColor': accuracyCircleFillColor.value
+        'visible': visible,
+        'headingEnabled': headingEnabled,
+        'autoZoomEnabled': autoZoomEnabled,
       }
     );
-  }
-
-  /// Hides an icon at current user location
-  ///
-  /// Requires location permissions:
-  ///
-  /// `NSLocationWhenInUseUsageDescription`
-  ///
-  /// `android.permission.ACCESS_FINE_LOCATION`
-  ///
-  /// Does nothing if these permissions where denied
-  Future<void> hideUserLayer() async {
-    await _channel.invokeMethod('hideUserLayer');
   }
 
   /// Applies styling to the map
@@ -208,12 +192,14 @@ class YandexMapController extends ChangeNotifier {
   }
 
   /// Returns current user position point
-  /// Before using this method [YandexMapController.showUserLayer] must be called
+  /// Before using this method user layer must be visible
+  /// [YandexMapController.toggleUserLayer] must be called with `visible: true`
+  ///
   /// [Point] is returned only if native YandexMap successfully calculates current position
   Future<Point?> getUserTargetPoint() async {
     final dynamic result = await _channel.invokeMethod('getUserTargetPoint');
 
-    if (result['point'] != null) {
+    if (result != null) {
       return Point._fromJson(result['point']);
     }
 
@@ -250,6 +236,8 @@ class YandexMapController extends ChangeNotifier {
         return _onMapObjectTap(call.arguments);
       case 'onMapSizeChanged':
         return _onMapSizeChanged(call.arguments);
+      case 'onUserLocationAdded':
+        return await _onUserLocationAdded(call.arguments);
       case 'onCameraPositionChanged':
         return _onCameraPositionChanged(call.arguments);
       default:
@@ -259,6 +247,37 @@ class YandexMapController extends ChangeNotifier {
 
   void _onMapTap(dynamic arguments) {
     _yandexMapState.onMapTap(Point._fromJson(arguments['point']));
+  }
+
+  Future<Map<String, dynamic>?> _onUserLocationAdded(dynamic arguments) async {
+    final pin = Placemark(
+      mapId: MapObjectId('user_location_pin'),
+      point: Point._fromJson(arguments['pinPoint'])
+    );
+    final arrow = Placemark(
+      mapId: MapObjectId('user_location_arrow'),
+      point: Point._fromJson(arguments['arrowPoint'])
+    );
+    final accuracyCircle = Circle(
+      mapId: MapObjectId('user_location_accuracy_circle'),
+      center: Point._fromJson(arguments['circle']['center']),
+      radius: arguments['circle']['radius']
+    );
+    final view = UserLocationView._(arrow: arrow, pin: pin, accuracyCircle: accuracyCircle);
+    final newView = _yandexMapState.widget.onUserLocationAdded != null ?
+      (await _yandexMapState.widget.onUserLocationAdded!(view)) :
+      view;
+    final newPin = newView?.pin.dup(pin.mapId) ?? pin;
+    final newArrow = newView?.arrow.dup(arrow.mapId) ?? arrow;
+    final newAccuracyCircle = newView?.accuracyCircle.dup(accuracyCircle.mapId) ?? accuracyCircle;
+
+    _nonRootMapObjects.addAll([newPin, newArrow, newAccuracyCircle]);
+
+    return {
+      'pin': newPin.toJson(),
+      'arrow': newArrow.toJson(),
+      'accuracyCircle': newAccuracyCircle.toJson()
+    };
   }
 
   void _onClustersRemoved(dynamic arguments) {

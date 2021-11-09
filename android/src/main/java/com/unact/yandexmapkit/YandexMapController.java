@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -25,41 +26,40 @@ import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.MapWindow;
 import com.yandex.mapkit.map.PointOfView;
-import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
-import com.yandex.mapkit.map.RotationType;
 import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.map.SizeChangedListener;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
-import com.yandex.runtime.image.ImageProvider;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.flutter.FlutterInjector;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
 
-public class YandexMapController implements PlatformView, MethodChannel.MethodCallHandler, DefaultLifecycleObserver {
+public class YandexMapController implements
+  PlatformView,
+  MethodChannel.MethodCallHandler,
+  DefaultLifecycleObserver,
+  UserLocationObjectListener
+{
   private final MapView mapView;
   public final Context context;
   public final MethodChannel methodChannel;
   private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
-  private final YandexUserLocationObjectListener yandexUserLocationObjectListener;
   private YandexCameraListener yandexCameraListener;
   private final UserLocationLayer userLocationLayer;
-  private String userLocationIconName;
-  private String userArrowIconName;
-  private Boolean userArrowOrientation;
-  private int accuracyCircleFillColor = 0;
+  private YandexPlacemarkController userPinController;
+  private YandexPlacemarkController userArrowController;
+  private YandexCircleController userAccuracyCircleController;
   private final YandexMapObjectCollectionController rootController;
   private boolean disposed = false;
 
@@ -71,7 +71,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.onStart();
 
     userLocationLayer = MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
-    yandexUserLocationObjectListener = new YandexUserLocationObjectListener();
 
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
@@ -86,6 +85,7 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     mapView.getMapWindow().addSizeChangedListener(new YandexMapSizeChangedListener());
 
     lifecycleProvider.getLifecycle().addObserver(this);
+    userLocationLayer.setObjectListener(this);
   }
 
   @Override
@@ -158,25 +158,13 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void showUserLayer(MethodCall call) {
-
+  public void toggleUserLayer(MethodCall call) {
     if (!hasLocationPermission()) return;
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    userLocationIconName = (String) params.get("iconName");
-    userArrowIconName = (String) params.get("arrowName");
-    userArrowOrientation = (Boolean) params.get("userArrowOrientation");
-    accuracyCircleFillColor = ((Number) params.get("accuracyCircleFillColor")).intValue();
-
-    userLocationLayer.setVisible(true);
-    userLocationLayer.setHeadingEnabled(true);
-    userLocationLayer.setObjectListener(yandexUserLocationObjectListener);
-  }
-
-  public void hideUserLayer() {
-    if (!hasLocationPermission()) return;
-
-    userLocationLayer.setVisible(false);
+    userLocationLayer.setVisible((Boolean) params.get("visible"));
+    userLocationLayer.setHeadingEnabled((Boolean) params.get("headingEnabled"));
+    userLocationLayer.setAutoZoomEnabled((Boolean) params.get("autoZoomEnabled"));
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -349,12 +337,8 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
         toggleMapRotation(call);
         result.success(null);
         break;
-      case "showUserLayer":
-        showUserLayer(call);
-        result.success(null);
-        break;
-      case "hideUserLayer":
-        hideUserLayer();
+      case "toggleUserLayer":
+        toggleUserLayer(call);
         result.success(null);
         break;
       case "setMapStyle":
@@ -519,6 +503,54 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
     );
   }
 
+  public void onObjectAdded(final UserLocationView view) {
+    final YandexMapController self = this;
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("pinPoint", Utils.pointToJson(view.getPin().getGeometry()));
+    arguments.put("arrowPoint", Utils.pointToJson(view.getArrow().getGeometry()));
+    arguments.put("circle", Utils.circleToJson(view.getAccuracyCircle().getGeometry()));
+
+    methodChannel.invokeMethod("onUserLocationAdded", arguments, new MethodChannel.Result() {
+      @Override
+      public void success(@Nullable Object result) {
+        Map<String, Object> params = ((Map<String, Object>) result);
+
+        if (!view.isValid()) {
+          return;
+        }
+
+        userPinController = new YandexPlacemarkController(
+          view.getPin().getParent(),
+          view.getPin(),
+          (Map<String, Object>) params.get("pin"),
+          new WeakReference<>(self)
+        );
+
+        userArrowController = new YandexPlacemarkController(
+          view.getArrow().getParent(),
+          view.getArrow(),
+          (Map<String, Object>) params.get("arrow"),
+          new WeakReference<>(self)
+        );
+
+        userAccuracyCircleController = new YandexCircleController(
+          view.getAccuracyCircle(),
+          (Map<String, Object>) params.get("accuracyCircle"),
+          new WeakReference<>(self)
+        );
+      }
+
+      @Override
+      public void error(String errorCode, @Nullable String errorMessage, @Nullable Object errorDetails) {}
+      @Override
+      public void notImplemented() {}
+    });
+  }
+
+  public void onObjectRemoved(@NonNull UserLocationView view) {}
+
+  public void onObjectUpdated(@NonNull UserLocationView view, @NonNull ObjectEvent event) {}
+
   private class YandexCameraListener implements CameraListener {
     @Override
     public void onCameraPositionChanged(
@@ -541,31 +573,6 @@ public class YandexMapController implements PlatformView, MethodChannel.MethodCa
 
       methodChannel.invokeMethod("onCameraPositionChanged", arguments);
     }
-  }
-
-  private class YandexUserLocationObjectListener implements UserLocationObjectListener {
-    public void onObjectAdded(UserLocationView view) {
-      view.getPin().setIcon(
-        ImageProvider.fromAsset(
-          context,
-          FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(userLocationIconName)
-        )
-      );
-      view.getArrow().setIcon(
-        ImageProvider.fromAsset(
-          context,
-          FlutterInjector.instance().flutterLoader().getLookupKeyForAsset(userArrowIconName)
-        )
-      );
-      if (userArrowOrientation) {
-        view.getArrow().setIconStyle(new IconStyle().setRotationType(RotationType.ROTATE));
-      }
-      view.getAccuracyCircle().setFillColor(accuracyCircleFillColor);
-    }
-
-    public void onObjectRemoved(@NonNull UserLocationView view) {}
-
-    public void onObjectUpdated(@NonNull UserLocationView view, @NonNull ObjectEvent event) {}
   }
 
   private class YandexMapInputListener implements InputListener {

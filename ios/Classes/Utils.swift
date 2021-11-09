@@ -24,6 +24,13 @@ class Utils {
     ]
   }
 
+  static func circleToJson(_ circle: YMKCircle) -> [String: Any] {
+    return [
+      "center": pointToJson(circle.center),
+      "radius": circle.radius
+    ]
+  }
+
   static func circleFromJson(_ json: [String: Any]) -> YMKCircle {
     return YMKCircle(
       center: pointFromJson(json["center"] as! [String: NSNumber]),

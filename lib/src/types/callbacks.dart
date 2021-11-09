@@ -12,3 +12,4 @@ typedef MapCreatedCallback = void Function(YandexMapController controller);
 typedef MapRenderedCallback = void Function(YandexMapController controller, MapSize size);
 typedef SearchErrorCallback = void Function(String msg, int sessionId);
 typedef CancelDrivingSessionCallback = void Function();
+typedef UserLocationCallback = Future<UserLocationView>? Function(UserLocationView view);

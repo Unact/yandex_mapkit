@@ -3,19 +3,21 @@ import Flutter
 import UIKit
 import YandexMapsMobile
 
-public class YandexMapController: NSObject, FlutterPlatformView {
+public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocationObjectListener {
   public let methodChannel: FlutterMethodChannel!
   public let pluginRegistrar: FlutterPluginRegistrar!
   private let mapTapListener: MapTapListener!
   private var mapCameraListener: MapCameraListener!
   private let mapSizeChangedListener: MapSizeChangedListener!
-  private var userLocationObjectListener: UserLocationObjectListener?
-  private var userLocationLayer: YMKUserLocationLayer?
+  private let userLocationLayer: YMKUserLocationLayer!
   private var placemarks: [YMKPlacemarkMapObject] = []
   private var polylines: [YMKPolylineMapObject] = []
   private var polygons: [YMKPolygonMapObject] = []
   private var circles: [YMKCircleMapObject] = []
   private var mapObjectCollections: [YMKMapObjectCollection] = []
+  private var userPinController: YandexPlacemarkController?
+  private var userArrowController: YandexPlacemarkController?
+  private var userAccuracyCircleController: YandexCircleController?
   private lazy var rootController: YandexMapObjectCollectionController = {
     YandexMapObjectCollectionController.init(
       root: mapView.mapWindow.map.mapObjects,
@@ -43,6 +45,7 @@ public class YandexMapController: NSObject, FlutterPlatformView {
 
     self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
     self.mapView.mapWindow.addSizeChangedListener(with: mapSizeChangedListener)
+    userLocationLayer.setObjectListenerWith(self)
   }
 
   public func view() -> UIView {
@@ -66,11 +69,8 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     case "toggleMapRotation":
       toggleMapRotation(call)
       result(nil)
-    case "showUserLayer":
-      showUserLayer(call)
-      result(nil)
-    case "hideUserLayer":
-      hideUserLayer()
+    case "toggleUserLayer":
+      toggleUserLayer(call)
       result(nil)
     case "setMapStyle":
       setMapStyle(call)
@@ -148,6 +148,15 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     mapView.mapWindow.map.isNightModeEnabled = (params["enabled"] as! NSNumber).boolValue
   }
 
+  public func toggleUserLayer(_ call: FlutterMethodCall) {
+    if (!hasLocationPermission()) { return }
+
+    let params = call.arguments as! [String: Any]
+    userLocationLayer.setVisibleWithOn(params["visible"] as! Bool)
+    userLocationLayer.isHeadingEnabled = params["headingEnabled"] as! Bool
+    userLocationLayer.isAutoZoomEnabled = params["autoZoomEnabled"] as! Bool
+  }
+
   public func setFocusRect(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let topLeft = params["topLeft"] as! [String: NSNumber]
@@ -173,29 +182,6 @@ public class YandexMapController: NSObject, FlutterPlatformView {
       verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
     )
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
-  }
-
-  public func showUserLayer(_ call: FlutterMethodCall) {
-    if (!hasLocationPermission()) { return }
-
-    let params = call.arguments as! [String: Any]
-
-    self.userLocationObjectListener = UserLocationObjectListener(
-      pluginRegistrar: pluginRegistrar,
-      iconName: params["iconName"] as! String,
-      arrowName: params["arrowName"] as! String,
-      userArrowOrientation: (params["userArrowOrientation"] as! NSNumber).boolValue,
-      accuracyCircleFillColor: Utils.uiColor(fromInt: (params["accuracyCircleFillColor"] as! NSNumber).int64Value)
-    )
-    userLocationLayer?.setVisibleWithOn(true)
-    userLocationLayer!.isHeadingEnabled = true
-    userLocationLayer!.setObjectListenerWith(userLocationObjectListener!)
-  }
-
-  public func hideUserLayer() {
-    if (!hasLocationPermission()) { return }
-
-    userLocationLayer?.setVisibleWithOn(false)
   }
 
   public func setMapStyle(_ call: FlutterMethodCall) {
@@ -391,55 +377,45 @@ public class YandexMapController: NSObject, FlutterPlatformView {
     )
   }
 
-  internal class UserLocationObjectListener: NSObject, YMKUserLocationObjectListener {
-    private let pluginRegistrar: FlutterPluginRegistrar!
+  public func onObjectAdded(with view: YMKUserLocationView) {
+    let arguments = [
+      "pinPoint": Utils.pointToJson(view.pin.geometry),
+      "arrowPoint": Utils.pointToJson(view.arrow.geometry),
+      "circle": Utils.circleToJson(view.accuracyCircle.geometry)
+    ]
 
-    private let iconName: String!
-    private let arrowName: String!
-    private let userArrowOrientation: Bool!
-    private let accuracyCircleFillColor: UIColor!
+    methodChannel.invokeMethod("onUserLocationAdded", arguments: arguments) { result in
+      let params = result as! [String: Any]
 
-    public required init(
-      pluginRegistrar: FlutterPluginRegistrar,
-      iconName: String,
-      arrowName: String,
-      userArrowOrientation: Bool,
-      accuracyCircleFillColor: UIColor
-    ) {
-      self.pluginRegistrar = pluginRegistrar
-      self.iconName = iconName
-      self.arrowName = arrowName
-      self.userArrowOrientation = userArrowOrientation
-      self.accuracyCircleFillColor = accuracyCircleFillColor
-    }
-
-    func onObjectAdded(with view: YMKUserLocationView) {
-      view.pin.setIconWith(
-        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.iconName))!
-      )
-      view.arrow.setIconWith(
-        UIImage(named: pluginRegistrar.lookupKey(forAsset: self.arrowName))!
-      )
-      if (userArrowOrientation) {
-        view.arrow.setIconStyleWith(
-          YMKIconStyle(
-            anchor: nil,
-            rotationType: YMKRotationType.rotate.rawValue as NSNumber,
-            zIndex: nil,
-            flat: nil,
-            visible: nil,
-            scale: nil,
-            tappableArea: nil
-          )
-        )
+      if (!view.isValid) {
+        return
       }
-      view.accuracyCircle.fillColor = accuracyCircleFillColor
+
+      self.userPinController = YandexPlacemarkController(
+        parent: view.pin.parent,
+        placemark: view.pin,
+        params: params["pin"] as! [String: Any],
+        controller: self
+      )
+
+      self.userArrowController = YandexPlacemarkController(
+        parent: view.arrow.parent,
+        placemark: view.arrow,
+        params: params["arrow"] as! [String: Any],
+        controller: self
+      )
+
+      self.userAccuracyCircleController = YandexCircleController(
+        circle: view.accuracyCircle,
+        params: params["accuracyCircle"] as! [String: Any],
+        controller: self
+      )
     }
-
-    func onObjectRemoved(with view: YMKUserLocationView) {}
-
-    func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
   }
+
+  public func onObjectRemoved(with view: YMKUserLocationView) {}
+
+  public func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
 
   internal class MapTapListener: NSObject, YMKMapInputListener {
     private let methodChannel: FlutterMethodChannel!

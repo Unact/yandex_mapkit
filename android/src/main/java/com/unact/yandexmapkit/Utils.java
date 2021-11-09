@@ -25,6 +25,14 @@ public class Utils {
     return pointMap;
   }
 
+  public static Map<String, Object> circleToJson(Circle circle) {
+    Map<String, Object> circleMap = new HashMap<>();
+    circleMap.put("center", pointToJson(circle.getCenter()));
+    circleMap.put("radius", (double) circle.getRadius());
+
+    return circleMap;
+  }
+
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public static Circle circleFromJson(Map<String, Object> json) {
     return new Circle(

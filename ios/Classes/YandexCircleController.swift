@@ -1,6 +1,7 @@
 import YandexMapsMobile
 
 class YandexCircleController: NSObject, YandexMapObjectController {
+  private let internallyControlled: Bool
   public let circle: YMKCircleMapObject
   private let tapListener: YandexMapObjectTapListener
   private unowned var controller: YandexMapController
@@ -23,6 +24,24 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     self.id = params["id"] as! String
     self.controller = controller
     self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+    self.internallyControlled = false
+
+    super.init()
+
+    circle.addTapListener(with: tapListener)
+    update(params)
+  }
+
+  public required init(
+    circle: YMKCircleMapObject,
+    params: [String: Any],
+    controller: YandexMapController
+  ) {
+    self.circle = circle
+    self.id = params["id"] as! String
+    self.controller = controller
+    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+    self.internallyControlled = true
 
     super.init()
 
@@ -43,6 +62,10 @@ class YandexCircleController: NSObject, YandexMapObjectController {
   }
 
   public func remove() {
+    if (internallyControlled) {
+      return
+    }
+
     circle.parent.remove(with: circle)
   }
 }

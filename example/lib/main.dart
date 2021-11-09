@@ -6,7 +6,6 @@ import 'package:yandex_mapkit_example/examples/camera_tracking_page.dart';
 import 'package:yandex_mapkit_example/examples/circle_page.dart';
 import 'package:yandex_mapkit_example/examples/clusterized_placemark_collection_page.dart';
 import 'package:yandex_mapkit_example/examples/driving_page.dart';
-import 'package:yandex_mapkit_example/examples/layers_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/map_object_collection_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_page.dart';
@@ -16,6 +15,7 @@ import 'package:yandex_mapkit_example/examples/reverse_search_page.dart';
 import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
 import 'package:yandex_mapkit_example/examples/suggest_page.dart';
+import 'package:yandex_mapkit_example/examples/user_layer_page.dart';
 
 void main() {
   runApp(MaterialApp(home: MainPage()));
@@ -24,7 +24,6 @@ void main() {
 const List<MapPage> _allPages = <MapPage>[
   CameraTrackingPage(),
   DrivingPage(),
-  LayersPage(),
   MapControlsPage(),
   ClusterizedPlacemarkCollectionPage(),
   MapObjectCollectionPage(),
@@ -33,6 +32,7 @@ const List<MapPage> _allPages = <MapPage>[
   PolygonPage(),
   CirclePage(),
   RotationPage(),
+  UserLayerPage(),
   SuggestionsPage(),
   SearchPage(),
   ReverseSearchPage(),
