@@ -36,7 +36,7 @@ part 'src/types/map_objects/polygon.dart';
 part 'src/types/map_objects/polyline.dart';
 part 'src/types/map_size.dart';
 part 'src/types/point.dart';
-part 'src/types/rect.dart';
+part 'src/types/map_rect.dart';
 part 'src/types/screen_rect.dart';
 part 'src/types/search/search_component_kind.dart';
 part 'src/types/search/search_item.dart';
