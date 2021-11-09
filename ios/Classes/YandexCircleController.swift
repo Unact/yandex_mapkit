@@ -28,6 +28,7 @@ class YandexCircleController: NSObject, YandexMapObjectController {
 
     super.init()
 
+    circle.userData = self.id
     circle.addTapListener(with: tapListener)
     update(params)
   }
