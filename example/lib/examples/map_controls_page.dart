@@ -83,7 +83,14 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
             onMapSizeChanged: (MapSize size) => print('Map size changed to $size'),
             onMapTap: (Point point) => print('Tapped map at $point'),
-            onMapLongTap: (Point point) => print('Long tapped map at $point')
+            onMapLongTap: (Point point) => print('Long tapped map at $point'),
+            onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason reason, bool finished) {
+              print('Camera position: $cameraPosition, Reason: $reason');
+
+              if (finished) {
+                print('Camera position movement has been finished');
+              }
+            },
           )
         ),
         SizedBox(height: _height),

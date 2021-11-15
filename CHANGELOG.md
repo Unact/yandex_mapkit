@@ -9,7 +9,6 @@
 * **Breaking change**. Rework working with map objects.
 Removed addPlacemark/removePlacemark; addPolygon/removePolygon; addPolyline/removePolyline; addCircle/removeCircle
 Instead updateMapObjects method should be used to control which map objects should be visible on map
-* **Breaking change**. `YandexMapController.enableCameraTracking` method signature has been changed.
 * **Breaking change**. `YandexMapController.logoAlignment` method signature has been changed.
 * **Breaking change**. `YandexMapController.move` method signature has been changed.
 * **Breaking change**. `YandexMapController.setBounds` method signature has been changed.
@@ -19,6 +18,8 @@ Instead updateMapObjects method should be used to control which map objects shou
 Use `YandexMapController.getCameraPosition` to get zoom, target and much more.
 * **Breaking change**. Removed `YandexMapController.getUserTargetPoint`
 Use `YandexMapController.getUserCameraPosition` to get target and much more.
+* **Breaking change**. Removed `YandexMapController.enableCameraTracking`/`YandexMapController.disableCameraTracking`
+Use `YandexMap.onCameraPositionChanged` to receive camera updates
 
 ## 1.1.1
 

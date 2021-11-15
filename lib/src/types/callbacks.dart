@@ -1,6 +1,6 @@
 part of yandex_mapkit;
 
-typedef CameraPositionCallback = void Function(CameraPosition cameraPosition, bool finished);
+typedef CameraPositionCallback = void Function(CameraPosition cameraPosition, CameraUpdateReason reason, bool finished);
 typedef SuggestSessionCallback = void Function(List<SuggestItem> msg);
 typedef CancelSuggestCallback = void Function();
 typedef GenericCallback = void Function();

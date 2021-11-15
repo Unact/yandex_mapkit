@@ -8,11 +8,11 @@ public class YandexMapController:
   FlutterPlatformView,
   YMKUserLocationObjectListener,
   YMKMapSizeChangedListener,
-  YMKMapInputListener
+  YMKMapInputListener,
+  YMKMapCameraListener
 {
   public let methodChannel: FlutterMethodChannel!
   public let pluginRegistrar: FlutterPluginRegistrar!
-  private var mapCameraListener: MapCameraListener!
   private let userLocationLayer: YMKUserLocationLayer!
   private var mapObjectCollections: [YMKMapObjectCollection] = []
   private var userPinController: YandexPlacemarkController?
@@ -42,6 +42,7 @@ public class YandexMapController:
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
 
     mapView.mapWindow.map.addInputListener(with: self)
+    mapView.mapWindow.map.addCameraListener(with: self)
     mapView.mapWindow.addSizeChangedListener(with: self)
     userLocationLayer.setObjectListenerWith(self)
   }
@@ -84,12 +85,6 @@ public class YandexMapController:
       result(nil)
     case "clearFocusRect":
       clearFocusRect()
-      result(nil)
-    case "enableCameraTracking":
-      enableCameraTracking()
-      result(nil)
-    case "disableCameraTracking":
-      disableCameraTracking()
       result(nil)
     case "updateMapObjects":
       updateMapObjects(call)
@@ -284,20 +279,6 @@ public class YandexMapController:
     }
   }
 
-  public func disableCameraTracking() {
-    if mapCameraListener != nil {
-      mapView.mapWindow.map.removeCameraListener(with: mapCameraListener)
-      mapCameraListener = nil
-    }
-  }
-
-  public func enableCameraTracking() {
-    if mapCameraListener == nil {
-      mapCameraListener = MapCameraListener(controller: self, channel: methodChannel)
-      mapView.mapWindow.map.addCameraListener(with: mapCameraListener)
-    }
-  }
-
   public func isTiltGesturesEnabled() -> Bool {
     return mapView.mapWindow.map.isTiltGesturesEnabled
   }
@@ -424,28 +405,18 @@ public class YandexMapController:
     methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
   }
 
-  internal class MapCameraListener: NSObject, YMKMapCameraListener {
-    unowned private var yandexMapController: YandexMapController
-    private let methodChannel: FlutterMethodChannel!
-
-    public required init(controller: YandexMapController, channel: FlutterMethodChannel) {
-      self.yandexMapController = controller
-      self.methodChannel = channel
-      super.init()
-    }
-
-    internal func onCameraPositionChanged(
-      with map: YMKMap,
-      cameraPosition: YMKCameraPosition,
-      cameraUpdateReason: YMKCameraUpdateReason,
-      finished: Bool
-    ) {
-      let arguments: [String: Any?] = [
-        "cameraPosition": Utils.cameraPositionToJson(cameraPosition),
-        "finished": finished
-      ]
-      methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
-    }
+  public func onCameraPositionChanged(
+    with map: YMKMap,
+    cameraPosition: YMKCameraPosition,
+    cameraUpdateReason: YMKCameraUpdateReason,
+    finished: Bool
+  ) {
+    let arguments: [String: Any?] = [
+      "cameraPosition": Utils.cameraPositionToJson(cameraPosition),
+      "reason": cameraUpdateReason.rawValue,
+      "finished": finished
+    ]
+    methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
   }
 
   // Fix https://github.com/flutter/flutter/issues/67514

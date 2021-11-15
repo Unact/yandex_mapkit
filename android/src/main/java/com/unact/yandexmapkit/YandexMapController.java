@@ -51,13 +51,13 @@ public class YandexMapController implements
   DefaultLifecycleObserver,
   UserLocationObjectListener,
   InputListener,
-  SizeChangedListener
+  SizeChangedListener,
+  CameraListener
 {
   private final MapView mapView;
   public final Context context;
   public final MethodChannel methodChannel;
   private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
-  private YandexCameraListener yandexCameraListener;
   private final UserLocationLayer userLocationLayer;
   private YandexPlacemarkController userPinController;
   private YandexPlacemarkController userArrowController;
@@ -84,6 +84,7 @@ public class YandexMapController implements
     );
 
     mapView.getMap().addInputListener(this);
+    mapView.getMap().addCameraListener(this);
     mapView.getMapWindow().addSizeChangedListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
@@ -230,20 +231,6 @@ public class YandexMapController implements
     return arguments;
   }
 
-  public void disableCameraTracking() {
-    if (yandexCameraListener != null) {
-      mapView.getMap().removeCameraListener(yandexCameraListener);
-      yandexCameraListener = null;
-    }
-  }
-
-  public void enableCameraTracking() {
-    if (yandexCameraListener == null) {
-      yandexCameraListener = new YandexCameraListener();
-      mapView.getMap().addCameraListener(yandexCameraListener);
-    }
-  }
-
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void updateMapObjects(MethodCall call) {
     Map<String, Object> params = (Map<String, Object>) call.arguments;
@@ -355,14 +342,6 @@ public class YandexMapController implements
         break;
       case "clearFocusRect":
         clearFocusRect();
-        result.success(null);
-        break;
-      case "enableCameraTracking":
-        enableCameraTracking();
-        result.success(null);
-        break;
-      case "disableCameraTracking":
-        disableCameraTracking();
         result.success(null);
         break;
       case "updateMapObjects":
@@ -541,20 +520,18 @@ public class YandexMapController implements
 
   public void onObjectUpdated(@NonNull UserLocationView view, @NonNull ObjectEvent event) {}
 
-  private class YandexCameraListener implements CameraListener {
-    @Override
-    public void onCameraPositionChanged(
-      @NonNull com.yandex.mapkit.map.Map map,
-      @NonNull CameraPosition cameraPosition,
-      @NonNull CameraUpdateReason cameraUpdateReason,
-      boolean finished
-    ) {
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
-      arguments.put("finished", finished);
+  public void onCameraPositionChanged(
+    @NonNull com.yandex.mapkit.map.Map map,
+    @NonNull CameraPosition cameraPosition,
+    @NonNull CameraUpdateReason cameraUpdateReason,
+    boolean finished
+  ) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
+    arguments.put("reason", cameraUpdateReason.ordinal());
+    arguments.put("finished", finished);
 
-      methodChannel.invokeMethod("onCameraPositionChanged", arguments);
-    }
+    methodChannel.invokeMethod("onCameraPositionChanged", arguments);
   }
 
   public void onMapTap(@NonNull com.yandex.mapkit.map.Map map, @NonNull Point point) {

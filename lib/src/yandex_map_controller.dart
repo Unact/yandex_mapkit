@@ -20,8 +20,6 @@ class YandexMapController extends ChangeNotifier {
   /// Cluster placemarks, user location objects, etc.
   final List<MapObject> _nonRootMapObjects = [];
 
-  CameraPositionCallback? _cameraPositionCallback;
-
   /// All [MapObject] in [YandexMap]
   ///
   /// This contains all objects that were created by any means
@@ -118,20 +116,6 @@ class YandexMapController extends ChangeNotifier {
   /// Clears focusRect set by `YandexMapController.setFocusRect`
   Future<void> clearFocusRect() async {
     await _channel.invokeMethod('clearFocusRect');
-  }
-
-  /// Disables listening for map camera updates
-  Future<void> disableCameraTracking() async {
-    _cameraPositionCallback = null;
-    await _channel.invokeMethod('disableCameraTracking');
-  }
-
-  /// Enables listening for map camera updates
-  Future<void> enableCameraTracking({
-    required CameraPositionCallback onCameraPositionChange,
-  }) async {
-    _cameraPositionCallback = onCameraPositionChange;
-    await _channel.invokeMethod('enableCameraTracking');
   }
 
   /// Changes map objects on the map
@@ -262,6 +246,18 @@ class YandexMapController extends ChangeNotifier {
     _yandexMapState.widget.onMapSizeChanged!(MapSize._fromJson(arguments['mapSize']));
   }
 
+  void _onCameraPositionChanged(dynamic arguments) {
+    if (_yandexMapState.widget.onCameraPositionChanged == null) {
+      return;
+    }
+
+    _yandexMapState.widget.onCameraPositionChanged!(
+      CameraPosition._fromJson(arguments['cameraPosition']),
+      CameraUpdateReason.values[arguments['reason']],
+      arguments['finished']
+    );
+  }
+
   Future<Map<String, dynamic>?> _onUserLocationAdded(dynamic arguments) async {
     final pin = Placemark(
       mapId: MapObjectId('user_location_pin'),
@@ -363,13 +359,6 @@ class YandexMapController extends ChangeNotifier {
     }
 
     return null;
-  }
-
-  void _onCameraPositionChanged(dynamic arguments) {
-    _cameraPositionCallback!(
-      CameraPosition._fromJson(arguments['cameraPosition']),
-      arguments['finished']
-    );
   }
 
   Future<bool> isTiltGesturesEnabled() async {

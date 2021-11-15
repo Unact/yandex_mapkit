@@ -42,6 +42,12 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
               fit: StackFit.expand,
               children: [
                 YandexMap(
+                  onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason _, bool __) async {
+                    final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
+                    mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
+
+                    await controller.updateMapObjects(mapObjects);
+                  },
                   onMapCreated: (YandexMapController yandexMapController) async {
                     controller = yandexMapController;
 
@@ -60,14 +66,6 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
                     await controller.updateMapObjects(mapObjects);
                     await controller.move(cameraPosition: CameraPosition(target: placemark.point, zoom: 17));
-                    await controller.enableCameraTracking(
-                      onCameraPositionChange: (CameraPosition cameraPosition, bool finished) async {
-                        final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
-                        mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
-
-                        await controller.updateMapObjects(mapObjects);
-                      }
-                    );
                   },
                 )
               ],

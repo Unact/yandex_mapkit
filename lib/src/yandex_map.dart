@@ -8,7 +8,8 @@ class YandexMap extends StatefulWidget {
     this.onMapTap,
     this.onMapLongTap,
     this.onMapSizeChanged,
-    this.onUserLocationAdded
+    this.onUserLocationAdded,
+    this.onCameraPositionChanged
   }) : super(key: key);
 
   static const String viewType = 'yandex_mapkit/yandex_map';
@@ -27,6 +28,9 @@ class YandexMap extends StatefulWidget {
 
   /// Called every time a [YandexMap] is long tapped.
   final ArgumentCallback<Point>? onMapLongTap;
+
+  /// Called every time when the camera position on [YandexMap] is changed.
+  final CameraPositionCallback? onCameraPositionChanged;
 
   /// Callback to be called when a user location layer icon elements have been added to [YandexMap].
   ///

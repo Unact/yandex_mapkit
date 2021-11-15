@@ -42,3 +42,8 @@ class CameraPosition extends Equatable {
     );
   }
 }
+
+enum CameraUpdateReason {
+  gestures,
+  application
+}
