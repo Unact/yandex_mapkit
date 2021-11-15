@@ -49,7 +49,9 @@ public class YandexMapController implements
   PlatformView,
   MethodChannel.MethodCallHandler,
   DefaultLifecycleObserver,
-  UserLocationObjectListener
+  UserLocationObjectListener,
+  InputListener,
+  SizeChangedListener
 {
   private final MapView mapView;
   public final Context context;
@@ -81,8 +83,8 @@ public class YandexMapController implements
       new WeakReference<>(this)
     );
 
-    mapView.getMap().addInputListener(new YandexMapInputListener());
-    mapView.getMapWindow().addSizeChangedListener(new YandexMapSizeChangedListener());
+    mapView.getMap().addInputListener(this);
+    mapView.getMapWindow().addSizeChangedListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
@@ -575,32 +577,28 @@ public class YandexMapController implements
     }
   }
 
-  private class YandexMapInputListener implements InputListener {
-    public void onMapTap(@NonNull com.yandex.mapkit.map.Map map, @NonNull Point point) {
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("point", Utils.pointToJson(point));
+  public void onMapTap(@NonNull com.yandex.mapkit.map.Map map, @NonNull Point point) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("point", Utils.pointToJson(point));
 
-      methodChannel.invokeMethod("onMapTap", arguments);
-    }
-
-    public void onMapLongTap(@NonNull com.yandex.mapkit.map.Map map, @NonNull Point point) {
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("point", Utils.pointToJson(point));
-
-      methodChannel.invokeMethod("onMapLongTap", arguments);
-    }
+    methodChannel.invokeMethod("onMapTap", arguments);
   }
 
-  private class YandexMapSizeChangedListener implements SizeChangedListener {
-    public void onMapWindowSizeChanged(@NonNull MapWindow mapWindow, int newWidth, int newHeight) {
-      Map<String, Object> mapSizeArguments = new HashMap<>();
-      mapSizeArguments.put("width", newWidth);
-      mapSizeArguments.put("height", newHeight);
+  public void onMapLongTap(@NonNull com.yandex.mapkit.map.Map map, @NonNull Point point) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("point", Utils.pointToJson(point));
 
-      Map<String, Object> arguments = new HashMap<>();
-      arguments.put("mapSize", mapSizeArguments);
+    methodChannel.invokeMethod("onMapLongTap", arguments);
+  }
 
-      methodChannel.invokeMethod("onMapSizeChanged", arguments);
-    }
+  public void onMapWindowSizeChanged(@NonNull MapWindow mapWindow, int newWidth, int newHeight) {
+    Map<String, Object> mapSizeArguments = new HashMap<>();
+    mapSizeArguments.put("width", newWidth);
+    mapSizeArguments.put("height", newHeight);
+
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("mapSize", mapSizeArguments);
+
+    methodChannel.invokeMethod("onMapSizeChanged", arguments);
   }
 }

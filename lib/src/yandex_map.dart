@@ -72,22 +72,4 @@ class _YandexMapState extends State<YandexMap> {
       widget.onMapCreated!(_controller);
     }
   }
-
-  void onMapSizeChanged(MapSize size) {
-    if (widget.onMapSizeChanged != null) {
-      widget.onMapSizeChanged!(size);
-    }
-  }
-
-  void onMapTap(Point point) {
-    if (widget.onMapTap != null) {
-      widget.onMapTap!(point);
-    }
-  }
-
-  void onMapLongTap(Point point) {
-    if (widget.onMapLongTap != null) {
-      widget.onMapLongTap!(point);
-    }
-  }
 }

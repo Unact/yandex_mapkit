@@ -246,7 +246,27 @@ class YandexMapController extends ChangeNotifier {
   }
 
   void _onMapTap(dynamic arguments) {
-    _yandexMapState.onMapTap(Point._fromJson(arguments['point']));
+    if (_yandexMapState.widget.onMapTap == null) {
+      return;
+    }
+
+    _yandexMapState.widget.onMapTap!(Point._fromJson(arguments['point']));
+  }
+
+  void _onMapLongTap(dynamic arguments) {
+    if (_yandexMapState.widget.onMapLongTap == null) {
+      return;
+    }
+
+    _yandexMapState.widget.onMapLongTap!(Point._fromJson(arguments['point']));
+  }
+
+  void _onMapSizeChanged(dynamic arguments) {
+    if (_yandexMapState.widget.onMapSizeChanged == null) {
+      return;
+    }
+
+    _yandexMapState.widget.onMapSizeChanged!(MapSize._fromJson(arguments['mapSize']));
   }
 
   Future<Map<String, dynamic>?> _onUserLocationAdded(dynamic arguments) async {
@@ -320,10 +340,6 @@ class YandexMapController extends ChangeNotifier {
     mapObject._clusterTap(cluster);
   }
 
-  void _onMapLongTap(dynamic arguments) {
-    _yandexMapState.onMapLongTap(Point._fromJson(arguments['point']));
-  }
-
   void _onMapObjectTap(dynamic arguments) {
     final id = arguments['id'];
     final point = Point._fromJson(arguments['point']);
@@ -354,10 +370,6 @@ class YandexMapController extends ChangeNotifier {
     }
 
     return null;
-  }
-
-  void _onMapSizeChanged(dynamic arguments) {
-    _yandexMapState.onMapSizeChanged(MapSize._fromJson(arguments['mapSize']));
   }
 
   void _onCameraPositionChanged(dynamic arguments) {

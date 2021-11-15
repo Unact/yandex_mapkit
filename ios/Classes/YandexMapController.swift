@@ -3,17 +3,17 @@ import Flutter
 import UIKit
 import YandexMapsMobile
 
-public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocationObjectListener {
+public class YandexMapController:
+  NSObject,
+  FlutterPlatformView,
+  YMKUserLocationObjectListener,
+  YMKMapSizeChangedListener,
+  YMKMapInputListener
+{
   public let methodChannel: FlutterMethodChannel!
   public let pluginRegistrar: FlutterPluginRegistrar!
-  private let mapTapListener: MapTapListener!
   private var mapCameraListener: MapCameraListener!
-  private let mapSizeChangedListener: MapSizeChangedListener!
   private let userLocationLayer: YMKUserLocationLayer!
-  private var placemarks: [YMKPlacemarkMapObject] = []
-  private var polylines: [YMKPolylineMapObject] = []
-  private var polygons: [YMKPolygonMapObject] = []
-  private var circles: [YMKCircleMapObject] = []
   private var mapObjectCollections: [YMKMapObjectCollection] = []
   private var userPinController: YandexPlacemarkController?
   private var userArrowController: YandexPlacemarkController?
@@ -34,8 +34,6 @@ public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocation
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
-    self.mapTapListener = MapTapListener(channel: methodChannel)
-    self.mapSizeChangedListener = MapSizeChangedListener(channel: methodChannel)
     self.userLocationLayer = YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
 
     super.init()
@@ -43,8 +41,8 @@ public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocation
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
 
-    self.mapView.mapWindow.map.addInputListener(with: mapTapListener)
-    self.mapView.mapWindow.addSizeChangedListener(with: mapSizeChangedListener)
+    mapView.mapWindow.map.addInputListener(with: self)
+    mapView.mapWindow.addSizeChangedListener(with: self)
     userLocationLayer.setObjectListenerWith(self)
   }
 
@@ -417,26 +415,29 @@ public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocation
 
   public func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
 
-  internal class MapTapListener: NSObject, YMKMapInputListener {
-    private let methodChannel: FlutterMethodChannel!
+  public func onMapTap(with map: YMKMap, point: YMKPoint) {
+    let arguments: [String: Any?] = [
+      "point": Utils.pointToJson(point)
+    ]
+    methodChannel.invokeMethod("onMapTap", arguments: arguments)
+  }
 
-    public required init(channel: FlutterMethodChannel) {
-      self.methodChannel = channel
-    }
+  public func onMapLongTap(with map: YMKMap, point: YMKPoint) {
+    let arguments: [String: Any?] = [
+      "point": Utils.pointToJson(point)
+    ]
+    methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
+  }
 
-    func onMapTap(with map: YMKMap, point: YMKPoint) {
-      let arguments: [String: Any?] = [
-        "point": Utils.pointToJson(point)
+  public func onMapWindowSizeChanged(with mapWindow: YMKMapWindow, newWidth: Int, newHeight: Int) {
+    let arguments: [String: Any?] = [
+      "mapSize": [
+          "width": newWidth,
+          "height": newHeight
+        ]
       ]
-      methodChannel.invokeMethod("onMapTap", arguments: arguments)
-    }
 
-    func onMapLongTap(with map: YMKMap, point: YMKPoint) {
-      let arguments: [String: Any?] = [
-        "point": Utils.pointToJson(point)
-      ]
-      methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
-    }
+    methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
   }
 
   internal class MapCameraListener: NSObject, YMKMapCameraListener {
@@ -468,36 +469,17 @@ public class YandexMapController: NSObject, FlutterPlatformView, YMKUserLocation
     }
   }
 
-  internal class MapSizeChangedListener: NSObject, YMKMapSizeChangedListener {
-    private let methodChannel: FlutterMethodChannel!
-
-    public required init(channel: FlutterMethodChannel) {
-      self.methodChannel = channel
-    }
-
-    func onMapWindowSizeChanged(with mapWindow: YMKMapWindow, newWidth: Int, newHeight: Int) {
-      let arguments: [String: Any?] = [
-        "mapSize": [
-            "width": newWidth,
-            "height": newHeight
-          ]
-        ]
-
-      methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
-    }
-  }
-
   // Fix https://github.com/flutter/flutter/issues/67514
   internal class FLYMKMapView: YMKMapView {
     public var initResult: FlutterResult?
 
     override var frame: CGRect {
-        didSet {
-          if initResult != nil {
-            initResult!(nil)
-            initResult = nil
-          }
+      didSet {
+        if initResult != nil {
+          initResult!(nil)
+          initResult = nil
         }
+      }
     }
   }
 }
