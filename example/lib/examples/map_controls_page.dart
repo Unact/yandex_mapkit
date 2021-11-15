@@ -66,14 +66,15 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
           child: YandexMap(
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-              var tiltGesturesEnabled = await controller.isTiltGesturesEnabled();
-              var zoomGesturesEnabled = await controller.isZoomGesturesEnabled();
+              final tiltGesturesEnabled = await controller.isTiltGesturesEnabled();
+              final zoomGesturesEnabled = await controller.isZoomGesturesEnabled();
 
-              var zoom = await controller.getZoom();
-              var minZoom = await controller.getMinZoom();
-              var maxZoom = await controller.getMaxZoom();
+              final cameraPosition = await controller.getCameraPosition();
+              final minZoom = await controller.getMinZoom();
+              final maxZoom = await controller.getMaxZoom();
 
-              print('Current zoom: $zoom, minZoom: $minZoom, maxZoom: $maxZoom');
+              print('Camera position: $cameraPosition');
+              print('Min zoom: $minZoom, Max zoom: $maxZoom');
 
               setState(() {
                 isTiltGesturesEnabled = tiltGesturesEnabled;
@@ -146,7 +147,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     onPressed: () async {
                       final placemark = Placemark(
                         mapId: targetMapObjectId,
-                        point: await controller.getTargetPoint(),
+                        point: (await controller.getCameraPosition()).target,
                         style: PlacemarkStyle(
                           opacity: 0.7,
                           icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),

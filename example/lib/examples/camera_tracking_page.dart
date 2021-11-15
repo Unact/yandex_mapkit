@@ -51,7 +51,7 @@ class _CameraTrackingExampleState extends State<_CameraTrackingExample> {
                         mapObjects.add(
                           Placemark(
                             mapId: cameraPlacemarkId,
-                            point: await controller.getTargetPoint(),
+                            point: (await controller.getCameraPosition()).target,
                             style: PlacemarkStyle(
                               icon: PlacemarkIcon.fromIconName(
                                 iconName: 'lib/assets/user.png',

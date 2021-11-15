@@ -31,6 +31,15 @@ class Utils {
     ]
   }
 
+  static func cameraPositionToJson(_ cameraPosition: YMKCameraPosition) -> [String: Any] {
+    return [
+      "target": pointToJson(cameraPosition.target),
+      "zoom": cameraPosition.zoom,
+      "tilt": cameraPosition.tilt,
+      "azimuth": cameraPosition.azimuth,
+    ]
+  }
+
   static func circleFromJson(_ json: [String: Any]) -> YMKCircle {
     return YMKCircle(
       center: pointFromJson(json["center"] as! [String: NSNumber]),

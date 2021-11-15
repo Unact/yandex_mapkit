@@ -15,6 +15,10 @@ Instead updateMapObjects method should be used to control which map objects shou
 * **Breaking change**. `YandexMapController.setBounds` method signature has been changed.
 * **Breaking change**. `YandexMapController.setFocusRect` method signature has been changed.
 * **Breaking change**. `YandexMapController.getVisibleRegion` method signature has been changed.
+* **Breaking change**. Removed `YandexMapController.getZoom`, `YandexMapController.getTargetPoint`.
+Use `YandexMapController.getCameraPosition` to get zoom, target and much more.
+* **Breaking change**. Removed `YandexMapController.getUserTargetPoint`
+Use `YandexMapController.getUserCameraPosition` to get target and much more.
 
 ## 1.1.1
 

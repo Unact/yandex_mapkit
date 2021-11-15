@@ -5,6 +5,7 @@ import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Polyline;
+import com.yandex.mapkit.map.CameraPosition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,16 @@ public class Utils {
     circleMap.put("radius", (double) circle.getRadius());
 
     return circleMap;
+  }
+
+  public static Map<String, Object> cameraPositionToJson(CameraPosition cameraPosition) {
+    Map<String, Object> cameraPositionMap = new HashMap<>();
+    cameraPositionMap.put("target", pointToJson(cameraPosition.getTarget()));
+    cameraPositionMap.put("zoom", cameraPosition.getZoom());
+    cameraPositionMap.put("tilt", cameraPosition.getTilt());
+    cameraPositionMap.put("azimuth", cameraPosition.getAzimuth());
+
+    return cameraPositionMap;
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})

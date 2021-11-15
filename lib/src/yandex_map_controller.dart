@@ -184,33 +184,26 @@ class YandexMapController extends ChangeNotifier {
     return maxZoom;
   }
 
-  /// Returns current camera position point
-  Future<double> getZoom() async {
-    final double zoom = await _channel.invokeMethod('getZoom');
-
-    return zoom;
-  }
-
   /// Returns current user position point
   /// Before using this method user layer must be visible
   /// [YandexMapController.toggleUserLayer] must be called with `visible: true`
   ///
-  /// [Point] is returned only if native YandexMap successfully calculates current position
-  Future<Point?> getUserTargetPoint() async {
-    final dynamic result = await _channel.invokeMethod('getUserTargetPoint');
+  /// [CameraPosition] is returned only if native YandexMap successfully calculates current position
+  Future<CameraPosition?> getUserCameraPosition() async {
+    final dynamic result = await _channel.invokeMethod('getUserCameraPosition');
 
     if (result != null) {
-      return Point._fromJson(result['point']);
+      return CameraPosition._fromJson(result['cameraPosition']);
     }
 
     return null;
   }
 
-  /// Returns current camera position point
-  Future<Point> getTargetPoint() async {
-    final dynamic result = await _channel.invokeMethod('getTargetPoint');
+  /// Returns current camera position
+  Future<CameraPosition> getCameraPosition() async {
+    final dynamic result = await _channel.invokeMethod('getCameraPosition');
 
-    return Point._fromJson(result['point']);
+    return CameraPosition._fromJson(result['cameraPosition']);
   }
 
   /// Get bounds of visible map area

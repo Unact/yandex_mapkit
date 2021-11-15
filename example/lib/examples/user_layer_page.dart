@@ -96,9 +96,9 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                           return;
                         }
 
-                        print(await controller.getUserTargetPoint());
+                        print(await controller.getUserCameraPosition());
                       },
-                      title: 'Get user target'
+                      title: 'Get user camera position'
                     )
                   ],
                 )

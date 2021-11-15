@@ -112,18 +112,13 @@ public class YandexMapController:
     case "getMaxZoom":
       let maxZoom = getMaxZoom()
       result(maxZoom)
-    case "getZoom":
-      let zoom = getZoom()
-      result(zoom)
-    case "getTargetPoint":
-      let targetPoint = getTargetPoint()
-      result(targetPoint)
+    case "getCameraPosition":
+      result(getCameraPosition())
     case "getVisibleRegion":
       let region: [String: Any] = getVisibleRegion()
       result(region)
-    case "getUserTargetPoint":
-      let userTargetPoint = getUserTargetPoint()
-      result(userTargetPoint)
+    case "getUserCameraPosition":
+      result(getUserCameraPosition())
     case "isTiltGesturesEnabled":
       let enabled = isTiltGesturesEnabled()
       result(enabled)
@@ -214,10 +209,6 @@ public class YandexMapController:
     return mapView.mapWindow.map.getMaxZoom()
   }
 
-  public func getZoom() -> Float {
-    return mapView.mapWindow.map.cameraPosition.zoom
-  }
-
   public func move(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let paramsAnimation = params["animation"] as? [String: Any]
@@ -248,27 +239,20 @@ public class YandexMapController:
     moveWithParams(paramsAnimation, cameraPosition)
   }
 
-  public func getTargetPoint() -> [String: Any] {
-    let targetPoint = mapView.mapWindow.map.cameraPosition.target;
+  public func getCameraPosition() -> [String: Any] {
     let arguments: [String: Any] = [
-      "point": [
-        "latitude": targetPoint.latitude,
-        "longitude": targetPoint.longitude
-      ]
+      "cameraPosition": Utils.cameraPositionToJson(mapView.mapWindow.map.cameraPosition)
     ]
 
     return arguments
   }
 
-  public func getUserTargetPoint() -> [String: Any]? {
+  public func getUserCameraPosition() -> [String: Any]? {
     if (!hasLocationPermission()) { return nil }
 
-    if let targetPoint = userLocationLayer?.cameraPosition()?.target {
+    if let cameraPosition = userLocationLayer?.cameraPosition() {
       let arguments: [String: Any] = [
-        "point": [
-          "latitude": targetPoint.latitude,
-          "longitude": targetPoint.longitude
-        ]
+        "cameraPosition": Utils.cameraPositionToJson(cameraPosition)
       ]
 
       return arguments
@@ -457,12 +441,7 @@ public class YandexMapController:
       finished: Bool
     ) {
       let arguments: [String: Any?] = [
-        "cameraPosition": [
-          "target": Utils.pointToJson(cameraPosition.target),
-          "zoom": cameraPosition.zoom,
-          "tilt": cameraPosition.tilt,
-          "azimuth": cameraPosition.azimuth,
-        ],
+        "cameraPosition": Utils.cameraPositionToJson(cameraPosition),
         "finished": finished
       ]
       methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)

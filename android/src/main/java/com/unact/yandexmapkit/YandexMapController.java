@@ -207,11 +207,10 @@ public class YandexMapController implements
     moveWithParams(paramsAnimation, cameraPosition);
   }
 
-  public Map<String, Object> getTargetPoint() {
-    Point point =  mapView.getMapWindow().getMap().getCameraPosition().getTarget();
+  public Map<String, Object> getCameraPosition() {
     Map<String, Object> arguments = new HashMap<>();
 
-    arguments.put("point", Utils.pointToJson(point));
+    arguments.put("cameraPosition", Utils.cameraPositionToJson(mapView.getMapWindow().getMap().getCameraPosition()));
 
     return arguments;
   }
@@ -257,16 +256,15 @@ public class YandexMapController implements
     }
   }
 
-  public Map<String, Object> getUserTargetPoint() {
+  public Map<String, Object> getUserCameraPosition() {
     if (!hasLocationPermission()) return null;
 
     if (userLocationLayer != null) {
       CameraPosition cameraPosition = userLocationLayer.cameraPosition();
 
       if (cameraPosition != null) {
-        Point point =  cameraPosition.getTarget();
         Map<String, Object> arguments = new HashMap<>();
-        arguments.put("point", Utils.pointToJson(point));
+        arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
 
         return arguments;
       }
@@ -302,10 +300,6 @@ public class YandexMapController implements
 
   public float getMaxZoom() {
     return mapView.getMap().getMaxZoom();
-  }
-
-  public float getZoom() {
-    return mapView.getMap().getCameraPosition().getZoom();
   }
 
   public boolean isTiltGesturesEnabled() {
@@ -399,21 +393,15 @@ public class YandexMapController implements
         float maxZoom = getMaxZoom();
         result.success(maxZoom);
         break;
-      case "getZoom":
-        float zoom = getZoom();
-        result.success(zoom);
-        break;
-      case "getTargetPoint":
-        Map<String, Object> targetPoint = getTargetPoint();
-        result.success(targetPoint);
+      case "getCameraPosition":
+        result.success(getCameraPosition());
         break;
       case "getVisibleRegion":
         Map<String, Object> region = getVisibleRegion();
         result.success(region);
         break;
-      case "getUserTargetPoint":
-        Map<String, Object> userTargetPoint = getUserTargetPoint();
-        result.success(userTargetPoint);
+      case "getUserCameraPosition":
+        result.success(getUserCameraPosition());
         break;
       case "isTiltGesturesEnabled":
         boolean isTiltGesturesEnabledValue = isTiltGesturesEnabled();
@@ -557,20 +545,12 @@ public class YandexMapController implements
     @Override
     public void onCameraPositionChanged(
       @NonNull com.yandex.mapkit.map.Map map,
-      CameraPosition cameraPosition,
+      @NonNull CameraPosition cameraPosition,
       @NonNull CameraUpdateReason cameraUpdateReason,
       boolean finished
     ) {
-      Point targetPoint = cameraPosition.getTarget();
-
-      Map<String, Object> cameraPositionArguments = new HashMap<>();
-      cameraPositionArguments.put("target", Utils.pointToJson(targetPoint));
-      cameraPositionArguments.put("zoom", cameraPosition.getZoom());
-      cameraPositionArguments.put("tilt", cameraPosition.getTilt());
-      cameraPositionArguments.put("azimuth", cameraPosition.getAzimuth());
-
       Map<String, Object> arguments = new HashMap<>();
-      arguments.put("cameraPosition", cameraPositionArguments);
+      arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
       arguments.put("finished", finished);
 
       methodChannel.invokeMethod("onCameraPositionChanged", arguments);

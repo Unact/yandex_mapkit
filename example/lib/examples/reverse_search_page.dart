@@ -96,13 +96,13 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   }
 
   void _search() async {
-    var point = await controller.getTargetPoint();
+    final cameraPosition = await controller.getCameraPosition();
 
-    print('Point: $point');
+    print('Point: ${cameraPosition.target}, Zoom: ${cameraPosition.zoom}');
 
     var resultWithSession = YandexSearch.searchByPoint(
-      point: point,
-      zoom: 20,
+      point: cameraPosition.target,
+      zoom: cameraPosition.zoom,
       searchOptions: SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
@@ -112,7 +112,11 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(point, resultWithSession.session, resultWithSession.result)
+        builder: (BuildContext context) => _SessionPage(
+          cameraPosition.target,
+          resultWithSession.session,
+          resultWithSession.result
+        )
       )
     );
   }
