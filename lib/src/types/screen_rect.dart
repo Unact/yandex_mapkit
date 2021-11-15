@@ -50,4 +50,11 @@ class ScreenPoint extends Equatable {
       'y': y,
     };
   }
+
+  factory ScreenPoint._fromJson(Map<dynamic, dynamic> json) {
+    return ScreenPoint(
+      x: json['x'],
+      y: json['y']
+    );
+  }
 }

@@ -107,6 +107,10 @@ public class YandexMapController:
     case "getMaxZoom":
       let maxZoom = getMaxZoom()
       result(maxZoom)
+    case "getPoint":
+      result(getPoint(call))
+    case "getScreenPoint":
+      result(getScreenPoint(call))
     case "getCameraPosition":
       result(getCameraPosition())
     case "getVisibleRegion":
@@ -150,8 +154,8 @@ public class YandexMapController:
     let topLeft = params["topLeft"] as! [String: NSNumber]
     let bottomRight = params["bottomRight"] as! [String: NSNumber]
     let screenRect = YMKScreenRect(
-      topLeft: YMKScreenPoint(x: topLeft["x"]!.floatValue, y: topLeft["y"]!.floatValue),
-      bottomRight: YMKScreenPoint(x: bottomRight["x"]!.floatValue, y: bottomRight["y"]!.floatValue)
+      topLeft: Utils.screenPointFromJson(topLeft),
+      bottomRight: Utils.screenPointFromJson(bottomRight)
     )
 
     mapView.mapWindow.focusRect = screenRect
@@ -202,6 +206,26 @@ public class YandexMapController:
 
   public func getMaxZoom() -> Float {
     return mapView.mapWindow.map.getMaxZoom()
+  }
+
+  public func getScreenPoint(_ call: FlutterMethodCall) -> [String: Any]? {
+    let params = call.arguments as! [String: NSNumber]
+
+    if let screenPoint = mapView.mapWindow.worldToScreen(withWorldPoint: Utils.pointFromJson(params)) {
+      return Utils.screenPointToJson(screenPoint)
+    }
+
+    return nil
+  }
+
+  public func getPoint(_ call: FlutterMethodCall) -> [String: Any]? {
+    let params = call.arguments as! [String: NSNumber]
+
+    if let point = mapView.mapWindow.screenToWorld(with: Utils.screenPointFromJson(params)) {
+      return Utils.pointToJson(point)
+    }
+
+    return nil
   }
 
   public func move(_ call: FlutterMethodCall) {

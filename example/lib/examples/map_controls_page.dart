@@ -243,6 +243,29 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   Container(),
                 ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      final screenPoint = await controller.getScreenPoint(
+                        (await controller.getCameraPosition()).target
+                      );
+
+                      print(screenPoint);
+                    },
+                    title: 'Map point to screen'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      final mediaQuery = MediaQuery.of(context);
+                      final point = await controller.getPoint(
+                        ScreenPoint(x: mediaQuery.size.width, y: mediaQuery.size.height)
+                      );
+
+                      print(point);
+                    },
+                    title: 'Screen point to map'
+                  ),
+                ]),
               ],
             ),
           ),

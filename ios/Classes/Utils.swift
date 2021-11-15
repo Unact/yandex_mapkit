@@ -11,9 +11,16 @@ class Utils {
   }
 
   static func pointFromJson(_ json: [String: NSNumber]) -> YMKPoint {
-    YMKPoint(
+    return YMKPoint(
       latitude: json["latitude"]!.doubleValue,
       longitude: json["longitude"]!.doubleValue
+    )
+  }
+
+  static func screenPointFromJson(_ json: [String: NSNumber]) -> YMKScreenPoint {
+    return YMKScreenPoint(
+      x: json["x"]!.floatValue,
+      y: json["y"]!.floatValue
     )
   }
 
@@ -21,6 +28,13 @@ class Utils {
     return [
       "latitude": point.latitude,
       "longitude": point.longitude
+    ]
+  }
+
+  static func screenPointToJson(_ screenPoint: YMKScreenPoint) -> [String: Any] {
+    return [
+      "x": screenPoint.x,
+      "y": screenPoint.y
     ]
   }
 

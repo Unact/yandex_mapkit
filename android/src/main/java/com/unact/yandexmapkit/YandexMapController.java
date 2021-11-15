@@ -131,14 +131,8 @@ public class YandexMapController implements
     Map<String, Object> paramsTopLeft = ((Map<String, Object>) params.get("topLeft"));
     Map<String, Object> paramsBottomRight = ((Map<String, Object>) params.get("bottomRight"));
     ScreenRect screenRect = new ScreenRect(
-      new ScreenPoint(
-        ((Double) paramsTopLeft.get("x")).floatValue(),
-        ((Double) paramsTopLeft.get("y")).floatValue()
-      ),
-      new ScreenPoint(
-        ((Double) paramsBottomRight.get("x")).floatValue(),
-        ((Double) paramsBottomRight.get("y")).floatValue()
-      )
+      Utils.screenPointFromJson(paramsTopLeft),
+      Utils.screenPointFromJson(paramsBottomRight)
     );
 
     mapView.setFocusRect(screenRect);
@@ -206,6 +200,30 @@ public class YandexMapController implements
     );
 
     moveWithParams(paramsAnimation, cameraPosition);
+  }
+
+  public Map<String, Double> getPoint(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Point point = mapView.getMapWindow().screenToWorld(Utils.screenPointFromJson(params));
+
+    if (point != null) {
+      return Utils.pointToJson(point);
+    }
+
+    return null;
+  }
+
+  public Map<String, Float> getScreenPoint(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    ScreenPoint screenPoint = mapView.getMapWindow().worldToScreen(Utils.pointFromJson(params));
+
+    if (screenPoint != null) {
+      return Utils.screenPointToJson(screenPoint);
+    }
+
+    return null;
   }
 
   public Map<String, Object> getCameraPosition() {
@@ -371,6 +389,12 @@ public class YandexMapController implements
       case "getMaxZoom":
         float maxZoom = getMaxZoom();
         result.success(maxZoom);
+        break;
+      case "getPoint":
+        result.success(getPoint(call));
+        break;
+      case "getScreenPoint":
+        result.success(getScreenPoint(call));
         break;
       case "getCameraPosition":
         result.success(getCameraPosition());

@@ -143,6 +143,34 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod('zoomOut');
   }
 
+  /// Transforms the position from map coordinates to screen coordinates.
+  ///
+  /// [ScreenPoint] is relative to the top left of the map.
+  /// Returns null if [Point] is behind camera.
+  Future<ScreenPoint?> getScreenPoint(Point point) async {
+    final dynamic result = await _channel.invokeMethod('getScreenPoint', point.toJson());
+
+    if (result != null) {
+      return ScreenPoint._fromJson(result);
+    }
+
+    return null;
+  }
+
+  /// Transforms the position from screen coordinates to map coordinates.
+  ///
+  /// [ScreenPoint] should be relative to the top left of the map.
+  /// Returns null if the resulting [Point] is behind camera.
+  Future<Point?> getPoint(ScreenPoint screenPoint) async {
+    final dynamic result = await _channel.invokeMethod('getPoint', screenPoint.toJson());
+
+    if (result != null) {
+      return Point._fromJson(result);
+    }
+
+    return null;
+  }
+
   Future<bool> isZoomGesturesEnabled() async {
     final bool value = await _channel.invokeMethod('isZoomGesturesEnabled');
 

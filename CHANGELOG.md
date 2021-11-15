@@ -5,7 +5,8 @@
 * Added the ability to add composite icon Placemark
 * Added the ability to work with MapObjectCollection
 * Added placemark clusterization
-* **Breaking change**. Change `YandexSuggest.getSuggestions` method signature
+* Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
+* **Breaking change**. Move and change method signature `YandexSearch.getSuggestions` to `YandexSuggest.getSuggestions`
 * **Breaking change**. Rework working with map objects.
 Removed addPlacemark/removePlacemark; addPolygon/removePolygon; addPolyline/removePolyline; addCircle/removeCircle
 Instead updateMapObjects method should be used to control which map objects should be visible on map

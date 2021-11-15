@@ -1,5 +1,6 @@
 package com.unact.yandexmapkit;
 
+import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.geometry.Circle;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Point;
@@ -18,12 +19,25 @@ public class Utils {
     return new Point(((Double) json.get("latitude")), ((Double) json.get("longitude")));
   }
 
+  @SuppressWarnings({"ConstantConditions"})
+  public static ScreenPoint screenPointFromJson(Map<String, Object> json) {
+    return new ScreenPoint(((Double) json.get("x")).floatValue(), ((Double) json.get("y")).floatValue());
+  }
+
   public static Map<String, Double> pointToJson(Point point) {
     Map<String, Double> pointMap = new HashMap<>();
     pointMap.put("latitude", point.getLatitude());
     pointMap.put("longitude", point.getLongitude());
 
     return pointMap;
+  }
+
+  public static Map<String, Float> screenPointToJson(ScreenPoint screenPoint) {
+    Map<String, Float> screenPointMap = new HashMap<>();
+    screenPointMap.put("x", screenPoint.getX());
+    screenPointMap.put("y", screenPoint.getY());
+
+    return screenPointMap;
   }
 
   public static Map<String, Object> circleToJson(Circle circle) {
