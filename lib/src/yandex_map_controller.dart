@@ -225,6 +225,15 @@ class YandexMapController extends ChangeNotifier {
     return VisibleRegion._fromJson(result['visibleRegion']);
   }
 
+  /// Gets the region corresponding to current focusRect or the visible region if focusRect hasn't been set.
+  ///
+  /// In contrast to [getVisibleRegion] this also takes into account focusRect.
+  Future<VisibleRegion> getFocusRegion() async {
+    final dynamic result = await _channel.invokeMethod('getFocusRegion');
+
+    return VisibleRegion._fromJson(result['focusRegion']);
+  }
+
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
       case 'onMapTap':

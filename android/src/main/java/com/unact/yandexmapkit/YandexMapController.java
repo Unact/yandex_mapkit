@@ -249,6 +249,21 @@ public class YandexMapController implements
     return arguments;
   }
 
+  public Map<String, Object> getFocusRegion() {
+    VisibleRegion region = mapView.getMapWindow().getFocusRegion();
+
+    Map<String, Object> visibleRegionArguments = new HashMap<>();
+    visibleRegionArguments.put("bottomLeft", Utils.pointToJson(region.getBottomLeft()));
+    visibleRegionArguments.put("bottomRight", Utils.pointToJson(region.getBottomRight()));
+    visibleRegionArguments.put("topLeft", Utils.pointToJson(region.getTopLeft()));
+    visibleRegionArguments.put("topRight", Utils.pointToJson(region.getTopRight()));
+
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("focusRegion", visibleRegionArguments);
+
+    return arguments;
+  }
+
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void updateMapObjects(MethodCall call) {
     Map<String, Object> params = (Map<String, Object>) call.arguments;
@@ -400,8 +415,10 @@ public class YandexMapController implements
         result.success(getCameraPosition());
         break;
       case "getVisibleRegion":
-        Map<String, Object> region = getVisibleRegion();
-        result.success(region);
+        result.success(getVisibleRegion());
+        break;
+      case "getFocusRegion":
+        result.success(getFocusRegion());
         break;
       case "getUserCameraPosition":
         result.success(getUserCameraPosition());

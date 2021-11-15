@@ -114,8 +114,9 @@ public class YandexMapController:
     case "getCameraPosition":
       result(getCameraPosition())
     case "getVisibleRegion":
-      let region: [String: Any] = getVisibleRegion()
-      result(region)
+      result(getVisibleRegion())
+    case "getFocusRegion":
+      result(getFocusRegion())
     case "getUserCameraPosition":
       result(getUserCameraPosition())
     case "isTiltGesturesEnabled":
@@ -284,6 +285,20 @@ public class YandexMapController:
     let region = mapView.mapWindow.map.visibleRegion
     let arguments = [
       "visibleRegion": [
+        "bottomLeft": Utils.pointToJson(region.bottomLeft),
+        "bottomRight": Utils.pointToJson(region.bottomRight),
+        "topLeft": Utils.pointToJson(region.topLeft),
+        "topRight": Utils.pointToJson(region.bottomLeft)
+      ]
+    ]
+
+    return arguments
+  }
+
+  public func getFocusRegion() -> [String: Any] {
+    let region = mapView.mapWindow.focusRegion
+    let arguments = [
+      "focusRegion": [
         "bottomLeft": Utils.pointToJson(region.bottomLeft),
         "bottomRight": Utils.pointToJson(region.bottomRight),
         "topLeft": Utils.pointToJson(region.topLeft),

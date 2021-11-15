@@ -5,6 +5,7 @@
 * Added the ability to add composite icon Placemark
 * Added the ability to work with MapObjectCollection
 * Added placemark clusterization
+* Add `YandexMapController.getFocusRegion` to get visible region with focusRect taken into account
 * Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
 * **Breaking change**. Move and change method signature `YandexSearch.getSuggestions` to `YandexSuggest.getSuggestions`
 * **Breaking change**. Rework working with map objects.

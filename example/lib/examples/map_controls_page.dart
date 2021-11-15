@@ -146,7 +146,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       final region = await controller.getVisibleRegion();
                       print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
                     },
-                    title: 'Visible map region'
+                    title: 'Visible region'
                   ),
                 ]),
                 TableRow(children: <Widget>[
@@ -229,6 +229,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       },
                       title: 'Clear focus rect'
                     )
+                  ],
+                ),
+                TableRow(
+                  children: <Widget>[
+                    ControlButton(
+                      onPressed: () async {
+                        final region = await controller.getFocusRegion();
+                        print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
+                      },
+                      title: 'Focus region'
+                    ),
+                    Container()
                   ],
                 ),
                 TableRow(children: <Widget>[
