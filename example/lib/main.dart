@@ -11,7 +11,6 @@ import 'package:yandex_mapkit_example/examples/placemark_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_page.dart';
 import 'package:yandex_mapkit_example/examples/reverse_search_page.dart';
-import 'package:yandex_mapkit_example/examples/rotation_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
 import 'package:yandex_mapkit_example/examples/suggest_page.dart';
 import 'package:yandex_mapkit_example/examples/user_layer_page.dart';
@@ -29,7 +28,6 @@ const List<MapPage> _allPages = <MapPage>[
   PolylinePage(),
   PolygonPage(),
   CirclePage(),
-  RotationPage(),
   UserLayerPage(),
   SuggestionsPage(),
   SearchPage(),

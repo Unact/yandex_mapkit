@@ -27,7 +27,7 @@ public class YandexMapController:
   }()
   private let mapView: FLYMKMapView
 
-  public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar) {
+  public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
     self.mapView = FLYMKMapView(frame: frame)
     self.methodChannel = FlutterMethodChannel(
@@ -45,6 +45,8 @@ public class YandexMapController:
     mapView.mapWindow.map.addCameraListener(with: self)
     mapView.mapWindow.addSizeChangedListener(with: self)
     userLocationLayer.setObjectListenerWith(self)
+
+    applyMapOptions(params)
   }
 
   public func view() -> UIView {
@@ -61,12 +63,6 @@ public class YandexMapController:
       }
     case "logoAlignment":
       logoAlignment(call)
-      result(nil)
-    case "toggleNightMode":
-      toggleNightMode(call)
-      result(nil)
-    case "toggleMapRotation":
-      toggleMapRotation(call)
       result(nil)
     case "toggleUserLayer":
       toggleUserLayer(call)
@@ -89,17 +85,14 @@ public class YandexMapController:
     case "updateMapObjects":
       updateMapObjects(call)
       result(nil)
+    case "updateMapOptions":
+      updateMapOptions(call)
+      result(nil)
     case "zoomIn":
       zoomIn()
       result(nil)
     case "zoomOut":
       zoomOut()
-      result(nil)
-    case "isZoomGesturesEnabled":
-      let enabled = isZoomGesturesEnabled()
-      result(enabled)
-    case "toggleZoomGestures":
-      toggleZoomGestures(call)
       result(nil)
     case "getMinZoom":
       let minZoom = getMinZoom()
@@ -119,26 +112,16 @@ public class YandexMapController:
       result(getFocusRegion())
     case "getUserCameraPosition":
       result(getUserCameraPosition())
-    case "isTiltGesturesEnabled":
-      let enabled = isTiltGesturesEnabled()
-      result(enabled)
-    case "toggleTiltGestures":
-      toggleTiltGestures(call)
-      result(nil)
 
     default:
       result(FlutterMethodNotImplemented)
     }
   }
 
-  public func toggleMapRotation(_ call: FlutterMethodCall) {
+  public func updateMapOptions(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    mapView.mapWindow.map.isRotateGesturesEnabled = (params["enabled"] as! NSNumber).boolValue
-  }
 
-  public func toggleNightMode(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    mapView.mapWindow.map.isNightModeEnabled = (params["enabled"] as! NSNumber).boolValue
+    applyMapOptions(params)
   }
 
   public func toggleUserLayer(_ call: FlutterMethodCall) {
@@ -189,16 +172,6 @@ public class YandexMapController:
 
   public func zoomOut() {
     zoom(-1)
-  }
-
-  public func isZoomGesturesEnabled() -> Bool {
-    return mapView.mapWindow.map.isZoomGesturesEnabled
-  }
-
-  public func toggleZoomGestures(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let enabled = params["enabled"] as! Bool
-    mapView.mapWindow.map.isZoomGesturesEnabled = enabled
   }
 
   public func getMinZoom() -> Float {
@@ -318,17 +291,6 @@ public class YandexMapController:
     }
   }
 
-  public func isTiltGesturesEnabled() -> Bool {
-    return mapView.mapWindow.map.isTiltGesturesEnabled
-  }
-
-  public func toggleTiltGestures(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let enabled = params["enabled"] as! Bool
-
-    mapView.mapWindow.map.isTiltGesturesEnabled = enabled
-  }
-
   private func hasLocationPermission() -> Bool {
     if CLLocationManager.locationServicesEnabled() {
       switch CLLocationManager.authorizationStatus() {
@@ -378,6 +340,51 @@ public class YandexMapController:
       cameraCallback: nil
     )
   }
+
+  public func applyMapOptions(_ params: [String: Any]) {
+    let map = mapView.mapWindow.map
+
+    if let tiltGesturesEnabled = params["tiltGesturesEnabled"] as? NSNumber {
+      map.isTiltGesturesEnabled = tiltGesturesEnabled.boolValue
+    }
+
+    if let zoomGesturesEnabled = params["zoomGesturesEnabled"] as? NSNumber {
+      map.isZoomGesturesEnabled = zoomGesturesEnabled.boolValue
+    }
+
+    if let rotateGesturesEnabled = params["rotateGesturesEnabled"] as? NSNumber {
+      map.isRotateGesturesEnabled = rotateGesturesEnabled.boolValue
+    }
+
+    if let nightModeEnabled = params["nightModeEnabled"] as? NSNumber {
+      map.isNightModeEnabled = nightModeEnabled.boolValue
+    }
+
+    if let scrollGesturesEnabled = params["scrollGesturesEnabled"] as? NSNumber {
+      map.isScrollGesturesEnabled = scrollGesturesEnabled.boolValue
+    }
+
+    if let fastTapEnabled = params["fastTapEnabled"] as? NSNumber {
+      map.isFastTapEnabled = fastTapEnabled.boolValue
+    }
+
+    if let mode2DEnabled = params["mode2DEnabled"] as? NSNumber {
+      map.set2DMode(withEnable: mode2DEnabled.boolValue)
+    }
+
+    if let indoorEnabled = params["indoorEnabled"] as? NSNumber {
+      map.isIndoorEnabled = indoorEnabled.boolValue
+    }
+
+    if let liteModeEnabled = params["liteModeEnabled"] as? NSNumber {
+      map.isLiteModeEnabled = liteModeEnabled.boolValue
+    }
+
+    if let modelsEnabled = params["modelsEnabled"] as? NSNumber {
+      map.isModelsEnabled = modelsEnabled.boolValue
+    }
+  }
+
 
   public func onObjectAdded(with view: YMKUserLocationView) {
     let arguments = [

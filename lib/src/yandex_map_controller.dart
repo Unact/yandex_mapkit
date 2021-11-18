@@ -39,16 +39,6 @@ class YandexMapController extends ChangeNotifier {
     await _channel.invokeMethod('logoAlignment', alignment.toJson());
   }
 
-  /// Toggles night mode
-  Future<void> toggleNightMode({required bool enabled}) async {
-    await _channel.invokeMethod('toggleNightMode', {'enabled': enabled});
-  }
-
-  /// Toggles rotation of map
-  Future<void> toggleMapRotation({required bool enabled}) async {
-    await _channel.invokeMethod('toggleMapRotation', {'enabled': enabled});
-  }
-
   /// Toggles current user location layer
   ///
   /// Requires location permissions:
@@ -171,17 +161,6 @@ class YandexMapController extends ChangeNotifier {
     return null;
   }
 
-  Future<bool> isZoomGesturesEnabled() async {
-    final bool value = await _channel.invokeMethod('isZoomGesturesEnabled');
-
-    return value;
-  }
-
-  /// Toggles isZoomGesturesEnabled (enable/disable zoom gestures)
-  Future<void> toggleZoomGestures({required bool enabled}) async {
-    await _channel.invokeMethod('toggleZoomGestures', {'enabled': enabled});
-  }
-
   // Returns min available zoom for visible map region
   Future<double> getMinZoom() async {
     final double minZoom = await _channel.invokeMethod('getMinZoom');
@@ -232,6 +211,10 @@ class YandexMapController extends ChangeNotifier {
     final dynamic result = await _channel.invokeMethod('getFocusRegion');
 
     return VisibleRegion._fromJson(result['focusRegion']);
+  }
+
+  Future<void> _updateMapOptions(Map<String, dynamic> options) async {
+    await _channel.invokeMethod('updateMapOptions', options);
   }
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
@@ -396,15 +379,5 @@ class YandexMapController extends ChangeNotifier {
     }
 
     return null;
-  }
-
-  Future<bool> isTiltGesturesEnabled() async {
-    final bool value = await _channel.invokeMethod('isTiltGesturesEnabled');
-    return value;
-  }
-
-  /// Toggles isTiltGesturesEnabled (enable/disable tilt gestures)
-  Future<void> toggleTiltGestures({required bool enabled}) async {
-    await _channel.invokeMethod('toggleTiltGestures', {'enabled': enabled});
   }
 }

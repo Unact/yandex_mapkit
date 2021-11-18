@@ -22,6 +22,12 @@ Use `YandexMapController.getCameraPosition` to get zoom, target and much more.
 Use `YandexMapController.getUserCameraPosition` to get target and much more.
 * **Breaking change**. Removed `YandexMapController.enableCameraTracking`/`YandexMapController.disableCameraTracking`
 Use `YandexMap.onCameraPositionChanged` to receive camera updates
+* **Breaking change**. Removed `YandexMapController.toggleMapRotation`. Use `YandexMap.rotateGesturesEnabled` instead.
+* **Breaking change**. Removed `YandexMapController.toggleTiltGestures` and `YandexMapController.isTiltGesturesEnabled`.
+Use `YandexMap.tiltGesturesEnabled` instead.
+* **Breaking change**. Removed `YandexMapController.toggleNightMode`. Use `YandexMap.nightModeEnabled` instead.
+* **Breaking change**. Removed `YandexMapController.toggleZoomGestures` and `YandexMapController.isZoomGesturesEnabled`.
+Use `YandexMap.zoomGesturesEnabled` instead.
 
 ## 1.1.1
 

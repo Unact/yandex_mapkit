@@ -1,6 +1,9 @@
 package com.unact.yandexmapkit;
 
 import android.content.Context;
+
+import java.util.Map;
+
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
@@ -17,7 +20,8 @@ public class YandexMapFactory extends PlatformViewFactory {
   }
 
   @Override
-  public PlatformView create(Context context, int id, Object o) {
-    return new YandexMapController(id, context, messenger, lifecycleProvider);
+  @SuppressWarnings({"unchecked"})
+  public PlatformView create(Context context, int id, Object args) {
+    return new YandexMapController(id, context, messenger, (Map<String, Object>) args, lifecycleProvider);
   }
 }

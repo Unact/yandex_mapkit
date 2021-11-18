@@ -61,7 +61,11 @@ class placemarkExampleState extends State<placemarkExample> {
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           style: PlacemarkStyle(
                             opacity: 0.7,
-                            icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
+                            direction: 90,
+                            icon: PlacemarkIcon.fromIconName(
+                              iconName: 'lib/assets/place.png',
+                              style: PlacemarkIconStyle(rotationType: RotationType.rotate)
+                            ),
                           ),
                         ));
 

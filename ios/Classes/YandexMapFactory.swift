@@ -10,9 +10,20 @@ public class YandexMapFactory: NSObject, FlutterPlatformViewFactory {
     super.init()
   }
 
-  public func create(withFrame frame: CGRect,
-                     viewIdentifier viewId: Int64,
-                     arguments args: Any?) -> FlutterPlatformView {
-    return YandexMapController(id: viewId, frame: frame, registrar: self.pluginRegistrar)
+  public func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
+    return FlutterStandardMessageCodec.sharedInstance()
+  }
+
+  public func create(
+    withFrame frame: CGRect,
+    viewIdentifier viewId: Int64,
+    arguments args: Any?
+  ) -> FlutterPlatformView {
+    return YandexMapController(
+      id: viewId,
+      frame: frame,
+      registrar: self.pluginRegistrar,
+      params: args as! [String: Any]
+    )
   }
 }

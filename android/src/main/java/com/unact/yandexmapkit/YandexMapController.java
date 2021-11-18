@@ -66,7 +66,13 @@ public class YandexMapController implements
   private boolean disposed = false;
 
   @SuppressWarnings({"ConstantConditions"})
-  public YandexMapController(int id, Context context, BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
+  public YandexMapController(
+    int id,
+    Context context,
+    BinaryMessenger messenger,
+    Map<String, Object> params,
+    YandexMapkitPlugin.LifecycleProvider lifecycleProvider
+  ) {
     this.lifecycleProvider = lifecycleProvider;
     this.context = context;
     mapView = new MapView(context);
@@ -89,6 +95,8 @@ public class YandexMapController implements
 
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
+
+    applyMapOptions(params);
   }
 
   @Override
@@ -109,20 +117,6 @@ public class YandexMapController implements
     if (lifecycle != null) {
       lifecycle.removeObserver(this);
     }
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void toggleNightMode(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    mapView.getMap().setNightModeEnabled((Boolean) params.get("enabled"));
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void toggleMapRotation(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    mapView.getMap().setRotateGesturesEnabled((Boolean) params.get("enabled"));
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -276,6 +270,12 @@ public class YandexMapController implements
     }
   }
 
+  public void updateMapOptions(MethodCall call) {
+    Map<String, Object> params = (Map<String, Object>) call.arguments;
+
+    applyMapOptions(params);
+  }
+
   public Map<String, Object> getUserCameraPosition() {
     if (!hasLocationPermission()) return null;
 
@@ -301,17 +301,49 @@ public class YandexMapController implements
     zoom(-1f);
   }
 
-  public boolean isZoomGesturesEnabled() {
-    return mapView.getMap().isZoomGesturesEnabled();
-  }
-
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void toggleZoomGestures(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+  public void applyMapOptions(Map<String, Object> params) {
+    com.yandex.mapkit.map.Map map = mapView.getMap();
 
-    boolean enabled = (Boolean) params.get("enabled");
+    if (params.get("tiltGesturesEnabled") != null) {
+      map.setTiltGesturesEnabled((Boolean) params.get("tiltGesturesEnabled"));
+    }
 
-    mapView.getMap().setZoomGesturesEnabled(enabled);
+    if (params.get("zoomGesturesEnabled") != null) {
+      map.setZoomGesturesEnabled((Boolean) params.get("zoomGesturesEnabled"));
+    }
+
+    if (params.get("rotateGesturesEnabled") != null) {
+      map.setRotateGesturesEnabled((Boolean) params.get("rotateGesturesEnabled"));
+    }
+
+    if (params.get("nightModeEnabled") != null) {
+      map.setNightModeEnabled((Boolean) params.get("nightModeEnabled"));
+    }
+
+    if (params.get("scrollGesturesEnabled") != null) {
+      map.setScrollGesturesEnabled((Boolean) params.get("scrollGesturesEnabled"));
+    }
+
+    if (params.get("fastTapEnabled") != null) {
+      map.setFastTapEnabled((Boolean) params.get("fastTapEnabled"));
+    }
+
+    if (params.get("mode2DEnabled") != null) {
+      map.set2DMode((Boolean) params.get("mode2DEnabled"));
+    }
+
+    if (params.get("indoorEnabled") != null) {
+      map.setIndoorEnabled((Boolean) params.get("indoorEnabled"));
+    }
+
+    if (params.get("liteModeEnabled") != null) {
+      map.setLiteModeEnabled((Boolean) params.get("liteModeEnabled"));
+    }
+
+    if (params.get("modelsEnabled") != null) {
+      map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
+    }
   }
 
   public float getMinZoom() {
@@ -322,19 +354,6 @@ public class YandexMapController implements
     return mapView.getMap().getMaxZoom();
   }
 
-  public boolean isTiltGesturesEnabled() {
-    return mapView.getMap().isTiltGesturesEnabled();
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void toggleTiltGestures(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    boolean enabled = (Boolean) params.get("enabled");
-
-    mapView.getMap().setTiltGesturesEnabled(enabled);
-  }
-
   @Override
   public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
@@ -343,14 +362,6 @@ public class YandexMapController implements
         break;
       case "logoAlignment":
         logoAlignment(call);
-        result.success(null);
-        break;
-      case "toggleNightMode":
-        toggleNightMode(call);
-        result.success(null);
-        break;
-      case "toggleMapRotation":
-        toggleMapRotation(call);
         result.success(null);
         break;
       case "toggleUserLayer":
@@ -381,20 +392,16 @@ public class YandexMapController implements
         updateMapObjects(call);
         result.success(null);
         break;
+      case "updateMapOptions":
+        updateMapOptions(call);
+        result.success(null);
+        break;
       case "zoomIn":
         zoomIn();
         result.success(null);
         break;
       case "zoomOut":
         zoomOut();
-        result.success(null);
-        break;
-      case "isZoomGesturesEnabled":
-        boolean isZoomGesturesEnabledValue = isZoomGesturesEnabled();
-        result.success(isZoomGesturesEnabledValue);
-        break;
-      case "toggleZoomGestures":
-        toggleZoomGestures(call);
         result.success(null);
         break;
       case "getMinZoom":
@@ -422,14 +429,6 @@ public class YandexMapController implements
         break;
       case "getUserCameraPosition":
         result.success(getUserCameraPosition());
-        break;
-      case "isTiltGesturesEnabled":
-        boolean isTiltGesturesEnabledValue = isTiltGesturesEnabled();
-        result.success(isTiltGesturesEnabledValue);
-        break;
-      case "toggleTiltGestures":
-        toggleTiltGestures(call);
-        result.success(null);
         break;
       default:
         result.notImplemented();

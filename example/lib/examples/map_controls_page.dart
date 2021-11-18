@@ -24,9 +24,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
   final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  bool isNightModeEnabled = false;
-  bool isZoomGesturesEnabled = false;
-  bool isTiltGesturesEnabled = false;
+
+  bool tiltGesturesEnabled = true;
+  bool zoomGesturesEnabled = true;
+  bool rotateGesturesEnabled = true;
+  bool scrollGesturesEnabled = true;
+  bool modelsEnabled = true;
+  bool nightModeEnabled = false;
+  bool fastTapEnabled = false;
+  bool mode2DEnabled = false;
+  bool indoorEnabled = false;
+  bool liteModeEnabled = false;
+
   final String emptyStyle = '''
     [
       {
@@ -56,6 +65,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   ''';
   double _height = 0;
 
+  String _enabledText(bool enabled) {
+    return enabled ? 'on' : 'off';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -64,10 +77,18 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
+            tiltGesturesEnabled: tiltGesturesEnabled,
+            zoomGesturesEnabled: zoomGesturesEnabled,
+            rotateGesturesEnabled: rotateGesturesEnabled,
+            scrollGesturesEnabled: scrollGesturesEnabled,
+            modelsEnabled: modelsEnabled,
+            nightModeEnabled: nightModeEnabled,
+            fastTapEnabled: fastTapEnabled,
+            mode2DEnabled: mode2DEnabled,
+            indoorEnabled: indoorEnabled,
+            liteModeEnabled: liteModeEnabled,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-              final tiltGesturesEnabled = await controller.isTiltGesturesEnabled();
-              final zoomGesturesEnabled = await controller.isZoomGesturesEnabled();
 
               final cameraPosition = await controller.getCameraPosition();
               final minZoom = await controller.getMinZoom();
@@ -75,11 +96,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
               print('Camera position: $cameraPosition');
               print('Min zoom: $minZoom, Max zoom: $maxZoom');
-
-              setState(() {
-                isTiltGesturesEnabled = tiltGesturesEnabled;
-                isZoomGesturesEnabled = zoomGesturesEnabled;
-              });
             },
             onMapSizeChanged: (MapSize size) => print('Map size changed to $size'),
             onMapTap: (Point point) => print('Tapped map at $point'),
@@ -134,24 +150,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      setState(() {
-                        isZoomGesturesEnabled = !isZoomGesturesEnabled;
-                      });
-                      await controller.toggleZoomGestures(enabled: isZoomGesturesEnabled);
-                    },
-                    title: 'Zoom gestures: ${isZoomGesturesEnabled ? 'on' : 'off'}'
-                  ),
-                  ControlButton(
-                    onPressed: () async {
-                      final region = await controller.getVisibleRegion();
-                      print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
-                    },
-                    title: 'Visible region'
-                  ),
-                ]),
-                TableRow(children: <Widget>[
-                  ControlButton(
-                    onPressed: () async {
                       final placemark = Placemark(
                         mapId: targetMapObjectId,
                         point: (await controller.getCameraPosition()).target,
@@ -196,19 +194,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      isNightModeEnabled = !isNightModeEnabled;
-                      await controller.toggleNightMode(enabled: isNightModeEnabled);
-                    },
-                    title: 'Night mode'
-                  ),
-                  ControlButton(
-                    onPressed: () async {
                       setState(() {
                         _height = _height == 0 ? 10 : 0;
                       });
                     },
                     title: 'Change size'
-                  )
+                  ),
+                  Container()
                 ]),
                 TableRow(
                   children: <Widget>[
@@ -240,21 +232,15 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       },
                       title: 'Focus region'
                     ),
-                    Container()
+                    ControlButton(
+                      onPressed: () async {
+                        final region = await controller.getVisibleRegion();
+                        print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
+                      },
+                      title: 'Visible region'
+                    )
                   ],
                 ),
-                TableRow(children: <Widget>[
-                  ControlButton(
-                      onPressed: () async {
-                        setState(() {
-                          isTiltGesturesEnabled = !isTiltGesturesEnabled;
-                        });
-                        await controller.toggleTiltGestures(enabled: isTiltGesturesEnabled);
-                      },
-                      title: 'Tilt gestures: ${isTiltGesturesEnabled ? 'on' : 'off'}'
-                  ),
-                  Container(),
-                ]),
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
@@ -278,6 +264,96 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     title: 'Screen point to map'
                   ),
                 ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                      onPressed: () async {
+                        setState(() {
+                          tiltGesturesEnabled = !tiltGesturesEnabled;
+                        });
+                      },
+                      title: 'Tilt gestures: ${_enabledText(tiltGesturesEnabled)}'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        rotateGesturesEnabled = !rotateGesturesEnabled;
+                      });
+                    },
+                    title: 'Rotate gestures: ${_enabledText(rotateGesturesEnabled)}'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        zoomGesturesEnabled = !zoomGesturesEnabled;
+                      });
+                    },
+                    title: 'Zoom gestures: ${_enabledText(zoomGesturesEnabled)}'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        scrollGesturesEnabled = !scrollGesturesEnabled;
+                      });
+                    },
+                    title: 'Scroll gestures: ${_enabledText(scrollGesturesEnabled)}'
+                  )
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        modelsEnabled = !modelsEnabled;
+                      });
+                    },
+                    title: 'Models: ${_enabledText(modelsEnabled)}'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        nightModeEnabled = !nightModeEnabled;
+                      });
+                    },
+                    title: 'Night mode: ${_enabledText(nightModeEnabled)}'
+                  )
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        fastTapEnabled = !fastTapEnabled;
+                      });
+                    },
+                    title: 'Fast tap: ${_enabledText(fastTapEnabled)}'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        mode2DEnabled = !mode2DEnabled;
+                      });
+                    },
+                    title: '2D mode: ${_enabledText(mode2DEnabled)}'
+                  )
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        indoorEnabled = !indoorEnabled;
+                      });
+                    },
+                    title: 'Indoor mode: ${_enabledText(indoorEnabled)}'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        liteModeEnabled = !liteModeEnabled;
+                      });
+                    },
+                    title: 'Lite mode: ${_enabledText(liteModeEnabled)}'
+                  )
+                ])
               ],
             ),
           ),
