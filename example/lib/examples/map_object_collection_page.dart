@@ -19,7 +19,6 @@ class _MapObjectCollectionExample extends StatefulWidget {
 }
 
 class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample> {
-  late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
   final MapObjectId mapObjectCollectionId = MapObjectId('map_object_collection');
@@ -32,9 +31,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
       children: <Widget>[
         Expanded(
           child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
+            mapObjects: mapObjects
           )
         ),
         const SizedBox(height: 20),
@@ -51,7 +48,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                           return;
                         }
 
-                        mapObjects.add(MapObjectCollection(
+                        final mapObjectCollection = MapObjectCollection(
                           mapId: mapObjectCollectionId,
                           mapObjects: [
                             Circle(
@@ -78,9 +75,11 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                             )
                           ],
                           onTap: (MapObjectCollection self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(mapObjectCollection);
+                        });
                       },
                       title: 'Add'
                     ),
@@ -92,35 +91,36 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
 
                         final mapObjectCollection = mapObjects
                           .firstWhere((el) => el.mapId == mapObjectCollectionId) as MapObjectCollection;
-                        mapObjects[mapObjects.indexOf(mapObjectCollection)] = mapObjectCollection.copyWith(mapObjects: [
-                          Circle(
-                            mapId: MapObjectId('circle'),
-                            center: Point(latitude: 59.945933, longitude: 30.320045),
-                            radius: 10000
-                          ),
-                          Placemark(
-                            mapId: MapObjectId('placemark_new'),
-                            point: Point(latitude: 59.945933, longitude: 30.320045),
-                            style: PlacemarkStyle(
-                              icon: PlacemarkIcon.fromIconName(
-                                iconName: 'lib/assets/arrow.png',
-                                style: PlacemarkIconStyle(
-                                  scale: 0.2,
-                                )
+
+                        setState(() {
+                          mapObjects[mapObjects.indexOf(mapObjectCollection)] = mapObjectCollection.copyWith(mapObjects: [
+                            Circle(
+                              mapId: MapObjectId('circle'),
+                              center: Point(latitude: 59.945933, longitude: 30.320045),
+                              radius: 10000
+                            ),
+                            Placemark(
+                              mapId: MapObjectId('placemark_new'),
+                              point: Point(latitude: 59.945933, longitude: 30.320045),
+                              style: PlacemarkStyle(
+                                icon: PlacemarkIcon.fromIconName(
+                                  iconName: 'lib/assets/arrow.png',
+                                  style: PlacemarkIconStyle(
+                                    scale: 0.2,
+                                  )
+                                ),
                               ),
                             ),
-                          ),
-                        ]);
-
-                        await controller.updateMapObjects(mapObjects);
+                          ]);
+                        });
                       },
                       title: 'Update'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == mapObjectCollectionId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectCollectionId);
+                        });
                       },
                       title: 'Remove'
                     )

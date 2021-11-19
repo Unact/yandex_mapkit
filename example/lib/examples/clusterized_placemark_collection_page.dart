@@ -23,7 +23,6 @@ class _ClusterizedPlacemarkCollectionExample extends StatefulWidget {
 }
 
 class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlacemarkCollectionExample> {
-  late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
   final int kPlacemarkCount = 500;
@@ -79,9 +78,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
       children: <Widget>[
         Expanded(
           child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
+            mapObjects: mapObjects
           )
         ),
         const SizedBox(height: 20),
@@ -98,7 +95,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           return;
                         }
 
-                        mapObjects.add(ClusterizedPlacemarkCollection(
+                        final clusterizedPlacemarkCollection = ClusterizedPlacemarkCollection(
                           mapId: clusterizedPlacemarkCollectionId,
                           radius: 30,
                           minZoom: 15,
@@ -150,9 +147,11 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             ),
                           ],
                           onTap: (ClusterizedPlacemarkCollection self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(clusterizedPlacemarkCollection);
+                        });
                       },
                       title: 'Add'
                     ),
@@ -164,49 +163,50 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
 
                         final clusterizedPlacemarkCollection = mapObjects
                           .firstWhere((el) => el.mapId == clusterizedPlacemarkCollectionId) as ClusterizedPlacemarkCollection;
-                        mapObjects[mapObjects.indexOf(clusterizedPlacemarkCollection)] =
-                          clusterizedPlacemarkCollection.copyWith(placemarks: [
-                            Placemark(
-                              mapId: MapObjectId('placemark_2'),
-                              point: Point(latitude: 59.956, longitude: 30.313),
-                              style: PlacemarkStyle(
-                                icon: PlacemarkIcon.fromIconName(
-                                  iconName: 'lib/assets/place.png',
-                                  style: PlacemarkIconStyle(scale: 1)
-                                ),
-                              )
-                            ),
-                            Placemark(
-                              mapId: MapObjectId('placemark_3'),
-                              point: Point(latitude: 39.956, longitude: 31.313),
-                              style: PlacemarkStyle(
-                                icon: PlacemarkIcon.fromIconName(
-                                  iconName: 'lib/assets/place.png',
-                                  style: PlacemarkIconStyle(scale: 1)
-                                ),
-                              )
-                            ),
-                            Placemark(
-                              mapId: MapObjectId('placemark_4'),
-                              point: Point(latitude: 59.945933, longitude: 30.320045),
-                              style: PlacemarkStyle(
-                                icon: PlacemarkIcon.fromIconName(
-                                  iconName: 'lib/assets/place.png',
-                                  style: PlacemarkIconStyle(scale: 1)
-                                ),
-                              )
-                            ),
-                          ]);
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects[mapObjects.indexOf(clusterizedPlacemarkCollection)] =
+                            clusterizedPlacemarkCollection.copyWith(placemarks: [
+                              Placemark(
+                                mapId: MapObjectId('placemark_2'),
+                                point: Point(latitude: 59.956, longitude: 30.313),
+                                style: PlacemarkStyle(
+                                  icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/place.png',
+                                    style: PlacemarkIconStyle(scale: 1)
+                                  ),
+                                )
+                              ),
+                              Placemark(
+                                mapId: MapObjectId('placemark_3'),
+                                point: Point(latitude: 39.956, longitude: 31.313),
+                                style: PlacemarkStyle(
+                                  icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/place.png',
+                                    style: PlacemarkIconStyle(scale: 1)
+                                  ),
+                                )
+                              ),
+                              Placemark(
+                                mapId: MapObjectId('placemark_4'),
+                                point: Point(latitude: 59.945933, longitude: 30.320045),
+                                style: PlacemarkStyle(
+                                  icon: PlacemarkIcon.fromIconName(
+                                    iconName: 'lib/assets/place.png',
+                                    style: PlacemarkIconStyle(scale: 1)
+                                  ),
+                                )
+                              ),
+                            ]);
+                          });
                       },
                       title: 'Update'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == clusterizedPlacemarkCollectionId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == clusterizedPlacemarkCollectionId);
+                        });
                       },
                       title: 'Remove'
                     )
@@ -222,7 +222,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           return;
                         }
 
-                        mapObjects.add(ClusterizedPlacemarkCollection(
+                        final clusterizedPlacemarkCollection = ClusterizedPlacemarkCollection(
                           mapId: largeClusterizedPlacemarkCollectionId,
                           radius: 30,
                           minZoom: 15,
@@ -255,17 +255,19 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             );
                           }),
                           onTap: (ClusterizedPlacemarkCollection self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(clusterizedPlacemarkCollection);
+                        });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == largeClusterizedPlacemarkCollectionId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == largeClusterizedPlacemarkCollectionId);
+                        });
                       },
                       title: 'Remove'
                     )

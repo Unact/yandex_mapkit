@@ -23,7 +23,19 @@ class _ReverseSearchExample extends StatefulWidget {
 class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   final TextEditingController queryController = TextEditingController();
   late YandexMapController controller;
-  final List<MapObject> mapObjects = [];
+  late final List<MapObject> mapObjects = [
+    Placemark(
+      mapId: cameraMapObjectId,
+      point: Point(latitude: 55.755848, longitude: 37.620409),
+      style: PlacemarkStyle(
+        icon: PlacemarkIcon.fromIconName(
+          iconName: 'lib/assets/place.png',
+          style: PlacemarkIconStyle(scale: 0.75),
+        ),
+        opacity: 0.5,
+      )
+    )
+  ];
 
   final MapObjectId cameraMapObjectId = MapObjectId('camera_placemark');
 
@@ -42,29 +54,19 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
               fit: StackFit.expand,
               children: [
                 YandexMap(
+                  mapObjects: mapObjects,
                   onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason _, bool __) async {
                     final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
-                    mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
 
-                    await controller.updateMapObjects(mapObjects);
+                    setState(() {
+                      mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
+                    });
                   },
                   onMapCreated: (YandexMapController yandexMapController) async {
+                    final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
+
                     controller = yandexMapController;
 
-                    final placemark = Placemark(
-                      mapId: cameraMapObjectId,
-                      point: Point(latitude: 55.755848, longitude: 37.620409),
-                      style: PlacemarkStyle(
-                        icon: PlacemarkIcon.fromIconName(
-                          iconName: 'lib/assets/place.png',
-                          style: PlacemarkIconStyle(scale: 0.75),
-                        ),
-                        opacity: 0.5,
-                      )
-                    );
-                    mapObjects.add(placemark);
-
-                    await controller.updateMapObjects(mapObjects);
                     await controller.move(cameraPosition: CameraPosition(target: placemark.point, zoom: 17));
                   },
                 )
@@ -132,6 +134,8 @@ class _SessionPage extends StatefulWidget {
 }
 
 class _SessionState extends State<_SessionPage> {
+  final List<MapObject> mapObjects = [];
+
   final List<SearchSessionResult> results = [];
   bool _progress = true;
 
@@ -166,20 +170,24 @@ class _SessionState extends State<_SessionPage> {
                 fit: StackFit.expand,
                 children: [
                   YandexMap(
+                    mapObjects: mapObjects,
                     onMapCreated: (YandexMapController yandexMapController) async {
-                      await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
-                      await yandexMapController.updateMapObjects([
-                        Placemark(
-                          mapId: MapObjectId('search_placemark'),
-                          point: widget.point,
-                          style: PlacemarkStyle(
-                            icon: PlacemarkIcon.fromIconName(
-                              iconName: 'lib/assets/place.png',
-                              style: PlacemarkIconStyle(scale: 0.75),
-                            ),
-                          )
+                      final placemark = Placemark(
+                        mapId: MapObjectId('search_placemark'),
+                        point: widget.point,
+                        style: PlacemarkStyle(
+                          icon: PlacemarkIcon.fromIconName(
+                            iconName: 'lib/assets/place.png',
+                            style: PlacemarkIconStyle(scale: 0.75),
+                          ),
                         )
-                      ]);
+                      );
+
+                      setState(() {
+                        mapObjects.add(placemark);
+                      });
+
+                      await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
                     },
                   ),
                 ],

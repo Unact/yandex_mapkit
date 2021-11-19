@@ -21,7 +21,6 @@ class _PolygonExample extends StatefulWidget {
 }
 
 class _PolygonExampleState extends State<_PolygonExample> {
-  late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
   final MapObjectId polygonId = MapObjectId('polygon');
@@ -34,9 +33,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
+            mapObjects: mapObjects
           )
         ),
         const SizedBox(height: 20),
@@ -53,7 +50,7 @@ class _PolygonExampleState extends State<_PolygonExample> {
                           return;
                         }
 
-                        mapObjects.add(Polygon(
+                        final polygon = Polygon(
                           mapId: polygonId,
                           outerRingCoordinates: const <Point>[
                             Point(latitude: 56.34295, longitude: 74.62829),
@@ -73,9 +70,11 @@ class _PolygonExampleState extends State<_PolygonExample> {
                             fillColor: Colors.yellow[200]!,
                           ),
                           onTap: (Polygon self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(polygon);
+                        });
                       },
                       title: 'Add'
                     ),
@@ -86,21 +85,22 @@ class _PolygonExampleState extends State<_PolygonExample> {
                         }
 
                         final polygon = mapObjects.firstWhere((el) => el.mapId == polygonId) as Polygon;
-                        mapObjects[mapObjects.indexOf(polygon)] = polygon.copyWith(style: PolygonStyle(
-                          strokeColor: Colors.orange[700]!,
-                          strokeWidth: 3.0,
-                          fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                        ));
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                            mapObjects[mapObjects.indexOf(polygon)] = polygon.copyWith(style: PolygonStyle(
+                              strokeColor: Colors.orange[700]!,
+                              strokeWidth: 3.0,
+                              fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                            ));
+                        });
                       },
                       title: 'Update'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == polygonId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == polygonId);
+                        });
                       },
                       title: 'Remove'
                     )

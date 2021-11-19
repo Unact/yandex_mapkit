@@ -46,7 +46,8 @@ public class YandexMapController:
     mapView.mapWindow.addSizeChangedListener(with: self)
     userLocationLayer.setObjectListenerWith(self)
 
-    applyMapOptions(params)
+    applyMapOptions(params["mapOptions"] as! [String: Any])
+    applyMapObjects(params["mapObjects"] as! [String: Any])
   }
 
   public func view() -> UIView {
@@ -284,11 +285,8 @@ public class YandexMapController:
 
   public func updateMapObjects(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let toChangeParams = params["toChange"] as! [[String: Any]]
 
-    if let rootChangeParams = toChangeParams.first(where: { $0["id"] as! String == rootController.id }) {
-      rootController.update(rootChangeParams)
-    }
+    applyMapObjects(params)
   }
 
   private func hasLocationPermission() -> Bool {
@@ -385,6 +383,13 @@ public class YandexMapController:
     }
   }
 
+  public func applyMapObjects(_ params: [String: Any]) {
+    let toChangeParams = params["toChange"] as! [[String: Any]]
+
+    if let rootChangeParams = toChangeParams.first(where: { $0["id"] as! String == rootController.id }) {
+      rootController.update(rootChangeParams)
+    }
+  }
 
   public func onObjectAdded(with view: YMKUserLocationView) {
     let arguments = [

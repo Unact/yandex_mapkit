@@ -21,7 +21,6 @@ class _PolylineExample extends StatefulWidget {
 }
 
 class _PolylineExampleState extends State<_PolylineExample> {
-  late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
   final MapObjectId polylineId = MapObjectId('polyline');
@@ -34,9 +33,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
+            mapObjects: mapObjects
           )
         ),
         const SizedBox(height: 20),
@@ -53,7 +50,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
                           return;
                         }
 
-                        mapObjects.add(Polyline(
+                        final polyline = Polyline(
                           mapId: polylineId,
                           coordinates: <Point>[
                             Point(latitude: 59.945933, longitude: 30.320045),
@@ -81,9 +78,11 @@ class _PolylineExampleState extends State<_PolylineExample> {
                             outlineWidth: 2.0,
                           ),
                           onTap: (Polyline self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(polyline);
+                        });
                       },
                       title: 'Add'
                     ),
@@ -94,20 +93,21 @@ class _PolylineExampleState extends State<_PolylineExample> {
                         }
 
                         final polyline = mapObjects.firstWhere((el) => el.mapId == polylineId) as Polyline;
-                        mapObjects[mapObjects.indexOf(polyline)] = polyline.copyWith(style: PolylineStyle(
-                          strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                          strokeWidth: 8.5
-                        ));
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects[mapObjects.indexOf(polyline)] = polyline.copyWith(style: PolylineStyle(
+                            strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                            strokeWidth: 8.5
+                          ));
+                        });
                       },
                       title: 'Update'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == polylineId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == polylineId);
+                        });
                       },
                       title: 'Remove'
                     )

@@ -87,6 +87,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             mode2DEnabled: mode2DEnabled,
             indoorEnabled: indoorEnabled,
             liteModeEnabled: liteModeEnabled,
+            mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
 
@@ -159,9 +160,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         ),
                       );
 
-                      mapObjects.removeWhere((el) => el.mapId == targetMapObjectId);
-                      mapObjects.add(placemark);
-                      await controller.updateMapObjects(mapObjects);
+                      setState(() {
+                        mapObjects.removeWhere((el) => el.mapId == targetMapObjectId);
+                        mapObjects.add(placemark);
+                      });
                     },
                     title: 'Target point'
                   ),

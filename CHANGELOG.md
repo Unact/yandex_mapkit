@@ -8,9 +8,12 @@
 * Add `YandexMapController.getFocusRegion` to get visible region with focusRect taken into account
 * Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
 * **Breaking change**. Move and change method signature `YandexSearch.getSuggestions` to `YandexSuggest.getSuggestions`
-* **Breaking change**. Rework working with map objects.
-Removed addPlacemark/removePlacemark; addPolygon/removePolygon; addPolyline/removePolyline; addCircle/removeCircle
-Instead updateMapObjects method should be used to control which map objects should be visible on map
+* **Breaking change**. Rework working with map objects. Removed
+ `YandexMapController.addPlacemark`, `YandexMapController.removePlacemark`,
+ `YandexMapController.addPolygon`, `YandexMapController.removePolygon`,
+ `YandexMapController.addPolyline`, `YandexMapController.removePolyline`,
+ `YandexMapController.addCircle`, `YandexMapController.removeCircle`.
+Use `YandexMap.mapObjects` in conjuction with `setState` to add and remove map objects.
 * **Breaking change**. `YandexMapController.logoAlignment` method signature has been changed.
 * **Breaking change**. `YandexMapController.move` method signature has been changed.
 * **Breaking change**. `YandexMapController.setBounds` method signature has been changed.

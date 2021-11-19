@@ -21,6 +21,11 @@ class _DrivingExample extends StatefulWidget {
 }
 
 class _DrivingExampleState extends State<_DrivingExample> {
+  late final List<MapObject> mapObjects = [
+    startPlacemark,
+    stopByPlacemark,
+    endPlacemark
+  ];
   final Placemark startPlacemark = Placemark(
     mapId: MapObjectId('start_placemark'),
     point: Point(latitude: 55.7558, longitude: 37.6173),
@@ -58,17 +63,11 @@ class _DrivingExampleState extends State<_DrivingExample> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Expanded(child: YandexMap(
-          onMapCreated: (YandexMapController yandexMapController) async {
-            final placemarks = [
-              startPlacemark,
-              stopByPlacemark,
-              endPlacemark
-            ];
-
-            await yandexMapController.updateMapObjects(placemarks);
-          },
-        )),
+        Expanded(
+          child: YandexMap(
+            mapObjects: mapObjects
+          )
+        ),
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
@@ -123,8 +122,10 @@ class _SessionPage extends StatefulWidget {
 }
 
 class _SessionState extends State<_SessionPage> {
-  late YandexMapController controller;
-  final List<MapObject> mapObjects = [];
+  late final List<MapObject> mapObjects = [
+    widget.startPlacemark,
+    widget.endPlacemark
+  ];
 
   final List<DrivingSessionResult> results = [];
   bool _progress = true;
@@ -160,12 +161,7 @@ class _SessionState extends State<_SessionPage> {
                 fit: StackFit.expand,
                 children: [
                   YandexMap(
-                    onMapCreated: (YandexMapController yandexMapController) async {
-                      controller = yandexMapController;
-                      mapObjects.addAll([widget.startPlacemark, widget.endPlacemark]);
-
-                      await controller.updateMapObjects(mapObjects);
-                    },
+                    mapObjects: mapObjects
                   ),
                 ],
               ),
@@ -256,18 +252,17 @@ class _SessionState extends State<_SessionPage> {
     }
 
     setState(() { results.add(result); });
-
-    result.routes!.asMap().forEach((i, route) {
-      mapObjects.add(Polyline(
-        mapId: MapObjectId('route_${i}_polyline'),
-        coordinates: route.geometry,
-        style: PolylineStyle(
-          strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-          strokeWidth: 3,
-        ),
-      ));
+    setState(() {
+      result.routes!.asMap().forEach((i, route) {
+        mapObjects.add(Polyline(
+          mapId: MapObjectId('route_${i}_polyline'),
+          coordinates: route.geometry,
+          style: PolylineStyle(
+            strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+            strokeWidth: 3,
+          ),
+        ));
+      });
     });
-
-    await controller.updateMapObjects(mapObjects);
   }
 }

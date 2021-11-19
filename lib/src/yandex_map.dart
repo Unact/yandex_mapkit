@@ -4,6 +4,7 @@ class YandexMap extends StatefulWidget {
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
     Key? key,
+    this.mapObjects = const [],
     this.tiltGesturesEnabled = true,
     this.zoomGesturesEnabled = true,
     this.rotateGesturesEnabled = true,
@@ -22,7 +23,10 @@ class YandexMap extends StatefulWidget {
     this.onCameraPositionChanged
   }) : super(key: key);
 
-  static const String viewType = 'yandex_mapkit/yandex_map';
+  static const String _viewType = 'yandex_mapkit/yandex_map';
+
+  /// Map objects to show on map
+  final List<MapObject> mapObjects;
 
   /// Enable tilt gestures, such as parallel pan with two fingers.
   final bool tiltGesturesEnabled;
@@ -92,13 +96,30 @@ class YandexMap extends StatefulWidget {
 class _YandexMapState extends State<YandexMap> {
   late _YandexMapOptions _yandexMapOptions;
 
-  final Completer<YandexMapController> _controller =
-      Completer<YandexMapController>();
+  /// Root object which contains all [MapObject] which were added to the map by user
+  MapObjectCollection _mapObjectCollection = MapObjectCollection(
+    mapId: MapObjectId('root_map_object_collection'),
+    mapObjects: []
+  );
+
+  /// All [MapObject] which were created natively
+  ///
+  /// This mainly refers to objects that can't be created by normal means
+  /// Cluster placemarks, user location objects, etc.
+  final List<MapObject> _nonRootMapObjects = [];
+
+  /// All visible [MapObject]
+  ///
+  /// This contains all objects that were created by any means
+  List<MapObject> get _allMapObjects => _mapObjectCollection.mapObjects + _nonRootMapObjects;
+
+  final Completer<YandexMapController> _controller = Completer<YandexMapController>();
 
   @override
   void initState() {
     super.initState();
     _yandexMapOptions = _YandexMapOptions.fromWidget(widget);
+    _mapObjectCollection = _mapObjectCollection.copyWith(mapObjects: widget.mapObjects);
   }
 
   @override
@@ -109,7 +130,14 @@ class _YandexMapState extends State<YandexMap> {
     controller.dispose();
   }
 
-  void _updateOptions() async {
+  @override
+  void didUpdateWidget(YandexMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateMapOptions();
+    _updateMapObjects();
+  }
+
+  void _updateMapOptions() async {
     final newOptions = _YandexMapOptions.fromWidget(widget);
     final updates = _yandexMapOptions.mapUpdates(newOptions);
 
@@ -123,45 +151,62 @@ class _YandexMapState extends State<YandexMap> {
     _yandexMapOptions = newOptions;
   }
 
-  @override
-  void didUpdateWidget(YandexMap oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _updateOptions();
+  void _updateMapObjects() async {
+    final updatedMapObjectCollection = _mapObjectCollection.copyWith(mapObjects: widget.mapObjects);
+    final updates = MapObjectUpdates.from({_mapObjectCollection}, {updatedMapObjectCollection});
+
+    final controller = await _controller.future;
+
+    await controller._updateMapObjects(updates.toJson());
+    _mapObjectCollection = updatedMapObjectCollection;
   }
 
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidView(
-        viewType: YandexMap.viewType,
+        viewType: YandexMap._viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: {
           Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
         },
         creationParamsCodec: StandardMessageCodec(),
-        creationParams: _yandexMapOptions.toJson(),
+        creationParams: _creationParams(),
       );
     } else {
       return UiKitView(
-        viewType: YandexMap.viewType,
+        viewType: YandexMap._viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: {
           Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
         },
         creationParamsCodec: StandardMessageCodec(),
-        creationParams: _yandexMapOptions.toJson(),
+        creationParams: _creationParams(),
       );
     }
   }
 
   Future<void> _onPlatformViewCreated(int id) async {
-    final controller = await YandexMapController.init(id, this);
+    final controller = await YandexMapController._init(id, this);
 
     _controller.complete(controller);
 
     if (widget.onMapCreated != null) {
       widget.onMapCreated!(controller);
     }
+  }
+
+  Map<String, dynamic> _creationParams() {
+    final mapOptions = _yandexMapOptions.toJson();
+    final mapObjects = MapObjectUpdates.from(
+      {_mapObjectCollection.copyWith(mapObjects: [])},
+      {_mapObjectCollection}
+    ).toJson();
+
+    return {
+      'mapOptions': mapOptions,
+      'mapObjects': mapObjects
+    };
   }
 }
 

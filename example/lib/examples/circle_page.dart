@@ -19,7 +19,6 @@ class _CircleExample extends StatefulWidget {
 }
 
 class _CircleExampleState extends State<_CircleExample> {
-  late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
   final MapObjectId circleId = MapObjectId('circle');
@@ -32,9 +31,7 @@ class _CircleExampleState extends State<_CircleExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
-            onMapCreated: (YandexMapController yandexMapController) async {
-              controller = yandexMapController;
-            },
+            mapObjects: mapObjects
           )
         ),
         const SizedBox(height: 20),
@@ -51,7 +48,7 @@ class _CircleExampleState extends State<_CircleExample> {
                           return;
                         }
 
-                        mapObjects.add(Circle(
+                        final circle = Circle(
                           mapId: circleId,
                           center: const Point(latitude: 55.781863, longitude: 37.451159),
                           radius: 1000000,
@@ -61,9 +58,11 @@ class _CircleExampleState extends State<_CircleExample> {
                             fillColor: Colors.blue[300]!,
                           ),
                           onTap: (Circle self, Point point) => print('Tapped me at $point'),
-                        ));
+                        );
 
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.add(circle);
+                        });
                       },
                       title: 'Add'
                     ),
@@ -74,17 +73,17 @@ class _CircleExampleState extends State<_CircleExample> {
                         }
 
                         final circle = mapObjects.firstWhere((el) => el.mapId == circleId) as Circle;
-                        mapObjects[mapObjects.indexOf(circle)] = circle.copyWith(radius: circle.radius - 10000);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects[mapObjects.indexOf(circle)] = circle.copyWith(radius: circle.radius - 10000);
+                        });
                       },
                       title: 'Update'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        mapObjects.removeWhere((el) => el.mapId == circleId);
-
-                        await controller.updateMapObjects(mapObjects);
+                        setState(() {
+                          mapObjects.removeWhere((el) => el.mapId == circleId);
+                        });
                       },
                       title: 'Remove'
                     )

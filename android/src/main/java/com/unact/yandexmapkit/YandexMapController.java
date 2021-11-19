@@ -65,7 +65,7 @@ public class YandexMapController implements
   private final YandexMapObjectCollectionController rootController;
   private boolean disposed = false;
 
-  @SuppressWarnings({"ConstantConditions"})
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public YandexMapController(
     int id,
     Context context,
@@ -96,7 +96,8 @@ public class YandexMapController implements
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
 
-    applyMapOptions(params);
+    applyMapOptions((Map<String, Object>) params.get("mapOptions"));
+    applyMapObjects((Map<String, Object>) params.get("mapObjects"));
   }
 
   @Override
@@ -261,13 +262,8 @@ public class YandexMapController implements
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void updateMapObjects(MethodCall call) {
     Map<String, Object> params = (Map<String, Object>) call.arguments;
-    List<Map<String, Object>> toChangeParams = (List<Map<String, Object>>) params.get("toChange");
 
-    for (Map<String, Object> toChangeParam : toChangeParams) {
-      if (toChangeParam.get("id").equals(rootController.id)) {
-        rootController.update(toChangeParam);
-      }
-    }
+    applyMapObjects(params);
   }
 
   public void updateMapOptions(MethodCall call) {
@@ -343,6 +339,17 @@ public class YandexMapController implements
 
     if (params.get("modelsEnabled") != null) {
       map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void applyMapObjects(Map<String, Object> params) {
+    List<Map<String, Object>> toChangeParams = (List<Map<String, Object>>) params.get("toChange");
+
+    for (Map<String, Object> toChangeParam : toChangeParams) {
+      if (toChangeParam.get("id").equals(rootController.id)) {
+        rootController.update(toChangeParam);
+      }
     }
   }
 
