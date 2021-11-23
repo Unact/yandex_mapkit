@@ -6,7 +6,7 @@ import YandexMapsMobile
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     YMKMapKit.setLocale("YOUR_LOCALE")
     YMKMapKit.setApiKey("YOUR_API_KEY")
