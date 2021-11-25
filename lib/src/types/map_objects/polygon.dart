@@ -9,7 +9,8 @@ class Polygon extends Equatable implements MapObject {
     this.isGeodesic = false,
     this.style = const PolygonStyle(),
     this.zIndex = 0.0,
-    this.onTap
+    this.onTap,
+    this.isVisible = true
   });
 
   final List<Point> outerRingCoordinates;
@@ -19,6 +20,9 @@ class Polygon extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Polygon>? onTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   Polygon copyWith({
     List<Point>? outerRingCoordinates,
     List<List<Point>>? innerRingsCoordinates,
@@ -26,6 +30,7 @@ class Polygon extends Equatable implements MapObject {
     PolygonStyle? style,
     double? zIndex,
     TapCallback<Polygon>? onTap,
+    bool? isVisible
   }) {
     return Polygon(
       mapId: mapId,
@@ -34,7 +39,8 @@ class Polygon extends Equatable implements MapObject {
       isGeodesic: isGeodesic ?? this.isGeodesic,
       style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap
+      onTap: onTap ?? this.onTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -53,7 +59,8 @@ class Polygon extends Equatable implements MapObject {
       isGeodesic: isGeodesic,
       style: style,
       zIndex: zIndex,
-      onTap: onTap
+      onTap: onTap,
+      isVisible: isVisible
     );
   }
 
@@ -74,7 +81,8 @@ class Polygon extends Equatable implements MapObject {
       ).toList(),
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 

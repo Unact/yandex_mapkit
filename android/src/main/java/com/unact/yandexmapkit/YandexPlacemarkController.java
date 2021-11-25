@@ -81,6 +81,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     applyPlacemarkStyle(placemark, style);
     placemark.setZIndex(((Double) params.get("zIndex")).floatValue());
     placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+    placemark.setVisible((Boolean) params.get("isVisible"));
   }
 
   public void remove() {
@@ -191,6 +192,8 @@ public class YandexPlacemarkController extends YandexMapObjectController {
         )
       );
     }
+
+    iconStyle.setVisible((Boolean) styleParams.get("isVisible"));
     
     return iconStyle;
   }

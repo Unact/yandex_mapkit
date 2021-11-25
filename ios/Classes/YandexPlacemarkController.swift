@@ -66,6 +66,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
 
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.geometry = Utils.pointFromJson(paramsPoint)
+    placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
   }
 
   public func remove() {
@@ -166,6 +167,8 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
         )
       )
     }
+
+    iconStyle.visible = (styleParams["isVisible"] as! NSNumber)
     
     return iconStyle
   }

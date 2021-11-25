@@ -53,6 +53,7 @@ public class YandexClusterizedPlacemarkCollectionController
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
     updatePlacemarks((Map<String, Object>) params.get("placemarks"));
+    clusterizedPlacemarkCollection.setVisible((Boolean) params.get("isVisible"));
     clusterizedPlacemarkCollection.clusterPlacemarks(
       ((Double) params.get("radius")).floatValue(),
       ((Number) params.get("minZoom")).intValue()

@@ -38,6 +38,7 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
     polyline.dashOffset = (style["dashOffset"] as! NSNumber).floatValue
     polyline.gapLength = (style["gapLength"] as! NSNumber).floatValue
     polyline.geometry = Utils.polylineFromJson(params)
+    polyline.isVisible = (params["isVisible"] as! NSNumber).boolValue
   }
 
   public func remove() {

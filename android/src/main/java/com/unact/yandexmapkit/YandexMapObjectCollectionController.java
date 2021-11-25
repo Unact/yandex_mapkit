@@ -54,6 +54,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
     mapObjectCollection.setZIndex(((Double) params.get("zIndex")).floatValue());
+    mapObjectCollection.setVisible((Boolean) params.get("isVisible"));
     updateMapObjects((Map<String, Object>) params.get("mapObjects"));
   }
 

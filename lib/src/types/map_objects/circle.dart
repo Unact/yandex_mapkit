@@ -9,7 +9,8 @@ class Circle extends Equatable implements MapObject<Circle> {
     this.isGeodesic = false,
     this.style = const CircleStyle(),
     this.zIndex = 0.0,
-    this.onTap
+    this.onTap,
+    this.isVisible = true
   });
 
   final Point center;
@@ -19,6 +20,9 @@ class Circle extends Equatable implements MapObject<Circle> {
   final double zIndex;
   final TapCallback<Circle>? onTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   Circle copyWith({
     Point? center,
     double? radius,
@@ -26,6 +30,7 @@ class Circle extends Equatable implements MapObject<Circle> {
     CircleStyle? style,
     double? zIndex,
     TapCallback<Circle>? onTap,
+    bool? isVisible
   }) {
     return Circle(
       mapId: mapId,
@@ -34,7 +39,8 @@ class Circle extends Equatable implements MapObject<Circle> {
       isGeodesic: isGeodesic ?? this.isGeodesic,
       style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap
+      onTap: onTap ?? this.onTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -53,7 +59,8 @@ class Circle extends Equatable implements MapObject<Circle> {
       isGeodesic: isGeodesic,
       style: style,
       zIndex: zIndex,
-      onTap: onTap
+      onTap: onTap,
+      isVisible: isVisible
     );
   }
 
@@ -72,7 +79,8 @@ class Circle extends Equatable implements MapObject<Circle> {
       'radius': radius,
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 

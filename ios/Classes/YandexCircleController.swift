@@ -60,6 +60,7 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     circle.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     circle.zIndex = (params["zIndex"] as! NSNumber).floatValue
     circle.geometry = Utils.circleFromJson(params)
+    circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
   }
 
   public func remove() {

@@ -13,7 +13,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     this.zIndex = 0.0,
     this.onTap,
     this.onClusterAdded,
-    this.onClusterTap
+    this.onClusterTap,
+    this.isVisible = true
   }) : _placemarks = placemarks.groupFoldBy<MapObjectId, Placemark>(
       (element) => element.mapId,
       (previous, element) => element
@@ -52,6 +53,9 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   /// Callback to be called when a previously created [Cluster] is tapped.
   final ClusterTapCallback? onClusterTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   /// Creates a modified copy.
   ///
   /// Specified fields will get the specified value, all other fields will get
@@ -63,7 +67,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     double? zIndex,
     TapCallback<ClusterizedPlacemarkCollection>? onTap,
     ClusterCallback? onClusterAdded,
-    ClusterCallback? onClusterTap
+    ClusterCallback? onClusterTap,
+    bool? isVisible
   }) {
     return ClusterizedPlacemarkCollection(
       mapId: mapId,
@@ -74,6 +79,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       onTap: onTap ?? this.onTap,
       onClusterAdded: onClusterAdded ?? this.onClusterAdded,
       onClusterTap: onClusterTap ?? this.onClusterTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -105,7 +111,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       zIndex: zIndex,
       onTap: onTap,
       onClusterAdded: onClusterAdded,
-      onClusterTap: onClusterTap
+      onClusterTap: onClusterTap,
+      isVisible: isVisible
     );
   }
 
@@ -123,7 +130,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       'radius': radius,
       'minZoom': minZoom,
       'placemarks': _placemarks.map((Placemark p) => p.toJson()).toList(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 

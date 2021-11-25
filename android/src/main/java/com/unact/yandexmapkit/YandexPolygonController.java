@@ -34,13 +34,13 @@ public class YandexPolygonController extends YandexMapObjectController {
   public void update(Map<String, Object> params) {
     Map<String, Object> style = ((Map<String, Object>) params.get("style"));
 
-    polygon.setGeodesic((boolean) params.get("isGeodesic"));
     polygon.setZIndex(((Double) params.get("zIndex")).floatValue());
-    polygon.setGeodesic((boolean) params.get("isGeodesic"));
     polygon.setStrokeWidth(((Double) style.get("strokeWidth")).floatValue());
     polygon.setStrokeColor(((Number) style.get("strokeColor")).intValue());
     polygon.setFillColor(((Number) style.get("fillColor")).intValue());
     polygon.setGeometry(Utils.polygonFromJson(params));
+    polygon.setGeodesic((Boolean) params.get("isGeodesic"));
+    polygon.setVisible((Boolean) params.get("isVisible"));
   }
 
   public void remove() {

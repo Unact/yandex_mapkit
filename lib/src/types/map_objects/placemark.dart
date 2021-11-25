@@ -12,7 +12,8 @@ class Placemark extends Equatable implements MapObject {
     required this.point,
     this.style = const PlacemarkStyle(),
     this.zIndex = 0.0,
-    this.onTap
+    this.onTap,
+    this.isVisible = true
   });
 
   final Point point;
@@ -20,18 +21,23 @@ class Placemark extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Placemark>? onTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   Placemark copyWith({
     Point? point,
     PlacemarkStyle? style,
     double? zIndex,
     TapCallback<Placemark>? onTap,
+    bool? isVisible
   }) {
     return Placemark(
       mapId: mapId,
       point: point ?? this.point,
       style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap
+      onTap: onTap ?? this.onTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -49,6 +55,7 @@ class Placemark extends Equatable implements MapObject {
       style: style,
       zIndex: zIndex,
       onTap: onTap,
+      isVisible: isVisible
     );
   }
 
@@ -66,6 +73,7 @@ class Placemark extends Equatable implements MapObject {
       'point': point.toJson(),
       'style': style.toJson(),
       'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 
@@ -215,7 +223,9 @@ class PlacemarkIconStyle extends Equatable {
   final RotationType  rotationType;
   final double        zIndex;
   final bool          flat;
-  final bool          visible;
+
+  /// Manages visibility of the object on the map.
+  final bool          isVisible;
   final double        scale;
   final MapRect?      tappableArea;
 
@@ -224,7 +234,7 @@ class PlacemarkIconStyle extends Equatable {
     this.rotationType = RotationType.noRotation,
     this.zIndex       = 0.0,
     this.flat         = false,
-    this.visible      = true,
+    this.isVisible    = true,
     this.scale        = 1.0,
     this.tappableArea,
   });
@@ -239,7 +249,7 @@ class PlacemarkIconStyle extends Equatable {
       'rotationType': rotationType.index,
       'zIndex': zIndex,
       'flat': flat,
-      'visible': visible,
+      'isVisible': isVisible,
       'scale': scale,
     };
 
@@ -256,7 +266,7 @@ class PlacemarkIconStyle extends Equatable {
     rotationType,
     zIndex,
     flat,
-    visible,
+    isVisible,
     scale,
     tappableArea,
   ];

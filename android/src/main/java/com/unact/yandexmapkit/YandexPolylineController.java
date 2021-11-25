@@ -34,7 +34,6 @@ public class YandexPolylineController extends YandexMapObjectController {
   public void update(Map<String, Object> params) {
     Map<String, Object> style = ((Map<String, Object>) params.get("style"));
 
-    polyline.setGeodesic((boolean) params.get("isGeodesic"));
     polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
     polyline.setOutlineColor(((Number) style.get("outlineColor")).intValue());
     polyline.setOutlineWidth(((Double) style.get("outlineWidth")).floatValue());
@@ -44,6 +43,8 @@ public class YandexPolylineController extends YandexMapObjectController {
     polyline.setDashOffset(((Double) style.get("dashOffset")).floatValue());
     polyline.setGapLength(((Double) style.get("gapLength")).floatValue());
     polyline.setGeometry(Utils.polylineFromJson(params));
+    polyline.setGeodesic((Boolean) params.get("isGeodesic"));
+    polyline.setVisible((Boolean) params.get("isVisible"));
   }
 
   public void remove() {

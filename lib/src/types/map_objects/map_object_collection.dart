@@ -7,7 +7,8 @@ class MapObjectCollection extends Equatable implements MapObject {
     required this.mapId,
     required List<MapObject> mapObjects,
     this.zIndex = 0.0,
-    this.onTap
+    this.onTap,
+    this.isVisible = true
   }) : _mapObjects = mapObjects.groupFoldBy<MapObjectId, MapObject>(
       (element) => element.mapId,
       (previous, element) => element
@@ -19,16 +20,21 @@ class MapObjectCollection extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<MapObjectCollection>? onTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   MapObjectCollection copyWith({
     List<MapObject>? mapObjects,
     double? zIndex,
     TapCallback<MapObjectCollection>? onTap,
+    bool? isVisible
   }) {
     return MapObjectCollection(
       mapId: mapId,
       mapObjects: mapObjects ?? this.mapObjects,
       zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap
+      onTap: onTap ?? this.onTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -44,7 +50,8 @@ class MapObjectCollection extends Equatable implements MapObject {
       mapId: mapId,
       mapObjects: mapObjects,
       zIndex: zIndex,
-      onTap: onTap
+      onTap: onTap,
+      isVisible: isVisible
     );
   }
 
@@ -60,7 +67,8 @@ class MapObjectCollection extends Equatable implements MapObject {
     return <String, dynamic>{
       'id': mapId.value,
       'mapObjects': _mapObjects.map((MapObject p) => p.toJson()).toList(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 

@@ -36,6 +36,7 @@ class YandexClusterizedPlacemarkCollectionController:
 
   public func update(_ params: [String: Any]) {
     updatePlacemarks(params["placemarks"] as! [String: Any])
+    clusterizedPlacemarkCollection.isVisible = (params["isVisible"] as! NSNumber).boolValue
     clusterizedPlacemarkCollection.clusterPlacemarks(
       withClusterRadius: (params["radius"] as! NSNumber).doubleValue,
       minZoom: (params["minZoom"] as! NSNumber).uintValue

@@ -8,7 +8,8 @@ class Polyline extends Equatable implements MapObject {
     this.isGeodesic = false,
     this.style = const PolylineStyle(),
     this.zIndex = 0.0,
-    this.onTap
+    this.onTap,
+    this.isVisible = true
   });
 
   final List<Point> coordinates;
@@ -17,12 +18,16 @@ class Polyline extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Polyline>? onTap;
 
+  /// Manages visibility of the object on the map.
+  final bool isVisible;
+
   Polyline copyWith({
     List<Point>? coordinates,
     bool? isGeodesic,
     PolylineStyle? style,
     double? zIndex,
     TapCallback<Polyline>? onTap,
+    bool? isVisible
   }) {
     return Polyline(
       mapId: mapId,
@@ -30,7 +35,8 @@ class Polyline extends Equatable implements MapObject {
       isGeodesic: isGeodesic ?? this.isGeodesic,
       style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap
+      onTap: onTap ?? this.onTap,
+      isVisible: isVisible ?? this.isVisible
     );
   }
 
@@ -48,7 +54,8 @@ class Polyline extends Equatable implements MapObject {
       isGeodesic: isGeodesic,
       style: style,
       zIndex: zIndex,
-      onTap: onTap
+      onTap: onTap,
+      isVisible: isVisible
     );
   }
 
@@ -66,7 +73,8 @@ class Polyline extends Equatable implements MapObject {
       'coordinates': coordinates.map((Point p) => p.toJson()).toList(),
       'isGeodesic': isGeodesic,
       'style': style.toJson(),
-      'zIndex': zIndex
+      'zIndex': zIndex,
+      'isVisible': isVisible
     };
   }
 

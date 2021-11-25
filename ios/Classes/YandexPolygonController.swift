@@ -34,6 +34,7 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
     polygon.strokeWidth = (style["strokeWidth"] as! NSNumber).floatValue
     polygon.fillColor = Utils.uiColor(fromInt: (style["fillColor"] as! NSNumber).int64Value)
     polygon.geometry = Utils.polygonFromJson(params)
+    polygon.isVisible = (params["isVisible"] as! NSNumber).boolValue
   }
 
   public func remove() {

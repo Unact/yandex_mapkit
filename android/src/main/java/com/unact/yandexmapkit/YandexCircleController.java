@@ -62,9 +62,10 @@ public class YandexCircleController extends YandexMapObjectController {
     circle.setStrokeColor(((Number) style.get("strokeColor")).intValue());
     circle.setStrokeWidth(((Double) style.get("strokeWidth")).floatValue());
     circle.setFillColor(((Number) style.get("fillColor")).intValue());
-    circle.setGeodesic((boolean) params.get("isGeodesic"));
     circle.setZIndex(((Double) params.get("zIndex")).floatValue());
     circle.setGeometry(Utils.circleFromJson(params));
+    circle.setGeodesic((Boolean) params.get("isGeodesic"));
+    circle.setVisible((Boolean) params.get("isVisible"));
   }
 
   public void remove() {

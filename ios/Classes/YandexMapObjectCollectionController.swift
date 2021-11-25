@@ -47,6 +47,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
   public func update(_ params: [String: Any]) {
     mapObjectCollection.zIndex = (params["zIndex"] as! NSNumber).floatValue
+    mapObjectCollection.isVisible = (params["isVisible"] as! NSNumber).boolValue
     updateMapObjects(params["mapObjects"] as! [String: Any])
   }
 
