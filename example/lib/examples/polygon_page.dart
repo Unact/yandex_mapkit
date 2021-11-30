@@ -64,11 +64,9 @@ class _PolygonExampleState extends State<_PolygonExample> {
                               Point(latitude: 57.04956, longitude: 121.07751),
                             ]
                           ],
-                          style: PolygonStyle(
-                            strokeColor: Colors.orange[700]!,
-                            strokeWidth: 3.0,
-                            fillColor: Colors.yellow[200]!,
-                          ),
+                          strokeColor: Colors.orange[700]!,
+                          strokeWidth: 3.0,
+                          fillColor: Colors.yellow[200]!,
                           onTap: (Polygon self, Point point) => print('Tapped me at $point'),
                         );
 
@@ -87,11 +85,11 @@ class _PolygonExampleState extends State<_PolygonExample> {
                         final polygon = mapObjects.firstWhere((el) => el.mapId == polygonId) as Polygon;
 
                         setState(() {
-                            mapObjects[mapObjects.indexOf(polygon)] = polygon.copyWith(style: PolygonStyle(
-                              strokeColor: Colors.orange[700]!,
-                              strokeWidth: 3.0,
-                              fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                            ));
+                          mapObjects[mapObjects.indexOf(polygon)] = polygon.copyWith(
+                            strokeColor: Colors.orange[700]!,
+                            strokeWidth: 3.0,
+                            fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                          );
                         });
                       },
                       title: 'Update'

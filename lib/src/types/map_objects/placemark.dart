@@ -1,43 +1,55 @@
 part of yandex_mapkit;
 
-enum RotationType {
-  noRotation,
-  rotate
-}
 
 /// A placemark to be displayed on [YandexMap] at a specific point
 class Placemark extends Equatable implements MapObject {
   const Placemark({
     required this.mapId,
     required this.point,
-    this.style = const PlacemarkStyle(),
     this.zIndex = 0.0,
     this.onTap,
-    this.isVisible = true
+    this.isVisible = true,
+    this.icon,
+    this.opacity = 0.5,
+    this.direction = 0,
   });
 
   final Point point;
-  final PlacemarkStyle style;
   final double zIndex;
   final TapCallback<Placemark>? onTap;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
+  /// Visual appearance of [Placemark] on the map.
+  final PlacemarkIcon? icon;
+
+  /// Opacity multiplicator for the placemark content.
+  /// Values below 0 will be set to 0.
+  final double opacity;
+
+  /// Angle between the direction of an object and the direction to north.
+  /// Measured in degrees.
+  final double direction;
+
   Placemark copyWith({
     Point? point,
-    PlacemarkStyle? style,
     double? zIndex,
     TapCallback<Placemark>? onTap,
-    bool? isVisible
+    bool? isVisible,
+    PlacemarkIcon? icon,
+    double? opacity,
+    double? direction,
   }) {
     return Placemark(
       mapId: mapId,
       point: point ?? this.point,
-      style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
-      isVisible: isVisible ?? this.isVisible
+      isVisible: isVisible ?? this.isVisible,
+      icon: icon ?? this.icon,
+      opacity: opacity ?? this.opacity,
+      direction: direction ?? this.direction
     );
   }
 
@@ -52,10 +64,12 @@ class Placemark extends Equatable implements MapObject {
     return Placemark(
       mapId: mapId,
       point: point,
-      style: style,
       zIndex: zIndex,
       onTap: onTap,
-      isVisible: isVisible
+      isVisible: isVisible,
+      icon: icon,
+      opacity: opacity,
+      direction: direction
     );
   }
 
@@ -71,9 +85,11 @@ class Placemark extends Equatable implements MapObject {
     return {
       'id': mapId.value,
       'point': point.toJson(),
-      'style': style.toJson(),
       'zIndex': zIndex,
-      'isVisible': isVisible
+      'isVisible': isVisible,
+      'opacity': opacity,
+      'direction': direction,
+      'icon': icon?.toJson()
     };
   }
 
@@ -102,162 +118,111 @@ class Placemark extends Equatable implements MapObject {
   }
 
   @override
-  List<Object> get props => <Object>[
+  List<Object?> get props => <Object?>[
     mapId,
     point,
-    style,
-    zIndex
-  ];
-
-  @override
-  bool get stringify => true;
-}
-
-class PlacemarkStyle extends Equatable {
-  const PlacemarkStyle({
-    this.icon,
-    this.compositeIcon,
-    this.opacity = 0.5,
-    this.direction = 0,
-  });
-
-  /// If both passed icon and compositeIcon are passed - icon has priority.
-  final PlacemarkIcon? icon;
-  final List<PlacemarkCompositeIcon>? compositeIcon;
-
-  final double  opacity;
-  final double  direction;
-
-  @override
-  List<Object?> get props => <Object?>[
-    icon,
-    compositeIcon,
+    zIndex,
+    isVisible,
     opacity,
     direction,
+    icon
   ];
 
   @override
   bool get stringify => true;
-
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'opacity': opacity,
-      'direction': direction,
-      'icon': icon?.toJson(),
-      'composite': compositeIcon?.map((icon) => icon.toJson()).toList(),
-    };
-
-    return json;
-  }
 }
 
-class PlacemarkIcon {
+/// Visual icon of a single [Placemark]
+class PlacemarkIcon extends Equatable {
+  /// Serialized information about how to visually show a single [Placemark]
+  final Map<String, dynamic> _json;
 
-  final String? iconName;
-  /// Provides ability to use binary image data as Placemark icon.
-  ///
-  /// You can use this property to assign dynamically generated images as [Placemark icon].
-  /// For example:
-  ///
-  /// 1) Loaded image from network
-  /// http.Response response = await http.get('image.url/image.png');
-  /// PlacemarkStyle(rawImageData: response.bodyBytes);
-  ///
-  /// 2) Generated image on client side (with Flutter), using dynamic color and icon:
-  /// ByteData data = await rootBundle.load(path);
-  /// //apply size/color transformations to data, and use it afterwards
-  /// PlacemarkStyle(rawImageData: data.buffer.asUint8List());
-  ///
-  final Uint8List? rawImageData;
-  final PlacemarkIconStyle style;
+  const PlacemarkIcon._(this._json);
 
-  PlacemarkIcon.fromIconName({required String iconName, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
-    iconName = iconName, rawImageData = null, style = style;
-
-  PlacemarkIcon.fromRawImageData({required Uint8List rawImageData, PlacemarkIconStyle style = const PlacemarkIconStyle()}) :
-    iconName = null, rawImageData = rawImageData, style = style;
-
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'iconName': iconName,
-      'rawImageData': rawImageData,
-      'style': style.toJson(),
-    };
-
-    return json;
+  /// Used to describe a set of icons to be used as part of a single icon to represent a [Placemark] on the map.
+  factory PlacemarkIcon.composite(List<PlacemarkCompositeIconItem> iconParts) {
+    return PlacemarkIcon._({
+      'type': 'composite',
+      'iconParts': iconParts.map((e) => e.toJson()).toList()
+    });
   }
-}
 
-class PlacemarkCompositeIcon extends PlacemarkIcon {
+  /// Used to describe a single icon to represent a [Placemark] on the map.
+  factory PlacemarkIcon.single(PlacemarkIconStyle style) {
+    return PlacemarkIcon._({
+      'type': 'single',
+      'style': style.toJson()
+    });
+  }
 
-  /// Used by MapKit to create a separate layer for each component of composite icon.
-  ///
-  /// If same name is specified for several icons then layer with that name will be reset with the last one.
-  final String layerName;
-
-  PlacemarkCompositeIcon.fromIconName({
-    required this.layerName,
-    required String iconName,
-    PlacemarkIconStyle style = const PlacemarkIconStyle(),
-  }) : super.fromIconName(iconName: iconName, style: style);
-
-  PlacemarkCompositeIcon.fromRawImageData({
-    required this.layerName,
-    required Uint8List rawImageData,
-    PlacemarkIconStyle style = const PlacemarkIconStyle(),
-  }) : super.fromRawImageData(rawImageData: rawImageData, style: style);
+  Map<String, dynamic> toJson() => _json;
 
   @override
-  Map<String, dynamic> toJson() {
+  List<Object> get props => <Object>[
+    _json
+  ];
 
-    var json = super.toJson();
-
-    json['layerName'] = layerName;
-
-    return json;
-  }
+  @override
+  bool get stringify => true;
 }
 
+/// Visual icon of an icon to be used to visually show a [Placemark]
 class PlacemarkIconStyle extends Equatable {
-  final Offset        anchor;
-  final RotationType  rotationType;
-  final double        zIndex;
-  final bool          flat;
+  /// Asset name to use as Placemark icon
+  final BitmapDescriptor? image;
+
+  /// An anchor is used to alter image placement.
+  /// Normalized: (0.0f, 0.0f) denotes the top left image corner; (1.0f, 1.0f) denotes bottom right.
+  final Offset anchor;
+
+  /// Icon rotation type.
+  final RotationType rotationType;
+
+  /// Z-index of the icon, relative to the placemark's z-index.
+  final double zIndex;
+
+  /// If true, the icon is displayed on the map surface.
+  /// If false, the icon is displayed on the screen surface.
+  final bool isFlat;
 
   /// Manages visibility of the object on the map.
-  final bool          isVisible;
-  final double        scale;
-  final MapRect?      tappableArea;
+  final bool isVisible;
 
+  /// Scale of the icon.
+  final double scale;
+
+  /// Tappable area on the icon.
+  /// Coordinates are measured the same way as anchor coordinates.
+  /// If rect is empty or invalid, the icon will not process taps.
+  /// By default, icons process all taps.
+  final MapRect? tappableArea;
+
+  /// Creates an icon to be used to represent a [Placemark] on the map.
   const PlacemarkIconStyle({
-    this.anchor       = const Offset(0.5, 0.5),
+    this.image,
+    this.anchor = const Offset(0.5, 0.5),
     this.rotationType = RotationType.noRotation,
-    this.zIndex       = 0.0,
-    this.flat         = false,
-    this.isVisible    = true,
-    this.scale        = 1.0,
-    this.tappableArea,
+    this.zIndex = 0,
+    this.isFlat = false,
+    this.isVisible = true,
+    this.scale = 1,
+    this.tappableArea
   });
 
   Map<String, dynamic> toJson() {
-
-    var json = {
+    return {
+      'image': image?.toJson(),
       'anchor': {
         'dx': anchor.dx,
         'dy': anchor.dy,
       },
       'rotationType': rotationType.index,
       'zIndex': zIndex,
-      'flat': flat,
+      'isFlat': isFlat,
       'isVisible': isVisible,
       'scale': scale,
+      'tappableArea': tappableArea?.toJson()
     };
-
-    if (tappableArea != null) {
-      json['tappableArea'] = tappableArea!.toJson();
-    }
-
-    return json;
   }
 
   @override
@@ -265,12 +230,53 @@ class PlacemarkIconStyle extends Equatable {
     anchor,
     rotationType,
     zIndex,
-    flat,
+    isFlat,
     isVisible,
     scale,
-    tappableArea,
+    tappableArea
   ];
 
   @override
   bool get stringify => true;
+}
+
+
+/// A part of a composite icon to visually show a [Placemark] icon
+class PlacemarkCompositeIconItem extends Equatable {
+  /// Base icon to use for composition
+  final PlacemarkIconStyle style;
+
+  /// Creates a separate named layer for each component of composite icon.
+  /// This is mainly used to denote layer name for composite icons.
+  ///
+  /// If same name is specified for several icons then layer with that name will be reset with the last one.
+  final String name;
+
+  /// Creates an icon to be used as part of a single icon to represent a [Placemark] on the map.
+  const PlacemarkCompositeIconItem({
+    required this.style,
+    required this.name
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'style': style.toJson(),
+      'name': name
+    };
+  }
+
+  @override
+  List<Object> get props => <Object>[
+    style,
+    name
+  ];
+
+  @override
+  bool get stringify => true;
+}
+
+/// [PlacemarkIconStyle] rotation types
+enum RotationType {
+  noRotation,
+  rotate
 }

@@ -20,12 +20,11 @@ public class YandexCircleController extends YandexMapObjectController {
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
-    Map<String, Object> style = ((Map<String, Object>) params.get("style"));
     CircleMapObject circle = parent.addCircle(
       Utils.circleFromJson(params),
-      ((Number) style.get("strokeColor")).intValue(),
-      ((Double) style.get("strokeWidth")).floatValue(),
-      ((Number) style.get("fillColor")).intValue()
+      ((Number) params.get("strokeColor")).intValue(),
+      ((Double) params.get("strokeWidth")).floatValue(),
+      ((Number) params.get("fillColor")).intValue()
     );
 
     this.circle = circle;
@@ -57,15 +56,13 @@ public class YandexCircleController extends YandexMapObjectController {
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
-    Map<String, Object> style = ((Map<String, Object>) params.get("style"));
-
-    circle.setStrokeColor(((Number) style.get("strokeColor")).intValue());
-    circle.setStrokeWidth(((Double) style.get("strokeWidth")).floatValue());
-    circle.setFillColor(((Number) style.get("fillColor")).intValue());
-    circle.setZIndex(((Double) params.get("zIndex")).floatValue());
     circle.setGeometry(Utils.circleFromJson(params));
     circle.setGeodesic((Boolean) params.get("isGeodesic"));
+    circle.setZIndex(((Double) params.get("zIndex")).floatValue());
     circle.setVisible((Boolean) params.get("isVisible"));
+    circle.setStrokeColor(((Number) params.get("strokeColor")).intValue());
+    circle.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
+    circle.setFillColor(((Number) params.get("fillColor")).intValue());
   }
 
   public void remove() {

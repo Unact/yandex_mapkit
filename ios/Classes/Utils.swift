@@ -24,6 +24,13 @@ class Utils {
     )
   }
 
+  static func rectPointFromJson(_ json: [String: NSNumber]) -> CGPoint {
+    return CGPoint(
+      x: json["dx"]!.doubleValue,
+      y: json["dy"]!.doubleValue
+    )
+  }
+
   static func pointToJson(_ point: YMKPoint) -> [String: Any] {
     return [
       "latitude": point.latitude,

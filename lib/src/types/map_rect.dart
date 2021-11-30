@@ -11,18 +11,15 @@ class MapRect {
   });
 
   Map<String, dynamic> toJson() {
-
-    var json = {
+    return {
       'min': {
-        'x': min.dx,
-        'y': min.dy,
+        'dx': min.dx,
+        'dy': min.dy,
       },
       'max': {
-        'x': max.dx,
-        'y': max.dy,
+        'dx': max.dx,
+        'dy': max.dy,
       }
     };
-
-    return json;
   }
 }

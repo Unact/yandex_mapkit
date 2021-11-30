@@ -32,19 +32,17 @@ public class YandexPolylineController extends YandexMapObjectController {
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
-    Map<String, Object> style = ((Map<String, Object>) params.get("style"));
-
-    polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
-    polyline.setOutlineColor(((Number) style.get("outlineColor")).intValue());
-    polyline.setOutlineWidth(((Double) style.get("outlineWidth")).floatValue());
-    polyline.setStrokeColor(((Number) style.get("strokeColor")).intValue());
-    polyline.setStrokeWidth(((Double) style.get("strokeWidth")).floatValue());
-    polyline.setDashLength(((Double) style.get("dashLength")).floatValue());
-    polyline.setDashOffset(((Double) style.get("dashOffset")).floatValue());
-    polyline.setGapLength(((Double) style.get("gapLength")).floatValue());
     polyline.setGeometry(Utils.polylineFromJson(params));
     polyline.setGeodesic((Boolean) params.get("isGeodesic"));
+    polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
     polyline.setVisible((Boolean) params.get("isVisible"));
+    polyline.setOutlineColor(((Number) params.get("outlineColor")).intValue());
+    polyline.setOutlineWidth(((Double) params.get("outlineWidth")).floatValue());
+    polyline.setStrokeColor(((Number) params.get("strokeColor")).intValue());
+    polyline.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
+    polyline.setDashLength(((Double) params.get("dashLength")).floatValue());
+    polyline.setDashOffset(((Double) params.get("dashOffset")).floatValue());
+    polyline.setGapLength(((Double) params.get("gapLength")).floatValue());
   }
 
   public void remove() {

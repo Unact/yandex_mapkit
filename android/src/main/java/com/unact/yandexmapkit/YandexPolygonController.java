@@ -32,15 +32,13 @@ public class YandexPolygonController extends YandexMapObjectController {
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
-    Map<String, Object> style = ((Map<String, Object>) params.get("style"));
-
-    polygon.setZIndex(((Double) params.get("zIndex")).floatValue());
-    polygon.setStrokeWidth(((Double) style.get("strokeWidth")).floatValue());
-    polygon.setStrokeColor(((Number) style.get("strokeColor")).intValue());
-    polygon.setFillColor(((Number) style.get("fillColor")).intValue());
     polygon.setGeometry(Utils.polygonFromJson(params));
     polygon.setGeodesic((Boolean) params.get("isGeodesic"));
+    polygon.setZIndex(((Double) params.get("zIndex")).floatValue());
     polygon.setVisible((Boolean) params.get("isVisible"));
+    polygon.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
+    polygon.setStrokeColor(((Number) params.get("strokeColor")).intValue());
+    polygon.setFillColor(((Number) params.get("fillColor")).intValue());
   }
 
   public void remove() {

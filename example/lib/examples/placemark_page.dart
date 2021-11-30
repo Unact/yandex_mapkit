@@ -56,14 +56,12 @@ class placemarkExampleState extends State<placemarkExample> {
                           mapId: placemarkId,
                           point: Point(latitude: 59.945933, longitude: 30.320045),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
-                          style: PlacemarkStyle(
-                            opacity: 0.7,
-                            direction: 90,
-                            icon: PlacemarkIcon.fromIconName(
-                              iconName: 'lib/assets/place.png',
-                              style: PlacemarkIconStyle(rotationType: RotationType.rotate)
-                            ),
-                          ),
+                          opacity: 0.7,
+                          direction: 90,
+                          icon: PlacemarkIcon.single(PlacemarkIconStyle(
+                            image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
+                            rotationType: RotationType.rotate
+                          ))
                         );
 
                         setState(() {
@@ -115,10 +113,10 @@ class placemarkExampleState extends State<placemarkExample> {
                           mapId: placemarkWithDynamicIconId,
                           point: Point(latitude: 30.320045, longitude: 59.945933),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
-                          style: PlacemarkStyle(
-                            opacity: 0.95,
-                            icon: PlacemarkIcon.fromRawImageData(rawImageData: rawImageData),
-                          ),
+                          opacity: 0.95,
+                          icon: PlacemarkIcon.single(PlacemarkIconStyle(
+                            image: BitmapDescriptor.fromBytes(rawImageData)
+                          ))
                         );
 
                         setState(() {
@@ -163,7 +161,7 @@ class placemarkExampleState extends State<placemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == placemarkId)) {
+                        if (mapObjects.any((el) => el.mapId == placemarkWithCompositeIconId)) {
                           return;
                         }
 
@@ -171,24 +169,24 @@ class placemarkExampleState extends State<placemarkExample> {
                           mapId: placemarkWithCompositeIconId,
                           point: Point(latitude: 34.820045, longitude: 45.945933),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
-                          style: PlacemarkStyle(compositeIcon: [
-                            PlacemarkCompositeIcon.fromIconName(
-                              layerName: 'user',
-                              iconName: 'lib/assets/user.png',
+                          icon: PlacemarkIcon.composite([
+                            PlacemarkCompositeIconItem(
+                              name: 'user',
                               style: PlacemarkIconStyle(
+                                image: BitmapDescriptor.fromAssetImage('lib/assets/user.png'),
                                 anchor: Offset(0.5, 0.5),
-                              ),
+                              )
                             ),
-                            PlacemarkCompositeIcon.fromIconName(
-                              layerName: 'arrow',
-                              iconName: 'lib/assets/arrow.png',
+                            PlacemarkCompositeIconItem(
+                              name: 'arrow',
                               style: PlacemarkIconStyle(
+                                image: BitmapDescriptor.fromAssetImage('lib/assets/arrow.png'),
                                 anchor: Offset(0.5, 1.5),
-                              ),
-                            ),
-                          ],
+                              )
+                            )
+                          ]),
                           opacity: 0.7,
-                        ));
+                        );
 
                         setState(() {
                           mapObjects.add(placemarkWithCompositeIcon);

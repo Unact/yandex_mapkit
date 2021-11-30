@@ -12,12 +12,11 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     params: [String: Any],
     controller: YandexMapController
   ) {
-    let style = params["style"] as! [String: Any]
     let circle = parent.addCircle(
       with: Utils.circleFromJson(params),
-      stroke: Utils.uiColor(fromInt: (style["strokeColor"] as! NSNumber).int64Value),
-      strokeWidth: (style["strokeWidth"] as! NSNumber).floatValue,
-      fill: Utils.uiColor(fromInt: (style["fillColor"] as! NSNumber).int64Value)
+      stroke: Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value),
+      strokeWidth: (params["strokeWidth"] as! NSNumber).floatValue,
+      fill: Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
     )
 
     self.circle = circle
@@ -52,15 +51,13 @@ class YandexCircleController: NSObject, YandexMapObjectController {
   }
 
   public func update(_ params: [String: Any]) {
-    let style = params["style"] as! [String: Any]
-
-    circle.strokeColor = Utils.uiColor(fromInt: (style["strokeColor"] as! NSNumber).int64Value)
-    circle.strokeWidth = (style["strokeWidth"] as! NSNumber).floatValue
-    circle.fillColor = Utils.uiColor(fromInt: (style["fillColor"] as! NSNumber).int64Value)
+    circle.geometry = Utils.circleFromJson(params)
     circle.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     circle.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    circle.geometry = Utils.circleFromJson(params)
     circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    circle.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
+    circle.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
+    circle.fillColor = Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
   }
 
   public func remove() {

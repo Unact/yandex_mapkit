@@ -26,15 +26,13 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
   }
 
   public func update(_ params: [String: Any]) {
-    let style = params["style"] as! [String: Any]
-
+    polygon.geometry = Utils.polygonFromJson(params)
     polygon.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polygon.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    polygon.strokeColor = Utils.uiColor(fromInt: (style["strokeColor"] as! NSNumber).int64Value)
-    polygon.strokeWidth = (style["strokeWidth"] as! NSNumber).floatValue
-    polygon.fillColor = Utils.uiColor(fromInt: (style["fillColor"] as! NSNumber).int64Value)
-    polygon.geometry = Utils.polygonFromJson(params)
     polygon.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    polygon.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
+    polygon.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
+    polygon.fillColor = Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
   }
 
   public func remove() {

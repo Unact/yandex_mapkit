@@ -1,5 +1,7 @@
 package com.unact.yandexmapkit;
 
+import android.graphics.PointF;
+
 import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.geometry.Circle;
 import com.yandex.mapkit.geometry.LinearRing;
@@ -22,6 +24,10 @@ public class Utils {
   @SuppressWarnings({"ConstantConditions"})
   public static ScreenPoint screenPointFromJson(Map<String, Object> json) {
     return new ScreenPoint(((Double) json.get("x")).floatValue(), ((Double) json.get("y")).floatValue());
+  }
+
+  public static PointF rectPointFromJson(Map<String, Object> json) {
+    return new PointF(((Double) json.get("dx")).floatValue(), ((Double) json.get("dy")).floatValue());
   }
 
   public static Map<String, Double> pointToJson(Point point) {

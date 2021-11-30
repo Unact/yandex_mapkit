@@ -42,13 +42,17 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
             onUserLocationAdded: (UserLocationView view) async {
               return view.copyWith(
                 pin: view.pin.copyWith(
-                  style: PlacemarkStyle(icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/user.png'))
+                  icon: PlacemarkIcon.single(
+                    PlacemarkIconStyle(image: BitmapDescriptor.fromAssetImage('lib/assets/user.png'))
+                  )
                 ),
                 arrow: view.arrow.copyWith(
-                  style: PlacemarkStyle(icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/arrow.png'))
+                  icon: PlacemarkIcon.single(
+                    PlacemarkIconStyle(image: BitmapDescriptor.fromAssetImage('lib/assets/arrow.png'))
+                  )
                 ),
                 accuracyCircle: view.accuracyCircle.copyWith(
-                  style: CircleStyle(fillColor: Colors.green.withOpacity(0.5))
+                  fillColor: Colors.green.withOpacity(0.5)
                 )
               );
             },

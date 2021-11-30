@@ -52,11 +52,9 @@ class _CircleExampleState extends State<_CircleExample> {
                           mapId: circleId,
                           center: const Point(latitude: 55.781863, longitude: 37.451159),
                           radius: 1000000,
-                          style: CircleStyle(
-                            strokeColor: Colors.blue[700]!,
-                            strokeWidth: 5,
-                            fillColor: Colors.blue[300]!,
-                          ),
+                          strokeColor: Colors.blue[700]!,
+                          strokeWidth: 5,
+                          fillColor: Colors.blue[300]!,
                           onTap: (Circle self, Point point) => print('Tapped me at $point'),
                         );
 

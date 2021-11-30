@@ -154,10 +154,12 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       final placemark = Placemark(
                         mapId: targetMapObjectId,
                         point: (await controller.getCameraPosition()).target,
-                        style: PlacemarkStyle(
-                          opacity: 0.7,
-                          icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
-                        ),
+                        opacity: 0.7,
+                        icon: PlacemarkIcon.single(
+                          PlacemarkIconStyle(
+                            image: BitmapDescriptor.fromAssetImage('lib/assets/place.png')
+                          )
+                        )
                       );
 
                       setState(() {

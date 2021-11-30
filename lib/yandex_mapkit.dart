@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+part 'src/types/bitmap_descriptor.dart';
 part 'src/types/bounding_box.dart';
 part 'src/types/callbacks.dart';
 part 'src/types/camera_position.dart';

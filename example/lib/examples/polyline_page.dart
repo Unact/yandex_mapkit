@@ -71,12 +71,10 @@ class _PolylineExampleState extends State<_PolylineExample> {
                             Point(latitude: 55.0415, longitude: 82.9346),
                             Point(latitude: 66.42989, longitude: 112.4021),
                           ],
-                          style: PolylineStyle(
-                            strokeColor: Colors.orange[700]!,
-                            strokeWidth: 7.5, // default value 5.0, this will be a little bold
-                            outlineColor: Colors.yellow[200]!,
-                            outlineWidth: 2.0,
-                          ),
+                          strokeColor: Colors.orange[700]!,
+                          strokeWidth: 7.5, // default value 5.0, this will be a little bold
+                          outlineColor: Colors.yellow[200]!,
+                          outlineWidth: 2.0,
                           onTap: (Polyline self, Point point) => print('Tapped me at $point'),
                         );
 
@@ -95,10 +93,10 @@ class _PolylineExampleState extends State<_PolylineExample> {
                         final polyline = mapObjects.firstWhere((el) => el.mapId == polylineId) as Polyline;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(polyline)] = polyline.copyWith(style: PolylineStyle(
+                          mapObjects[mapObjects.indexOf(polyline)] = polyline.copyWith(
                             strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
                             strokeWidth: 8.5
-                          ));
+                          );
                         });
                       },
                       title: 'Update'

@@ -26,19 +26,17 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
   }
 
   public func update(_ params: [String: Any]) {
-    let style = params["style"] as! [String: Any]
-
-    polyline.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
-    polyline.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    polyline.strokeColor = Utils.uiColor(fromInt: (style["strokeColor"] as! NSNumber).int64Value)
-    polyline.outlineColor = Utils.uiColor(fromInt: (style["outlineColor"] as! NSNumber).int64Value)
-    polyline.outlineWidth = (style["outlineWidth"] as! NSNumber).floatValue
-    polyline.strokeWidth = (style["strokeWidth"] as! NSNumber).floatValue
-    polyline.dashLength = (style["dashLength"] as! NSNumber).floatValue
-    polyline.dashOffset = (style["dashOffset"] as! NSNumber).floatValue
-    polyline.gapLength = (style["gapLength"] as! NSNumber).floatValue
     polyline.geometry = Utils.polylineFromJson(params)
+    polyline.zIndex = (params["zIndex"] as! NSNumber).floatValue
+    polyline.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polyline.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    polyline.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
+    polyline.outlineColor = Utils.uiColor(fromInt: (params["outlineColor"] as! NSNumber).int64Value)
+    polyline.outlineWidth = (params["outlineWidth"] as! NSNumber).floatValue
+    polyline.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
+    polyline.dashLength = (params["dashLength"] as! NSNumber).floatValue
+    polyline.dashOffset = (params["dashOffset"] as! NSNumber).floatValue
+    polyline.gapLength = (params["gapLength"] as! NSNumber).floatValue
   }
 
   public func remove() {

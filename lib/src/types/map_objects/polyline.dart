@@ -6,37 +6,85 @@ class Polyline extends Equatable implements MapObject {
     required this.mapId,
     required this.coordinates,
     this.isGeodesic = false,
-    this.style = const PolylineStyle(),
     this.zIndex = 0.0,
     this.onTap,
-    this.isVisible = true
+    this.isVisible = true,
+    this.strokeColor = const Color(0xFF0066FF),
+    this.strokeWidth = 5.0,
+    this.outlineColor = const Color(0x00000000),
+    this.outlineWidth = 0.0,
+    this.dashLength = 0.0,
+    this.dashOffset = 0.0,
+    this.gapLength = 0.0,
   });
 
   final List<Point> coordinates;
   final bool isGeodesic;
-  final PolylineStyle style;
   final double zIndex;
   final TapCallback<Polyline>? onTap;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
+  /// Stroke color.
+  ///
+  /// Setting the stroke color to any transparent color (i.e. RGBA code 0x00000000) effectively disables the stroke.
+  final Color strokeColor;
+
+  /// Stroke width in units.
+  ///
+  /// The size of a unit is equal to the size of a pixel at the current zoom
+  /// with the camera position's tilt at 0 and a scale factor of 1
+  final double strokeWidth;
+
+  /// Outline color.
+  ///
+  /// Setting the color to any transparent color (i.e. RGBA code 0x00000000) effectively disables the outline.
+  final Color outlineColor;
+
+  /// Outline width in units.
+  ///
+  /// The size of a unit is equal to the size of a pixel at the current zoom
+  /// with the camera position's tilt at 0 and a scale factor of 1
+  final double outlineWidth;
+
+  /// Length of a dash in units. Default: 0 (dashing is turned off).
+  final double dashLength;
+
+  /// Offset from the start of the polyline to the reference dash in units.
+  final double dashOffset;
+
+  /// Length of the gap between two dashes in units. Default: 0 (dashing is turned off).
+  final double gapLength;
+
   Polyline copyWith({
     List<Point>? coordinates,
     bool? isGeodesic,
-    PolylineStyle? style,
     double? zIndex,
     TapCallback<Polyline>? onTap,
-    bool? isVisible
+    bool? isVisible,
+    Color? strokeColor,
+    double? strokeWidth,
+    Color? outlineColor,
+    double? outlineWidth,
+    double? dashLength,
+    double? dashOffset,
+    double? gapLength,
   }) {
     return Polyline(
       mapId: mapId,
       coordinates: coordinates ?? this.coordinates,
       isGeodesic: isGeodesic ?? this.isGeodesic,
-      style: style ?? this.style,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
-      isVisible: isVisible ?? this.isVisible
+      isVisible: isVisible ?? this.isVisible,
+      strokeColor: strokeColor ?? this.strokeColor,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+      outlineColor: outlineColor ?? this.outlineColor,
+      outlineWidth: outlineWidth ?? this.outlineWidth,
+      dashLength: dashLength ?? this.dashLength,
+      dashOffset: dashOffset ?? this.dashOffset,
+      gapLength: gapLength ?? this.gapLength,
     );
   }
 
@@ -52,10 +100,16 @@ class Polyline extends Equatable implements MapObject {
       mapId: mapId,
       coordinates: coordinates,
       isGeodesic: isGeodesic,
-      style: style,
       zIndex: zIndex,
       onTap: onTap,
-      isVisible: isVisible
+      isVisible: isVisible,
+      strokeColor: strokeColor,
+      strokeWidth: strokeWidth,
+      outlineColor: outlineColor,
+      outlineWidth: outlineWidth,
+      dashLength: dashLength,
+      dashOffset: dashOffset,
+      gapLength: gapLength,
     );
   }
 
@@ -72,9 +126,15 @@ class Polyline extends Equatable implements MapObject {
       'id': mapId.value,
       'coordinates': coordinates.map((Point p) => p.toJson()).toList(),
       'isGeodesic': isGeodesic,
-      'style': style.toJson(),
       'zIndex': zIndex,
-      'isVisible': isVisible
+      'isVisible': isVisible,
+      'strokeColor': strokeColor.value,
+      'strokeWidth': strokeWidth,
+      'outlineColor': outlineColor.value,
+      'outlineWidth': outlineWidth,
+      'dashLength': dashLength,
+      'dashOffset': dashOffset,
+      'gapLength': gapLength,
     };
   }
 
@@ -107,37 +167,8 @@ class Polyline extends Equatable implements MapObject {
     mapId,
     coordinates,
     isGeodesic,
-    style,
-    zIndex
-  ];
-
-  @override
-  bool get stringify => true;
-}
-
-class PolylineStyle extends Equatable {
-  const PolylineStyle({
-    this.strokeColor = const Color(0xFF0066FF),
-    this.strokeWidth = 5.0,
-    this.outlineColor = const Color(0x00000000),
-    this.outlineWidth = 0.0,
-    this.dashLength = 0.0,
-    this.dashOffset = 0.0,
-    this.gapLength = 0.0,
-  });
-
-  final Color strokeColor;
-  final double strokeWidth;
-
-  final Color outlineColor;
-  final double outlineWidth;
-
-  final double dashLength;
-  final double dashOffset;
-  final double gapLength;
-
-  @override
-  List<Object> get props => <Object>[
+    zIndex,
+    isVisible,
     strokeColor,
     strokeWidth,
     outlineColor,
@@ -149,16 +180,4 @@ class PolylineStyle extends Equatable {
 
   @override
   bool get stringify => true;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'strokeColor': strokeColor.value,
-      'strokeWidth': strokeWidth,
-      'outlineColor': outlineColor.value,
-      'outlineWidth': outlineWidth,
-      'dashLength': dashLength,
-      'dashOffset': dashOffset,
-      'gapLength': gapLength,
-    };
-  }
 }

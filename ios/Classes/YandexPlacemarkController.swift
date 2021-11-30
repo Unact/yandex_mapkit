@@ -59,14 +59,13 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
   }
 
   public func update(_ params: [String: Any]) {
-    let paramsPoint = params["point"] as! [String: NSNumber]
-    let style = params["style"] as! [String: Any]
-
-    applyPlacemarkStyle(placemark: placemark, params: style)
-
+    placemark.geometry = Utils.pointFromJson(params["point"] as! [String: NSNumber])
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    placemark.geometry = Utils.pointFromJson(paramsPoint)
     placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    placemark.opacity = (params["opacity"] as! NSNumber).floatValue
+    placemark.direction = (params["direction"] as! NSNumber).floatValue
+
+    setIcon(params["icon"] as? [String: Any])
   }
 
   public func remove() {
@@ -82,93 +81,68 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
       (parent as! YMKMapObjectCollection).remove(with: placemark)
     }
   }
-  
-  private func applyPlacemarkStyle(placemark: YMKPlacemarkMapObject, params: [String: Any]) {
-    
-    placemark.opacity   = (params["opacity"] as! NSNumber).floatValue
-    placemark.direction = (params["direction"] as! NSNumber).floatValue
-    
-    if let icon = params["icon"] as? [String: Any] {
-      
-      let img = getIconImage(icon)
-      placemark.setIconWith(img)
-      
-      let style = getIconStyle(icon["style"] as! [String: Any])
-      placemark.setIconStyleWith(style)
-      
-    } else if let composite = params["composite"] as? [Any] {
-      
-      for iconData in composite {
-        
-        let icon = iconData as! [String: Any]
-        
-        let img = getIconImage(iconData as! [String: Any])
-        let style = getIconStyle(icon["style"] as! [String: Any])
-        
-        placemark.useCompositeIcon().setIconWithName(
-          icon["layerName"] as! String,
-          image: img,
-          style: style
-        )
+
+  private func setIcon(_ icon: [String: Any]?) {
+    if (icon == nil) {
+      return
+    }
+
+    let iconType = icon!["type"] as! String
+
+    if (iconType == "single") {
+      let style = icon!["style"] as! [String: Any]
+      let image = style["image"] as! [String: Any]
+
+      placemark.setIconWith(getIconImage(image), style: getIconStyle(style))
+    }
+
+    if (iconType == "composite") {
+      let compositeIcon = placemark.useCompositeIcon()
+      let iconParts = icon!["iconParts"] as! [[String: Any]]
+
+      for iconPart in iconParts {
+        let style = iconPart["style"] as! [String: Any]
+        let image = style["image"] as! [String: Any]
+        let name = iconPart["name"] as! String
+
+        compositeIcon.setIconWithName(name, image: getIconImage(image), style: getIconStyle(style))
       }
     }
   }
   
-  private func getIconImage(_ iconData: [String: Any]) -> UIImage {
-   
-    var img: UIImage
-    
-    if let iconName = iconData["iconName"] as? String {
-      img = UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: iconName))!
-    } else {
-      let rawImageData = iconData["rawImageData"] as! FlutterStandardTypedData
-      img = UIImage(data: rawImageData.data)!
+  private func getIconImage(_ image: [String: Any]) -> UIImage {
+    let type = image["type"] as! String
+
+    if (type == "fromAssetImage") {
+      return UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: image["assetName"] as! String))!
     }
-    
-    return img
+
+    if (type == "fromBytes") {
+      return UIImage(data: (image["rawImageData"] as! FlutterStandardTypedData).data)!
+    }
+
+    return UIImage()
   }
   
-  private func getIconStyle(_ styleParams: [String: Any]) -> YMKIconStyle {
-    
+  private func getIconStyle(_ style: [String: Any]) -> YMKIconStyle {
     let iconStyle = YMKIconStyle()
 
-    let rotationType = (styleParams["rotationType"] as! NSNumber).intValue
-    if (rotationType == YMKRotationType.rotate.rawValue) {
+    if ((style["rotationType"] as! NSNumber).intValue == YMKRotationType.rotate.rawValue) {
       iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
     }
-    
-    let anchor = styleParams["anchor"] as! [String: Any]
-    
-    iconStyle.anchor = NSValue(cgPoint:
-      CGPoint(
-        x: (anchor["dx"] as! NSNumber).doubleValue,
-        y: (anchor["dy"] as! NSNumber).doubleValue
-      )
-    )
-    
-    iconStyle.zIndex = (styleParams["zIndex"] as! NSNumber)
-    iconStyle.scale = (styleParams["scale"] as! NSNumber)
-    
-    let tappableArea = styleParams["tappableArea"] as? [String: Any]
-    
-    if (tappableArea != nil) {
-      
-      let tappableAreaMin = tappableArea!["min"] as! [String: Any]
-      let tappableAreaMax = tappableArea!["max"] as! [String: Any]
-      
+
+    if let tappableArea = style["tappableArea"] as? [String: Any] {
       iconStyle.tappableArea = YMKRect(
-        min: CGPoint(
-          x: (tappableAreaMin["x"] as! NSNumber).doubleValue,
-          y: (tappableAreaMin["y"] as! NSNumber).doubleValue
-        ),
-        max: CGPoint(
-          x: (tappableAreaMax["x"] as! NSNumber).doubleValue,
-          y: (tappableAreaMax["y"] as! NSNumber).doubleValue
-        )
+        min: Utils.rectPointFromJson(tappableArea["min"] as! [String: NSNumber]),
+        max: Utils.rectPointFromJson(tappableArea["max"] as! [String: NSNumber])
       )
     }
 
-    iconStyle.visible = (styleParams["isVisible"] as! NSNumber)
+    iconStyle.anchor = NSValue(cgPoint: Utils.rectPointFromJson(style["anchor"] as! [String: NSNumber]))
+    iconStyle.zIndex = (style["zIndex"] as! NSNumber)
+    iconStyle.scale = (style["scale"] as! NSNumber)
+    iconStyle.visible = (style["isVisible"] as! NSNumber)
+    iconStyle.flat = (style["isFlat"] as! NSNumber)
     
     return iconStyle
   }

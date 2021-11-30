@@ -8,6 +8,9 @@
 * Added visibility toogle for all map objects
 * Add `YandexMapController.getFocusRegion` to get visible region with focusRect taken into account
 * Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
+* **Breaking change**. Remove `PlacemarkStyle`, `CircleStyle`, `PolygonStyle`, `PolylineStyle`.
+All styling options can now be directly set on corresponding map objects.
+* **Breaking change**. Removed rawImageData/iconName options from `Placemark`. Use `PlacemarkIconStyle.image` instead.
 * **Breaking change**. Move and change method signature `YandexSearch.getSuggestions` to `YandexSuggest.getSuggestions`
 * **Breaking change**. Rework working with map objects. Removed
  `YandexMapController.addPlacemark`, `YandexMapController.removePlacemark`,

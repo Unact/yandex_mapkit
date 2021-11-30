@@ -66,10 +66,10 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                                 Placemark(
                                   mapId: MapObjectId('inner_placemark'),
                                   point: Point(latitude: 57.945933, longitude: 28.320045),
-                                  style:PlacemarkStyle(
-                                    opacity: 0.7,
-                                    icon: PlacemarkIcon.fromIconName(iconName: 'lib/assets/place.png'),
-                                  ),
+                                  opacity: 0.7,
+                                  icon: PlacemarkIcon.single(PlacemarkIconStyle(
+                                    image: BitmapDescriptor.fromAssetImage('lib/assets/place.png')
+                                  ))
                                 )
                               ]
                             )
@@ -102,14 +102,10 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                             Placemark(
                               mapId: MapObjectId('placemark_new'),
                               point: Point(latitude: 59.945933, longitude: 30.320045),
-                              style: PlacemarkStyle(
-                                icon: PlacemarkIcon.fromIconName(
-                                  iconName: 'lib/assets/arrow.png',
-                                  style: PlacemarkIconStyle(
-                                    scale: 0.2,
-                                  )
-                                ),
-                              ),
+                              icon: PlacemarkIcon.single(PlacemarkIconStyle(
+                                image: BitmapDescriptor.fromAssetImage('lib/assets/arrow.png'),
+                                scale: 0.2,
+                              ))
                             ),
                           ]);
                         });
