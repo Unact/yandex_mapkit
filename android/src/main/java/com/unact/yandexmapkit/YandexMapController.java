@@ -140,16 +140,6 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void logoAlignment(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Alignment logoPosition = new Alignment(
-      HorizontalAlignment.values()[(Integer) params.get("horizontal")],
-      VerticalAlignment.values()[(Integer) params.get("vertical")]
-    );
-    mapView.getMap().getLogo().setAlignment(logoPosition);
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void toggleUserLayer(MethodCall call) {
     if (!hasLocationPermission()) return;
 
@@ -341,6 +331,10 @@ public class YandexMapController implements
     if (params.get("modelsEnabled") != null) {
       map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
     }
+
+    if (params.get("logoAlignment") != null) {
+      alignLogo((Map<String, Object>) params.get("logoAlignment"));
+    }
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -352,6 +346,15 @@ public class YandexMapController implements
         rootController.update(toChangeParam);
       }
     }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void alignLogo(Map<String, Object> params) {
+    Alignment logoPosition = new Alignment(
+      HorizontalAlignment.values()[(Integer) params.get("horizontal")],
+      VerticalAlignment.values()[(Integer) params.get("vertical")]
+    );
+    mapView.getMap().getLogo().setAlignment(logoPosition);
   }
 
   public float getMinZoom() {
@@ -366,10 +369,6 @@ public class YandexMapController implements
   public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
       case "waitForInit":
-        result.success(null);
-        break;
-      case "logoAlignment":
-        logoAlignment(call);
         result.success(null);
         break;
       case "toggleUserLayer":

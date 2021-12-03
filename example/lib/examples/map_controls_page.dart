@@ -74,6 +74,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             mode2DEnabled: mode2DEnabled,
             indoorEnabled: indoorEnabled,
             liteModeEnabled: liteModeEnabled,
+            logoAlignment: MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
@@ -158,15 +159,12 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.logoAlignment(
-                        alignment: MapAlignment(
-                          horizontal: HorizontalAlignment.center,
-                          vertical: VerticalAlignment.bottom
-                        )
-                      );
+                      setState(() {
+                        _height = _height == 0 ? 10 : 0;
+                      });
                     },
-                    title: 'Logo position'
-                  ),
+                    title: 'Change size'
+                  )
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
@@ -181,17 +179,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Remove style'
                   ),
-                ]),
-                TableRow(children: <Widget>[
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        _height = _height == 0 ? 10 : 0;
-                      });
-                    },
-                    title: 'Change size'
-                  ),
-                  Container()
                 ]),
                 TableRow(
                   children: <Widget>[

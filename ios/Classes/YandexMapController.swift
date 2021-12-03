@@ -62,9 +62,6 @@ public class YandexMapController:
       } else {
         result(nil)
       }
-    case "logoAlignment":
-      logoAlignment(call)
-      result(nil)
     case "toggleUserLayer":
       toggleUserLayer(call)
       result(nil)
@@ -149,15 +146,6 @@ public class YandexMapController:
   public func clearFocusRect() {
     mapView.mapWindow.focusRect = nil
     mapView.mapWindow.pointOfView = YMKPointOfView.screenCenter
-  }
-
-  public func logoAlignment(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let logoPosition = YMKLogoAlignment(
-      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: params["horizontal"] as! UInt)!,
-      verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
-    )
-    mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
 
   public func setMapStyle(_ call: FlutterMethodCall) -> Bool {
@@ -380,6 +368,10 @@ public class YandexMapController:
     if let modelsEnabled = params["modelsEnabled"] as? NSNumber {
       map.isModelsEnabled = modelsEnabled.boolValue
     }
+
+    if let logoAlignment = params["logoAlignment"] as? [String: Any] {
+      alignLogo(logoAlignment)
+    }
   }
 
   public func applyMapObjects(_ params: [String: Any]) {
@@ -388,6 +380,14 @@ public class YandexMapController:
     if let rootChangeParams = toChangeParams.first(where: { $0["id"] as! String == rootController.id }) {
       rootController.update(rootChangeParams)
     }
+  }
+
+  private func alignLogo(_ params: [String: Any]) {
+    let logoPosition = YMKLogoAlignment(
+      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: params["horizontal"] as! UInt)!,
+      verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
+    )
+    mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
 
   public func onObjectAdded(with view: YMKUserLocationView) {

@@ -15,13 +15,6 @@ class YandexMapController extends ChangeNotifier {
     return YandexMapController._(methodChannel, yandexMapState);
   }
 
-  /// Set Yandex logo position
-  Future<void> logoAlignment({
-    required MapAlignment alignment
-  }) async {
-    await _channel.invokeMethod('logoAlignment', alignment.toJson());
-  }
-
   /// Toggles current user location layer
   ///
   /// Requires location permissions:

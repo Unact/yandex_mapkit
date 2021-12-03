@@ -16,6 +16,7 @@ class YandexMap extends StatefulWidget {
     this.mode2DEnabled = false,
     this.indoorEnabled = false,
     this.liteModeEnabled = false,
+    this.logoAlignment = const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.bottom),
     this.onMapCreated,
     this.onMapTap,
     this.onMapLongTap,
@@ -68,6 +69,9 @@ class YandexMap extends StatefulWidget {
 
   /// Enables detailed 3D models on the map.
   final bool modelsEnabled;
+
+  /// Set logo alignment on the map
+  final MapAlignment logoAlignment;
 
   /// Callback method for when the map is ready to be used.
   ///
@@ -225,7 +229,8 @@ class _YandexMapOptions {
     fastTapEnabled = map.fastTapEnabled,
     mode2DEnabled = map.mode2DEnabled,
     indoorEnabled = map.indoorEnabled,
-    liteModeEnabled = map.liteModeEnabled;
+    liteModeEnabled = map.liteModeEnabled,
+    logoAlignment = map.logoAlignment;
 
     final bool tiltGesturesEnabled;
 
@@ -247,6 +252,8 @@ class _YandexMapOptions {
 
     final bool modelsEnabled;
 
+    final MapAlignment logoAlignment;
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'tiltGesturesEnabled': tiltGesturesEnabled,
@@ -259,6 +266,7 @@ class _YandexMapOptions {
       'indoorEnabled': indoorEnabled,
       'liteModeEnabled': liteModeEnabled,
       'modelsEnabled': modelsEnabled,
+      'logoAlignment': logoAlignment.toJson()
     };
   }
 
