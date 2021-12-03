@@ -69,8 +69,7 @@ public class YandexMapController:
       toggleUserLayer(call)
       result(nil)
     case "setMapStyle":
-      setMapStyle(call)
-      result(nil)
+      result(setMapStyle(call))
     case "move":
       move(call)
       result(nil)
@@ -161,10 +160,10 @@ public class YandexMapController:
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
 
-  public func setMapStyle(_ call: FlutterMethodCall) {
+  public func setMapStyle(_ call: FlutterMethodCall) -> Bool {
     let params = call.arguments as! [String: Any]
-    let map = mapView.mapWindow.map
-    map.setMapStyleWithStyle(params["style"] as! String)
+
+    return mapView.mapWindow.map.setMapStyleWithStyle(params["style"] as! String)
   }
 
   public func zoomIn() {

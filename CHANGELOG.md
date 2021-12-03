@@ -26,6 +26,7 @@ Use `YandexMap.mapObjects` in conjuction with `setState` to add and remove map o
 * **Breaking change**. `YandexMapController.setBounds` method signature has been changed.
 * **Breaking change**. `YandexMapController.setFocusRect` method signature has been changed.
 * **Breaking change**. `YandexMapController.getVisibleRegion` method signature has been changed.
+* **Breaking change**. `YandexMapController.setMapStyle` method signature has been changed.
 * **Breaking change**. Removed `YandexMapController.getZoom`, `YandexMapController.getTargetPoint`.
 Use `YandexMapController.getCameraPosition` to get zoom, target and much more.
 * **Breaking change**. Removed `YandexMapController.getUserTargetPoint`

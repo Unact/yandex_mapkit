@@ -160,9 +160,10 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void setMapStyle(MethodCall call) {
+  public boolean setMapStyle(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    mapView.getMap().setMapStyle((String) params.get("style"));
+
+    return mapView.getMap().setMapStyle((String) params.get("style"));
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -376,8 +377,7 @@ public class YandexMapController implements
         result.success(null);
         break;
       case "setMapStyle":
-        setMapStyle(call);
-        result.success(null);
+        result.success(setMapStyle(call));
         break;
       case "move":
         move(call);

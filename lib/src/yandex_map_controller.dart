@@ -45,9 +45,15 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
-  /// Applies styling to the map
-  Future<void> setMapStyle({required String style}) async {
-    await _channel.invokeMethod('setMapStyle', {'style': style});
+  /// Applies JSON style transformations to the map.
+  /// Set to empty string to clear previous styling.
+  ///
+  /// Returns true if the style was successfully parsed, and false otherwise.
+  /// If the returned value is false, the current map style remains unchanged.
+  ///
+  /// For styling details refer to https://yandex.com/dev/maps/mapkit/doc/dg/concepts/style.html
+  Future<bool> setMapStyle(String style) async {
+    return await _channel.invokeMethod('setMapStyle', {'style': style});
   }
 
   /// Moves camera to specified [point]

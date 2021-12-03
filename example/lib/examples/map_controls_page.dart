@@ -36,20 +36,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool indoorEnabled = false;
   bool liteModeEnabled = false;
 
-  final String emptyStyle = '''
-    [
-      {
-        "tags": {
-          "all": ["landscape"]
-        },
-        "stylers": {
-          "saturation": 0,
-          "lightness": 0
-        }
-      }
-    ]
-  ''';
-  final String nonEmptyStyle = '''
+  final String style = '''
     [
       {
         "tags": {
@@ -184,13 +171,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.setMapStyle(style: nonEmptyStyle);
+                      await controller.setMapStyle(style);
                     },
                     title: 'Set Style'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.setMapStyle(style: emptyStyle);
+                      await controller.setMapStyle('');
                     },
                     title: 'Remove style'
                   ),
