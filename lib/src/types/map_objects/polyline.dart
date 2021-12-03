@@ -8,9 +8,6 @@ class Polyline extends Equatable implements MapObject {
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
-    this.onDragStart,
-    this.onDrag,
-    this.onDragEnd,
     this.isVisible = true,
     this.strokeColor = const Color(0xFF0066FF),
     this.strokeWidth = 5.0,
@@ -25,15 +22,6 @@ class Polyline extends Equatable implements MapObject {
   final bool isGeodesic;
   final double zIndex;
   final TapCallback<Polyline>? onTap;
-
-  /// Raised when dragging mode is active for the given map object.
-  final DragStartCallback<Polyline>? onDragStart;
-
-  /// Raised when the user is moving a finger and the map object follows it.
-  final DragCallback<Polyline>? onDrag;
-
-  /// Raised when the user released the tap.
-  final DragEndCallback<Polyline>? onDragEnd;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
