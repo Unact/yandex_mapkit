@@ -3,11 +3,14 @@ package com.unact.yandexmapkit;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.Cluster;
 import com.yandex.mapkit.map.ClusterListener;
 import com.yandex.mapkit.map.ClusterTapListener;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
+import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 
 import java.lang.ref.WeakReference;
@@ -20,13 +23,13 @@ import io.flutter.plugin.common.MethodChannel;
 
 public class YandexClusterizedPlacemarkCollectionController
   extends YandexMapObjectController
-  implements ClusterListener, ClusterTapListener
+  implements ClusterListener, ClusterTapListener, MapObjectTapListener
 {
   private int clusterCnt = 0;
   private final Map<Cluster, YandexPlacemarkController> clusters = new HashMap<>();
   private final List<YandexPlacemarkController> placemarkControllers = new ArrayList<>();
   public final ClusterizedPlacemarkCollection clusterizedPlacemarkCollection;
-  private final YandexMapObjectTapListener tapListener;
+  private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
   public final String id;
@@ -43,10 +46,9 @@ public class YandexClusterizedPlacemarkCollectionController
     this.clusterizedPlacemarkCollection = clusterizedPlacemarkCollection;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
     clusterizedPlacemarkCollection.setUserData(this.id);
-    clusterizedPlacemarkCollection.addTapListener(tapListener);
+    clusterizedPlacemarkCollection.addTapListener(this);
     update(params);
   }
 
@@ -59,6 +61,7 @@ public class YandexClusterizedPlacemarkCollectionController
       ((Number) params.get("minZoom")).intValue()
     );
 
+    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
   public void remove() {
@@ -204,5 +207,12 @@ public class YandexClusterizedPlacemarkCollectionController
     controller.get().methodChannel.invokeMethod("onClusterTap", arguments);
 
     return true;
+  }
+
+  @Override
+  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectTap(id, point);
+
+    return consumeTapEvents;
   }
 }

@@ -4,6 +4,7 @@
 * Implement `YandexSearch`, move suggest functionality to `YandexSuggest`
 * Added the ability to add composite icon Placemark
 * Added the ability to work with MapObjectCollection
+* Added the ability to control which tap events should be consumed
 * Added placemark clusterization
 * Added visibility toogle for all map objects
 * Added draggablity toggle for `Placemark`.

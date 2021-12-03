@@ -116,6 +116,8 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                             Placemark(
                               mapId: MapObjectId('placemark_1'),
                               point: Point(latitude: 55.756, longitude: 37.618),
+                              consumeTapEvents: true,
+                              onTap: (Placemark self, Point point) => print('Tapped placemark at $point'),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1

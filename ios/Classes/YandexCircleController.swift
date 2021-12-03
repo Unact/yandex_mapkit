@@ -1,10 +1,10 @@
 import YandexMapsMobile
 
-class YandexCircleController: NSObject, YandexMapObjectController {
+class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
   private let internallyControlled: Bool
   public let circle: YMKCircleMapObject
-  private let tapListener: YandexMapObjectTapListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
@@ -22,13 +22,12 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     self.circle = circle
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
     self.internallyControlled = false
 
     super.init()
 
     circle.userData = self.id
-    circle.addTapListener(with: tapListener)
+    circle.addTapListener(with: self)
     update(params)
   }
 
@@ -40,13 +39,12 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     self.circle = circle
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
     self.internallyControlled = true
 
     super.init()
 
     circle.userData = self.id
-    circle.addTapListener(with: tapListener)
+    circle.addTapListener(with: self)
     update(params)
   }
 
@@ -58,6 +56,8 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     circle.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
     circle.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
     circle.fillColor = Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
@@ -66,5 +66,11 @@ class YandexCircleController: NSObject, YandexMapObjectController {
     }
 
     circle.parent.remove(with: circle)
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 }

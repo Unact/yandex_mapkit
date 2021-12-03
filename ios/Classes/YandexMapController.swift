@@ -470,6 +470,39 @@ public class YandexMapController:
     methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
   }
 
+  internal func mapObjectTap(id: String, point: YMKPoint) {
+    let arguments: [String: Any?] = [
+      "id": id,
+      "point": Utils.pointToJson(point)
+    ]
+
+    methodChannel.invokeMethod("onMapObjectTap", arguments: arguments)
+  }
+
+  internal func mapObjectDragStart(id: String) {
+    let arguments: [String: Any?] = [
+      "id": id
+    ]
+
+    methodChannel.invokeMethod("onMapObjectDragStart", arguments: arguments)
+  }
+
+  internal func mapObjectDrag(id: String, point: YMKPoint) {
+    let arguments: [String: Any?] = [
+      "id": id,
+      "point": Utils.pointToJson(point)
+    ]
+    methodChannel.invokeMethod("onMapObjectDrag", arguments: arguments)
+  }
+
+  internal func mapObjectDragEnd(id: String) {
+    let arguments: [String: Any?] = [
+      "id": id
+    ]
+
+    methodChannel.invokeMethod("onMapObjectDragEnd", arguments: arguments)
+  }
+
   // Fix https://github.com/flutter/flutter/issues/67514
   internal class FLYMKMapView: YMKMapView {
     public var initResult: FlutterResult?

@@ -9,6 +9,7 @@ class Polygon extends Equatable implements MapObject {
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
+    this.consumeTapEvents = false,
     this.isVisible = true,
     this.strokeWidth = 1,
     this.strokeColor = const Color(0xFF0066FF),
@@ -20,6 +21,10 @@ class Polygon extends Equatable implements MapObject {
   final bool isGeodesic;
   final double zIndex;
   final TapCallback<Polygon>? onTap;
+
+  /// True if the placemark consumes tap events.
+  /// If not, the map will propagate tap events to other map objects at the point of tap.
+  final bool consumeTapEvents;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
@@ -46,6 +51,7 @@ class Polygon extends Equatable implements MapObject {
     bool? isGeodesic,
     double? zIndex,
     TapCallback<Polygon>? onTap,
+    bool? consumeTapEvents,
     bool? isVisible,
     Color? fillColor,
     Color? strokeColor,
@@ -58,6 +64,7 @@ class Polygon extends Equatable implements MapObject {
       isGeodesic: isGeodesic ?? this.isGeodesic,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
+      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
       isVisible: isVisible ?? this.isVisible,
       fillColor: fillColor ?? this.fillColor,
       strokeColor: strokeColor ?? this.strokeColor,
@@ -80,6 +87,7 @@ class Polygon extends Equatable implements MapObject {
       isGeodesic: isGeodesic,
       zIndex: zIndex,
       onTap: onTap,
+      consumeTapEvents: consumeTapEvents,
       isVisible: isVisible,
       fillColor: fillColor,
       strokeColor: strokeColor,
@@ -125,6 +133,7 @@ class Polygon extends Equatable implements MapObject {
       ).toList(),
       'isGeodesic': isGeodesic,
       'zIndex': zIndex,
+      'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible,
       'strokeColor': strokeColor.value,
       'strokeWidth': strokeWidth,
@@ -163,6 +172,8 @@ class Polygon extends Equatable implements MapObject {
     innerRingsCoordinates,
     isGeodesic,
     zIndex,
+    consumeTapEvents,
+    isVisible,
     strokeColor,
     strokeWidth,
     fillColor

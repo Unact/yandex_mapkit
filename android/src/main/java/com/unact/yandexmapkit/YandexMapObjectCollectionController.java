@@ -1,13 +1,18 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
+import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectTapListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class YandexMapObjectCollectionController extends YandexMapObjectController {
+public class YandexMapObjectCollectionController extends YandexMapObjectController implements MapObjectTapListener {
   private final List<YandexMapObjectCollectionController> mapObjectCollectionControllers = new ArrayList<>();
   private final List<YandexClusterizedPlacemarkCollectionController> clusterizedPlacemarkCollectionControllers =
     new ArrayList<>();
@@ -16,7 +21,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   private final List<YandexPolygonController> polygonControllers = new ArrayList<>();
   private final List<YandexPolylineController> polylineControllers = new ArrayList<>();
   public final MapObjectCollection mapObjectCollection;
-  private final YandexMapObjectTapListener tapListener;
+  private boolean consumeTapEvents = false;
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
@@ -28,10 +33,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     this.mapObjectCollection = root;
     this.id = id;
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
     mapObjectCollection.setUserData(this.id);
-    mapObjectCollection.addTapListener(tapListener);
+    mapObjectCollection.addTapListener(this);
   }
 
   public YandexMapObjectCollectionController(
@@ -44,10 +48,9 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     this.mapObjectCollection = mapObjectCollection;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
     mapObjectCollection.setUserData(this.id);
-    mapObjectCollection.addTapListener(tapListener);
+    mapObjectCollection.addTapListener(this);
     update(params);
   }
 
@@ -56,6 +59,8 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     mapObjectCollection.setZIndex(((Double) params.get("zIndex")).floatValue());
     mapObjectCollection.setVisible((Boolean) params.get("isVisible"));
     updateMapObjects((Map<String, Object>) params.get("mapObjects"));
+
+    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -369,5 +374,12 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
         break;
       }
     }
+  }
+
+  @Override
+  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectTap(id, point);
+
+    return consumeTapEvents;
   }
 }

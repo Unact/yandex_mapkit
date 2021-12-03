@@ -1,12 +1,16 @@
 import YandexMapsMobile
 
-class YandexPlacemarkController: NSObject, YandexMapObjectController {
+class YandexPlacemarkController:
+  NSObject,
+  YandexMapObjectController,
+  YMKMapObjectTapListener,
+  YMKMapObjectDragListener
+{
   private let internallyControlled: Bool
   private let parent: YMKMapObject // Workaround https://github.com/yandex/mapkit-ios-demo/issues/100
   public let placemark: YMKPlacemarkMapObject
-  private let tapListener: YandexMapObjectTapListener
-  private let dragListener: YandexMapObjectDragListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
@@ -29,15 +33,13 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     self.placemark = placemark!
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
-    self.dragListener = YandexMapObjectDragListener(id: id, controller: controller)
     self.internallyControlled = false
 
     super.init()
 
     placemark!.userData = self.id
-    placemark!.addTapListener(with: tapListener)
-    placemark!.setDragListenerWith(dragListener)
+    placemark!.addTapListener(with: self)
+    placemark!.setDragListenerWith(self)
     update(params)
   }
 
@@ -51,15 +53,13 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     self.placemark = placemark
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
-    self.dragListener = YandexMapObjectDragListener(id: id, controller: controller)
     self.internallyControlled = true
 
     super.init()
 
     placemark.userData = self.id
-    placemark.addTapListener(with: tapListener)
-    placemark.setDragListenerWith(dragListener)
+    placemark.addTapListener(with: self)
+    placemark.setDragListenerWith(self)
     update(params)
   }
 
@@ -72,6 +72,8 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     placemark.direction = (params["direction"] as! NSNumber).floatValue
 
     setIcon(params["icon"] as? [String: Any])
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
@@ -86,6 +88,24 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     if (parent is YMKMapObjectCollection) {
       (parent as! YMKMapObjectCollection).remove(with: placemark)
     }
+  }
+
+  func onMapObjectDragStart(with mapObject: YMKMapObject) {
+    controller.mapObjectDragStart(id: id)
+  }
+
+  func onMapObjectDrag(with mapObject: YMKMapObject, point: YMKPoint) {
+    controller.mapObjectDrag(id: id, point: point)
+  }
+
+  func onMapObjectDragEnd(with mapObject: YMKMapObject) {
+    controller.mapObjectDragEnd(id: id)
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 
   private func setIcon(_ icon: [String: Any]?) {

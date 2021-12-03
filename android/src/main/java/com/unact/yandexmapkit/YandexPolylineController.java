@@ -1,14 +1,19 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
+import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PolylineMapObject;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-public class YandexPolylineController extends YandexMapObjectController {
+public class YandexPolylineController extends YandexMapObjectController implements MapObjectTapListener {
   public final PolylineMapObject polyline;
-  private final YandexMapObjectTapListener tapListener;
+  private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
   public final String id;
@@ -23,10 +28,9 @@ public class YandexPolylineController extends YandexMapObjectController {
     this.polyline = polyline;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
     polyline.setUserData(this.id);
-    polyline.addTapListener(tapListener);
+    polyline.addTapListener(this);
     update(params);
   }
 
@@ -43,9 +47,18 @@ public class YandexPolylineController extends YandexMapObjectController {
     polyline.setDashLength(((Double) params.get("dashLength")).floatValue());
     polyline.setDashOffset(((Double) params.get("dashOffset")).floatValue());
     polyline.setGapLength(((Double) params.get("gapLength")).floatValue());
+
+    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
   public void remove() {
     polyline.getParent().remove(polyline);
+  }
+
+  @Override
+  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectTap(id, point);
+
+    return consumeTapEvents;
   }
 }

@@ -1,9 +1,9 @@
 import YandexMapsMobile
 
-class YandexPolylineController: NSObject, YandexMapObjectController {
+class YandexPolylineController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
   public let polyline: YMKPolylineMapObject
-  private let tapListener: YandexMapObjectTapListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
@@ -16,12 +16,11 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
     self.polyline = polyline
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
     polyline.userData = self.id
-    polyline.addTapListener(with: tapListener)
+    polyline.addTapListener(with: self)
     update(params)
   }
 
@@ -37,9 +36,17 @@ class YandexPolylineController: NSObject, YandexMapObjectController {
     polyline.dashLength = (params["dashLength"] as! NSNumber).floatValue
     polyline.dashOffset = (params["dashOffset"] as! NSNumber).floatValue
     polyline.gapLength = (params["gapLength"] as! NSNumber).floatValue
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
     polyline.parent.remove(with: polyline)
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 }

@@ -4,7 +4,8 @@ class YandexClusterizedPlacemarkCollectionController:
   NSObject,
   YandexMapObjectController,
   YMKClusterListener,
-  YMKClusterTapListener
+  YMKClusterTapListener,
+  YMKMapObjectTapListener
 {
   private var clusterCnt: Int = 0
   private var clusters: [YMKCluster: YandexPlacemarkController] = [:]
@@ -13,8 +14,8 @@ class YandexClusterizedPlacemarkCollectionController:
   public lazy var clusterizedPlacemarkCollection: YMKClusterizedPlacemarkCollection = {
     parent.addClusterizedPlacemarkCollection(with: self)
   }()
-  private let tapListener: YandexMapObjectTapListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
@@ -24,13 +25,12 @@ class YandexClusterizedPlacemarkCollectionController:
   ) {
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
     self.parent = parent
 
     super.init()
 
     clusterizedPlacemarkCollection.userData = self.id
-    clusterizedPlacemarkCollection.addTapListener(with: tapListener)
+    clusterizedPlacemarkCollection.addTapListener(with: self)
     update(params)
   }
 
@@ -41,6 +41,8 @@ class YandexClusterizedPlacemarkCollectionController:
       withClusterRadius: (params["radius"] as! NSNumber).doubleValue,
       minZoom: (params["minZoom"] as! NSNumber).uintValue
     )
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
@@ -150,5 +152,11 @@ class YandexClusterizedPlacemarkCollectionController:
     controller.methodChannel.invokeMethod("onClusterTap", arguments: arguments)
 
     return true
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 }

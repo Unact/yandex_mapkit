@@ -8,6 +8,7 @@ class MapObjectCollection extends Equatable implements MapObject {
     required List<MapObject> mapObjects,
     this.zIndex = 0.0,
     this.onTap,
+    this.consumeTapEvents = false,
     this.isVisible = true
   }) : _mapObjects = mapObjects.groupFoldBy<MapObjectId, MapObject>(
       (element) => element.mapId,
@@ -20,6 +21,10 @@ class MapObjectCollection extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<MapObjectCollection>? onTap;
 
+  /// True if the placemark consumes tap events.
+  /// If not, the map will propagate tap events to other map objects at the point of tap.
+  final bool consumeTapEvents;
+
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
@@ -27,6 +32,7 @@ class MapObjectCollection extends Equatable implements MapObject {
     List<MapObject>? mapObjects,
     double? zIndex,
     TapCallback<MapObjectCollection>? onTap,
+    bool? consumeTapEvents,
     bool? isVisible
   }) {
     return MapObjectCollection(
@@ -34,6 +40,7 @@ class MapObjectCollection extends Equatable implements MapObject {
       mapObjects: mapObjects ?? this.mapObjects,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
+      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
       isVisible: isVisible ?? this.isVisible
     );
   }
@@ -51,6 +58,7 @@ class MapObjectCollection extends Equatable implements MapObject {
       mapObjects: mapObjects,
       zIndex: zIndex,
       onTap: onTap,
+      consumeTapEvents: consumeTapEvents,
       isVisible: isVisible
     );
   }
@@ -89,6 +97,7 @@ class MapObjectCollection extends Equatable implements MapObject {
       'id': mapId.value,
       'mapObjects': _mapObjects.map((MapObject p) => p.toJson()).toList(),
       'zIndex': zIndex,
+      'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible
     };
   }
@@ -129,7 +138,9 @@ class MapObjectCollection extends Equatable implements MapObject {
   List<Object> get props => <Object>[
     mapId,
     mapObjects,
-    zIndex
+    zIndex,
+    consumeTapEvents,
+    isVisible
   ];
 
   @override

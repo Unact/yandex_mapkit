@@ -54,7 +54,9 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                             Circle(
                               mapId: MapObjectId('circle'),
                               center: Point(latitude: 59.945933, longitude: 30.320045),
-                              radius: 100000
+                              radius: 100000,
+                              consumeTapEvents: true,
+                              onTap: (Circle self, Point point) => print('Tapped circle at $point'),
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark'),
@@ -97,7 +99,9 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                             Circle(
                               mapId: MapObjectId('circle'),
                               center: Point(latitude: 59.945933, longitude: 30.320045),
-                              radius: 10000
+                              radius: 10000,
+                              consumeTapEvents: true,
+                              onTap: (Circle self, Point point) => print('Tapped circle at $point'),
                             ),
                             Placemark(
                               mapId: MapObjectId('placemark_new'),

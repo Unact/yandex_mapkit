@@ -1,7 +1,8 @@
 package com.unact.yandexmapkit;
 
 import android.graphics.BitmapFactory;
-import android.graphics.PointF;
+
+import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
@@ -9,6 +10,8 @@ import com.yandex.mapkit.map.CompositeIcon;
 import com.yandex.mapkit.map.IconStyle;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectDragListener;
+import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.RotationType;
@@ -20,12 +23,14 @@ import java.util.Map;
 
 import io.flutter.FlutterInjector;
 
-public class YandexPlacemarkController extends YandexMapObjectController {
+public class YandexPlacemarkController
+  extends YandexMapObjectController
+  implements MapObjectTapListener, MapObjectDragListener
+{
   private final boolean internallyControlled;
   private final MapObject parent; // Workaround https://github.com/yandex/mapkit-android-demo/issues/258
   public final PlacemarkMapObject placemark;
-  private final YandexMapObjectTapListener tapListener;
-  private final YandexMapObjectDragListener dragListener;
+  private boolean consumeTapEvents = false;
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
@@ -50,13 +55,11 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.placemark = placemark;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
-    this.dragListener = new YandexMapObjectDragListener(id, controller);
     this.internallyControlled = false;
 
     placemark.setUserData(id);
-    placemark.addTapListener(tapListener);
-    placemark.setDragListener(dragListener);
+    placemark.addTapListener(this);
+    placemark.setDragListener(this);
     update(params);
   }
 
@@ -70,13 +73,11 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.placemark = placemark;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
-    this.dragListener = new YandexMapObjectDragListener(id, controller);
     this.internallyControlled = true;
 
     placemark.setUserData(id);
-    placemark.addTapListener(tapListener);
-    placemark.setDragListener(dragListener);
+    placemark.addTapListener(this);
+    placemark.setDragListener(this);
     update(params);
   }
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -89,6 +90,8 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     placemark.setDirection(((Double) params.get("direction")).floatValue());
 
     setIcon(((Map<String, Object>) params.get("icon")));
+
+    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
   public void remove() {
@@ -177,5 +180,27 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     iconStyle.setFlat((Boolean) style.get("isFlat"));
     
     return iconStyle;
+  }
+
+  @Override
+  public void onMapObjectDragStart(@NonNull MapObject mapObject) {
+    controller.get().mapObjectDragStart(id);
+  }
+
+  @Override
+  public void onMapObjectDrag(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectDrag(id, point);
+  }
+
+  @Override
+  public void onMapObjectDragEnd(@NonNull MapObject mapObject) {
+    controller.get().mapObjectDragEnd(id);
+  }
+
+  @Override
+  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectTap(id, point);
+
+    return consumeTapEvents;
   }
 }

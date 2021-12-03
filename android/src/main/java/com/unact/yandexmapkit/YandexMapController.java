@@ -605,4 +605,34 @@ public class YandexMapController implements
 
     methodChannel.invokeMethod("onMapSizeChanged", arguments);
   }
+
+  public void mapObjectDragStart(@NonNull String id) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("id", id);
+
+    methodChannel.invokeMethod("onMapObjectDragStart", arguments);
+  }
+
+  public void mapObjectDrag(@NonNull String id, @NonNull Point point) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("id", id);
+    arguments.put("point", Utils.pointToJson(point));
+
+    methodChannel.invokeMethod("onMapObjectDrag", arguments);
+  }
+
+  public void mapObjectDragEnd(@NonNull String id) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("id", id);
+
+    methodChannel.invokeMethod("onMapObjectDragEnd", arguments);
+  }
+
+  public void mapObjectTap(@NonNull String id, @NonNull Point point) {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("id", id);
+    arguments.put("point", Utils.pointToJson(point));
+
+    methodChannel.invokeMethod("onMapObjectTap", arguments);
+  }
 }

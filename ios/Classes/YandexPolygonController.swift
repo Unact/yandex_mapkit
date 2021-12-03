@@ -1,9 +1,9 @@
 import YandexMapsMobile
 
-class YandexPolygonController: NSObject, YandexMapObjectController {
+class YandexPolygonController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
   public let polygon: YMKPolygonMapObject
-  private let tapListener: YandexMapObjectTapListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
@@ -16,12 +16,11 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
     self.polygon = polygon
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
     polygon.userData = self.id
-    polygon.addTapListener(with: tapListener)
+    polygon.addTapListener(with: self)
     update(params)
   }
 
@@ -33,9 +32,17 @@ class YandexPolygonController: NSObject, YandexMapObjectController {
     polygon.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
     polygon.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
     polygon.fillColor = Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
     polygon.parent.remove(with: polygon)
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 }

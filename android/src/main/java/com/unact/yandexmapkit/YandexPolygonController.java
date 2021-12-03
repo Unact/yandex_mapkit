@@ -1,14 +1,19 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
+import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PolygonMapObject;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-public class YandexPolygonController extends YandexMapObjectController {
+public class YandexPolygonController extends YandexMapObjectController implements MapObjectTapListener {
   public final PolygonMapObject polygon;
-  private final YandexMapObjectTapListener tapListener;
+  private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
   public final String id;
@@ -23,10 +28,9 @@ public class YandexPolygonController extends YandexMapObjectController {
     this.polygon = polygon;
     this.id = (String) params.get("id");
     this.controller = controller;
-    this.tapListener = new YandexMapObjectTapListener(id, controller);
 
     polygon.setUserData(this.id);
-    polygon.addTapListener(tapListener);
+    polygon.addTapListener(this);
     update(params);
   }
 
@@ -39,9 +43,18 @@ public class YandexPolygonController extends YandexMapObjectController {
     polygon.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
     polygon.setStrokeColor(((Number) params.get("strokeColor")).intValue());
     polygon.setFillColor(((Number) params.get("fillColor")).intValue());
+
+    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
   public void remove() {
     polygon.getParent().remove(polygon);
+  }
+
+  @Override
+  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+    controller.get().mapObjectTap(id, point);
+
+    return consumeTapEvents;
   }
 }

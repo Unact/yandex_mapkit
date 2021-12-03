@@ -11,6 +11,7 @@ class Placemark extends Equatable implements MapObject {
     this.onDragStart,
     this.onDrag,
     this.onDragEnd,
+    this.consumeTapEvents = false,
     this.isVisible = true,
     this.isDraggable = false,
     this.icon,
@@ -21,6 +22,10 @@ class Placemark extends Equatable implements MapObject {
   final Point point;
   final double zIndex;
   final TapCallback<Placemark>? onTap;
+
+  /// True if the placemark consumes tap events.
+  /// If not, the map will propagate tap events to other map objects at the point of tap.
+  final bool consumeTapEvents;
 
   /// Raised when dragging mode is active for the given map object.
   final DragStartCallback<Placemark>? onDragStart;
@@ -55,6 +60,7 @@ class Placemark extends Equatable implements MapObject {
     DragStartCallback<Placemark>? onDragStart,
     DragCallback<Placemark>? onDrag,
     DragEndCallback<Placemark>? onDragEnd,
+    bool? consumeTapEvents,
     bool? isVisible,
     bool? isDraggable,
     PlacemarkIcon? icon,
@@ -69,6 +75,7 @@ class Placemark extends Equatable implements MapObject {
       onDragStart: onDragStart ?? this.onDragStart,
       onDrag: onDrag ?? this.onDrag,
       onDragEnd: onDragEnd ?? this.onDragEnd,
+      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
       isVisible: isVisible ?? this.isVisible,
       isDraggable: isDraggable ?? this.isDraggable,
       icon: icon ?? this.icon,
@@ -93,6 +100,7 @@ class Placemark extends Equatable implements MapObject {
       onDragStart: onDragStart,
       onDrag: onDrag,
       onDragEnd: onDragEnd,
+      consumeTapEvents: consumeTapEvents,
       isVisible: isVisible,
       isDraggable: isDraggable,
       icon: icon,
@@ -135,6 +143,7 @@ class Placemark extends Equatable implements MapObject {
       'id': mapId.value,
       'point': point.toJson(),
       'zIndex': zIndex,
+      'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible,
       'isDraggable': isDraggable,
       'opacity': opacity,
@@ -172,6 +181,7 @@ class Placemark extends Equatable implements MapObject {
     mapId,
     point,
     zIndex,
+    consumeTapEvents,
     isVisible,
     isDraggable,
     opacity,

@@ -1,6 +1,6 @@
 import YandexMapsMobile
 
-class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
+class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
   private var mapObjectCollectionControllers: [YandexMapObjectCollectionController] = []
   private var clusterizedPlacemarkCollectionControllers: [YandexClusterizedPlacemarkCollectionController] = []
   private var placemarkControllers: [YandexPlacemarkController] = []
@@ -8,8 +8,8 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
   private var polylineControllers: [YandexPolylineController] = []
   private var polygonControllers: [YandexPolygonController] = []
   public let mapObjectCollection: YMKMapObjectCollection
-  private let tapListener: YandexMapObjectTapListener
-  private unowned var controller: YandexMapController
+  private var consumeTapEvents: Bool = false
+  public unowned var controller: YandexMapController
   public let id: String
 
   internal init(
@@ -20,10 +20,11 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     self.mapObjectCollection = root
     self.id = id
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+
+    super.init()
 
     mapObjectCollection.userData = self.id
-    mapObjectCollection.addTapListener(with: tapListener)
+    mapObjectCollection.addTapListener(with: self)
   }
 
   public required init(
@@ -36,12 +37,11 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     self.mapObjectCollection = mapObjectCollection
     self.id = params["id"] as! String
     self.controller = controller
-    self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
 
     super.init()
 
     mapObjectCollection.userData = self.id
-    mapObjectCollection.addTapListener(with: tapListener)
+    mapObjectCollection.addTapListener(with: self)
     update(params)
   }
 
@@ -49,6 +49,8 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
     mapObjectCollection.zIndex = (params["zIndex"] as! NSNumber).floatValue
     mapObjectCollection.isVisible = (params["isVisible"] as! NSNumber).boolValue
     updateMapObjects(params["mapObjects"] as! [String: Any])
+
+    consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }
 
   public func remove() {
@@ -306,5 +308,11 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController {
 
     clusterizedPlacemarkCollectionController.remove()
     clusterizedPlacemarkCollectionControllers.remove(at: idx)
+  }
+
+  func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
+    controller.mapObjectTap(id: id, point: point)
+
+    return consumeTapEvents
   }
 }

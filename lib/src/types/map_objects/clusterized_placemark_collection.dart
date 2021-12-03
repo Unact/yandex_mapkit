@@ -14,6 +14,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     this.onTap,
     this.onClusterAdded,
     this.onClusterTap,
+    this.consumeTapEvents = false,
     this.isVisible = true
   }) : _placemarks = placemarks.groupFoldBy<MapObjectId, Placemark>(
       (element) => element.mapId,
@@ -56,6 +57,10 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
+  /// True if the placemark consumes tap events.
+  /// If not, the map will propagate tap events to other map objects at the point of tap.
+  final bool consumeTapEvents;
+
   /// Creates a modified copy.
   ///
   /// Specified fields will get the specified value, all other fields will get
@@ -68,6 +73,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     TapCallback<ClusterizedPlacemarkCollection>? onTap,
     ClusterCallback? onClusterAdded,
     ClusterCallback? onClusterTap,
+    bool? consumeTapEvents,
     bool? isVisible
   }) {
     return ClusterizedPlacemarkCollection(
@@ -79,6 +85,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       onTap: onTap ?? this.onTap,
       onClusterAdded: onClusterAdded ?? this.onClusterAdded,
       onClusterTap: onClusterTap ?? this.onClusterTap,
+      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
       isVisible: isVisible ?? this.isVisible
     );
   }
@@ -112,6 +119,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       onTap: onTap,
       onClusterAdded: onClusterAdded,
       onClusterTap: onClusterTap,
+      consumeTapEvents: consumeTapEvents,
       isVisible: isVisible
     );
   }
@@ -152,6 +160,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       'minZoom': minZoom,
       'placemarks': _placemarks.map((Placemark p) => p.toJson()).toList(),
       'zIndex': zIndex,
+      'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible
     };
   }
@@ -192,7 +201,9 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   List<Object> get props => <Object>[
     mapId,
     placemarks,
-    zIndex
+    zIndex,
+    consumeTapEvents,
+    isVisible,
   ];
 
   @override
