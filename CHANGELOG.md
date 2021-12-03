@@ -7,6 +7,7 @@
 * Added placemark clusterization
 * Added visibility toogle for all map objects
 * Added draggablity toggle for `Placemark`.
+* Allow specifing which gestures should be intercepted by `YandexMap`
 * Add `YandexMapController.getFocusRegion` to get visible region with focusRect taken into account
 * Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
 * **Breaking change**. Remove `PlacemarkStyle`, `CircleStyle`, `PolygonStyle`, `PolylineStyle`.

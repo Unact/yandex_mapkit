@@ -4,6 +4,7 @@ class YandexMap extends StatefulWidget {
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
     Key? key,
+    this.gestureRecognizers = const <Factory<OneSequenceGestureRecognizer>>{},
     this.mapObjects = const [],
     this.tiltGesturesEnabled = true,
     this.zoomGesturesEnabled = true,
@@ -24,6 +25,12 @@ class YandexMap extends StatefulWidget {
   }) : super(key: key);
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
+
+  /// Which gestures should be consumed by the map.
+  ///
+  /// When this set is empty, the map will only handle pointer events for gestures that
+  /// were not claimed by any other gesture recognizer.
+  final Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers;
 
   /// Map objects to show on map
   final List<MapObject> mapObjects;
@@ -167,9 +174,7 @@ class _YandexMapState extends State<YandexMap> {
       return AndroidView(
         viewType: YandexMap._viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: {
-          Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
-        },
+        gestureRecognizers: widget.gestureRecognizers,
         creationParamsCodec: StandardMessageCodec(),
         creationParams: _creationParams(),
       );
@@ -177,9 +182,7 @@ class _YandexMapState extends State<YandexMap> {
       return UiKitView(
         viewType: YandexMap._viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
-        gestureRecognizers: {
-          Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
-        },
+        gestureRecognizers: widget.gestureRecognizers,
         creationParamsCodec: StandardMessageCodec(),
         creationParams: _creationParams(),
       );
