@@ -10,16 +10,16 @@ class PlacemarkPage extends MapPage {
 
   @override
   Widget build(BuildContext context) {
-    return placemarkExample();
+    return _PlacemarkExample();
   }
 }
 
-class placemarkExample extends StatefulWidget {
+class _PlacemarkExample extends StatefulWidget {
   @override
-  placemarkExampleState createState() => placemarkExampleState();
+  _PlacemarkExampleState createState() => _PlacemarkExampleState();
 }
 
-class placemarkExampleState extends State<placemarkExample> {
+class _PlacemarkExampleState extends State<_PlacemarkExample> {
   final List<MapObject> mapObjects = [];
 
   final MapObjectId placemarkId = MapObjectId('normal_icon_placemark');
@@ -58,6 +58,10 @@ class placemarkExampleState extends State<placemarkExample> {
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
                           opacity: 0.7,
                           direction: 90,
+                          isDraggable: true,
+                          onDragStart: (_) => print('Drag start'),
+                          onDrag: (_, Point point) => print('Drag at point $point'),
+                          onDragEnd: (_) => print('Drag end'),
                           icon: PlacemarkIcon.single(PlacemarkIconStyle(
                             image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                             rotationType: RotationType.rotate
@@ -113,6 +117,10 @@ class placemarkExampleState extends State<placemarkExample> {
                           mapId: placemarkWithDynamicIconId,
                           point: Point(latitude: 30.320045, longitude: 59.945933),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                          isDraggable: true,
+                          onDragStart: (_) => print('Drag start'),
+                          onDrag: (_, Point point) => print('Drag at point $point'),
+                          onDragEnd: (_) => print('Drag end'),
                           opacity: 0.95,
                           icon: PlacemarkIcon.single(PlacemarkIconStyle(
                             image: BitmapDescriptor.fromBytes(rawImageData)
@@ -169,6 +177,10 @@ class placemarkExampleState extends State<placemarkExample> {
                           mapId: placemarkWithCompositeIconId,
                           point: Point(latitude: 34.820045, longitude: 45.945933),
                           onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                          isDraggable: true,
+                          onDragStart: (_) => print('Drag start'),
+                          onDrag: (_, Point point) => print('Drag at point $point'),
+                          onDragEnd: (_) => print('Drag end'),
                           icon: PlacemarkIcon.composite([
                             PlacemarkCompositeIconItem(
                               name: 'user',

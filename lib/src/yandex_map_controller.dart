@@ -205,6 +205,12 @@ class YandexMapController extends ChangeNotifier {
         return _onMapLongTap(call.arguments);
       case 'onMapObjectTap':
         return _onMapObjectTap(call.arguments);
+      case 'onMapObjectDragStart':
+        return _onMapObjectDragStart(call.arguments);
+      case 'onMapObjectDrag':
+        return _onMapObjectDrag(call.arguments);
+      case 'onMapObjectDragEnd':
+        return _onMapObjectDragEnd(call.arguments);
       case 'onMapSizeChanged':
         return _onMapSizeChanged(call.arguments);
       case 'onUserLocationAdded':
@@ -329,6 +335,28 @@ class YandexMapController extends ChangeNotifier {
     final mapObject = _findMapObject(_yandexMapState._allMapObjects, id);
 
     mapObject!._tap(point);
+  }
+
+  void _onMapObjectDragStart(dynamic arguments) {
+    final id = arguments['id'];
+    final mapObject = _findMapObject(_yandexMapState._allMapObjects, id);
+
+    mapObject!._dragStart();
+  }
+
+  void _onMapObjectDrag(dynamic arguments) {
+    final id = arguments['id'];
+    final point = Point._fromJson(arguments['point']);
+    final mapObject = _findMapObject(_yandexMapState._allMapObjects, id);
+
+    mapObject!._drag(point);
+  }
+
+  void _onMapObjectDragEnd(dynamic arguments) {
+    final id = arguments['id'];
+    final mapObject = _findMapObject(_yandexMapState._allMapObjects, id);
+
+    mapObject!._dragEnd();
   }
 
   MapObject? _findMapObject(List<MapObject> mapObjects, String id) {

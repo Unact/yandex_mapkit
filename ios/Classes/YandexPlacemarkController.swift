@@ -5,6 +5,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
   private let parent: YMKMapObject // Workaround https://github.com/yandex/mapkit-ios-demo/issues/100
   public let placemark: YMKPlacemarkMapObject
   private let tapListener: YandexMapObjectTapListener
+  private let dragListener: YandexMapObjectDragListener
   private unowned var controller: YandexMapController
   public let id: String
 
@@ -29,12 +30,14 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     self.id = params["id"] as! String
     self.controller = controller
     self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+    self.dragListener = YandexMapObjectDragListener(id: id, controller: controller)
     self.internallyControlled = false
 
     super.init()
 
     placemark!.userData = self.id
     placemark!.addTapListener(with: tapListener)
+    placemark!.setDragListenerWith(dragListener)
     update(params)
   }
 
@@ -49,12 +52,14 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     self.id = params["id"] as! String
     self.controller = controller
     self.tapListener = YandexMapObjectTapListener(id: id, controller: controller)
+    self.dragListener = YandexMapObjectDragListener(id: id, controller: controller)
     self.internallyControlled = true
 
     super.init()
 
     placemark.userData = self.id
     placemark.addTapListener(with: tapListener)
+    placemark.setDragListenerWith(dragListener)
     update(params)
   }
 
@@ -62,6 +67,7 @@ class YandexPlacemarkController: NSObject, YandexMapObjectController {
     placemark.geometry = Utils.pointFromJson(params["point"] as! [String: NSNumber])
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
+    placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
     placemark.direction = (params["direction"] as! NSNumber).floatValue
 

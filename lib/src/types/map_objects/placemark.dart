@@ -8,7 +8,11 @@ class Placemark extends Equatable implements MapObject {
     required this.point,
     this.zIndex = 0.0,
     this.onTap,
+    this.onDragStart,
+    this.onDrag,
+    this.onDragEnd,
     this.isVisible = true,
+    this.isDraggable = false,
     this.icon,
     this.opacity = 0.5,
     this.direction = 0,
@@ -18,8 +22,20 @@ class Placemark extends Equatable implements MapObject {
   final double zIndex;
   final TapCallback<Placemark>? onTap;
 
+  /// Raised when dragging mode is active for the given map object.
+  final DragStartCallback<Placemark>? onDragStart;
+
+  /// Raised when the user is moving a finger and the map object follows it.
+  final DragCallback<Placemark>? onDrag;
+
+  /// Raised when the user released the tap.
+  final DragEndCallback<Placemark>? onDragEnd;
+
   /// Manages visibility of the object on the map.
   final bool isVisible;
+
+  /// Manages if map object can be dragged by the user.
+  final bool isDraggable;
 
   /// Visual appearance of [Placemark] on the map.
   final PlacemarkIcon? icon;
@@ -36,7 +52,11 @@ class Placemark extends Equatable implements MapObject {
     Point? point,
     double? zIndex,
     TapCallback<Placemark>? onTap,
+    DragStartCallback<Placemark>? onDragStart,
+    DragCallback<Placemark>? onDrag,
+    DragEndCallback<Placemark>? onDragEnd,
     bool? isVisible,
+    bool? isDraggable,
     PlacemarkIcon? icon,
     double? opacity,
     double? direction,
@@ -46,7 +66,11 @@ class Placemark extends Equatable implements MapObject {
       point: point ?? this.point,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
+      onDragStart: onDragStart ?? this.onDragStart,
+      onDrag: onDrag ?? this.onDrag,
+      onDragEnd: onDragEnd ?? this.onDragEnd,
       isVisible: isVisible ?? this.isVisible,
+      isDraggable: isDraggable ?? this.isDraggable,
       icon: icon ?? this.icon,
       opacity: opacity ?? this.opacity,
       direction: direction ?? this.direction
@@ -66,7 +90,11 @@ class Placemark extends Equatable implements MapObject {
       point: point,
       zIndex: zIndex,
       onTap: onTap,
+      onDragStart: onDragStart,
+      onDrag: onDrag,
+      onDragEnd: onDragEnd,
       isVisible: isVisible,
+      isDraggable: isDraggable,
       icon: icon,
       opacity: opacity,
       direction: direction
@@ -81,12 +109,34 @@ class Placemark extends Equatable implements MapObject {
   }
 
   @override
+  void _dragStart() {
+    if (onDragStart != null) {
+      onDragStart!(this);
+    }
+  }
+
+  @override
+  void _drag(Point point) {
+    if (onDrag != null) {
+      onDrag!(this, point);
+    }
+  }
+
+  @override
+  void _dragEnd() {
+    if (onDragEnd != null) {
+      onDragEnd!(this);
+    }
+  }
+
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': mapId.value,
       'point': point.toJson(),
       'zIndex': zIndex,
       'isVisible': isVisible,
+      'isDraggable': isDraggable,
       'opacity': opacity,
       'direction': direction,
       'icon': icon?.toJson()
@@ -123,6 +173,7 @@ class Placemark extends Equatable implements MapObject {
     point,
     zIndex,
     isVisible,
+    isDraggable,
     opacity,
     direction,
     icon

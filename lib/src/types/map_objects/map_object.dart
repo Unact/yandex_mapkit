@@ -23,6 +23,15 @@ abstract class MapObject<T> {
   /// Always process tap
   void _tap(Point point);
 
+  /// Always process drag start
+  void _dragStart();
+
+  /// Always process drag
+  void _drag(Point point);
+
+  /// Always process drag end
+  void _dragEnd();
+
   /// Returns a duplicate of this object.
   T clone();
 

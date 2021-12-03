@@ -94,6 +94,27 @@ class Polygon extends Equatable implements MapObject {
     }
   }
 
+  /// Stub for [MapObject]
+  /// [Polygon] does not support drag
+  @override
+  void _dragStart() {
+    throw UnsupportedError;
+  }
+
+  /// Stub for [MapObject]
+  /// [Polygon] does not support drag
+  @override
+  void _drag(Point point) {
+    throw UnsupportedError;
+  }
+
+  /// Stub for [MapObject]
+  /// [Polygon] does not support drag
+  @override
+  void _dragEnd() {
+    throw UnsupportedError;
+  }
+
   @override
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

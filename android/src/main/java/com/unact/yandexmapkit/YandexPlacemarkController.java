@@ -25,6 +25,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
   private final MapObject parent; // Workaround https://github.com/yandex/mapkit-android-demo/issues/258
   public final PlacemarkMapObject placemark;
   private final YandexMapObjectTapListener tapListener;
+  private final YandexMapObjectDragListener dragListener;
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
@@ -50,10 +51,12 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.id = (String) params.get("id");
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
+    this.dragListener = new YandexMapObjectDragListener(id, controller);
     this.internallyControlled = false;
 
     placemark.setUserData(id);
     placemark.addTapListener(tapListener);
+    placemark.setDragListener(dragListener);
     update(params);
   }
 
@@ -68,10 +71,12 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     this.id = (String) params.get("id");
     this.controller = controller;
     this.tapListener = new YandexMapObjectTapListener(id, controller);
+    this.dragListener = new YandexMapObjectDragListener(id, controller);
     this.internallyControlled = true;
 
     placemark.setUserData(id);
     placemark.addTapListener(tapListener);
+    placemark.setDragListener(dragListener);
     update(params);
   }
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -79,6 +84,7 @@ public class YandexPlacemarkController extends YandexMapObjectController {
     placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
     placemark.setZIndex(((Double) params.get("zIndex")).floatValue());
     placemark.setVisible((Boolean) params.get("isVisible"));
+    placemark.setDraggable((Boolean) params.get("isDraggable"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDirection(((Double) params.get("direction")).floatValue());
 

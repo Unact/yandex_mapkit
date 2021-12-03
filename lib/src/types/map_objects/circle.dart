@@ -94,6 +94,27 @@ class Circle extends Equatable implements MapObject<Circle> {
     }
   }
 
+  /// Stub for [MapObject]
+  /// [Circle] does not support drag
+  @override
+  void _dragStart() {
+    throw UnsupportedError;
+  }
+
+  /// Stub for [MapObject]
+  /// [Circle] does not support drag
+  @override
+  void _drag(Point point) {
+    throw UnsupportedError;
+  }
+
+  /// Stub for [MapObject]
+  /// [Circle] does not support drag
+  @override
+  void _dragEnd() {
+    throw UnsupportedError;
+  }
+
   @override
   Map<String, dynamic> toJson() {
     return {
