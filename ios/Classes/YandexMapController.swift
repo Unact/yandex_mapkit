@@ -67,23 +67,13 @@ public class YandexMapController:
       result(nil)
     case "setMapStyle":
       result(setMapStyle(call))
-    case "move":
-      move(call)
-      result(nil)
-    case "setBounds":
-      setBounds(call)
-      result(nil)
+    case "moveCamera":
+      moveCamera(call, result)
     case "updateMapObjects":
       updateMapObjects(call)
       result(nil)
     case "updateMapOptions":
       updateMapOptions(call)
-      result(nil)
-    case "zoomIn":
-      zoomIn()
-      result(nil)
-    case "zoomOut":
-      zoomOut()
       result(nil)
     case "getMinZoom":
       let minZoom = getMinZoom()
@@ -130,14 +120,6 @@ public class YandexMapController:
     return mapView.mapWindow.map.setMapStyleWithStyle(params["style"] as! String)
   }
 
-  public func zoomIn() {
-    zoom(1)
-  }
-
-  public func zoomOut() {
-    zoom(-1)
-  }
-
   public func getMinZoom() -> Float {
     return mapView.mapWindow.map.getMinZoom()
   }
@@ -166,34 +148,14 @@ public class YandexMapController:
     return nil
   }
 
-  public func move(_ call: FlutterMethodCall) {
+  public func moveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     let params = call.arguments as! [String: Any]
-    let paramsAnimation = params["animation"] as? [String: Any]
-    let paramsCameraPosition = params["cameraPosition"] as! [String: Any]
-    let paramsTarget = paramsCameraPosition["target"] as! [String: NSNumber]
-    let cameraPosition = YMKCameraPosition(
-      target: Utils.pointFromJson(paramsTarget),
-      zoom: (paramsCameraPosition["zoom"] as! NSNumber).floatValue,
-      azimuth: (paramsCameraPosition["azimuth"] as! NSNumber).floatValue,
-      tilt: (paramsCameraPosition["tilt"] as! NSNumber).floatValue
+
+    move(
+      cameraPosition: cameraUpdateToPosition(params["cameraUpdate"] as! [String: Any]),
+      animationParams: params["animation"] as? [String: Any],
+      result: result
     )
-
-    moveWithParams(paramsAnimation, cameraPosition)
-  }
-
-  public func setBounds(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let paramsAnimation = params["animation"] as? [String: Any]
-    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
-    let southWest = paramsBoundingBox["southWest"] as! [String: NSNumber]
-    let northEast = paramsBoundingBox["northEast"] as! [String: NSNumber]
-    let cameraPosition = mapView.mapWindow.map.cameraPosition(with: YMKBoundingBox(
-        southWest: Utils.pointFromJson(southWest),
-        northEast: Utils.pointFromJson(northEast)
-      )
-    )
-
-    moveWithParams(paramsAnimation, cameraPosition)
   }
 
   public func getCameraPosition() -> [String: Any] {
@@ -267,38 +229,140 @@ public class YandexMapController:
     }
   }
 
-  private func moveWithParams(_ paramsAnimation: [String: Any]?, _ cameraPosition: YMKCameraPosition) {
-    if paramsAnimation == nil {
+  private func cameraUpdateToPosition(_ cameraUpdate: [String: Any]) -> YMKCameraPosition {
+    let cameraUpdateParams = cameraUpdate["params"] as? [String: Any]
+
+    switch cameraUpdate["type"] as! String {
+    case "newCameraPosition":
+      return newCameraPosition(cameraUpdateParams!)
+    case "newBounds":
+      return newBounds(cameraUpdateParams!)
+    case "newTiltAzimuthBounds":
+      return newTiltAzimuthBounds(cameraUpdateParams!)
+    case "zoomIn":
+      return zoomIn()
+    case "zoomOut":
+      return zoomOut()
+    case "zoomTo":
+      return zoomTo(cameraUpdateParams!)
+    case "azimuthTo":
+      return azimuthTo(cameraUpdateParams!)
+    case "tiltTo":
+      return tiltTo(cameraUpdateParams!)
+    default:
+      return YMKCameraPosition()
+    }
+  }
+
+  private func newCameraPosition(_ params: [String: Any]) -> YMKCameraPosition {
+    let paramsCameraPosition = params["cameraPosition"] as! [String: Any]
+
+    return YMKCameraPosition(
+      target: Utils.pointFromJson(paramsCameraPosition["target"] as! [String: NSNumber]),
+      zoom: (paramsCameraPosition["zoom"] as! NSNumber).floatValue,
+      azimuth: (paramsCameraPosition["azimuth"] as! NSNumber).floatValue,
+      tilt: (paramsCameraPosition["tilt"] as! NSNumber).floatValue
+    )
+  }
+
+  private func newBounds(_ params: [String: Any]) -> YMKCameraPosition {
+    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
+    let boundingBox = YMKBoundingBox(
+      southWest: Utils.pointFromJson(paramsBoundingBox["southWest"] as! [String: NSNumber]),
+      northEast: Utils.pointFromJson(paramsBoundingBox["northEast"] as! [String: NSNumber])
+    )
+
+    return mapView.mapWindow.map.cameraPosition(with: boundingBox)
+  }
+
+  private func newTiltAzimuthBounds(_ params: [String: Any]) -> YMKCameraPosition {
+    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
+    let boundingBox = YMKBoundingBox(
+      southWest: Utils.pointFromJson(paramsBoundingBox["southWest"] as! [String: NSNumber]),
+      northEast: Utils.pointFromJson(paramsBoundingBox["northEast"] as! [String: NSNumber])
+    )
+
+    return mapView.mapWindow.map.cameraPosition(
+      with: boundingBox,
+      azimuth: (params["azimuth"] as! NSNumber).floatValue,
+      tilt: (params["tilt"] as! NSNumber).floatValue
+    )
+  }
+
+  private func zoomIn() -> YMKCameraPosition {
+    let curPosition = mapView.mapWindow.map.cameraPosition
+
+    return YMKCameraPosition(
+      target: curPosition.target,
+      zoom: curPosition.zoom + 1,
+      azimuth: curPosition.azimuth,
+      tilt: curPosition.tilt
+    )
+  }
+
+  private func zoomOut() -> YMKCameraPosition {
+    let curPosition = mapView.mapWindow.map.cameraPosition
+
+    return YMKCameraPosition(
+      target: curPosition.target,
+      zoom: curPosition.zoom - 1,
+      azimuth: curPosition.azimuth,
+      tilt: curPosition.tilt
+    )
+  }
+
+  private func zoomTo(_ params: [String: Any]) -> YMKCameraPosition {
+    let curPosition = mapView.mapWindow.map.cameraPosition
+
+    return YMKCameraPosition(
+      target: curPosition.target,
+      zoom: (params["zoom"] as! NSNumber).floatValue,
+      azimuth: curPosition.azimuth,
+      tilt: curPosition.tilt
+    )
+  }
+
+  private func azimuthTo(_ params: [String: Any]) -> YMKCameraPosition {
+    let curPosition = mapView.mapWindow.map.cameraPosition
+
+    return YMKCameraPosition(
+      target: curPosition.target,
+      zoom: curPosition.zoom,
+      azimuth: (params["azimuth"] as! NSNumber).floatValue,
+      tilt: curPosition.tilt
+    )
+  }
+
+  private func tiltTo(_ params: [String: Any]) -> YMKCameraPosition {
+    let curPosition = mapView.mapWindow.map.cameraPosition
+
+    return YMKCameraPosition(
+      target: curPosition.target,
+      zoom: curPosition.zoom,
+      azimuth: curPosition.azimuth,
+      tilt: (params["tilt"] as! NSNumber).floatValue
+    )
+  }
+
+  private func move(
+    cameraPosition: YMKCameraPosition,
+    animationParams: [String: Any]?,
+    result: @escaping FlutterResult
+  ) {
+    if animationParams == nil {
       mapView.mapWindow.map.move(with: cameraPosition)
+      result(true)
+
       return
     }
 
-    let type = (paramsAnimation!["smooth"] as! NSNumber).boolValue ?
-      YMKAnimationType.smooth :
-      YMKAnimationType.linear
-    let animationType = YMKAnimation(
-      type: type,
-      duration: (paramsAnimation!["duration"] as! NSNumber).floatValue
-    )
+    let type = (animationParams!["smooth"] as! NSNumber).boolValue ? YMKAnimationType.smooth : YMKAnimationType.linear
+    let animation = YMKAnimation(type: type, duration: (animationParams!["duration"] as! NSNumber).floatValue)
 
-    mapView.mapWindow.map.move(with: cameraPosition, animationType: animationType)
-  }
-
-  private func zoom(_ step: Float) {
-    let point = mapView.mapWindow.map.cameraPosition.target
-    let zoom = mapView.mapWindow.map.cameraPosition.zoom
-    let azimuth = mapView.mapWindow.map.cameraPosition.azimuth
-    let tilt = mapView.mapWindow.map.cameraPosition.tilt
-    let currentPosition = YMKCameraPosition(
-      target: point,
-      zoom: zoom + step,
-      azimuth: azimuth,
-      tilt: tilt
-    )
     mapView.mapWindow.map.move(
-      with: currentPosition,
-      animationType: YMKAnimation(type: YMKAnimationType.smooth, duration: 1),
-      cameraCallback: nil
+      with: cameraPosition,
+      animationType: animation,
+      cameraCallback: { (completed: Bool) -> Void in result(completed) }
     )
   }
 

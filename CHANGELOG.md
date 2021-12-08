@@ -14,6 +14,12 @@
 * **Breaking change**. Remove `PlacemarkStyle`, `CircleStyle`, `PolygonStyle`, `PolylineStyle`.
 All styling options can now be directly set on corresponding map objects.
 * **Breaking change**. Removed rawImageData/iconName options from `Placemark`. Use `PlacemarkIconStyle.image` instead.
+* **Breaking change**. Removed
+ `YandexMapController.move`,
+ `YandexMapController.setBounds`,
+ `YandexMapController.zoomOut`,
+ `YandexMapController.zoomIn`.
+  Use universal `YandexMapController.moveCamera` instead.
 * **Breaking change**. Move and change method signature `YandexSearch.getSuggestions` to `YandexSuggest.getSuggestions`
 * **Breaking change**. Rework working with map objects. Removed
  `YandexMapController.addPlacemark`, `YandexMapController.removePlacemark`,

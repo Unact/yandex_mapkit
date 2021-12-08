@@ -67,7 +67,9 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
                     controller = yandexMapController;
 
-                    await controller.move(cameraPosition: CameraPosition(target: placemark.point, zoom: 17));
+                    await controller.moveCamera(
+                      CameraUpdate.newCameraPosition(CameraPosition(target: placemark.point, zoom: 17))
+                    );
                   },
                 )
               ],
@@ -187,7 +189,9 @@ class _SessionState extends State<_SessionPage> {
                         mapObjects.add(placemark);
                       });
 
-                      await yandexMapController.move(cameraPosition: CameraPosition(target: widget.point, zoom: 17));
+                      await yandexMapController.moveCamera(
+                        CameraUpdate.newCameraPosition(CameraPosition(target: widget.point, zoom: 17))
+                      );
                     },
                   ),
                 ],

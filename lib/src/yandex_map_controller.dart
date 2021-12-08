@@ -49,42 +49,22 @@ class YandexMapController extends ChangeNotifier {
     return await _channel.invokeMethod('setMapStyle', {'style': style});
   }
 
-  /// Moves camera to specified [point]
-  Future<void> move({
-    required CameraPosition cameraPosition,
+  /// Changes the map camera position.
+  ///
+  /// The returned [Future] completes after the change has been made on the platform side.
+  /// Returns true if camera position has been succesfully changes
+  /// Returns false if camera position movement has been canceled
+  /// (for example, as a result of a subsequent request for camera movement)
+  Future<bool> moveCamera(CameraUpdate cameraUpdate, {
     MapAnimation? animation
   }) async {
-    await _channel.invokeMethod(
-      'move',
+    return await _channel.invokeMethod(
+      'moveCamera',
       {
-        'cameraPosition': cameraPosition.toJson(),
+        'cameraUpdate': cameraUpdate.toJson(),
         'animation': animation?.toJson(),
       }
     );
-  }
-
-  /// Moves map to include area inside [southWestPoint] and [northEastPoint]
-  Future<void> setBounds({
-    required BoundingBox boundingBox,
-    MapAnimation? animation
-  }) async {
-    await _channel.invokeMethod(
-      'setBounds',
-      {
-        'boundingBox': boundingBox.toJson(),
-        'animation': animation?.toJson(),
-      }
-    );
-  }
-
-  /// Increases current zoom by 1
-  Future<void> zoomIn() async {
-    await _channel.invokeMethod('zoomIn');
-  }
-
-  /// Decreases current zoom by 1
-  Future<void> zoomOut() async {
-    await _channel.invokeMethod('zoomOut');
   }
 
   /// Transforms the position from map coordinates to screen coordinates.

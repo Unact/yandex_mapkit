@@ -1,24 +1,48 @@
 part of yandex_mapkit;
 
+/// The position of the camera.
 class CameraPosition extends Equatable {
   const CameraPosition({
     required this.target,
     this.zoom = 15.0,
-    this.tilt = 0.0,
     this.azimuth = 0.0,
+    this.tilt = 0.0,
   });
 
+  /// The point the camera is looking at.
   final Point target;
+
+  /// Zoom level. 0 corresponds to the whole world displayed in a single tile.
   final double zoom;
-  final double tilt;
+
+  /// Angle between north and the direction of interest on the map plane, in degrees in the range (0, 360).
   final double azimuth;
+
+  /// Camera tilt in degrees. 0 means vertical downward.
+  final double tilt;
+
+  /// Returns a copy of [CameraPosition] whose values are the same as this instance,
+  /// unless overwritten by the specified parameters.
+  CameraPosition copyWith({
+    Point? target,
+    double? zoom,
+    double? azimuth,
+    double? tilt
+  }) {
+    return CameraPosition(
+      target: target ?? this.target,
+      zoom: zoom ?? this.zoom,
+      azimuth: azimuth ?? this.azimuth,
+      tilt: tilt ?? this.tilt
+    );
+  }
 
   @override
   List<Object> get props => <Object>[
     target,
     zoom,
-    tilt,
-    azimuth
+    azimuth,
+    tilt
   ];
 
   @override
@@ -28,8 +52,8 @@ class CameraPosition extends Equatable {
     return {
       'target': target.toJson(),
       'zoom': zoom,
-      'tilt': tilt,
-      'azimuth': azimuth
+      'azimuth': azimuth,
+      'tilt': tilt
     };
   }
 
@@ -37,8 +61,8 @@ class CameraPosition extends Equatable {
     return CameraPosition(
       target: Point._fromJson(json['target']),
       zoom: json['zoom'],
-      tilt: json['tilt'],
       azimuth: json['azimuth'],
+      tilt: json['tilt'],
     );
   }
 }
@@ -46,4 +70,104 @@ class CameraPosition extends Equatable {
 enum CameraUpdateReason {
   gestures,
   application
+}
+
+/// Defines a camera move, supporting absolute moves as well as moves relative
+/// the current position.
+class CameraUpdate {
+  CameraUpdate._(this._json);
+
+  /// Returns a camera update that moves the camera to the specified position.
+  static CameraUpdate newCameraPosition(CameraPosition cameraPosition) {
+    return CameraUpdate._({
+      'type': 'newCameraPosition',
+      'params': {
+        'cameraPosition': cameraPosition.toJson()
+      }
+    });
+  }
+
+  /// Returns a camera update that moves the camera target to the specified
+  /// geographical location.
+  static CameraUpdate newBounds(BoundingBox boundingBox) {
+    return CameraUpdate._({
+      'type': 'newBounds',
+      'params': {
+        'boundingBox': boundingBox.toJson()
+      }
+    });
+  }
+
+  /// Returns a camera update that transforms the camera so that the specified
+  /// geographical bounding box is centered in the map view at the greatest
+  /// possible zoom level. A non-zero [left], [top], [right] and [bottom] padding
+  /// insets the bounding box from the map view's edges.
+  /// The camera's new tilt and bearing will both be 0.0.
+  static CameraUpdate newTiltAzimuthBounds(BoundingBox boundingBox, {
+    double azimuth = 0,
+    double tilt = 0
+  }) {
+    return CameraUpdate._({
+      'type': 'newTiltAzimuthBounds',
+      'params': {
+        'boundingBox': boundingBox.toJson(),
+        'azimuth': azimuth,
+        'tilt': tilt
+      }
+    });
+  }
+
+  /// Returns a camera update that zooms the camera in, bringing the camera
+  /// closer to the surface of the Earth.
+  ///
+  /// Equivalent to the result of calling `zoomBy(1.0)`.
+  static CameraUpdate zoomIn() {
+    return CameraUpdate._({
+      'type': 'zoomIn'
+    });
+  }
+
+  /// Returns a camera update that zooms the camera out, bringing the camera
+  /// further away from the surface of the Earth.
+  ///
+  /// Equivalent to the result of calling `zoomBy(-1.0)`.
+  static CameraUpdate zoomOut() {
+    return CameraUpdate._({
+      'type': 'zoomOut'
+    });
+  }
+
+  /// Returns a camera update that sets the camera zoom level.
+  static CameraUpdate zoomTo(double zoom) {
+    return CameraUpdate._({
+      'type': 'zoomTo',
+      'params': {
+        'zoom': zoom
+      }
+    });
+  }
+
+  /// Returns a camera update that sets the camera bearing.
+  static CameraUpdate azimuthTo(double azimuth) {
+    return CameraUpdate._({
+      'type': 'azimuthTo',
+      'params': {
+        'azimuth': azimuth
+      }
+    });
+  }
+
+  /// Returns a camera update that sets the camera bearing.
+  static CameraUpdate tiltTo(double tilt) {
+    return CameraUpdate._({
+      'type': 'tiltTo',
+      'params': {
+        'tilt': tilt
+      }
+    });
+  }
+
+  final dynamic _json;
+
+  dynamic toJson() => _json;
 }

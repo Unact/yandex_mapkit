@@ -24,6 +24,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
   final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
+  final animation = const MapAnimation(smooth: true, duration: 2.0);
 
   bool tiltGesturesEnabled = true;
   bool zoomGesturesEnabled = true;
@@ -109,33 +110,71 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      await controller.setBounds(
-                        boundingBox: BoundingBox(
-                          northEast: const Point(latitude: 65.0, longitude: 40.0),
-                          southWest: const Point(latitude: 60.0, longitude: 30.0),
-                        )
+                      await controller.moveCamera(
+                        CameraUpdate.newCameraPosition(CameraPosition(target: _point)),
+                        animation: animation
                       );
                     },
-                    title: 'Set bounds'
+                    title: 'Specific position'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      await controller.move(
-                        cameraPosition: const CameraPosition(target: _point),
-                        animation: const MapAnimation(smooth: true, duration: 2.0)
-                      );
+                      await controller.moveCamera(CameraUpdate.zoomTo(1), animation: animation);
                     },
-                    title: 'Move'
+                    title: 'Specific zoom'
+                  )
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      await controller.moveCamera(CameraUpdate.azimuthTo(1), animation: animation);
+                    },
+                    title: 'Specific azimuth'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      await controller.moveCamera(CameraUpdate.tiltTo(1), animation: animation);
+                    },
+                    title: 'Specific tilt'
                   ),
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
-                    onPressed: () => controller.zoomIn(),
+                    onPressed: () async {
+                      await controller.moveCamera(CameraUpdate.zoomIn(), animation: animation);
+                    },
                     title: 'Zoom in'
                   ),
                   ControlButton(
-                    onPressed: () => controller.zoomOut(),
+                    onPressed: () async {
+                      await controller.moveCamera(CameraUpdate.zoomOut(), animation: animation);
+                    },
                     title: 'Zoom out'
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      final newBounds = BoundingBox(
+                        northEast: const Point(latitude: 65.0, longitude: 40.0),
+                        southWest: const Point(latitude: 60.0, longitude: 30.0),
+                      );
+                      await controller.moveCamera(CameraUpdate.newBounds(newBounds), animation: animation);
+                    },
+                    title: 'New bounds'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      final newBounds = BoundingBox(
+                        northEast: const Point(latitude: 65.0, longitude: 40.0),
+                        southWest: const Point(latitude: 60.0, longitude: 30.0),
+                      );
+                      await controller.moveCamera(
+                        CameraUpdate.newTiltAzimuthBounds(newBounds, azimuth: 1, tilt: 1),
+                        animation: animation
+                      );
+                    },
+                    title: 'New bounds with tilt and azimuth'
                   ),
                 ]),
                 TableRow(children: <Widget>[

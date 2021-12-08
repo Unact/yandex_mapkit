@@ -137,38 +137,6 @@ public class YandexMapController implements
     return mapView.getMap().setMapStyle((String) params.get("style"));
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void move(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsAnimation = ((Map<String, Object>) params.get("animation"));
-    Map<String, Object> paramsCameraPosition = ((Map<String, Object>) params.get("cameraPosition"));
-    Map<String, Object> paramsTarget = ((Map<String, Object>) paramsCameraPosition.get("target"));
-    CameraPosition cameraPosition = new CameraPosition(
-      Utils.pointFromJson(paramsTarget),
-      ((Double) paramsCameraPosition.get("zoom")).floatValue(),
-      ((Double) paramsCameraPosition.get("azimuth")).floatValue(),
-      ((Double) paramsCameraPosition.get("tilt")).floatValue()
-    );
-
-    moveWithParams(paramsAnimation, cameraPosition);
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void setBounds(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsAnimation = ((Map<String, Object>) params.get("animation"));
-    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
-    Map<String, Object> southWest = (Map<String, Object>) paramsBoundingBox.get("southWest");
-    Map<String, Object> northEast = (Map<String, Object>) paramsBoundingBox.get("northEast");
-    CameraPosition cameraPosition = mapView.getMap().cameraPosition(new BoundingBox(
-        Utils.pointFromJson(southWest),
-        Utils.pointFromJson(northEast)
-      )
-    );
-
-    moveWithParams(paramsAnimation, cameraPosition);
-  }
-
   public Map<String, Double> getPoint(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
@@ -261,12 +229,15 @@ public class YandexMapController implements
     return null;
   }
 
-  public void zoomIn() {
-    zoom(1f);
-  }
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void moveCamera(MethodCall call, MethodChannel.Result result) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-  public void zoomOut() {
-    zoom(-1f);
+    move(
+      cameraUpdateToPosition((Map<String, Object>) params.get("cameraUpdate")),
+      ((Map<String, Object>) params.get("animation")),
+      result
+    );
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -381,13 +352,8 @@ public class YandexMapController implements
       case "setMapStyle":
         result.success(setMapStyle(call));
         break;
-      case "move":
-        move(call);
-        result.success(null);
-        break;
-      case "setBounds":
-        setBounds(call);
-        result.success(null);
+      case "moveCamera":
+        moveCamera(call, result);
         break;
       case "updateMapObjects":
         updateMapObjects(call);
@@ -395,14 +361,6 @@ public class YandexMapController implements
         break;
       case "updateMapOptions":
         updateMapOptions(call);
-        result.success(null);
-        break;
-      case "zoomIn":
-        zoomIn();
-        result.success(null);
-        break;
-      case "zoomOut":
-        zoomOut();
         result.success(null);
         break;
       case "getMinZoom":
@@ -481,35 +439,152 @@ public class YandexMapController implements
     return permissionState == PackageManager.PERMISSION_GRANTED;
   }
 
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private CameraPosition cameraUpdateToPosition(Map<String, Object> cameraUpdate) {
+    Map<String, Object> cameraUpdateParams = ((Map<String, Object>) cameraUpdate.get("params"));
+
+    switch ((String) cameraUpdate.get("type")) {
+      case "newCameraPosition":
+        return newCameraPosition(cameraUpdateParams);
+      case "newBounds":
+        return newBounds(cameraUpdateParams);
+      case "newTiltAzimuthBounds":
+        return newTiltAzimuthBounds(cameraUpdateParams);
+      case "zoomIn":
+        return zoomIn();
+      case "zoomOut":
+        return zoomOut();
+      case "zoomTo":
+        return zoomTo(cameraUpdateParams);
+      case "azimuthTo":
+        return azimuthTo(cameraUpdateParams);
+      case "tiltTo":
+        return tiltTo(cameraUpdateParams);
+      default:
+        return new CameraPosition();
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public CameraPosition newCameraPosition(Map<String, Object> params) {
+    Map<String, Object> paramsCameraPosition = ((Map<String, Object>) params.get("cameraPosition"));
+
+    return new CameraPosition(
+      Utils.pointFromJson(((Map<String, Object>) paramsCameraPosition.get("target"))),
+      ((Double) paramsCameraPosition.get("zoom")).floatValue(),
+      ((Double) paramsCameraPosition.get("azimuth")).floatValue(),
+      ((Double) paramsCameraPosition.get("tilt")).floatValue()
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public CameraPosition newBounds(Map<String, Object> params) {
+    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
+    BoundingBox boundingBox = new BoundingBox(
+      Utils.pointFromJson((Map<String, Object>) paramsBoundingBox.get("southWest")),
+      Utils.pointFromJson( (Map<String, Object>) paramsBoundingBox.get("northEast"))
+    );
+
+    return mapView.getMap().cameraPosition(boundingBox);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public CameraPosition newTiltAzimuthBounds(Map<String, Object> params) {
+    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
+    BoundingBox boundingBox = new BoundingBox(
+      Utils.pointFromJson((Map<String, Object>) paramsBoundingBox.get("southWest")),
+      Utils.pointFromJson( (Map<String, Object>) paramsBoundingBox.get("northEast"))
+    );
+
+    return mapView.getMap().cameraPosition(
+      boundingBox,
+      ((Double) params.get("azimuth")).floatValue(),
+      ((Double) params.get("tilt")).floatValue()
+    );
+  }
+
+  private CameraPosition zoomIn() {
+    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+
+    return new CameraPosition(
+      curPosition.getTarget(),
+      curPosition.getZoom() + 1,
+      curPosition.getAzimuth(),
+      curPosition.getTilt()
+    );
+  }
+
+  private CameraPosition zoomOut() {
+    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+
+    return new CameraPosition(
+      curPosition.getTarget(),
+      curPosition.getZoom() - 1,
+      curPosition.getAzimuth(),
+      curPosition.getTilt()
+    );
+  }
+
   @SuppressWarnings({"ConstantConditions"})
-  private void moveWithParams(Map<String, Object> paramsAnimation, CameraPosition cameraPosition) {
+  public CameraPosition zoomTo(Map<String, Object> params) {
+    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+
+    return new CameraPosition(
+      curPosition.getTarget(),
+      ((Double) params.get("zoom")).floatValue(),
+      curPosition.getAzimuth(),
+      curPosition.getTilt()
+    );
+  }
+
+  @SuppressWarnings({"ConstantConditions"})
+  public CameraPosition azimuthTo(Map<String, Object> params) {
+    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+
+    return new CameraPosition(
+      curPosition.getTarget(),
+      curPosition.getZoom(),
+      ((Double) params.get("azimuth")).floatValue(),
+      curPosition.getTilt()
+    );
+  }
+
+  @SuppressWarnings({"ConstantConditions"})
+  public CameraPosition tiltTo(Map<String, Object> params) {
+    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+
+    return new CameraPosition(
+      curPosition.getTarget(),
+      curPosition.getZoom(),
+      curPosition.getAzimuth(),
+      ((Double) params.get("tilt")).floatValue()
+    );
+  }
+
+  @SuppressWarnings({"ConstantConditions"})
+  private void move(
+    CameraPosition cameraPosition,
+    Map<String, Object> paramsAnimation,
+    final MethodChannel.Result result
+  ) {
     if (paramsAnimation == null) {
       mapView.getMap().move(cameraPosition);
+      result.success(true);
       return;
     }
 
-    Animation.Type type = ((Boolean) paramsAnimation.get("smooth")) ?
-      Animation.Type.SMOOTH :
-      Animation.Type.LINEAR;
+    Animation.Type type = ((Boolean) paramsAnimation.get("smooth")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
     Animation animation = new Animation(type, ((Double) paramsAnimation.get("duration")).floatValue());
 
-    mapView.getMap().move(cameraPosition, animation, null);
-  }
-
-  private void zoom(float step) {
-    Point zoomPoint = mapView.getMap().getCameraPosition().getTarget();
-    float currentZoom = mapView.getMap().getCameraPosition().getZoom();
-    float tilt = mapView.getMap().getCameraPosition().getTilt();
-    float azimuth = mapView.getMap().getCameraPosition().getAzimuth();
     mapView.getMap().move(
-      new CameraPosition(
-        zoomPoint,
-        currentZoom + step,
-        tilt,
-        azimuth
-      ),
-      new Animation(Animation.Type.SMOOTH, 1),
-      null
+      cameraPosition,
+      animation,
+      new com.yandex.mapkit.map.Map.CameraCallback() {
+        @Override
+        public void onMoveFinished(boolean completed) {
+          result.success(completed);
+        }
+      }
     );
   }
 
