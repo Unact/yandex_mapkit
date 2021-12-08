@@ -21,6 +21,8 @@ All styling options can now be directly set on corresponding map objects.
  `YandexMapController.addPolyline`, `YandexMapController.removePolyline`,
  `YandexMapController.addCircle`, `YandexMapController.removeCircle`.
 Use `YandexMap.mapObjects` in conjuction with `setState` to add and remove map objects.
+* **Breaking change**. `YandexMapController.setFocusRect` and `YandexMapController.clearFocusRect` moved to
+ `YandexMap.focusRect` property.
 * **Breaking change**. `YandexMapController.logoAlignment` moved to `YandexMap.logoAlignment` property.
 * **Breaking change**. `YandexMapController.move` method signature has been changed.
 * **Breaking change**. `YandexMapController.setBounds` method signature has been changed.

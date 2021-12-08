@@ -35,6 +35,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool mode2DEnabled = false;
   bool indoorEnabled = false;
   bool liteModeEnabled = false;
+  ScreenRect? screenRect;
 
   final String style = '''
     [
@@ -75,6 +76,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             indoorEnabled: indoorEnabled,
             liteModeEnabled: liteModeEnabled,
             logoAlignment: MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
+            screenRect: screenRect,
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
@@ -184,18 +186,20 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        await controller.setFocusRect(
-                          screenRect: const ScreenRect(
+                        setState(() {
+                          screenRect = const ScreenRect(
                             bottomRight: ScreenPoint(x: 600, y: 600),
                             topLeft: ScreenPoint(x: 200, y: 200)
-                          )
-                        );
+                          );
+                        });
                       },
                       title: 'Focus rect'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        await controller.clearFocusRect();
+                        setState(() {
+                          screenRect = null;
+                        });
                       },
                       title: 'Clear focus rect'
                     )

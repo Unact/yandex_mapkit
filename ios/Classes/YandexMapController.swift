@@ -73,12 +73,6 @@ public class YandexMapController:
     case "setBounds":
       setBounds(call)
       result(nil)
-    case "setFocusRect":
-      setFocusRect(call)
-      result(nil)
-    case "clearFocusRect":
-      clearFocusRect()
-      result(nil)
     case "updateMapObjects":
       updateMapObjects(call)
       result(nil)
@@ -128,24 +122,6 @@ public class YandexMapController:
     userLocationLayer.setVisibleWithOn(params["visible"] as! Bool)
     userLocationLayer.isHeadingEnabled = params["headingEnabled"] as! Bool
     userLocationLayer.isAutoZoomEnabled = params["autoZoomEnabled"] as! Bool
-  }
-
-  public func setFocusRect(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let topLeft = params["topLeft"] as! [String: NSNumber]
-    let bottomRight = params["bottomRight"] as! [String: NSNumber]
-    let screenRect = YMKScreenRect(
-      topLeft: Utils.screenPointFromJson(topLeft),
-      bottomRight: Utils.screenPointFromJson(bottomRight)
-    )
-
-    mapView.mapWindow.focusRect = screenRect
-    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
-  }
-
-  public func clearFocusRect() {
-    mapView.mapWindow.focusRect = nil
-    mapView.mapWindow.pointOfView = YMKPointOfView.screenCenter
   }
 
   public func setMapStyle(_ call: FlutterMethodCall) -> Bool {
@@ -370,7 +346,11 @@ public class YandexMapController:
     }
 
     if let logoAlignment = params["logoAlignment"] as? [String: Any] {
-      alignLogo(logoAlignment)
+      applyAlignLogo(logoAlignment)
+    }
+
+    if params.keys.contains("screenRect") {
+      applyScreenRect(params["screenRect"] as? [String: Any])
     }
   }
 
@@ -382,12 +362,29 @@ public class YandexMapController:
     }
   }
 
-  private func alignLogo(_ params: [String: Any]) {
+  private func applyAlignLogo(_ params: [String: Any]) {
     let logoPosition = YMKLogoAlignment(
       horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: params["horizontal"] as! UInt)!,
       verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
     )
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
+  }
+
+  private func applyScreenRect(_ params: [String: Any]?) {
+    if (params == nil) {
+      mapView.mapWindow.focusRect = nil
+      mapView.mapWindow.pointOfView = YMKPointOfView.screenCenter
+
+      return
+    }
+
+    let screenRect = YMKScreenRect(
+      topLeft: Utils.screenPointFromJson(params!["topLeft"] as! [String: NSNumber]),
+      bottomRight: Utils.screenPointFromJson(params!["bottomRight"] as! [String: NSNumber])
+    )
+
+    mapView.mapWindow.focusRect = screenRect
+    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
   }
 
   public func onObjectAdded(with view: YMKUserLocationView) {

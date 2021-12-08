@@ -17,6 +17,7 @@ class YandexMap extends StatefulWidget {
     this.indoorEnabled = false,
     this.liteModeEnabled = false,
     this.logoAlignment = const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.bottom),
+    this.screenRect,
     this.onMapCreated,
     this.onMapTap,
     this.onMapLongTap,
@@ -72,6 +73,10 @@ class YandexMap extends StatefulWidget {
 
   /// Set logo alignment on the map
   final MapAlignment logoAlignment;
+
+  /// Allows to set map focus to a certain rectangle instead of the whole map
+  /// For more info refer to https://yandex.com/dev/maps/mapkit/doc/ios-ref/full/Classes/YMKMapWindow.html#focusRect
+  final ScreenRect? screenRect;
 
   /// Callback method for when the map is ready to be used.
   ///
@@ -230,7 +235,8 @@ class _YandexMapOptions {
     mode2DEnabled = map.mode2DEnabled,
     indoorEnabled = map.indoorEnabled,
     liteModeEnabled = map.liteModeEnabled,
-    logoAlignment = map.logoAlignment;
+    logoAlignment = map.logoAlignment,
+    screenRect = map.screenRect;
 
     final bool tiltGesturesEnabled;
 
@@ -254,6 +260,8 @@ class _YandexMapOptions {
 
     final MapAlignment logoAlignment;
 
+    final ScreenRect? screenRect;
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'tiltGesturesEnabled': tiltGesturesEnabled,
@@ -266,7 +274,8 @@ class _YandexMapOptions {
       'indoorEnabled': indoorEnabled,
       'liteModeEnabled': liteModeEnabled,
       'modelsEnabled': modelsEnabled,
-      'logoAlignment': logoAlignment.toJson()
+      'logoAlignment': logoAlignment.toJson(),
+      'screenRect': screenRect?.toJson()
     };
   }
 

@@ -121,25 +121,6 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void setFocusRect(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    Map<String, Object> paramsTopLeft = ((Map<String, Object>) params.get("topLeft"));
-    Map<String, Object> paramsBottomRight = ((Map<String, Object>) params.get("bottomRight"));
-    ScreenRect screenRect = new ScreenRect(
-      Utils.screenPointFromJson(paramsTopLeft),
-      Utils.screenPointFromJson(paramsBottomRight)
-    );
-
-    mapView.setFocusRect(screenRect);
-    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
-  }
-
-  public void clearFocusRect() {
-    mapView.setFocusRect(null);
-    mapView.setPointOfView(PointOfView.SCREEN_CENTER);
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void toggleUserLayer(MethodCall call) {
     if (!hasLocationPermission()) return;
 
@@ -333,7 +314,11 @@ public class YandexMapController implements
     }
 
     if (params.get("logoAlignment") != null) {
-      alignLogo((Map<String, Object>) params.get("logoAlignment"));
+      applyAlignLogo((Map<String, Object>) params.get("logoAlignment"));
+    }
+
+    if (params.containsKey("screenRect")) {
+      applyScreenRect((Map<String, Object>) params.get("screenRect"));
     }
   }
 
@@ -348,13 +333,31 @@ public class YandexMapController implements
     }
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void alignLogo(Map<String, Object> params) {
+  @SuppressWarnings({"ConstantConditions"})
+  public void applyAlignLogo(Map<String, Object> params) {
     Alignment logoPosition = new Alignment(
       HorizontalAlignment.values()[(Integer) params.get("horizontal")],
       VerticalAlignment.values()[(Integer) params.get("vertical")]
     );
     mapView.getMap().getLogo().setAlignment(logoPosition);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void applyScreenRect(Map<String, Object> params) {
+    if (params == null) {
+      mapView.setFocusRect(null);
+      mapView.setPointOfView(PointOfView.SCREEN_CENTER);
+
+      return;
+    }
+
+    ScreenRect screenRect = new ScreenRect(
+      Utils.screenPointFromJson(((Map<String, Object>) params.get("topLeft"))),
+      Utils.screenPointFromJson(((Map<String, Object>) params.get("bottomRight")))
+    );
+
+    mapView.setFocusRect(screenRect);
+    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
   }
 
   public float getMinZoom() {
@@ -384,14 +387,6 @@ public class YandexMapController implements
         break;
       case "setBounds":
         setBounds(call);
-        result.success(null);
-        break;
-      case "setFocusRect":
-        setFocusRect(call);
-        result.success(null);
-        break;
-      case "clearFocusRect":
-        clearFocusRect();
         result.success(null);
         break;
       case "updateMapObjects":

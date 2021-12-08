@@ -77,19 +77,6 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
-  /// Allows to set map focus to a certain rectangle instead of the whole map
-  /// For more info refer to [YMKMapWindow.focusRect](https://yandex.ru/dev/maps/archive/doc/mapkit/3.0/concepts/ios/mapkit/ref/YMKMapWindow.html#property_detail__property_focusRect)
-  Future<void> setFocusRect({
-    required ScreenRect screenRect
-  }) async {
-    await _channel.invokeMethod('setFocusRect', screenRect.toJson());
-  }
-
-  /// Clears focusRect set by `YandexMapController.setFocusRect`
-  Future<void> clearFocusRect() async {
-    await _channel.invokeMethod('clearFocusRect');
-  }
-
   /// Increases current zoom by 1
   Future<void> zoomIn() async {
     await _channel.invokeMethod('zoomIn');
