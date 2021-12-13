@@ -152,6 +152,16 @@ clang: error: linker command failed with exit code 1 (use -v to see invocation)
 Add in your projects `Build Settings` in section `Excluded Architectures` for `Debug` this line - `arm64`  
 This way XCode won't try to build for Silicon Macs iOS Simulators
 
+#### Android
+
+##### Hybrid Composition
+
+To use [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views) to render the YandexMap widget on Android, set AndroidYandexMaps.useAndroidViewSurface to true.
+
+```dart
+AndroidYandexMaps.useAndroidViewSurface = true;
+```
+
 ### Features
 
 - [X] iOS Support
