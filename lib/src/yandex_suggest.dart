@@ -13,13 +13,13 @@ class YandexSuggest {
     required BoundingBox boundingBox,
     required SuggestOptions suggestOptions
   }) {
-    var params = <String, dynamic>{
+    final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'text': text,
       'boundingBox': boundingBox.toJson(),
       'suggestOptions': suggestOptions.toJson(),
     };
-    var result = _channel
+    final result = _channel
       .invokeMethod('getSuggestions', params)
       .then((result) => SuggestSessionResult._fromJson(result));
 

@@ -58,11 +58,11 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
   }
 
   Future<void> _suggest() async {
-    var query = queryController.text;
+    final query = queryController.text;
 
     print('Suggest query: $query');
 
-    var resultWithSession = YandexSuggest.getSuggestions(
+    final resultWithSession = YandexSuggest.getSuggestions(
       text: query,
       boundingBox: BoundingBox(
         northEast: Point(latitude: 56.0421, longitude: 38.0284),
@@ -168,7 +168,7 @@ class _SessionState extends State<_SessionPage> {
   }
 
   List<Widget> _getList() {
-    var list = <Widget>[];
+    final list = <Widget>[];
 
     if (results.isEmpty) {
       list.add((Text('Nothing found')));

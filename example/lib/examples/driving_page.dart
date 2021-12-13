@@ -217,7 +217,7 @@ class _SessionState extends State<_SessionPage> {
   }
 
   List<Widget> _getList() {
-    var list = <Widget>[];
+    final list = <Widget>[];
 
     if (results.isEmpty) {
       list.add((Text('Nothing found')));

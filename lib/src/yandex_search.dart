@@ -11,13 +11,13 @@ class YandexSearch {
     required Geometry geometry,
     required SearchOptions searchOptions
   }) {
-    var params = <String, dynamic>{
+    final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'searchText': searchText,
       'geometry': geometry.toJson(),
       'searchOptions': searchOptions.toJson(),
     };
-    var result = _channel
+    final result = _channel
       .invokeMethod('searchByText', params)
       .then((result) => SearchSessionResult._fromJson(result));
 
@@ -32,13 +32,13 @@ class YandexSearch {
     double? zoom,
     required SearchOptions searchOptions
   }) {
-    var params = <String, dynamic>{
+    final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'point': point.toJson(),
       'zoom': zoom,
       'searchOptions': searchOptions.toJson(),
     };
-    var result = _channel
+    final result = _channel
       .invokeMethod('searchByPoint', params)
       .then((result) => SearchSessionResult._fromJson(result));
 

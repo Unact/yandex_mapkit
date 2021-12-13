@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-import 'package:yandex_mapkit_example/examples/data/dummy_image.dart' show rawImageData;
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -25,6 +27,30 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
   final MapObjectId placemarkId = MapObjectId('normal_icon_placemark');
   final MapObjectId placemarkWithDynamicIconId = MapObjectId('dynamic_icon_placemark');
   final MapObjectId placemarkWithCompositeIconId = MapObjectId('composite_icon_placemark');
+
+  Future<Uint8List> _rawPlacemarkImage() async {
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    final size = Size(50, 50);
+    final fillPaint = Paint()
+      ..color = Colors.blue[100]!
+      ..style = PaintingStyle.fill;
+    final strokePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final radius = 20.0;
+
+    final circleOffset = Offset(size.height / 2, size.width / 2);
+
+    canvas.drawCircle(circleOffset, radius, fillPaint);
+    canvas.drawCircle(circleOffset, radius, strokePaint);
+
+    final image = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+    final pngBytes = await image.toByteData(format: ImageByteFormat.png);
+
+    return pngBytes!.buffer.asUint8List();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +149,7 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                           onDragEnd: (_) => print('Drag end'),
                           opacity: 0.95,
                           icon: PlacemarkIcon.single(PlacemarkIconStyle(
-                            image: BitmapDescriptor.fromBytes(rawImageData)
+                            image: BitmapDescriptor.fromBytes(await _rawPlacemarkImage())
                           ))
                         );
 

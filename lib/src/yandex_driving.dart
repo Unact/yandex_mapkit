@@ -12,12 +12,12 @@ class YandexDriving {
     required List<RequestPoint> points,
     required DrivingOptions drivingOptions
   }) {
-    var params = <String, dynamic>{
+    final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
       'drivingOptions': drivingOptions.toJson()
     };
-    var result = _channel
+    final result = _channel
       .invokeMethod('requestRoutes', params)
       .then((result) => DrivingSessionResult._fromJson(result));
 

@@ -58,11 +58,11 @@ class _SearchExampleState extends State<_SearchExample> {
   }
 
   void _search() async {
-    var query = queryController.text;
+    final query = queryController.text;
 
     print('Search query: $query');
 
-    var resultWithSession = YandexSearch.searchByText(
+    final resultWithSession = YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         BoundingBox(
@@ -169,7 +169,7 @@ class _SessionState extends State<_SessionPage> {
   }
 
   List<Widget> _getList() {
-    var list = <Widget>[];
+    final list = <Widget>[];
 
     if (results.isEmpty) {
       list.add((Text('Nothing found')));

@@ -41,7 +41,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
   @override
   Widget build(BuildContext context) {
-    var mapHeight = 300.0;
+    final mapHeight = 300.0;
 
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -102,7 +102,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
     print('Point: ${cameraPosition.target}, Zoom: ${cameraPosition.zoom}');
 
-    var resultWithSession = YandexSearch.searchByPoint(
+    final resultWithSession = YandexSearch.searchByPoint(
       point: cameraPosition.target,
       zoom: cameraPosition.zoom,
       searchOptions: SearchOptions(
@@ -250,7 +250,7 @@ class _SessionState extends State<_SessionPage> {
   }
 
   List<Widget> _getList() {
-    var list = <Widget>[];
+    final list = <Widget>[];
 
     if (results.isEmpty) {
       list.add((Text('Nothing found')));

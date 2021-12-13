@@ -35,7 +35,7 @@ class SearchSession {
       throw SearchSessionException._('Session is closed');
     }
 
-    var result = await _methodChannel.invokeMethod('retry');
+    final result = await _methodChannel.invokeMethod('retry');
 
     return SearchSessionResult._fromJson(result);
   }
@@ -59,7 +59,7 @@ class SearchSession {
       throw SearchSessionException._('Session is closed');
     }
 
-    var result = await _methodChannel.invokeMethod('fetchNextPage');
+    final result = await _methodChannel.invokeMethod('fetchNextPage');
 
     return SearchSessionResult._fromJson(result);
   }
