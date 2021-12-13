@@ -1,5 +1,6 @@
 ## Unreleased
 
+* Add Hybrid composition for Android
 * Implement `YandexDriving`
 * Implement `YandexSearch`, move suggest functionality to `YandexSuggest`
 * Added the ability to add composite icon Placemark

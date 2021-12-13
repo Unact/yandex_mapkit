@@ -8,8 +8,8 @@ class AndroidYandexMap {
   /// This comes at the cost of some performance on Android versions below 10.
   /// See https://flutter.dev/docs/development/platform-integration/platform-views#performance for more information.
   ///
-  /// Defaults to false.
-  static bool useAndroidViewSurface = false;
+  /// Defaults to true.
+  static bool useAndroidViewSurface = true;
 }
 
 /// A widget which displays a map using Yandex maps service.
