@@ -2,13 +2,21 @@ package com.unact.yandexmapkit;
 
 import android.graphics.PointF;
 
+import com.yandex.mapkit.LocalizedValue;
+import com.yandex.mapkit.RequestPoint;
+import com.yandex.mapkit.RequestPointType;
 import com.yandex.mapkit.ScreenPoint;
+import com.yandex.mapkit.directions.driving.DrivingOptions;
+import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.Circle;
+import com.yandex.mapkit.geometry.Geometry;
 import com.yandex.mapkit.geometry.LinearRing;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.search.SearchOptions;
+import com.yandex.mapkit.search.SuggestOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,12 +38,92 @@ public class Utils {
     return new PointF(((Double) json.get("dx")).floatValue(), ((Double) json.get("dy")).floatValue());
   }
 
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static RequestPoint requestPointFromJson(Map<String, Object> json) {
+    return new RequestPoint(
+      pointFromJson((Map<String, Object>) json.get("point")),
+      RequestPointType.values()[(Integer) json.get("requestPointType")],
+      null
+    );
+  }
+
+  public static DrivingOptions drivingOptionsFromJson(Map<String, Object> json) {
+    return new DrivingOptions(
+      (Double) json.get("initialAzimuth"),
+      (Integer) json.get("routesCount"),
+      (Boolean) json.get("avoidTolls"),
+      null,
+      null
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static SearchOptions searchOptionsFromJson(Map<String, Object> json) {
+    Point userPosition = json.get("userPosition") != null ?
+      pointFromJson((Map<String, Object>) json.get("userPosition")) :
+      null;
+
+    return new SearchOptions(
+      ((Number) json.get("searchType")).intValue(),
+      (Integer) json.get("resultPageSize"),
+      ((Number) json.get("searchSnippet")).intValue(),
+      new ArrayList<String>(),
+      userPosition,
+      (String) json.get("origin"),
+      (String) json.get("directPageId"),
+      (String) json.get("appleCtx"),
+      (Boolean) json.get("geometry"),
+      (String) json.get("advertPageId"),
+      (Boolean) json.get("suggestWords"),
+      (Boolean) json.get("disableSpellingCorrection")
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static SuggestOptions suggestOptionsFromJson(Map<String, Object> json) {
+    Point userPosition = json.get("userPosition") != null ?
+      pointFromJson((Map<String, Object>) json.get("userPosition")) :
+      null;
+
+    return new SuggestOptions(
+      ((Number) json.get("suggestType")).intValue(),
+      userPosition,
+      ((Boolean) json.get("suggestWords"))
+    );
+  }
+
   public static Map<String, Double> pointToJson(Point point) {
     Map<String, Double> pointMap = new HashMap<>();
     pointMap.put("latitude", point.getLatitude());
     pointMap.put("longitude", point.getLongitude());
 
     return pointMap;
+  }
+
+  public static Map<String, Object> boundingBoxToJson(BoundingBox boundingBox) {
+    Map<String, Object> boundingBoxMap = new HashMap<>();
+    boundingBoxMap.put("northEast", pointToJson(boundingBox.getNorthEast()));
+    boundingBoxMap.put("southWest", pointToJson(boundingBox.getSouthWest()));
+
+    return boundingBoxMap;
+  }
+
+  public static Map<String, Object> geometryToJson(Geometry geometry) {
+    Map<String, Object> geometryMap = new HashMap<>();
+
+    if (geometry.getPoint() != null) {
+      geometryMap.put("point", pointToJson(geometry.getPoint()));
+
+      return geometryMap;
+    }
+
+    if (geometry.getBoundingBox() != null) {
+      geometryMap.put("boundingBox", boundingBoxToJson(geometry.getBoundingBox()));
+
+      return geometryMap;
+    }
+
+    return geometryMap;
   }
 
   public static Map<String, Float> screenPointToJson(ScreenPoint screenPoint) {
@@ -62,6 +150,31 @@ public class Utils {
     cameraPositionMap.put("azimuth", cameraPosition.getAzimuth());
 
     return cameraPositionMap;
+  }
+
+  public static Map<String, Object> localizedValueToJson(LocalizedValue value) {
+    Map<String, Object> valueMap = new HashMap<>();
+    valueMap.put("value", value.getValue());
+    valueMap.put("text", value.getText());
+
+    return valueMap;
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static BoundingBox boundingBoxFromJson(Map<String, Object> json) {
+    return new BoundingBox(
+      pointFromJson((Map<String, Object>) json.get("southWest")),
+      pointFromJson((Map<String, Object>) json.get("northEast"))
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Geometry geometryFromJson(Map<String, Object> json) {
+    if (json.get("point") != null) {
+      return Geometry.fromPoint(pointFromJson((Map<String, Object>) json.get("point")));
+    } else {
+      return Geometry.fromBoundingBox(boundingBoxFromJson((Map<String, Object>) json.get("boundingBox")));
+    }
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})

@@ -68,21 +68,28 @@ public class YandexDrivingSession: NSObject {
   }
 
   private func onSuccess(_ res: [YMKDrivingRoute], _ result: @escaping FlutterResult) {
-    let resultRoutes = res.map { (route) -> [String: Any] in
-      let resultpoints: [[String: Any]] = route.geometry.points.map { (point) -> [String: Any] in
-        return ["latitude": point.latitude, "longitude": point.longitude]
-      }
-      let weight: [String: Any] = [
-        "time": self.localizedValueData(route.metadata.weight.time),
-        "timeWithTraffic": self.localizedValueData(route.metadata.weight.timeWithTraffic),
-        "distance": self.localizedValueData(route.metadata.weight.distance)
+    let routes = res.map { (route) -> [String: Any] in
+      let weight = route.metadata.weight
+
+      return [
+        "geometry": route.geometry.points.map {
+          (point) -> [String: Any] in Utils.pointToJson(point)
+        },
+        "metadata": [
+          "weight": [
+            "time": Utils.localizedValueToJson(weight.time),
+            "timeWithTraffic": Utils.localizedValueToJson(weight.timeWithTraffic),
+            "distance": Utils.localizedValueToJson(weight.distance)
+          ]
+        ]
       ]
-      let metadata: [String: Any] = ["weight": weight]
-      let resultRoute: [String: Any] = ["geometry": resultpoints, "metadata": metadata]
-      return resultRoute
     }
 
-    result(["routes": resultRoutes])
+    let arguments: [String: Any] = [
+      "routes": routes
+    ]
+
+    result(arguments)
   }
 
   private func onError(_ error: Error, _ result: @escaping FlutterResult) {
@@ -98,12 +105,10 @@ public class YandexDrivingSession: NSObject {
       errorMessage = msg as! String
     }
 
-    let arguments: [String:Any?] = ["error": errorMessage]
+    let arguments: [String: Any?] = [
+      "error": errorMessage
+    ]
 
     result(arguments)
-  }
-
-  private func localizedValueData(_ value: YMKLocalizedValue) -> [String: Any?] {
-    ["value": value.value, "text": value.text]
   }
 }

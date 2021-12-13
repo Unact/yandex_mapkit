@@ -16,7 +16,6 @@ import com.yandex.mapkit.Animation;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.ScreenRect;
-import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.logo.Alignment;
@@ -479,25 +478,13 @@ public class YandexMapController implements
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public CameraPosition newBounds(Map<String, Object> params) {
-    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
-    BoundingBox boundingBox = new BoundingBox(
-      Utils.pointFromJson((Map<String, Object>) paramsBoundingBox.get("southWest")),
-      Utils.pointFromJson( (Map<String, Object>) paramsBoundingBox.get("northEast"))
-    );
-
-    return mapView.getMap().cameraPosition(boundingBox);
+    return mapView.getMap().cameraPosition(Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")));
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public CameraPosition newTiltAzimuthBounds(Map<String, Object> params) {
-    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
-    BoundingBox boundingBox = new BoundingBox(
-      Utils.pointFromJson((Map<String, Object>) paramsBoundingBox.get("southWest")),
-      Utils.pointFromJson( (Map<String, Object>) paramsBoundingBox.get("northEast"))
-    );
-
     return mapView.getMap().cameraPosition(
-      boundingBox,
+      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
       ((Double) params.get("azimuth")).floatValue(),
       ((Double) params.get("tilt")).floatValue()
     );

@@ -12,14 +12,9 @@ class SearchItemToponymMetadata extends Equatable {
   });
 
   factory SearchItemToponymMetadata._fromJson(Map<dynamic, dynamic> json) {
-    var map = {};
-
-    if (json['address']['addressComponents'] != null) {
-      map = json['address']['addressComponents'] as Map;
-    }
-
-    Map<SearchComponentKind, String> addressMap;
-    addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
+    final addressMap = (json['address']['addressComponents'] as Map?)?.map<SearchComponentKind, String>(
+      (key, value) => MapEntry(SearchComponentKind.values[key], value)
+    ) ?? {};
 
     return SearchItemToponymMetadata._(
       balloonPoint: Point._fromJson(json['balloonPoint']),

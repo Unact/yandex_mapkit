@@ -11,102 +11,54 @@ import com.yandex.mapkit.search.Response;
 import com.yandex.mapkit.search.Session;
 import com.yandex.mapkit.search.ToponymObjectMetadata;
 import com.yandex.runtime.Error;
+import com.yandex.runtime.any.Collection;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexSearchListener implements Session.SearchListener {
-  private MethodChannel.Result  result;
-  private int                   page;
+  private final MethodChannel.Result result;
+  private final int page;
 
   YandexSearchListener(MethodChannel.Result result, int page) {
     this.result = result;
-    this.page   = page;
+    this.page = page;
   }
 
   @Override
   public void onSearchResponse(@NonNull Response response) {
     Map<String, Object> arguments = new HashMap<>();
-
-    arguments.put("found", response.getMetadata().getFound());
-    arguments.put("page", page);
-
     List<Map<String, Object>> dataItems = new ArrayList<>();
 
-    Iterator<GeoObjectCollection.Item> objectsIterator = response.getCollection().getChildren().iterator();
-
-    while (objectsIterator.hasNext()) {
-      GeoObjectCollection.Item item = objectsIterator.next();
+    for (GeoObjectCollection.Item item : response.getCollection().getChildren()) {
       GeoObject obj = item.getObj();
-      if (item.getObj() == null) {
+
+      if (obj == null) {
         continue;
+      }
+
+      List<Map<String, Object>> geometryList = new ArrayList<>();
+      for (Geometry geometry : obj.getGeometry()) {
+        geometryList.add(Utils.geometryToJson(geometry));
       }
 
       Map<String, Object> dataItem = new HashMap<>();
       dataItem.put("name", obj.getName());
-
-      List<Map<String, Object>> geometry = new ArrayList<>();
-      Iterator<Geometry> geometryIterator = obj.getGeometry().iterator();
-
-      while (geometryIterator.hasNext()) {
-        final Geometry geometryItem = geometryIterator.next();
-
-        if (geometryItem.getPoint() != null) {
-          geometry.add(
-            new HashMap<String,Object>() {{
-              put(
-                "point",
-                new HashMap<String, Object>() {{
-                  put("latitude", geometryItem.getPoint().getLatitude());
-                  put("longitude", geometryItem.getPoint().getLongitude());
-                }}
-              );
-            }}
-          );
-        }
-
-        if (geometryItem.getBoundingBox() != null) {
-          geometry.add(
-            new HashMap<String,Object>() {{
-              put("boundingBox",
-                new HashMap<String, Object>() {{
-                  put("southWest", new HashMap<String, Object>() {{
-                    put("latitude", geometryItem.getBoundingBox().getSouthWest().getLatitude());
-                    put("longitude", geometryItem.getBoundingBox().getSouthWest().getLongitude());
-                  }});
-                  put("northEast", new HashMap<String, Object>() {{
-                    put("latitude", geometryItem.getBoundingBox().getNorthEast().getLatitude());
-                    put("longitude", geometryItem.getBoundingBox().getNorthEast().getLongitude());
-                  }});
-                }}
-              );
-            }}
-          );
-        }
-      }
-
-      dataItem.put("geometry", geometry);
-
-      ToponymObjectMetadata toponymMeta = obj.getMetadataContainer().getItem(ToponymObjectMetadata.class);
-      if (toponymMeta != null) {
-        dataItem.put("toponymMetadata", getToponymMetadata(toponymMeta));
-      }
-
-      BusinessObjectMetadata businessMeta = obj.getMetadataContainer().getItem(BusinessObjectMetadata.class);
-      if (businessMeta != null) {
-        dataItem.put("businessMetadata", getBusinessMetadata(businessMeta));
-      }
+      dataItem.put("geometry", geometryList);
+      dataItem.put("toponymMetadata", getToponymMetadata(obj.getMetadataContainer()));
+      dataItem.put("businessMetadata", getBusinessMetadata(obj.getMetadataContainer()));
 
       dataItems.add(dataItem);
     }
 
+    arguments.put("found", response.getMetadata().getFound());
+    arguments.put("page", page);
     arguments.put("items", dataItems);
 
     result.success(arguments);
@@ -130,36 +82,38 @@ public class YandexSearchListener implements Session.SearchListener {
     result.success(arguments);
   }
 
-  private Map<String, Object> getToponymMetadata(ToponymObjectMetadata meta) {
-    Map<String, Object> toponymMetadata = new HashMap<>();
-    Map<String, Double> balloonPoint = new HashMap<>();
+  private Map<String, Object> getToponymMetadata(Collection metadataContainer) {
+    ToponymObjectMetadata meta = metadataContainer.getItem(ToponymObjectMetadata.class);
 
-    balloonPoint.put("latitude", meta.getBalloonPoint().getLatitude());
-    balloonPoint.put("longitude", meta.getBalloonPoint().getLongitude());
-
-    toponymMetadata.put("balloonPoint", balloonPoint);
-
-    Map<String, Object> address = new HashMap<>();
-    address.put("formattedAddress", meta.getAddress().getFormattedAddress());
-    address.put("addressComponents", getAddressComponents(meta.getAddress()));
-
-    toponymMetadata.put("address", address);
-
-    return toponymMetadata;
-  }
-
-  private Map<String, Object> getBusinessMetadata(BusinessObjectMetadata meta) {
-    Map<String, Object> businessMetadata = new HashMap<>();
-    businessMetadata.put("name", meta.getName());
-
-    if (meta.getShortName() != null) {
-      businessMetadata.put("shortName", meta.getShortName());
+    if (meta == null) {
+      return null;
     }
 
     Map<String, Object> address = new HashMap<>();
     address.put("formattedAddress", meta.getAddress().getFormattedAddress());
     address.put("addressComponents", getAddressComponents(meta.getAddress()));
 
+    Map<String, Object> toponymMetadata = new HashMap<>();
+    toponymMetadata.put("address", address);
+    toponymMetadata.put("balloonPoint", Utils.pointToJson(meta.getBalloonPoint()));
+
+    return toponymMetadata;
+  }
+
+  private Map<String, Object> getBusinessMetadata(Collection metadataContainer) {
+    BusinessObjectMetadata meta = metadataContainer.getItem(BusinessObjectMetadata.class);
+
+    if (meta == null) {
+      return null;
+    }
+
+    Map<String, Object> address = new HashMap<>();
+    address.put("formattedAddress", meta.getAddress().getFormattedAddress());
+    address.put("addressComponents", getAddressComponents(meta.getAddress()));
+
+    Map<String, Object> businessMetadata = new HashMap<>();
+    businessMetadata.put("name", meta.getName());
+    businessMetadata.put("shortName", meta.getShortName());
     businessMetadata.put("address", address);
 
     return businessMetadata;
@@ -167,17 +121,12 @@ public class YandexSearchListener implements Session.SearchListener {
 
   private Map<Integer, String> getAddressComponents(Address address) {
     Map<Integer, String> addressComponents = new HashMap<>();
-    Iterator<Address.Component> iterator = address.getComponents().iterator();
 
-    while (iterator.hasNext()) {
-      Address.Component addressComponent = iterator.next();
-      Integer flutterKind = 0;
+    for (Address.Component addressComponent : address.getComponents()) {
+      int flutterKind = 0;
       String value = addressComponent.getName();
-      Iterator<Address.Component.Kind> addressKindsIterator = addressComponent.getKinds().iterator();
 
-      while (addressKindsIterator.hasNext()) {
-        Address.Component.Kind addressComponentKind = addressKindsIterator.next();
-
+      for (Address.Component.Kind addressComponentKind : addressComponent.getKinds()) {
         switch (addressComponentKind) {
           case UNKNOWN:
             flutterKind = 0;

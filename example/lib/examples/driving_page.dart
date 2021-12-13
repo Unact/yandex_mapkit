@@ -88,11 +88,18 @@ class _DrivingExampleState extends State<_DrivingExample> {
   Future<void> _requestRoutes() async {
     print('Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
-    var resultWithSession = YandexDriving.requestRoutes(points: [
-      RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
-      RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
-      RequestPoint(point: endPlacemark.point, requestPointType: RequestPointType.wayPoint),
-    ]);
+    var resultWithSession = YandexDriving.requestRoutes(
+      points: [
+        RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
+        RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
+        RequestPoint(point: endPlacemark.point, requestPointType: RequestPointType.wayPoint),
+      ],
+      drivingOptions: DrivingOptions(
+        initialAzimuth: 0,
+        routesCount: 5,
+        avoidTolls: true
+      )
+    );
 
     await Navigator.push(
       context,

@@ -266,24 +266,14 @@ public class YandexMapController:
   }
 
   private func newBounds(_ params: [String: Any]) -> YMKCameraPosition {
-    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
-    let boundingBox = YMKBoundingBox(
-      southWest: Utils.pointFromJson(paramsBoundingBox["southWest"] as! [String: NSNumber]),
-      northEast: Utils.pointFromJson(paramsBoundingBox["northEast"] as! [String: NSNumber])
+    return mapView.mapWindow.map.cameraPosition(
+      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any])
     )
-
-    return mapView.mapWindow.map.cameraPosition(with: boundingBox)
   }
 
   private func newTiltAzimuthBounds(_ params: [String: Any]) -> YMKCameraPosition {
-    let paramsBoundingBox = params["boundingBox"] as! [String: Any]
-    let boundingBox = YMKBoundingBox(
-      southWest: Utils.pointFromJson(paramsBoundingBox["southWest"] as! [String: NSNumber]),
-      northEast: Utils.pointFromJson(paramsBoundingBox["northEast"] as! [String: NSNumber])
-    )
-
     return mapView.mapWindow.map.cameraPosition(
-      with: boundingBox,
+      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
       azimuth: (params["azimuth"] as! NSNumber).floatValue,
       tilt: (params["tilt"] as! NSNumber).floatValue
     )

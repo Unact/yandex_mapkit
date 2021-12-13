@@ -2,7 +2,6 @@ package com.unact.yandexmapkit;
 
 import androidx.annotation.NonNull;
 
-import com.yandex.mapkit.LocalizedValue;
 import com.yandex.mapkit.directions.driving.DrivingRoute;
 import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.Weight;
@@ -27,32 +26,31 @@ public class YandexDrivingListener implements DrivingSession.DrivingRouteListene
 
   @Override
   public void onDrivingRoutes(@NonNull List<DrivingRoute> list) {
-    Map<String, Object> resultMap = new HashMap<>();
     List<Map<String, Object>> resultRoutes = new ArrayList<>();
     for (DrivingRoute route : list) {
-      Map<String, Object> resultRoute = new HashMap<>();
-      List<Map<String, Object>> resultPoints = new ArrayList<>();
+      List<Map<String, Double>> resultPoints = new ArrayList<>();
       for (Point point : route.getGeometry().getPoints()) {
-        Map<String, Object> resultPoint = new HashMap<>();
-        resultPoint.put("latitude", point.getLatitude());
-        resultPoint.put("longitude", point.getLongitude());
-        resultPoints.add(resultPoint);
+        resultPoints.add(Utils.pointToJson(point));
       }
-      resultRoute.put("geometry", resultPoints);
 
       Weight weight = route.getMetadata().getWeight();
       Map<String, Object> resultWeight = new HashMap<>();
-      resultWeight.put("time", localizedValueData(weight.getTime()));
-      resultWeight.put("timeWithTraffic", localizedValueData(weight.getTimeWithTraffic()));
-      resultWeight.put("distance", localizedValueData(weight.getDistance()));
-
+      resultWeight.put("time", Utils.localizedValueToJson(weight.getTime()));
+      resultWeight.put("timeWithTraffic", Utils.localizedValueToJson(weight.getTimeWithTraffic()));
+      resultWeight.put("distance", Utils.localizedValueToJson(weight.getDistance()));
       Map<String, Object> resultMetadata = new HashMap<>();
       resultMetadata.put("weight", resultWeight);
+
+      Map<String, Object> resultRoute = new HashMap<>();
+      resultRoute.put("geometry", resultPoints);
       resultRoute.put("metadata", resultMetadata);
 
       resultRoutes.add(resultRoute);
     }
+
+    Map<String, Object> resultMap = new HashMap<>();
     resultMap.put("routes", resultRoutes);
+
     result.success(resultMap);
   }
 
@@ -72,12 +70,5 @@ public class YandexDrivingListener implements DrivingSession.DrivingRouteListene
     arguments.put("error", errorMessage);
 
     result.success(arguments);
-  }
-
-  private Map<String, Object> localizedValueData(LocalizedValue value) {
-    Map<String, Object> result = new HashMap<>();
-    result.put("value", value.getValue());
-    result.put("text", value.getText());
-    return result;
   }
 }

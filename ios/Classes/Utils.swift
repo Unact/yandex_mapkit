@@ -31,11 +31,84 @@ class Utils {
     )
   }
 
+  static func requestPointFromJson(_ json: [String: Any]) -> YMKRequestPoint {
+    let point = pointFromJson(json["point"] as! [String: NSNumber])
+    let pointType = YMKRequestPointType(rawValue: (json["requestPointType"] as! NSNumber).uintValue)!
+
+    return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
+  }
+
+  static func drivingOptionsFromJson(_ json: [String: Any]) -> YMKDrivingDrivingOptions {
+    return YMKDrivingDrivingOptions(
+      initialAzimuth: json["initialAzimuth"] as? NSNumber,
+      routesCount: json["routesCount"] as? NSNumber,
+      avoidTolls: json["avoidTolls"] as? NSNumber,
+      departureTime: nil,
+      annotationLanguage: nil
+    )
+  }
+
+  static func searchOptionsFromJson(_ json: [String: Any]) -> YMKSearchOptions {
+    let userPosition = json["userPosition"] as? [String: Any] != nil ?
+      pointFromJson(json["userPosition"] as! [String: NSNumber]) :
+      nil
+
+    return YMKSearchOptions(
+      searchTypes: YMKSearchType(rawValue: (json["searchType"] as! NSNumber).uintValue),
+      resultPageSize: json["resultPageSize"] as? NSNumber,
+      snippets: YMKSearchSnippet(rawValue: (json["searchSnippet"] as! NSNumber).uintValue),
+      experimentalSnippets: [String](),
+      userPosition: userPosition,
+      origin: json["origin"] as? String,
+      directPageId: json["directPageId"] as? String,
+      appleCtx: json["appleCtx"] as? String,
+      geometry: (json["geometry"] as! NSNumber).boolValue,
+      advertPageId: json["advertPageId"] as? String,
+      suggestWords: (json["suggestWords"] as! NSNumber).boolValue,
+      disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue
+    )
+  }
+
+  static func suggestOptionsFromJson(_ json: [String: Any]) -> YMKSuggestOptions {
+    let userPosition = json["userPosition"] != nil ?
+      pointFromJson(json["userPosition"] as! [String: NSNumber]) :
+      nil
+
+    return YMKSuggestOptions(
+      suggestTypes: YMKSuggestType.init(rawValue: (json["suggestType"] as! NSNumber).uintValue),
+      userPosition: userPosition,
+      suggestWords: (json["suggestWords"] as! NSNumber).boolValue
+    )
+  }
+
   static func pointToJson(_ point: YMKPoint) -> [String: Any] {
     return [
       "latitude": point.latitude,
       "longitude": point.longitude
     ]
+  }
+
+  static func boundingBoxToJson(_ boundingBox: YMKBoundingBox) -> [String: Any] {
+    return [
+      "northEast": pointToJson(boundingBox.northEast),
+      "southWest": pointToJson(boundingBox.southWest),
+    ]
+  }
+
+  static func geometryToJson(_ geometry: YMKGeometry) -> [String: Any] {
+    if geometry.point != nil {
+      return [
+        "point": pointToJson(geometry.point!)
+      ]
+    }
+
+    if geometry.boundingBox != nil {
+      return [
+        "boundingBox": boundingBoxToJson(geometry.boundingBox!)
+      ]
+    }
+
+    return [:]
   }
 
   static func screenPointToJson(_ screenPoint: YMKScreenPoint) -> [String: Any] {
@@ -59,6 +132,28 @@ class Utils {
       "tilt": cameraPosition.tilt,
       "azimuth": cameraPosition.azimuth,
     ]
+  }
+
+  static func localizedValueToJson(_ value: YMKLocalizedValue) -> [String: Any?] {
+    [
+      "value": value.value,
+      "text": value.text
+    ]
+  }
+
+  static func boundingBoxFromJson(_ json: [String: Any]) -> YMKBoundingBox {
+    return YMKBoundingBox(
+      southWest: Utils.pointFromJson(json["southWest"] as! [String: NSNumber]),
+      northEast: Utils.pointFromJson(json["northEast"] as! [String: NSNumber])
+    )
+  }
+
+  static func geometryFromJson(_ json: [String: Any]) -> YMKGeometry {
+    if let geometryPoint = json["point"] as? [String: NSNumber] {
+      return YMKGeometry(point: Utils.pointFromJson(geometryPoint))
+    } else {
+      return YMKGeometry(boundingBox: Utils.boundingBoxFromJson(json["boundingBox"] as! [String: Any]))
+    }
   }
 
   static func circleFromJson(_ json: [String: Any]) -> YMKCircle {

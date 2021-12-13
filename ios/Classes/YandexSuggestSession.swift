@@ -60,20 +60,22 @@ public class YandexSuggestSession: NSObject {
   }
 
   private func onSuccess(_ res: [YMKSuggestItem], _ result: @escaping FlutterResult) {
-    let suggestItems = res.map({ (suggestItem) -> [String : Any] in
-      var dict = [String : Any]()
+    let items = res.map { (suggestItem) -> [String: Any?] in
+      return [
+        "title": suggestItem.title.text,
+        "subtitle": suggestItem.subtitle?.text,
+        "displayText": suggestItem.displayText,
+        "searchText": suggestItem.searchText,
+        "type": suggestItem.type.rawValue,
+        "tags": suggestItem.tags
+      ]
+    }
 
-      dict["title"] = suggestItem.title.text
-      dict["subtitle"] = suggestItem.subtitle?.text
-      dict["displayText"] = suggestItem.displayText
-      dict["searchText"] = suggestItem.searchText
-      dict["type"] = suggestItem.type.rawValue
-      dict["tags"] = suggestItem.tags
+    let arguments: [String: Any] = [
+      "items": items
+    ]
 
-      return dict
-    })
-
-    result(["items":suggestItems])
+    result(arguments)
   }
 
   private func onError(_ error: Error, _ result: @escaping FlutterResult) {
@@ -89,7 +91,9 @@ public class YandexSuggestSession: NSObject {
       errorMessage = msg as! String
     }
 
-    let arguments: [String:Any?] = ["error": errorMessage]
+    let arguments: [String: Any?] = [
+      "error": errorMessage
+    ]
 
     result(arguments)
   }

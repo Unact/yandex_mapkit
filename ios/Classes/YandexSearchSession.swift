@@ -90,62 +90,26 @@ public class YandexSearchSession: NSObject {
   }
 
   private func onSuccess(_ res: YMKSearchResponse, _ result: @escaping FlutterResult) {
-    var arguments = [String : Any]()
+    let items: [[String: Any?]] = res.collection.children.compactMap { item in
+      let obj = item.obj
 
-    arguments["found"] = res.metadata.found
-    arguments["page"]  = page
-
-    var dataItems = [[String : Any]]()
-
-    for searchItem in res.collection.children {
-      guard let obj = searchItem.obj else {
-        continue
+      if (obj == nil) {
+        return nil
       }
 
-      var dataItem = [String : Any]()
-      var geometry = [[String : Any]]()
-
-      dataItem["name"] = obj.name
-      obj.geometry.forEach {
-        if let point = $0.point {
-          geometry.append([
-            "point": [
-              "latitude": point.latitude,
-              "longitude": point.longitude,
-            ]
-          ])
-        }
-
-        if let boundingBox = $0.boundingBox {
-          geometry.append([
-            "boundingBox": [
-              "southWest": [
-                "latitude": boundingBox.southWest.latitude,
-                "longitude": boundingBox.southWest.longitude,
-              ],
-              "northEast": [
-                "latitude": boundingBox.northEast.latitude,
-                "longitude": boundingBox.northEast.longitude,
-              ],
-            ]
-          ])
-        }
-      }
-
-      dataItem["geometry"] = geometry;
-
-      if let toponymMeta = obj.metadataContainer.getItemOf(YMKSearchToponymObjectMetadata.self) as? YMKSearchToponymObjectMetadata {
-        dataItem["toponymMetadata"] = getToponymMetadata(meta: toponymMeta)
-      }
-
-      if let businessMeta = obj.metadataContainer.getItemOf(YMKSearchBusinessObjectMetadata.self) as? YMKSearchBusinessObjectMetadata {
-        dataItem["businessMetadata"] = getBusinessMetadata(meta: businessMeta)
-      }
-
-      dataItems.append(dataItem)
+      return [
+        "name": obj!.name,
+        "geometry": obj!.geometry.map { Utils.geometryToJson($0) },
+        "toponymMetadata": getToponymMetadata(metadataContainer: obj!.metadataContainer),
+        "businessMetadata": getBusinessMetadata(metadataContainer: obj!.metadataContainer)
+      ]
     }
 
-    arguments["items"] = dataItems
+    let arguments: [String: Any] = [
+      "found": res.metadata.found,
+      "page": page,
+      "items": items
+    ]
 
     result(arguments)
   }
@@ -163,49 +127,47 @@ public class YandexSearchSession: NSObject {
       errorMessage = msg as! String
     }
 
-    let arguments: [String:Any?] = ["error": errorMessage]
+    let arguments: [String: Any?] = [
+      "error": errorMessage
+    ]
 
     result(arguments)
   }
 
-  private func getToponymMetadata(meta: YMKSearchToponymObjectMetadata) -> [String : Any] {
-    var toponymMetadata = [String : Any]()
+  private func getToponymMetadata(metadataContainer: YRTCollection) -> [String: Any]? {
+    let meta = metadataContainer.getItemOf(YMKSearchToponymObjectMetadata.self) as? YMKSearchToponymObjectMetadata
 
-    var balloonPoint = [String : Double]()
-    balloonPoint["latitude"]  = meta.balloonPoint.latitude
-    balloonPoint["longitude"] = meta.balloonPoint.longitude
-
-    toponymMetadata["balloonPoint"] = balloonPoint
-
-    var address = [String : Any]()
-    address["formattedAddress"] = meta.address.formattedAddress
-    address["addressComponents"] = getAddressComponents(address: meta.address)
-
-    toponymMetadata["address"] = address
-
-    return toponymMetadata
-  }
-
-  private func getBusinessMetadata(meta: YMKSearchBusinessObjectMetadata) -> [String : Any] {
-    var businessMetadata = [String : Any]()
-    businessMetadata["name"] = meta.name
-
-    if (meta.shortName != nil) {
-      businessMetadata["shortName"] = meta.shortName
+    if (meta == nil) {
+      return nil
     }
 
-    var address = [String : Any]()
-    let addressComponents = getAddressComponents(address: meta.address)
-
-    address["formattedAddress"]  = meta.address.formattedAddress
-    address["addressComponents"] = addressComponents;
-
-    businessMetadata["address"] = address
-
-    return businessMetadata
+    return [
+      "balloonPoint": Utils.pointToJson(meta!.balloonPoint),
+      "address": [
+        "formattedAddress": meta!.address.formattedAddress,
+        "addressComponents": getAddressComponents(address: meta!.address)
+      ]
+    ]
   }
 
-  private func getAddressComponents(address: YMKSearchAddress) -> [Int : String] {
+  private func getBusinessMetadata(metadataContainer: YRTCollection) -> [String: Any?]? {
+    let meta = metadataContainer.getItemOf(YMKSearchBusinessObjectMetadata.self) as? YMKSearchBusinessObjectMetadata
+
+    if (meta == nil) {
+      return nil
+    }
+
+    return [
+      "name": meta!.name,
+      "shortName": meta!.shortName,
+      "address": [
+        "formattedAddress": meta!.address.formattedAddress,
+        "addressComponents": getAddressComponents(address: meta!.address)
+      ]
+    ]
+  }
+
+  private func getAddressComponents(address: YMKSearchAddress) -> [Int: String] {
     var addressComponents = [Int : String]()
 
     address.components.forEach {
@@ -215,7 +177,6 @@ public class YandexSearchSession: NSObject {
       $0.kinds.forEach {
         let kind = YMKSearchComponentKind(rawValue: UInt(truncating: $0))
 
-        // Map kind to enum value in flutter
         switch kind {
         case .none, .some(.unknown):
           flutterKind = 0
@@ -253,6 +214,8 @@ public class YandexSearchSession: NSObject {
           flutterKind = 16
         case .some(.other):
           flutterKind = 17
+        case .some(_):
+          flutterKind = 0
         }
 
         addressComponents[flutterKind] = value

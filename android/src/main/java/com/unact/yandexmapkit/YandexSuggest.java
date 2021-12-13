@@ -4,11 +4,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.yandex.mapkit.geometry.Point;
-import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.search.SearchFactory;
 import com.yandex.mapkit.search.SearchManagerType;
-import com.yandex.mapkit.search.SuggestOptions;
 import com.yandex.mapkit.search.SearchManager;
 import com.yandex.mapkit.search.SuggestSession;
 
@@ -44,26 +41,18 @@ public class YandexSuggest implements MethodCallHandler {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
   private void getSuggestions(MethodCall call, Result result) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
     final int sessionId = ((Number) params.get("sessionId")).intValue();
-    String formattedAddress = (String) params.get("formattedAddress");
-    Map<String, Object> paramsBoundingBox = (Map<String, Object>) params.get("boundingBox");
-    Map<String, Object> southWest = (Map<String, Object>) paramsBoundingBox.get("southWest");
-    Map<String, Object> northEast = (Map<String, Object>) paramsBoundingBox.get("northEast");
-    BoundingBox boundingBox = new BoundingBox(
-      new Point(((Double) southWest.get("latitude")), ((Double) southWest.get("longitude"))),
-      new Point(((Double) northEast.get("latitude")), ((Double) northEast.get("longitude")))
-    );
-
-    Boolean suggestWords = ((Boolean) params.get("suggestWords"));
-
     SuggestSession session = searchManager.createSuggestSession();
-    SuggestOptions suggestOptions = new SuggestOptions();
-    suggestOptions.setSuggestTypes(((Number) params.get("suggestType")).intValue());
-    suggestOptions.setSuggestWords(suggestWords);
-    session.suggest(formattedAddress, boundingBox, suggestOptions, new YandexSuggestListener(result));
+
+    session.suggest(
+      (String) params.get("text"),
+      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
+      Utils.suggestOptionsFromJson((Map<String, Object>) params.get("suggestOptions")),
+      new YandexSuggestListener(result)
+    );
 
     YandexSuggestSession suggestSession = new YandexSuggestSession(
       sessionId,

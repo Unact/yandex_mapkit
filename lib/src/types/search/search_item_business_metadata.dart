@@ -14,23 +14,13 @@ class SearchItemBusinessMetadata extends Equatable {
   });
 
   factory SearchItemBusinessMetadata._fromJson(Map<dynamic, dynamic> json) {
-
-    String? shortName;
-    if (json.containsKey('shortName')) {
-      shortName = json['shortName'];
-    }
-
-    var map = {};
-    if (json['address']['addressComponents'] != null) {
-      map = json['address']['addressComponents'] as Map;
-    }
-
-    Map<SearchComponentKind, String> addressMap;
-    addressMap = map.map((key, value) => MapEntry(SearchComponentKind.values[key], value));
+    final addressMap = (json['address']['addressComponents'] as Map?)?.map<SearchComponentKind, String>(
+      (key, value) => MapEntry(SearchComponentKind.values[key], value)
+    ) ?? {};
 
     return SearchItemBusinessMetadata._(
       name: json['name'],
-      shortName: shortName,
+      shortName: json['shortName'],
       formattedAddress: json['address']['formattedAddress'],
       addressComponents: addressMap,
     );

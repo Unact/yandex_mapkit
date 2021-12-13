@@ -14,24 +14,17 @@ class SearchItem extends Equatable {
   });
 
   factory SearchItem._fromJson(Map<dynamic, dynamic> json) {
-    var geometryItems = json['geometry'] as List;
+    final toponymMetadata = json['toponymMetadata'] != null ?
+      SearchItemToponymMetadata._fromJson(json['toponymMetadata']) :
+      null;
 
-    List<Geometry>? geometryList;
-    geometryList = geometryItems.map((i) => Geometry._fromJson(i)).toList();
-
-    SearchItemToponymMetadata? toponymMetadata;
-    if (json.containsKey('toponymMetadata')) {
-      toponymMetadata = SearchItemToponymMetadata._fromJson(json['toponymMetadata']);
-    }
-
-    SearchItemBusinessMetadata? businessMetadata;
-    if (json.containsKey('businessMetadata')) {
-      businessMetadata = SearchItemBusinessMetadata._fromJson(json['businessMetadata']);
-    }
+    final businessMetadata = json['businessMetadata'] != null ?
+      SearchItemBusinessMetadata._fromJson(json['businessMetadata']) :
+      null;
 
     return SearchItem._(
       name: json['name'] ?? '',
-      geometry: geometryList,
+      geometry: json['geometry'].map<Geometry>((i) => Geometry._fromJson(i)).toList(),
       toponymMetadata: toponymMetadata,
       businessMetadata: businessMetadata,
     );

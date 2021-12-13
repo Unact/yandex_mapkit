@@ -63,13 +63,16 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
     print('Suggest query: $query');
 
     var resultWithSession = YandexSuggest.getSuggestions(
-      address: query,
+      text: query,
       boundingBox: BoundingBox(
         northEast: Point(latitude: 56.0421, longitude: 38.0284),
         southWest: Point(latitude: 55.5143, longitude: 37.24841)
       ),
-      suggestType: SuggestType.geo,
-      suggestWords: true,
+      suggestOptions: SuggestOptions(
+        suggestType: SuggestType.geo,
+        suggestWords: true,
+        userPosition: Point(latitude: 56.0321, longitude: 38)
+      )
     );
 
     await Navigator.push(

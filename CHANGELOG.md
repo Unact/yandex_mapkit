@@ -47,6 +47,7 @@ Use `YandexMap.tiltGesturesEnabled` instead.
 * **Breaking change**. Removed `YandexMapController.toggleNightMode`. Use `YandexMap.nightModeEnabled` instead.
 * **Breaking change**. Removed `YandexMapController.toggleZoomGestures` and `YandexMapController.isZoomGesturesEnabled`.
 Use `YandexMap.zoomGesturesEnabled` instead.
+* **Breaking change**. `YandexSuggest.getSuggestions` method signature has been changed.
 
 ## 1.1.1
 

@@ -5,13 +5,10 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.RequestPoint;
-import com.yandex.mapkit.RequestPointType;
 import com.yandex.mapkit.directions.DirectionsFactory;
-import com.yandex.mapkit.directions.driving.DrivingOptions;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
 import com.yandex.mapkit.directions.driving.DrivingSession;
 import com.yandex.mapkit.directions.driving.VehicleOptions;
-import com.yandex.mapkit.geometry.Point;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,16 +44,18 @@ public class YandexDriving implements MethodCallHandler {
     }
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
   private void requestRoutes(final MethodCall call, final Result result) {
     Map<String, Object> params = (Map<String, Object>) call.arguments;
     Integer sessionId = (Integer) params.get("sessionId");
-    List<Map<String, Object>> pointsParams = (List<Map<String, Object>>) params.get("points");
-    List<RequestPoint> points = requestPoints(pointsParams);
+    List<RequestPoint> points = new ArrayList<>();
+    for (Map<String, Object> pointParams : (List<Map<String, Object>>) params.get("points")) {
+      points.add(Utils.requestPointFromJson(pointParams));
+    }
 
     DrivingSession session = drivingRouter.requestRoutes(
       points,
-      new DrivingOptions(),
+      Utils.drivingOptionsFromJson((Map<String, Object>) params.get("drivingOptions")),
       new VehicleOptions(),
       new YandexDrivingListener(result)
     );
@@ -69,27 +68,6 @@ public class YandexDriving implements MethodCallHandler {
     );
 
     drivingSessions.put(sessionId, drivingSession);
-  }
-
-  @SuppressWarnings("unchecked")
-  private RequestPoint requestPoint(Map<String, Object> data) {
-    Map<String, Object> paramsPoint = (Map<String, Object>) data.get("point");
-    Integer requestPointType = (Integer) data.get("requestPointType");
-
-    Point point = new Point(((Double) paramsPoint.get("latitude")), ((Double) paramsPoint.get("longitude")));
-    RequestPointType pointType = RequestPointType.values()[requestPointType];
-
-    return new RequestPoint(point, pointType, null);
-  }
-
-  private List<RequestPoint> requestPoints(List<Map<String, Object>> pointsParams) {
-    List<RequestPoint> points = new ArrayList<>();
-
-    for (Map<String, Object> pointParams : pointsParams) {
-      points.add(requestPoint(pointParams));
-    }
-
-    return points;
   }
 
   public class DrivingCloseListener {
