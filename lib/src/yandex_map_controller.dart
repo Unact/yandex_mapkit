@@ -177,8 +177,6 @@ class YandexMapController extends ChangeNotifier {
         return _onMapObjectDrag(call.arguments);
       case 'onMapObjectDragEnd':
         return _onMapObjectDragEnd(call.arguments);
-      case 'onMapSizeChanged':
-        return _onMapSizeChanged(call.arguments);
       case 'onUserLocationAdded':
         return await _onUserLocationAdded(call.arguments);
       case 'onCameraPositionChanged':
@@ -202,14 +200,6 @@ class YandexMapController extends ChangeNotifier {
     }
 
     _yandexMapState.widget.onMapLongTap!(Point._fromJson(arguments['point']));
-  }
-
-  void _onMapSizeChanged(dynamic arguments) {
-    if (_yandexMapState.widget.onMapSizeChanged == null) {
-      return;
-    }
-
-    _yandexMapState.widget.onMapSizeChanged!(MapSize._fromJson(arguments['mapSize']));
   }
 
   void _onCameraPositionChanged(dynamic arguments) {

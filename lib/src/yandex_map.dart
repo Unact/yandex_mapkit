@@ -34,7 +34,6 @@ class YandexMap extends StatefulWidget {
     this.onMapCreated,
     this.onMapTap,
     this.onMapLongTap,
-    this.onMapSizeChanged,
     this.onUserLocationAdded,
     this.onCameraPositionChanged
   }) : super(key: key);
@@ -96,9 +95,6 @@ class YandexMap extends StatefulWidget {
   /// Pass to [YandexMap.onMapCreated] to receive a [YandexMapController] when the
   /// map is created.
   final MapCreatedCallback? onMapCreated;
-
-  /// Called every time a [YandexMap] is resized.
-  final ArgumentCallback<MapSize>? onMapSizeChanged;
 
   /// Called every time a [YandexMap] is tapped.
   final ArgumentCallback<Point>? onMapTap;

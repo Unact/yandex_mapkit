@@ -60,6 +60,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
   @override
   Widget build(BuildContext context) {
+    AndroidYandexMap.useAndroidViewSurface = true;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -89,7 +90,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
               print('Camera position: $cameraPosition');
               print('Min zoom: $minZoom, Max zoom: $maxZoom');
             },
-            onMapSizeChanged: (MapSize size) => print('Map size changed to $size'),
             onMapTap: (Point point) => print('Tapped map at $point'),
             onMapLongTap: (Point point) => print('Long tapped map at $point'),
             onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason reason, bool finished) {
@@ -198,14 +198,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Target point'
                   ),
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        _height = _height == 0 ? 10 : 0;
-                      });
-                    },
-                    title: 'Change size'
-                  )
+                  Container()
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(

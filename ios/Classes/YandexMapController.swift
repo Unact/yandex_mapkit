@@ -7,7 +7,6 @@ public class YandexMapController:
   NSObject,
   FlutterPlatformView,
   YMKUserLocationObjectListener,
-  YMKMapSizeChangedListener,
   YMKMapInputListener,
   YMKMapCameraListener
 {
@@ -43,7 +42,6 @@ public class YandexMapController:
 
     mapView.mapWindow.map.addInputListener(with: self)
     mapView.mapWindow.map.addCameraListener(with: self)
-    mapView.mapWindow.addSizeChangedListener(with: self)
     userLocationLayer.setObjectListenerWith(self)
 
     applyMapOptions(params["mapOptions"] as! [String: Any])
@@ -493,17 +491,6 @@ public class YandexMapController:
       "point": Utils.pointToJson(point)
     ]
     methodChannel.invokeMethod("onMapLongTap", arguments: arguments)
-  }
-
-  public func onMapWindowSizeChanged(with mapWindow: YMKMapWindow, newWidth: Int, newHeight: Int) {
-    let arguments: [String: Any?] = [
-      "mapSize": [
-          "width": newWidth,
-          "height": newHeight
-        ]
-      ]
-
-    methodChannel.invokeMethod("onMapSizeChanged", arguments: arguments)
   }
 
   public func onCameraPositionChanged(

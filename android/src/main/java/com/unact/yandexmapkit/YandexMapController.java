@@ -23,12 +23,10 @@ import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.InputListener;
-import com.yandex.mapkit.map.MapWindow;
 import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.map.VisibleRegion;
-import com.yandex.mapkit.map.SizeChangedListener;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -50,7 +48,6 @@ public class YandexMapController implements
   DefaultLifecycleObserver,
   UserLocationObjectListener,
   InputListener,
-  SizeChangedListener,
   CameraListener
 {
   private final MapView mapView;
@@ -90,7 +87,6 @@ public class YandexMapController implements
 
     mapView.getMap().addInputListener(this);
     mapView.getMap().addCameraListener(this);
-    mapView.getMapWindow().addSizeChangedListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
@@ -649,17 +645,6 @@ public class YandexMapController implements
     arguments.put("point", Utils.pointToJson(point));
 
     methodChannel.invokeMethod("onMapLongTap", arguments);
-  }
-
-  public void onMapWindowSizeChanged(@NonNull MapWindow mapWindow, int newWidth, int newHeight) {
-    Map<String, Object> mapSizeArguments = new HashMap<>();
-    mapSizeArguments.put("width", newWidth);
-    mapSizeArguments.put("height", newHeight);
-
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("mapSize", mapSizeArguments);
-
-    methodChannel.invokeMethod("onMapSizeChanged", arguments);
   }
 
   public void mapObjectDragStart(@NonNull String id) {
