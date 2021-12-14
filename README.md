@@ -156,10 +156,11 @@ This way XCode won't try to build for Silicon Macs iOS Simulators
 
 ##### Hybrid Composition
 
-To use [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views) to render the YandexMap widget on Android, set AndroidYandexMaps.useAndroidViewSurface to true.
+By default android views are rendered using [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views).
+To render the YandexMap widget on Android using Virtual Display(old composition), set AndroidYandexMap.useAndroidViewSurface to false.
 
 ```dart
-AndroidYandexMaps.useAndroidViewSurface = true;
+AndroidYandexMap.useAndroidViewSurface = false;
 ```
 
 ### Features
