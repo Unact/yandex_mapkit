@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.0
 
 * Add Hybrid composition for Android
 * Implement `YandexDriving`
