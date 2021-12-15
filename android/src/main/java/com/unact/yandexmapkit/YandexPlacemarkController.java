@@ -13,7 +13,6 @@ import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectDragListener;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
-import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.runtime.image.ImageProvider;
 
@@ -161,23 +160,16 @@ public class YandexPlacemarkController
   private IconStyle getIconStyle(Map<String, Object> style) {
     IconStyle iconStyle = new IconStyle();
 
-    if (((Number) style.get("rotationType")).intValue() == RotationType.ROTATE.ordinal()) {
-      iconStyle.setRotationType(RotationType.ROTATE);
+    if (style.get("tappableArea") != null) {
+      iconStyle.setTappableArea(Utils.rectFromJson((Map<String, Object>) style.get("tappableArea")));
     }
 
-    Map<String, Object> tappableArea = ((Map<String, Object>) style.get("tappableArea"));
-    if (tappableArea != null) {
-      iconStyle.setTappableArea(new Rect(
-        Utils.rectPointFromJson((Map<String, Object>) tappableArea.get("min")),
-        Utils.rectPointFromJson((Map<String, Object>) tappableArea.get("max"))
-      ));
-    }
-
-    iconStyle.setAnchor(Utils.rectPointFromJson((Map<String, Object>) style.get("anchor")));
+    iconStyle.setAnchor(Utils.rectPointFromJson((Map<String, Double>) style.get("anchor")));
     iconStyle.setZIndex(((Double) style.get("zIndex")).floatValue());
     iconStyle.setScale(((Double) style.get("scale")).floatValue());
     iconStyle.setVisible((Boolean) style.get("isVisible"));
     iconStyle.setFlat((Boolean) style.get("isFlat"));
+    iconStyle.setRotationType(RotationType.values()[(Integer) style.get("rotationType")]);
     
     return iconStyle;
   }

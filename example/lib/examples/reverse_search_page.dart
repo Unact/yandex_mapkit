@@ -104,7 +104,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
     final resultWithSession = YandexSearch.searchByPoint(
       point: cameraPosition.target,
-      zoom: cameraPosition.zoom,
+      zoom: cameraPosition.zoom.toInt(),
       searchOptions: SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
@@ -261,7 +261,7 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.items!.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+        list.add(Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
       });
 
       list.add(Container(height: 20));

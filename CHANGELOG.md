@@ -12,6 +12,7 @@
 * Allow specifing which gestures should be intercepted by `YandexMap`
 * Add `YandexMapController.getFocusRegion` to get visible region with focusRect taken into account
 * Add `YandexMapController.getPoint`/`YandexMapController.getScreenPoint` for working with screen/map coordinates
+* **Breaking change**. Removed `MapAnimation.smooth`. Replaced with `MapAnimation.type`.
 * **Breaking change**. Removed `YandexMapController.onMapSizeChanged`
 * **Breaking change**. Remove `PlacemarkStyle`, `CircleStyle`, `PolygonStyle`, `PolylineStyle`.
 All styling options can now be directly set on corresponding map objects.

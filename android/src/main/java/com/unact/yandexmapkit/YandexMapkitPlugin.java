@@ -37,7 +37,7 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   }
 
   @Override
-  public void onDetachedFromEngine(FlutterPluginBinding binding) {
+  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
     teardownChannels();
   }
 
@@ -55,6 +55,7 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     drivingRouterMethodChannel.setMethodCallHandler(yandexDriving);
   }
 
+  @SuppressWarnings({"ConstantConditions"})
   private void teardownChannels() {
     searchMethodChannel.setMethodCallHandler(null);
     searchMethodChannel = null;

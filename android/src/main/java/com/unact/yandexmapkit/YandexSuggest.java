@@ -20,7 +20,8 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexSuggest implements MethodCallHandler {
   private final SearchManager searchManager;
   private final BinaryMessenger binaryMessenger;
-  private Map<Integer, YandexSuggestSession> suggestSessions  = new HashMap<>();
+  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
+  private final Map<Integer, YandexSuggestSession> suggestSessions  = new HashMap<>();
 
   public YandexSuggest(Context context, BinaryMessenger messenger) {
     SearchFactory.initialize(context);
@@ -30,6 +31,7 @@ public class YandexSuggest implements MethodCallHandler {
   }
 
   @Override
+  @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
   public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "getSuggestions":

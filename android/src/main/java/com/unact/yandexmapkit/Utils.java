@@ -15,6 +15,8 @@ import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.geometry.Polygon;
 import com.yandex.mapkit.geometry.Polyline;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.Rect;
+import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.search.SearchOptions;
 import com.yandex.mapkit.search.SuggestOptions;
 
@@ -34,8 +36,17 @@ public class Utils {
     return new ScreenPoint(((Double) json.get("x")).floatValue(), ((Double) json.get("y")).floatValue());
   }
 
-  public static PointF rectPointFromJson(Map<String, Object> json) {
+  @SuppressWarnings({"ConstantConditions"})
+  public static PointF rectPointFromJson(Map<String, Double> json) {
     return new PointF(((Double) json.get("dx")).floatValue(), ((Double) json.get("dy")).floatValue());
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Rect rectFromJson(Map<String, Object> json) {
+    return new Rect(
+      rectPointFromJson((Map<String, Double>) json.get("min")),
+      rectPointFromJson((Map<String, Double>) json.get("max"))
+    );
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -90,6 +101,64 @@ public class Utils {
       userPosition,
       ((Boolean) json.get("suggestWords"))
     );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static BoundingBox boundingBoxFromJson(Map<String, Object> json) {
+    return new BoundingBox(
+      pointFromJson((Map<String, Object>) json.get("southWest")),
+      pointFromJson((Map<String, Object>) json.get("northEast"))
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Geometry geometryFromJson(Map<String, Object> json) {
+    if (json.get("point") != null) {
+      return Geometry.fromPoint(pointFromJson((Map<String, Object>) json.get("point")));
+    } else if (json.get("boundingBox") != null) {
+      return Geometry.fromBoundingBox(boundingBoxFromJson((Map<String, Object>) json.get("boundingBox")));
+    } else {
+      return new Geometry();
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Circle circleFromJson(Map<String, Object> json) {
+    return new Circle(
+      pointFromJson((Map<String, Object>) json.get("center")),
+      ((Double) json.get("radius")).floatValue()
+    );
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Polyline polylineFromJson(Map<String, Object> json) {
+    ArrayList<Point> polylineCoordinates = new ArrayList<>();
+    for (Map<String, Object> coordinates: (List<Map<String, Object>>) json.get("coordinates")) {
+      polylineCoordinates.add(Utils.pointFromJson(coordinates));
+    }
+
+    return new Polyline(polylineCoordinates);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public static Polygon polygonFromJson(Map<String, Object> json) {
+    ArrayList<Point> outerRingPolygonPoints = new ArrayList<>();
+    ArrayList<LinearRing> innerRings = new ArrayList<>();
+    for (Map<String, Object> c: (List<Map<String, Object>>) json.get("outerRingCoordinates")) {
+      outerRingPolygonPoints.add(Utils.pointFromJson(c));
+    }
+
+    for (List<Map<String, Object>> cl: (List<List<Map<String, Object>>>) json.get("innerRingsCoordinates")) {
+      ArrayList<Point> innerRingPolygonPoints = new ArrayList<>();
+
+      for (Map<String, Object> c: cl) {
+        innerRingPolygonPoints.add(Utils.pointFromJson(c));
+      }
+
+      innerRings.add(new LinearRing(innerRingPolygonPoints));
+    }
+
+    return new Polygon(new LinearRing(outerRingPolygonPoints), innerRings);
   }
 
   public static Map<String, Double> pointToJson(Point point) {
@@ -160,59 +229,14 @@ public class Utils {
     return valueMap;
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static BoundingBox boundingBoxFromJson(Map<String, Object> json) {
-    return new BoundingBox(
-      pointFromJson((Map<String, Object>) json.get("southWest")),
-      pointFromJson((Map<String, Object>) json.get("northEast"))
-    );
-  }
+  public static Map<String, Object> visibleRegionToJson(VisibleRegion region) {
+    Map<String, Object> visibleRegionArguments = new HashMap<>();
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static Geometry geometryFromJson(Map<String, Object> json) {
-    if (json.get("point") != null) {
-      return Geometry.fromPoint(pointFromJson((Map<String, Object>) json.get("point")));
-    } else {
-      return Geometry.fromBoundingBox(boundingBoxFromJson((Map<String, Object>) json.get("boundingBox")));
-    }
-  }
+    visibleRegionArguments.put("bottomLeft", Utils.pointToJson(region.getBottomLeft()));
+    visibleRegionArguments.put("bottomRight", Utils.pointToJson(region.getBottomRight()));
+    visibleRegionArguments.put("topLeft", Utils.pointToJson(region.getTopLeft()));
+    visibleRegionArguments.put("topRight", Utils.pointToJson(region.getTopRight()));
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static Circle circleFromJson(Map<String, Object> json) {
-    return new Circle(
-      pointFromJson((Map<String, Object>) json.get("center")),
-      ((Double) json.get("radius")).floatValue()
-    );
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static Polyline polylineFromJson(Map<String, Object> json) {
-    ArrayList<Point> polylineCoordinates = new ArrayList<>();
-    for (Map<String, Object> coordinates: (List<Map<String, Object>>) json.get("coordinates")) {
-      polylineCoordinates.add(Utils.pointFromJson(coordinates));
-    }
-
-    return new Polyline(polylineCoordinates);
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static Polygon polygonFromJson(Map<String, Object> json) {
-    ArrayList<Point> outerRingPolygonPoints = new ArrayList<>();
-    ArrayList<LinearRing> innerRings = new ArrayList<>();
-    for (Map<String, Object> c: (List<Map<String, Object>>) json.get("outerRingCoordinates")) {
-      outerRingPolygonPoints.add(Utils.pointFromJson(c));
-    }
-
-    for (List<Map<String, Object>> cl: (List<List<Map<String, Object>>>) json.get("innerRingsCoordinates")) {
-      ArrayList<Point> innerRingPolygonPoints = new ArrayList<>();
-
-      for (Map<String, Object> c: cl) {
-        innerRingPolygonPoints.add(Utils.pointFromJson(c));
-      }
-
-      innerRings.add(new LinearRing(innerRingPolygonPoints));
-    }
-
-    return new Polygon(new LinearRing(outerRingPolygonPoints), innerRings);
+    return visibleRegionArguments;
   }
 }

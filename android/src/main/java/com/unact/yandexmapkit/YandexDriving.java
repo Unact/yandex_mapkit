@@ -23,6 +23,7 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexDriving implements MethodCallHandler {
   private final DrivingRouter drivingRouter;
   private final BinaryMessenger binaryMessenger;
+  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
   private final Map<Integer, YandexDrivingSession> drivingSessions = new HashMap<>();
 
   public YandexDriving(Context context, BinaryMessenger messenger) {
@@ -33,6 +34,7 @@ public class YandexDriving implements MethodCallHandler {
   }
 
   @Override
+  @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
   public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "requestRoutes":

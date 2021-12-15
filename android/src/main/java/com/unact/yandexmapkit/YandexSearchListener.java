@@ -123,14 +123,12 @@ public class YandexSearchListener implements Session.SearchListener {
     Map<Integer, String> addressComponents = new HashMap<>();
 
     for (Address.Component addressComponent : address.getComponents()) {
-      int flutterKind = 0;
       String value = addressComponent.getName();
 
       for (Address.Component.Kind addressComponentKind : addressComponent.getKinds()) {
+        int flutterKind = 0;
+
         switch (addressComponentKind) {
-          case UNKNOWN:
-            flutterKind = 0;
-            break;
           case COUNTRY:
             flutterKind = 1;
             break;
@@ -183,7 +181,6 @@ public class YandexSearchListener implements Session.SearchListener {
             flutterKind = 17;
             break;
           default:
-            flutterKind = 0;
             break;
         }
 

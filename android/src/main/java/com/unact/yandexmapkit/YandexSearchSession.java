@@ -1,5 +1,7 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
 import com.yandex.mapkit.search.Session;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -7,11 +9,11 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexSearchSession implements MethodChannel.MethodCallHandler {
-  private int id;
-  private Session session;
+  private final int id;
+  private final Session session;
   private int page = 0;
-  private MethodChannel methodChannel;
-  private YandexSearch.SearchCloseListener closeListener;
+  private final MethodChannel methodChannel;
+  private final YandexSearch.SearchCloseListener closeListener;
 
   public YandexSearchSession(
     int id,
@@ -28,7 +30,7 @@ public class YandexSearchSession implements MethodChannel.MethodCallHandler {
   }
 
   @Override
-  public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+  public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
       case "cancel":
         cancel();

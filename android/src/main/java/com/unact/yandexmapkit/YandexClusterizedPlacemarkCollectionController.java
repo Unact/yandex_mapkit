@@ -34,7 +34,6 @@ public class YandexClusterizedPlacemarkCollectionController
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public YandexClusterizedPlacemarkCollectionController(
     MapObjectCollection parent,
     Map<String, Object> params,
@@ -80,21 +79,18 @@ public class YandexClusterizedPlacemarkCollectionController
     removePlacemarks((List<Map<String, Object>>) params.get("toRemove"));
   }
 
-  @SuppressWarnings({"ConstantConditions"})
   private void addPlacemarks(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       addPlacemark(el);
     }
   }
 
-  @SuppressWarnings({"ConstantConditions"})
   private void changePlacemarks(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       changePlacemark(el);
     }
   }
 
-  @SuppressWarnings({"ConstantConditions"})
   private void removePlacemarks(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       removePlacemark(el);
@@ -167,6 +163,7 @@ public class YandexClusterizedPlacemarkCollectionController
 
     controller.get().methodChannel.invokeMethod("onClusterAdded", arguments, new MethodChannel.Result() {
       @Override
+      @SuppressWarnings({"unchecked", "ConstantConditions"})
       public void success(@Nullable Object result) {
         Map<String, Object> params = ((Map<String, Object>) result);
 
@@ -191,6 +188,7 @@ public class YandexClusterizedPlacemarkCollectionController
   }
 
   @Override
+  @SuppressWarnings({"ConstantConditions"})
   public boolean onClusterTap(@NonNull Cluster cluster) {
     List<String> placemarkIds = new ArrayList<>();
     for (PlacemarkMapObject placemark : cluster.getPlacemarks()) {

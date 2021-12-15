@@ -1,36 +1,35 @@
 part of yandex_mapkit;
 
+/// Extended information about company.
 class SearchItemBusinessMetadata extends Equatable {
+
+  /// Company name.
   final String name;
+
+  /// Short company name.
   final String? shortName;
-  final String formattedAddress;
-  final Map<SearchComponentKind, String> addressComponents;
+
+  /// Human-readable address.
+  final SearchAddress address;
 
   const SearchItemBusinessMetadata._({
     required this.name,
-    required this.formattedAddress,
-    required this.addressComponents,
+    required this.address,
     this.shortName,
   });
 
   factory SearchItemBusinessMetadata._fromJson(Map<dynamic, dynamic> json) {
-    final addressMap = (json['address']['addressComponents'] as Map?)?.map<SearchComponentKind, String>(
-      (key, value) => MapEntry(SearchComponentKind.values[key], value)
-    ) ?? {};
-
     return SearchItemBusinessMetadata._(
       name: json['name'],
       shortName: json['shortName'],
-      formattedAddress: json['address']['formattedAddress'],
-      addressComponents: addressMap,
+      address: SearchAddress._fromJson(json['address'])
     );
   }
 
   @override
   List<Object?> get props => <Object?>[
     name,
-    formattedAddress,
-    addressComponents,
+    address,
     shortName,
   ];
 

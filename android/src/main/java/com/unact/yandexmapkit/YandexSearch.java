@@ -2,6 +2,8 @@ package com.unact.yandexmapkit;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.yandex.mapkit.search.Session;
 import com.yandex.mapkit.search.SearchFactory;
 import com.yandex.mapkit.search.SearchManagerType;
@@ -19,7 +21,8 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexSearch implements MethodCallHandler {
   private final SearchManager searchManager;
   private final BinaryMessenger binaryMessenger;
-  private Map<Integer, YandexSearchSession> searchSessions = new HashMap<>();
+  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
+  private final Map<Integer, YandexSearchSession> searchSessions = new HashMap<>();
 
   public YandexSearch(Context context, BinaryMessenger messenger) {
     SearchFactory.initialize(context);
@@ -29,7 +32,7 @@ public class YandexSearch implements MethodCallHandler {
   }
 
   @Override
-  public void onMethodCall(MethodCall call, Result result) {
+  public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
       case "searchByText":
         searchByText(call, result);

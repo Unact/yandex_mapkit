@@ -1,33 +1,34 @@
 part of yandex_mapkit;
 
+/// Additional data for toponym objects.
 class SearchItemToponymMetadata extends Equatable {
+
+  /// Point where balloon for the toponym should be shown.
+  ///
+  /// Differs for direct and reverse search modes:
+  /// Direct mode -- toponym center.
+  /// Reverse mode -- toponym nearest point to the given coordinates.
   final Point balloonPoint;
-  final String formattedAddress;
-  final Map<SearchComponentKind, String> addressComponents;
+
+  /// Human-readable address.
+  final SearchAddress address;
 
   const SearchItemToponymMetadata._({
     required this.balloonPoint,
-    required this.formattedAddress,
-    required this.addressComponents,
+    required this.address,
   });
 
   factory SearchItemToponymMetadata._fromJson(Map<dynamic, dynamic> json) {
-    final addressMap = (json['address']['addressComponents'] as Map?)?.map<SearchComponentKind, String>(
-      (key, value) => MapEntry(SearchComponentKind.values[key], value)
-    ) ?? {};
-
     return SearchItemToponymMetadata._(
       balloonPoint: Point._fromJson(json['balloonPoint']),
-      formattedAddress: json['address']['formattedAddress'],
-      addressComponents: addressMap,
+      address: SearchAddress._fromJson(json['address']),
     );
   }
 
   @override
   List<Object> get props => <Object>[
     balloonPoint,
-    formattedAddress,
-    addressComponents,
+    address,
   ];
 
   @override

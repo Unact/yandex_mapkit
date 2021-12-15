@@ -16,16 +16,32 @@ class Circle extends Equatable implements MapObject<Circle> {
     this.fillColor = const Color(0xFF64B5F6),
   });
 
+  /// The coordinates of the center of the circle.
   final Point center;
+
+  /// The radius of the circle in meters.
   final double radius;
+
+  /// The object's geometry can be interpreted in two different ways:
+  ///
+  /// 1. If the object mode is 'geodesic', the object's geometry is defined on a sphere.
+  /// 2. Otherwise, the object's geometry is defined in projected space.
   final bool isGeodesic;
+
+  /// z-order
+  ///
+  /// Affects:
+  /// 1. Rendering order.
+  /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
+
+  /// Callback to call on circle tap
   final TapCallback<Circle>? onTap;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
-  /// True if the placemark consumes tap events.
+  /// True if the circle consumes tap events.
   /// If not, the map will propagate tap events to other map objects at the point of tap.
   final bool consumeTapEvents;
 

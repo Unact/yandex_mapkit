@@ -19,9 +19,23 @@ class Polyline extends Equatable implements MapObject {
     this.gapLength = 0.0,
   });
 
+  /// The list of points to connect.
   final List<Point> coordinates;
+
+  /// The object's geometry can be interpreted in two different ways:
+  ///
+  /// 1. If the object mode is 'geodesic', the object's geometry is defined on a sphere.
+  /// 2. Otherwise, the object's geometry is defined in projected space.
   final bool isGeodesic;
+
+  /// z-order
+  ///
+  /// Affects:
+  /// 1. Rendering order.
+  /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
+
+  /// Callback to call when this polyline receives a tap
   final TapCallback<Polyline>? onTap;
 
   /// True if the placemark consumes tap events.

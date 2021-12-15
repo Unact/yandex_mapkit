@@ -182,7 +182,7 @@ class YandexMapController extends ChangeNotifier {
       case 'onCameraPositionChanged':
         return _onCameraPositionChanged(call.arguments);
       default:
-        throw YandexMapkitException();
+        throw MissingPluginException();
     }
   }
 

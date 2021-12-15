@@ -24,7 +24,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
   final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
   static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  final animation = const MapAnimation(smooth: true, duration: 2.0);
+  final animation = const MapAnimation(type: MapAnimationType.smooth, duration: 2.0);
 
   bool tiltGesturesEnabled = true;
   bool zoomGesturesEnabled = true;

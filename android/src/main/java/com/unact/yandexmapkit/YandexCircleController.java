@@ -19,7 +19,7 @@ public class YandexCircleController extends YandexMapObjectController implements
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public YandexCircleController(
     MapObjectCollection parent,
     Map<String, Object> params,
@@ -57,7 +57,7 @@ public class YandexCircleController extends YandexMapObjectController implements
     update(params);
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public void update(Map<String, Object> params) {
     circle.setGeometry(Utils.circleFromJson(params));
     circle.setGeodesic((Boolean) params.get("isGeodesic"));

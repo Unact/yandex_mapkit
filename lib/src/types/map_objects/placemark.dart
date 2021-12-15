@@ -19,8 +19,17 @@ class Placemark extends Equatable implements MapObject {
     this.direction = 0,
   });
 
+  /// The coordinates of this placemark.
   final Point point;
+
+  /// z-order
+  ///
+  /// Affects:
+  /// 1. Rendering order.
+  /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
+
+  /// Callback to call when this placemark receives a tap
   final TapCallback<Placemark>? onTap;
 
   /// True if the placemark consumes tap events.

@@ -21,6 +21,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       (previous, element) => element
     ).values.toList();
 
+  /// All placemarks in this collection
   final List<Placemark> _placemarks;
 
   /// List of [Placemark] eligible for clusterization.
@@ -28,7 +29,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   /// All [placemarks] must be unique, i.e. each [MapObject.mapId] must be unique
   List<Placemark> get placemarks => List.unmodifiable(_placemarks);
 
-  /// z-order for this [MapObject].
+  /// z-order
   ///
   /// Affects:
   /// 1. Rendering order.
@@ -43,7 +44,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   /// Minimal distance in units between objects that remain separate.
   final double radius;
 
-  /// Callback to be called when any [ClusterizedPlacemarkCollection.placemarks] receives a tap.
+  /// Callback to call when any of this collection [placemarks] receives a tap
   final TapCallback<ClusterizedPlacemarkCollection>? onTap;
 
   /// Callback to be called when a cluster has been added to [YandexMap].

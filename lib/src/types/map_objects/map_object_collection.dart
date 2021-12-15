@@ -15,10 +15,22 @@ class MapObjectCollection extends Equatable implements MapObject {
       (previous, element) => element
     ).values.toList();
 
+  /// All map objects in this collection
   final List<MapObject> _mapObjects;
+
+  /// List of [MapObject] in this collection.
+  ///
+  /// All [mapObjects] must be unique, i.e. each [MapObject.mapId] must be unique
   List<MapObject> get mapObjects => List.unmodifiable(_mapObjects);
 
+  /// z-order
+  ///
+  /// Affects:
+  /// 1. Rendering order.
+  /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
+
+  /// Callback to call when any of this collection [mapObjects] receives a tap
   final TapCallback<MapObjectCollection>? onTap;
 
   /// True if the placemark consumes tap events.

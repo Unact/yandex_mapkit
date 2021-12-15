@@ -16,10 +16,26 @@ class Polygon extends Equatable implements MapObject {
     this.fillColor = const Color(0x00000000),
   });
 
+  /// The ring specifying the area.
   final List<Point> outerRingCoordinates;
+
+  /// The list of rings in the specified area.
   final List<List<Point>> innerRingsCoordinates;
+
+  /// The object's geometry can be interpreted in two different ways:
+  ///
+  /// 1. If the object mode is 'geodesic', the object's geometry is defined on a sphere.
+  /// 2. Otherwise, the object's geometry is defined in projected space.
   final bool isGeodesic;
+
+  /// z-order
+  ///
+  /// Affects:
+  /// 1. Rendering order.
+  /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
+
+  /// Callback to call when this polygon receives a tap
   final TapCallback<Polygon>? onTap;
 
   /// True if the placemark consumes tap events.

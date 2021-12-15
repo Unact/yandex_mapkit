@@ -34,7 +34,7 @@ public class YandexPolygonController extends YandexMapObjectController implement
     update(params);
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public void update(Map<String, Object> params) {
     polygon.setGeometry(Utils.polygonFromJson(params));
     polygon.setGeodesic((Boolean) params.get("isGeodesic"));

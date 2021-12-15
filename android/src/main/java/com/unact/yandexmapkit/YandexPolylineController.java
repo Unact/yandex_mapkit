@@ -34,7 +34,7 @@ public class YandexPolylineController extends YandexMapObjectController implemen
     update(params);
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public void update(Map<String, Object> params) {
     polyline.setGeometry(Utils.polylineFromJson(params));
     polyline.setGeodesic((Boolean) params.get("isGeodesic"));

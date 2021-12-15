@@ -171,15 +171,13 @@ public class YandexSearchSession: NSObject {
     var addressComponents = [Int : String]()
 
     address.components.forEach {
-      var flutterKind: Int = 0
       let value = $0.name
 
       $0.kinds.forEach {
+        var flutterKind: Int = 0
         let kind = YMKSearchComponentKind(rawValue: UInt(truncating: $0))
 
         switch kind {
-        case .none, .some(.unknown):
-          flutterKind = 0
         case .country:
           flutterKind = 1
         case .some(.region):
@@ -214,7 +212,7 @@ public class YandexSearchSession: NSObject {
           flutterKind = 16
         case .some(.other):
           flutterKind = 17
-        case .some(_):
+        default:
           flutterKind = 0
         }
 

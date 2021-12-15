@@ -26,7 +26,6 @@ import com.yandex.mapkit.map.InputListener;
 import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
-import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.mapview.MapView;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
@@ -55,8 +54,11 @@ public class YandexMapController implements
   public final MethodChannel methodChannel;
   private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
   private final UserLocationLayer userLocationLayer;
+  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private YandexPlacemarkController userPinController;
+  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private YandexPlacemarkController userArrowController;
+  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private YandexCircleController userAccuracyCircleController;
   private final YandexMapObjectCollectionController rootController;
   private boolean disposed = false;
@@ -98,240 +100,6 @@ public class YandexMapController implements
   @Override
   public View getView() {
     return mapView;
-  }
-
-  @Override
-  public void dispose() {
-    if (disposed) {
-      return;
-    }
-
-    disposed = true;
-    methodChannel.setMethodCallHandler(null);
-
-    Lifecycle lifecycle = lifecycleProvider.getLifecycle();
-    if (lifecycle != null) {
-      lifecycle.removeObserver(this);
-    }
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void toggleUserLayer(MethodCall call) {
-    if (!hasLocationPermission()) return;
-
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    userLocationLayer.setVisible((Boolean) params.get("visible"));
-    userLocationLayer.setHeadingEnabled((Boolean) params.get("headingEnabled"));
-    userLocationLayer.setAutoZoomEnabled((Boolean) params.get("autoZoomEnabled"));
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public boolean setMapStyle(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    return mapView.getMap().setMapStyle((String) params.get("style"));
-  }
-
-  public Map<String, Double> getPoint(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    Point point = mapView.getMapWindow().screenToWorld(Utils.screenPointFromJson(params));
-
-    if (point != null) {
-      return Utils.pointToJson(point);
-    }
-
-    return null;
-  }
-
-  public Map<String, Float> getScreenPoint(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    ScreenPoint screenPoint = mapView.getMapWindow().worldToScreen(Utils.pointFromJson(params));
-
-    if (screenPoint != null) {
-      return Utils.screenPointToJson(screenPoint);
-    }
-
-    return null;
-  }
-
-  public Map<String, Object> getCameraPosition() {
-    Map<String, Object> arguments = new HashMap<>();
-
-    arguments.put("cameraPosition", Utils.cameraPositionToJson(mapView.getMapWindow().getMap().getCameraPosition()));
-
-    return arguments;
-  }
-
-  public Map<String, Object> getVisibleRegion() {
-    VisibleRegion region = mapView.getMap().getVisibleRegion();
-
-    Map<String, Object> visibleRegionArguments = new HashMap<>();
-    visibleRegionArguments.put("bottomLeft", Utils.pointToJson(region.getBottomLeft()));
-    visibleRegionArguments.put("bottomRight", Utils.pointToJson(region.getBottomRight()));
-    visibleRegionArguments.put("topLeft", Utils.pointToJson(region.getTopLeft()));
-    visibleRegionArguments.put("topRight", Utils.pointToJson(region.getTopRight()));
-
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("visibleRegion", visibleRegionArguments);
-
-    return arguments;
-  }
-
-  public Map<String, Object> getFocusRegion() {
-    VisibleRegion region = mapView.getMapWindow().getFocusRegion();
-
-    Map<String, Object> visibleRegionArguments = new HashMap<>();
-    visibleRegionArguments.put("bottomLeft", Utils.pointToJson(region.getBottomLeft()));
-    visibleRegionArguments.put("bottomRight", Utils.pointToJson(region.getBottomRight()));
-    visibleRegionArguments.put("topLeft", Utils.pointToJson(region.getTopLeft()));
-    visibleRegionArguments.put("topRight", Utils.pointToJson(region.getTopRight()));
-
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("focusRegion", visibleRegionArguments);
-
-    return arguments;
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void updateMapObjects(MethodCall call) {
-    Map<String, Object> params = (Map<String, Object>) call.arguments;
-
-    applyMapObjects(params);
-  }
-
-  public void updateMapOptions(MethodCall call) {
-    Map<String, Object> params = (Map<String, Object>) call.arguments;
-
-    applyMapOptions(params);
-  }
-
-  public Map<String, Object> getUserCameraPosition() {
-    if (!hasLocationPermission()) return null;
-
-    if (userLocationLayer != null) {
-      CameraPosition cameraPosition = userLocationLayer.cameraPosition();
-
-      if (cameraPosition != null) {
-        Map<String, Object> arguments = new HashMap<>();
-        arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
-
-        return arguments;
-      }
-    }
-
-    return null;
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void moveCamera(MethodCall call, MethodChannel.Result result) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    move(
-      cameraUpdateToPosition((Map<String, Object>) params.get("cameraUpdate")),
-      ((Map<String, Object>) params.get("animation")),
-      result
-    );
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void applyMapOptions(Map<String, Object> params) {
-    com.yandex.mapkit.map.Map map = mapView.getMap();
-
-    if (params.get("tiltGesturesEnabled") != null) {
-      map.setTiltGesturesEnabled((Boolean) params.get("tiltGesturesEnabled"));
-    }
-
-    if (params.get("zoomGesturesEnabled") != null) {
-      map.setZoomGesturesEnabled((Boolean) params.get("zoomGesturesEnabled"));
-    }
-
-    if (params.get("rotateGesturesEnabled") != null) {
-      map.setRotateGesturesEnabled((Boolean) params.get("rotateGesturesEnabled"));
-    }
-
-    if (params.get("nightModeEnabled") != null) {
-      map.setNightModeEnabled((Boolean) params.get("nightModeEnabled"));
-    }
-
-    if (params.get("scrollGesturesEnabled") != null) {
-      map.setScrollGesturesEnabled((Boolean) params.get("scrollGesturesEnabled"));
-    }
-
-    if (params.get("fastTapEnabled") != null) {
-      map.setFastTapEnabled((Boolean) params.get("fastTapEnabled"));
-    }
-
-    if (params.get("mode2DEnabled") != null) {
-      map.set2DMode((Boolean) params.get("mode2DEnabled"));
-    }
-
-    if (params.get("indoorEnabled") != null) {
-      map.setIndoorEnabled((Boolean) params.get("indoorEnabled"));
-    }
-
-    if (params.get("liteModeEnabled") != null) {
-      map.setLiteModeEnabled((Boolean) params.get("liteModeEnabled"));
-    }
-
-    if (params.get("modelsEnabled") != null) {
-      map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
-    }
-
-    if (params.get("logoAlignment") != null) {
-      applyAlignLogo((Map<String, Object>) params.get("logoAlignment"));
-    }
-
-    if (params.containsKey("screenRect")) {
-      applyScreenRect((Map<String, Object>) params.get("screenRect"));
-    }
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void applyMapObjects(Map<String, Object> params) {
-    List<Map<String, Object>> toChangeParams = (List<Map<String, Object>>) params.get("toChange");
-
-    for (Map<String, Object> toChangeParam : toChangeParams) {
-      if (toChangeParam.get("id").equals(rootController.id)) {
-        rootController.update(toChangeParam);
-      }
-    }
-  }
-
-  @SuppressWarnings({"ConstantConditions"})
-  public void applyAlignLogo(Map<String, Object> params) {
-    Alignment logoPosition = new Alignment(
-      HorizontalAlignment.values()[(Integer) params.get("horizontal")],
-      VerticalAlignment.values()[(Integer) params.get("vertical")]
-    );
-    mapView.getMap().getLogo().setAlignment(logoPosition);
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public void applyScreenRect(Map<String, Object> params) {
-    if (params == null) {
-      mapView.setFocusRect(null);
-      mapView.setPointOfView(PointOfView.SCREEN_CENTER);
-
-      return;
-    }
-
-    ScreenRect screenRect = new ScreenRect(
-      Utils.screenPointFromJson(((Map<String, Object>) params.get("topLeft"))),
-      Utils.screenPointFromJson(((Map<String, Object>) params.get("bottomRight")))
-    );
-
-    mapView.setFocusRect(screenRect);
-    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
-  }
-
-  public float getMinZoom() {
-    return mapView.getMap().getMinZoom();
-  }
-
-  public float getMaxZoom() {
-    return mapView.getMap().getMaxZoom();
   }
 
   @Override
@@ -390,42 +158,122 @@ public class YandexMapController implements
     }
   }
 
-  @Override
-  public void onCreate(@NonNull LifecycleOwner owner) {}
+  @SuppressWarnings({"unchecked"})
+  public void updateMapObjects(MethodCall call) {
+    Map<String, Object> params = (Map<String, Object>) call.arguments;
 
-  @Override
-  public void onStart(@NonNull LifecycleOwner owner) {
-    if (disposed) {
-      return;
-    }
-
-    mapView.onStart();
+    applyMapObjects(params);
   }
 
-  @Override
-  public void onResume(@NonNull LifecycleOwner owner) {}
+  @SuppressWarnings({"unchecked"})
+  public void updateMapOptions(MethodCall call) {
+    Map<String, Object> params = (Map<String, Object>) call.arguments;
 
-  @Override
-  public void onPause(@NonNull LifecycleOwner owner) {}
-
-  @Override
-  public void onStop(@NonNull LifecycleOwner owner) {
-    if (disposed) {
-      return;
-    }
-
-    mapView.onStop();
+    applyMapOptions(params);
   }
 
-  @Override
-  public void onDestroy(@NonNull LifecycleOwner owner) {
-    owner.getLifecycle().removeObserver(this);
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void toggleUserLayer(MethodCall call) {
+    if (!hasLocationPermission()) return;
 
-    if (disposed) {
-      return;
-    }
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    userLocationLayer.setVisible((Boolean) params.get("visible"));
+    userLocationLayer.setHeadingEnabled((Boolean) params.get("headingEnabled"));
+    userLocationLayer.setAutoZoomEnabled((Boolean) params.get("autoZoomEnabled"));
   }
 
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public boolean setMapStyle(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    return mapView.getMap().setMapStyle((String) params.get("style"));
+  }
+
+  public float getMinZoom() {
+    return mapView.getMap().getMinZoom();
+  }
+
+  public float getMaxZoom() {
+    return mapView.getMap().getMaxZoom();
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public Map<String, Float> getScreenPoint(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    ScreenPoint screenPoint = mapView.getMapWindow().worldToScreen(Utils.pointFromJson(params));
+
+    if (screenPoint != null) {
+      return Utils.screenPointToJson(screenPoint);
+    }
+
+    return null;
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public Map<String, Double> getPoint(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    Point point = mapView.getMapWindow().screenToWorld(Utils.screenPointFromJson(params));
+
+    if (point != null) {
+      return Utils.pointToJson(point);
+    }
+
+    return null;
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void moveCamera(MethodCall call, MethodChannel.Result result) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    move(
+      cameraUpdateToPosition((Map<String, Object>) params.get("cameraUpdate")),
+      ((Map<String, Object>) params.get("animation")),
+      result
+    );
+  }
+
+  public Map<String, Object> getCameraPosition() {
+    Map<String, Object> arguments = new HashMap<>();
+
+    arguments.put("cameraPosition", Utils.cameraPositionToJson(mapView.getMapWindow().getMap().getCameraPosition()));
+
+    return arguments;
+  }
+
+  public Map<String, Object> getUserCameraPosition() {
+    if (!hasLocationPermission()) return null;
+
+    if (userLocationLayer != null) {
+      CameraPosition cameraPosition = userLocationLayer.cameraPosition();
+
+      if (cameraPosition != null) {
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("cameraPosition", Utils.cameraPositionToJson(cameraPosition));
+
+        return arguments;
+      }
+    }
+
+    return null;
+  }
+
+  public Map<String, Object> getVisibleRegion() {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("visibleRegion", Utils.visibleRegionToJson(mapView.getMap().getVisibleRegion()));
+
+    return arguments;
+  }
+
+  public Map<String, Object> getFocusRegion() {
+    Map<String, Object> arguments = new HashMap<>();
+    arguments.put("focusRegion", Utils.visibleRegionToJson(mapView.getMapWindow().getFocusRegion()));
+
+    return arguments;
+  }
+
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   private boolean hasLocationPermission() {
     int permissionState = ActivityCompat.checkSelfPermission(
       context,
@@ -556,7 +404,7 @@ public class YandexMapController implements
       return;
     }
 
-    Animation.Type type = ((Boolean) paramsAnimation.get("smooth")) ? Animation.Type.SMOOTH : Animation.Type.LINEAR;
+    Animation.Type type = Animation.Type.values()[(Integer) paramsAnimation.get("type")];
     Animation animation = new Animation(type, ((Double) paramsAnimation.get("duration")).floatValue());
 
     mapView.getMap().move(
@@ -571,6 +419,98 @@ public class YandexMapController implements
     );
   }
 
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private void applyMapOptions(Map<String, Object> params) {
+    com.yandex.mapkit.map.Map map = mapView.getMap();
+
+    if (params.get("tiltGesturesEnabled") != null) {
+      map.setTiltGesturesEnabled((Boolean) params.get("tiltGesturesEnabled"));
+    }
+
+    if (params.get("zoomGesturesEnabled") != null) {
+      map.setZoomGesturesEnabled((Boolean) params.get("zoomGesturesEnabled"));
+    }
+
+    if (params.get("rotateGesturesEnabled") != null) {
+      map.setRotateGesturesEnabled((Boolean) params.get("rotateGesturesEnabled"));
+    }
+
+    if (params.get("nightModeEnabled") != null) {
+      map.setNightModeEnabled((Boolean) params.get("nightModeEnabled"));
+    }
+
+    if (params.get("scrollGesturesEnabled") != null) {
+      map.setScrollGesturesEnabled((Boolean) params.get("scrollGesturesEnabled"));
+    }
+
+    if (params.get("fastTapEnabled") != null) {
+      map.setFastTapEnabled((Boolean) params.get("fastTapEnabled"));
+    }
+
+    if (params.get("mode2DEnabled") != null) {
+      map.set2DMode((Boolean) params.get("mode2DEnabled"));
+    }
+
+    if (params.get("indoorEnabled") != null) {
+      map.setIndoorEnabled((Boolean) params.get("indoorEnabled"));
+    }
+
+    if (params.get("liteModeEnabled") != null) {
+      map.setLiteModeEnabled((Boolean) params.get("liteModeEnabled"));
+    }
+
+    if (params.get("modelsEnabled") != null) {
+      map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
+    }
+
+    if (params.get("logoAlignment") != null) {
+      applyAlignLogo((Map<String, Object>) params.get("logoAlignment"));
+    }
+
+    if (params.containsKey("screenRect")) {
+      applyScreenRect((Map<String, Object>) params.get("screenRect"));
+    }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private void applyMapObjects(Map<String, Object> params) {
+    List<Map<String, Object>> toChangeParams = (List<Map<String, Object>>) params.get("toChange");
+
+    for (Map<String, Object> toChangeParam : toChangeParams) {
+      if (toChangeParam.get("id").equals(rootController.id)) {
+        rootController.update(toChangeParam);
+      }
+    }
+  }
+
+  @SuppressWarnings({"ConstantConditions"})
+  private void applyAlignLogo(Map<String, Object> params) {
+    Alignment logoPosition = new Alignment(
+      HorizontalAlignment.values()[(Integer) params.get("horizontal")],
+      VerticalAlignment.values()[(Integer) params.get("vertical")]
+    );
+    mapView.getMap().getLogo().setAlignment(logoPosition);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private void applyScreenRect(Map<String, Object> params) {
+    if (params == null) {
+      mapView.setFocusRect(null);
+      mapView.setPointOfView(PointOfView.SCREEN_CENTER);
+
+      return;
+    }
+
+    ScreenRect screenRect = new ScreenRect(
+      Utils.screenPointFromJson(((Map<String, Object>) params.get("topLeft"))),
+      Utils.screenPointFromJson(((Map<String, Object>) params.get("bottomRight")))
+    );
+
+    mapView.setFocusRect(screenRect);
+    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void onObjectAdded(final UserLocationView view) {
     final YandexMapController self = this;
     Map<String, Object> arguments = new HashMap<>();
@@ -675,5 +615,52 @@ public class YandexMapController implements
     arguments.put("point", Utils.pointToJson(point));
 
     methodChannel.invokeMethod("onMapObjectTap", arguments);
+  }
+
+  @Override
+  public void dispose() {
+    if (disposed) {
+      return;
+    }
+
+    disposed = true;
+    methodChannel.setMethodCallHandler(null);
+
+    Lifecycle lifecycle = lifecycleProvider.getLifecycle();
+    if (lifecycle != null) {
+      lifecycle.removeObserver(this);
+    }
+  }
+
+  @Override
+  public void onCreate(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onStart(@NonNull LifecycleOwner owner) {
+    if (disposed) {
+      return;
+    }
+
+    mapView.onStart();
+  }
+
+  @Override
+  public void onResume(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onPause(@NonNull LifecycleOwner owner) {}
+
+  @Override
+  public void onStop(@NonNull LifecycleOwner owner) {
+    if (disposed) {
+      return;
+    }
+
+    mapView.onStop();
+  }
+
+  @Override
+  public void onDestroy(@NonNull LifecycleOwner owner) {
+    owner.getLifecycle().removeObserver(this);
   }
 }

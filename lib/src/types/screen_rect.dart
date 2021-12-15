@@ -1,12 +1,16 @@
 part of yandex_mapkit;
 
+/// A rectangle on the device screen.
 class ScreenRect extends Equatable {
   const ScreenRect({
     required this.topLeft,
     required this.bottomRight,
   });
 
+  /// The position of the bottom right corner of the rectangle.
   final ScreenPoint bottomRight;
+
+  /// The position of the top left corner of the rectangle.
   final ScreenPoint topLeft;
 
   @override
@@ -26,13 +30,17 @@ class ScreenRect extends Equatable {
   }
 }
 
+/// A point on the device screen.
 class ScreenPoint extends Equatable {
   const ScreenPoint({
     required this.x,
     required this.y
   });
 
+  /// The horizontal position of the point in pixels from the top screen border.
   final double x;
+
+  /// The vertical position of the point in pixels from the top screen border.
   final double y;
 
   @override

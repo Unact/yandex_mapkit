@@ -1,5 +1,7 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
 import com.yandex.mapkit.search.SuggestSession;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -7,10 +9,10 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexSuggestSession implements MethodChannel.MethodCallHandler {
-  private int id;
-  private SuggestSession session;
-  private MethodChannel methodChannel;
-  private YandexSuggest.SuggestCloseListener closeListener;
+  private final int id;
+  private final SuggestSession session;
+  private final MethodChannel methodChannel;
+  private final YandexSuggest.SuggestCloseListener closeListener;
 
   public YandexSuggestSession(
       int id,
@@ -27,7 +29,7 @@ public class YandexSuggestSession implements MethodChannel.MethodCallHandler {
   }
 
   @Override
-  public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+  public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
       case "reset":
         reset();

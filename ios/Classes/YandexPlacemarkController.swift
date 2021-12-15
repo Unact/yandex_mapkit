@@ -135,7 +135,7 @@ class YandexPlacemarkController:
       }
     }
   }
-  
+
   private func getIconImage(_ image: [String: Any]) -> UIImage {
     let type = image["type"] as! String
 
@@ -149,19 +149,12 @@ class YandexPlacemarkController:
 
     return UIImage()
   }
-  
+
   private func getIconStyle(_ style: [String: Any]) -> YMKIconStyle {
     let iconStyle = YMKIconStyle()
 
-    if ((style["rotationType"] as! NSNumber).intValue == YMKRotationType.rotate.rawValue) {
-      iconStyle.rotationType = (YMKRotationType.rotate.rawValue as NSNumber)
-    }
-
     if let tappableArea = style["tappableArea"] as? [String: Any] {
-      iconStyle.tappableArea = YMKRect(
-        min: Utils.rectPointFromJson(tappableArea["min"] as! [String: NSNumber]),
-        max: Utils.rectPointFromJson(tappableArea["max"] as! [String: NSNumber])
-      )
+      iconStyle.tappableArea = Utils.rectFromJson(tappableArea)
     }
 
     iconStyle.anchor = NSValue(cgPoint: Utils.rectPointFromJson(style["anchor"] as! [String: NSNumber]))
@@ -169,7 +162,10 @@ class YandexPlacemarkController:
     iconStyle.scale = (style["scale"] as! NSNumber)
     iconStyle.visible = (style["isVisible"] as! NSNumber)
     iconStyle.flat = (style["isFlat"] as! NSNumber)
-    
+    iconStyle.rotationType = YMKRotationType.init(
+      rawValue: (style["rotationType"] as! NSNumber).uintValue
+    )!.rawValue as NSNumber
+
     return iconStyle
   }
 }

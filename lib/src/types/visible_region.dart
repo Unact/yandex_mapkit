@@ -1,5 +1,6 @@
 part of yandex_mapkit;
 
+/// Defines the visible region.
 class VisibleRegion extends Equatable {
   const VisibleRegion._(
     this.topLeft,
@@ -8,9 +9,16 @@ class VisibleRegion extends Equatable {
     this.bottomRight,
   );
 
+  /// Top-left of the visible region.
   final Point topLeft;
+
+  /// Top-right of the visible region.
   final Point topRight;
+
+  /// Bottom-left of the visible region.
   final Point bottomLeft;
+
+  /// Bottom-right of the visible region.
   final Point bottomRight;
 
   @override

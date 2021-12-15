@@ -180,7 +180,7 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.items!.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.formattedAddress}'));
+        list.add(Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
       });
 
       list.add(Container(height: 20));

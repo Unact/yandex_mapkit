@@ -1,7 +1,14 @@
 part of yandex_mapkit;
 
+/// Driving route.
+/// A route consists of multiple sections
+/// Each section has a corresponding annotation that describes the action at the beginning of the section.
 class DrivingRoute extends Equatable {
+
+  /// Route geometry.
   final List<Point> geometry;
+
+  /// The route metadata.
   final DrivingSectionMetadata metadata;
 
   const DrivingRoute._(this.geometry, this.metadata);

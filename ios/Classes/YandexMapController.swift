@@ -97,6 +97,12 @@ public class YandexMapController:
     }
   }
 
+  public func updateMapObjects(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+
+    applyMapObjects(params)
+  }
+
   public func updateMapOptions(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
 
@@ -179,37 +185,19 @@ public class YandexMapController:
   }
 
   public func getVisibleRegion() -> [String: Any] {
-    let region = mapView.mapWindow.map.visibleRegion
     let arguments = [
-      "visibleRegion": [
-        "bottomLeft": Utils.pointToJson(region.bottomLeft),
-        "bottomRight": Utils.pointToJson(region.bottomRight),
-        "topLeft": Utils.pointToJson(region.topLeft),
-        "topRight": Utils.pointToJson(region.bottomLeft)
-      ]
+      "visibleRegion": Utils.visibleRegionToJson(mapView.mapWindow.map.visibleRegion)
     ]
 
     return arguments
   }
 
   public func getFocusRegion() -> [String: Any] {
-    let region = mapView.mapWindow.focusRegion
     let arguments = [
-      "focusRegion": [
-        "bottomLeft": Utils.pointToJson(region.bottomLeft),
-        "bottomRight": Utils.pointToJson(region.bottomRight),
-        "topLeft": Utils.pointToJson(region.topLeft),
-        "topRight": Utils.pointToJson(region.bottomLeft)
-      ]
+      "focusRegion": Utils.visibleRegionToJson(mapView.mapWindow.focusRegion)
     ]
 
     return arguments
-  }
-
-  public func updateMapObjects(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-
-    applyMapObjects(params)
   }
 
   private func hasLocationPermission() -> Bool {
@@ -344,8 +332,10 @@ public class YandexMapController:
       return
     }
 
-    let type = (animationParams!["smooth"] as! NSNumber).boolValue ? YMKAnimationType.smooth : YMKAnimationType.linear
-    let animation = YMKAnimation(type: type, duration: (animationParams!["duration"] as! NSNumber).floatValue)
+    let animation = YMKAnimation(
+      type: YMKAnimationType.init(rawValue: (animationParams!["type"] as! NSNumber).uintValue)!,
+      duration: (animationParams!["duration"] as! NSNumber).floatValue
+    )
 
     mapView.mapWindow.map.move(
       with: cameraPosition,
@@ -416,8 +406,8 @@ public class YandexMapController:
 
   private func applyAlignLogo(_ params: [String: Any]) {
     let logoPosition = YMKLogoAlignment(
-      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: params["horizontal"] as! UInt)!,
-      verticalAlignment: YMKLogoVerticalAlignment(rawValue: params["vertical"] as! UInt)!
+      horizontalAlignment: YMKLogoHorizontalAlignment(rawValue: (params["horizontal"] as! NSNumber).uintValue)!,
+      verticalAlignment: YMKLogoVerticalAlignment(rawValue: (params["vertical"] as! NSNumber).uintValue)!
     )
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }

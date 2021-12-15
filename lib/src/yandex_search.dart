@@ -1,11 +1,13 @@
 part of yandex_mapkit;
 
+/// Main interface for searching.
 class YandexSearch {
   static const String _channelName = 'yandex_mapkit/yandex_search';
   static const MethodChannel _channel = MethodChannel(_channelName);
 
   static int _nextSessionId = 0;
 
+  /// Search request for searching a user query near given geometry.
   static SearchResultWithSession searchByText({
     required String searchText,
     required Geometry geometry,
@@ -27,9 +29,10 @@ class YandexSearch {
     );
   }
 
+  /// Reverse search request (to search objects at the given coordinates)
   static SearchResultWithSession searchByPoint({
     required Point point,
-    double? zoom,
+    int? zoom,
     required SearchOptions searchOptions
   }) {
     final params = <String, dynamic>{

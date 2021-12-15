@@ -1,5 +1,6 @@
 part of yandex_mapkit;
 
+/// All types availabled for suggestion.
 enum SuggestType {
   unspecified,
   geo,

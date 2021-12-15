@@ -1,12 +1,16 @@
 part of yandex_mapkit;
 
+/// A rectangular box around the object.
 class BoundingBox extends Equatable {
   const BoundingBox({
     required this.northEast,
     required this.southWest,
   });
 
+  /// The coordinates of the northeast corner of the box.
   final Point northEast;
+
+  /// The coordinates of the southwest corner of the box.
   final Point southWest;
 
   @override

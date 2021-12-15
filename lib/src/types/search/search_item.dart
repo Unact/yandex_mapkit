@@ -1,9 +1,18 @@
 part of yandex_mapkit;
 
+/// Found geo object item
 class SearchItem extends Equatable {
+
+  /// Objects name
   final String name;
+
+  /// Objects geometry.
   final List<Geometry> geometry;
+
+  /// Additional data for toponym objects.
   final SearchItemToponymMetadata? toponymMetadata;
+
+  /// Extended information about company.
   final SearchItemBusinessMetadata? businessMetadata;
 
   const SearchItem._({

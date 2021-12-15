@@ -40,6 +40,7 @@ part 'src/types/point.dart';
 part 'src/types/map_rect.dart';
 part 'src/types/user_location_view.dart';
 part 'src/types/screen_rect.dart';
+part 'src/types/search/search_address.dart';
 part 'src/types/search/search_component_kind.dart';
 part 'src/types/search/search_item.dart';
 part 'src/types/search/search_item_business_metadata.dart';

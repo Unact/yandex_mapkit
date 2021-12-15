@@ -1,17 +1,21 @@
 part of yandex_mapkit;
 
+/// The animation that is used to switch between states.
 class MapAnimation extends Equatable {
   const MapAnimation({
-    this.smooth = true,
+    this.type = MapAnimationType.smooth,
     this.duration = 2.0
   });
 
+  /// Animation duration, in seconds.
   final double duration;
-  final bool smooth;
+
+  /// Smooth interpolation between start and finish states or movement with constant speed during animation time.
+  final MapAnimationType type;
 
   @override
   List<Object> get props => <Object>[
-    smooth,
+    type,
     duration
   ];
 
@@ -20,8 +24,14 @@ class MapAnimation extends Equatable {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'smooth': smooth,
+      'type': type.index,
       'duration': duration
     };
   }
+}
+
+/// Animation types
+enum MapAnimationType {
+  smooth,
+  linear
 }

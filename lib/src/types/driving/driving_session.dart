@@ -54,8 +54,13 @@ class DrivingSessionException extends SessionException {
   DrivingSessionException._(String message) : super._(message);
 }
 
+/// Result of a request to build routes
+/// If any error has occured then [routes] will be empty, otherwise [error] will be empty
 class DrivingSessionResult {
+  /// Calculated routes
   final List<DrivingRoute>? routes;
+
+  /// Error message
   final String? error;
 
   DrivingSessionResult._(this.routes, this.error);
@@ -68,8 +73,13 @@ class DrivingSessionResult {
   }
 }
 
+/// Object containing the result of a route building request and
+/// a [session] object for further working with newly made request
 class DrivingResultWithSession {
+  /// Created session
   DrivingSession session;
+
+  /// Request result
   Future<DrivingSessionResult> result;
 
   DrivingResultWithSession._({

@@ -63,7 +63,6 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void remove() {
     for (YandexClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollectionControllers) {
       colController.remove();

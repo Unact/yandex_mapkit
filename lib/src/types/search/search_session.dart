@@ -1,5 +1,6 @@
 part of yandex_mapkit;
 
+/// Defines a started search request
 class SearchSession {
   static const String _methodChannelName = 'yandex_mapkit/yandex_search_session_';
   final MethodChannel _methodChannel;
@@ -82,10 +83,20 @@ class SearchSessionException extends SessionException {
   SearchSessionException._(String message) : super._(message);
 }
 
+/// Result of a search request
+/// If any errors have occured then [items], [found], [page] will be empty, otherwise [error] will be empty
 class SearchSessionResult {
+
+  /// Total count of found items
   final int? found;
+
+  /// Result items from the first page
   final List<SearchItem>? items;
+
+  /// Number of pages of results
   final int? page;
+
+  /// Error message
   String? error;
 
   SearchSessionResult._(
@@ -105,8 +116,14 @@ class SearchSessionResult {
   }
 }
 
+/// Object containing the result of a search request and
+/// a [session] object for further working with newly made request
 class SearchResultWithSession {
+
+  /// Created session
   SearchSession session;
+
+  /// Request result
   Future<SearchSessionResult> result;
 
   SearchResultWithSession._({

@@ -1,5 +1,7 @@
 package com.unact.yandexmapkit;
 
+import androidx.annotation.NonNull;
+
 import com.yandex.mapkit.directions.driving.DrivingSession;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -7,10 +9,10 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexDrivingSession implements MethodChannel.MethodCallHandler {
-  private int id;
-  private DrivingSession session;
-  private MethodChannel methodChannel;
-  private YandexDriving.DrivingCloseListener closeListener;
+  private final int id;
+  private final DrivingSession session;
+  private final MethodChannel methodChannel;
+  private final YandexDriving.DrivingCloseListener closeListener;
 
   public YandexDrivingSession(
     int id,
@@ -27,7 +29,7 @@ public class YandexDrivingSession implements MethodChannel.MethodCallHandler {
   }
 
   @Override
-  public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+  public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
       case "cancel":
         cancel();
