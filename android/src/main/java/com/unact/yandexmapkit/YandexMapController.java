@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -63,7 +64,7 @@ public class YandexMapController implements
   private final YandexMapObjectCollectionController rootController;
   private boolean disposed = false;
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"unchecked", "ConstantConditions", "InflateParams"})
   public YandexMapController(
     int id,
     Context context,
@@ -73,7 +74,13 @@ public class YandexMapController implements
   ) {
     this.lifecycleProvider = lifecycleProvider;
     this.context = context;
-    mapView = new MapView(context);
+
+    if (context instanceof FlutterActivity) {
+      mapView = (MapView) ((FlutterActivity) context).getLayoutInflater().inflate(R.layout.map_view, null);
+    } else {
+      mapView = new MapView(context);
+    }
+
     mapView.onStart();
 
     userLocationLayer = MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
