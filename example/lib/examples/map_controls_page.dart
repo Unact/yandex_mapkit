@@ -52,7 +52,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       }
     ]
   ''';
-  double _height = 0;
 
   String _enabledText(bool enabled) {
     return enabled ? 'on' : 'off';
@@ -101,7 +100,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
           )
         ),
-        SizedBox(height: _height),
         const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
@@ -242,14 +240,14 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     ControlButton(
                       onPressed: () async {
                         final region = await controller.getFocusRegion();
-                        print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
+                        print(region);
                       },
                       title: 'Focus region'
                     ),
                     ControlButton(
                       onPressed: () async {
                         final region = await controller.getVisibleRegion();
-                        print('TopLeft: ${region.topLeft}, BottomRight: ${region.bottomRight}');
+                        print(region);
                       },
                       title: 'Visible region'
                     )
