@@ -1,3 +1,8 @@
+## 2.0.1
+
+* Fix Android view showing when `AndroidYandexMap.useAndroidViewSurface = true` [#180, just-kip]
+* Fix incorrect results for `YandexMapController.getVisibleRegion` and `YandexMapController.getFocusRegion`
+
 ## 2.0.0
 
 * Add Hybrid composition for Android
