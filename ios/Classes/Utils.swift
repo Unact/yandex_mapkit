@@ -190,7 +190,7 @@ class Utils {
       "bottomLeft": pointToJson(region.bottomLeft),
       "bottomRight": pointToJson(region.bottomRight),
       "topLeft": pointToJson(region.topLeft),
-      "topRight": pointToJson(region.bottomLeft)
+      "topRight": pointToJson(region.topRight)
     ]
   }
 }
