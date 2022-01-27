@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -77,6 +78,8 @@ public class YandexMapController implements
 
     if (context instanceof FlutterActivity) {
       mapView = (MapView) ((FlutterActivity) context).getLayoutInflater().inflate(R.layout.map_view, null);
+    } else if (context instanceof FlutterFragmentActivity) {
+      mapView = (MapView) ((FlutterFragmentActivity) context).getLayoutInflater().inflate(R.layout.map_view, null);
     } else {
       mapView = new MapView(context);
     }
