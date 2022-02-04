@@ -1,3 +1,7 @@
+## 2.0.2
+
+* Fix Android view showing when `AndroidYandexMap.useAndroidViewSurface = true` and MainActivity is FlutterFragmentActivity
+
 ## 2.0.1
 
 * Fix Android view showing when `AndroidYandexMap.useAndroidViewSurface = true` [#180, just-kip]
