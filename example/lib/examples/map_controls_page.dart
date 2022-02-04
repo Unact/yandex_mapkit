@@ -59,7 +59,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
   @override
   Widget build(BuildContext context) {
-    AndroidYandexMap.useAndroidViewSurface = true;
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
