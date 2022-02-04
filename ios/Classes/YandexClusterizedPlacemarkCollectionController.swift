@@ -95,8 +95,11 @@ class YandexClusterizedPlacemarkCollectionController:
 
   private func removePlacemark(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let placemarkController = placemarkControllers.first(where: { $0.id == id })!
-    let idx = placemarkControllers.firstIndex(of: placemarkController)!
+
+    guard
+      let placemarkController = placemarkControllers.first(where: { $0.id == id }),
+      let idx = placemarkControllers.firstIndex(of: placemarkController)
+    else { return }
 
     placemarkController.remove()
     placemarkControllers.remove(at: idx)
@@ -124,7 +127,7 @@ class YandexClusterizedPlacemarkCollectionController:
     ]
 
     controller.methodChannel.invokeMethod("onClusterAdded", arguments: arguments) { result in
-      let params = result as! [String: Any]
+      guard let params = result as? [String: Any] else { return }
 
       if (!cluster.isValid) {
         return
