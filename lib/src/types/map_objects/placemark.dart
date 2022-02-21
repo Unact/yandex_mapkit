@@ -239,7 +239,7 @@ class PlacemarkIcon extends Equatable {
 /// Visual icon of an icon to be used to visually show a [Placemark]
 class PlacemarkIconStyle extends Equatable {
   /// Asset name to use as Placemark icon
-  final BitmapDescriptor? image;
+  final BitmapDescriptor image;
 
   /// An anchor is used to alter image placement.
   /// Normalized: (0.0f, 0.0f) denotes the top left image corner; (1.0f, 1.0f) denotes bottom right.
@@ -269,7 +269,7 @@ class PlacemarkIconStyle extends Equatable {
 
   /// Creates an icon to be used to represent a [Placemark] on the map.
   const PlacemarkIconStyle({
-    this.image,
+    required this.image,
     this.anchor = const Offset(0.5, 0.5),
     this.rotationType = RotationType.noRotation,
     this.zIndex = 0,
@@ -281,7 +281,7 @@ class PlacemarkIconStyle extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'image': image?.toJson(),
+      'image': image.toJson(),
       'anchor': {
         'dx': anchor.dx,
         'dy': anchor.dy,
