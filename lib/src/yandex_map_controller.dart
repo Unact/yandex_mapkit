@@ -391,7 +391,9 @@ class YandexMapController extends ChangeNotifier {
 
     PlacemarkCollectionItem tappedItem;
     for (var collection in _clusterizedPlacemarkCollection.placemarks) {
-      final foundItems = collection.items.where((e) => e.id == id);
+      final foundItems = collection.items.where(
+        (e) => const DeepCollectionEquality().equals(<dynamic>[e.id], <dynamic>[id]),
+      );
       if (foundItems.isNotEmpty) {
         tappedItem = foundItems.first;
         break;
