@@ -1,3 +1,8 @@
+## 2.0.3
+
+* Fix iOS crash for `YandexSuggest.getSuggestions`
+* Fix incorrect PlacemarkIconStyle constructor signature
+
 ## 2.0.2
 
 * Fix Android view showing when `AndroidYandexMap.useAndroidViewSurface = true` and MainActivity is FlutterFragmentActivity
