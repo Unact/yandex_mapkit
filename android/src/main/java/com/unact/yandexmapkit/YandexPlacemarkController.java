@@ -81,7 +81,10 @@ public class YandexPlacemarkController
   }
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void update(Map<String, Object> params) {
-    placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+    if (!internallyControlled) {
+      placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+    }
+
     placemark.setZIndex(((Double) params.get("zIndex")).floatValue());
     placemark.setVisible((Boolean) params.get("isVisible"));
     placemark.setDraggable((Boolean) params.get("isDraggable"));

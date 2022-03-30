@@ -64,7 +64,10 @@ class YandexPlacemarkController:
   }
 
   public func update(_ params: [String: Any]) {
-    placemark.geometry = Utils.pointFromJson(params["point"] as! [String: NSNumber])
+    if (!internallyControlled) {
+      placemark.geometry = Utils.pointFromJson(params["point"] as! [String: NSNumber])
+    }
+
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.isVisible = (params["isVisible"] as! NSNumber).boolValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue

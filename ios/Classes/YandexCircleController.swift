@@ -49,7 +49,10 @@ class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectT
   }
 
   public func update(_ params: [String: Any]) {
-    circle.geometry = Utils.circleFromJson(params)
+    if (!internallyControlled) {
+      circle.geometry = Utils.circleFromJson(params)
+    }
+
     circle.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     circle.zIndex = (params["zIndex"] as! NSNumber).floatValue
     circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
