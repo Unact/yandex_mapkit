@@ -71,14 +71,12 @@ import YandexMapsMobile
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 4. `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
+6. Ensure that your `com.android.tools.build:gradle` version is below or equals 4.0.2
 
 `android/app/build.gradle`:
 
 ```groovy
 dependencies {
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.yandex.android:maps.mobile:4.0.0-full'
 }
 ```
