@@ -51,11 +51,11 @@ class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectT
   public func update(_ params: [String: Any]) {
     if (!internallyControlled) {
       circle.geometry = Utils.circleFromJson(params)
+      circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
     }
 
     circle.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     circle.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
     circle.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
     circle.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
     circle.fillColor = Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)

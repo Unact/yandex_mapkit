@@ -83,10 +83,10 @@ public class YandexPlacemarkController
   public void update(Map<String, Object> params) {
     if (!internallyControlled) {
       placemark.setGeometry(Utils.pointFromJson((Map<String, Object>) params.get("point")));
+      placemark.setVisible((Boolean) params.get("isVisible"));
     }
 
     placemark.setZIndex(((Double) params.get("zIndex")).floatValue());
-    placemark.setVisible((Boolean) params.get("isVisible"));
     placemark.setDraggable((Boolean) params.get("isDraggable"));
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDirection(((Double) params.get("direction")).floatValue());
@@ -149,7 +149,7 @@ public class YandexPlacemarkController
         FlutterInjector.instance().flutterLoader().getLookupKeyForAsset((String) image.get("assetName"))
       );
     }
-    
+
     if (type.equals("fromBytes")) {
       byte[] rawImageData = (byte[]) image.get("rawImageData");
 
@@ -173,7 +173,7 @@ public class YandexPlacemarkController
     iconStyle.setVisible((Boolean) style.get("isVisible"));
     iconStyle.setFlat((Boolean) style.get("isFlat"));
     iconStyle.setRotationType(RotationType.values()[(Integer) style.get("rotationType")]);
-    
+
     return iconStyle;
   }
 
