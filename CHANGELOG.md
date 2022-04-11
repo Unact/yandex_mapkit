@@ -1,3 +1,10 @@
+## 2.0.4
+
+* Minor optimizations
+* Fix incorrect displaying of clusters for slow devices
+* Fix Android init on Activity restart in example app
+* Fix incorrect rendering of UserLocationView MapObjects
+
 ## 2.0.3
 
 * Fix iOS crash for `YandexSuggest.getSuggestions`
