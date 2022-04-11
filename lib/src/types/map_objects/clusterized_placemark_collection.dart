@@ -95,6 +95,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     if (onClusterAdded != null) {
       return onClusterAdded!(this, cluster);
     }
+
+    return null;
   }
 
   void _clusterTap(Cluster cluster) {
