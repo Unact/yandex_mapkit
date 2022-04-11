@@ -1,12 +1,12 @@
 import YandexMapsMobile
 
 class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
-  private var mapObjectCollectionControllers: [YandexMapObjectCollectionController] = []
-  private var clusterizedPlacemarkCollectionControllers: [YandexClusterizedPlacemarkCollectionController] = []
-  private var placemarkControllers: [YandexPlacemarkController] = []
-  private var circleControllers: [YandexCircleController] = []
-  private var polylineControllers: [YandexPolylineController] = []
-  private var polygonControllers: [YandexPolygonController] = []
+  private var mapObjectCollections: [String:YandexMapObjectCollectionController] = [:]
+  private var clusterizedPlacemarkCollections: [String:YandexClusterizedPlacemarkCollectionController] = [:]
+  private var placemarks: [String:YandexPlacemarkController] = [:]
+  private var circles: [String:YandexCircleController] = [:]
+  private var polylines: [String:YandexPolylineController] = [:]
+  private var polygons: [String:YandexPolygonController] = [:]
   public let mapObjectCollection: YMKMapObjectCollection
   private var consumeTapEvents: Bool = false
   public unowned var controller: YandexMapController
@@ -54,12 +54,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   public func remove() {
-    mapObjectCollectionControllers.forEach({ $0.remove() })
-    clusterizedPlacemarkCollectionControllers.forEach({ $0.remove() })
-    placemarkControllers.forEach({ $0.remove() })
-    circleControllers.forEach({ $0.remove() })
-    polylineControllers.forEach({ $0.remove() })
-    polygonControllers.forEach({ $0.remove() })
+    mapObjectCollections.forEach({ $0.value.remove() })
+    clusterizedPlacemarkCollections.forEach({ $0.value.remove() })
+    placemarks.forEach({ $0.value.remove() })
+    circles.forEach({ $0.value.remove() })
+    polylines.forEach({ $0.value.remove() })
+    polygons.forEach({ $0.value.remove() })
+
+    mapObjectCollections.removeAll()
+    clusterizedPlacemarkCollections.removeAll()
+    placemarks.removeAll()
+    circles.removeAll()
+    polylines.removeAll()
+    polygons.removeAll()
+
     mapObjectCollection.parent.remove(with: mapObjectCollection)
   }
 
@@ -157,23 +165,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    mapObjectCollectionControllers.append(mapObjectCollectionController)
+    mapObjectCollections[mapObjectCollectionController.id] = mapObjectCollectionController
   }
 
   private func changeMapObjectCollection(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let mapObjectCollectionController = mapObjectCollectionControllers.first(where: { $0.id == id })!
 
-    mapObjectCollectionController.update(params)
+    mapObjectCollections[id]?.update(params)
   }
 
   private func removeMapObjectCollection(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let mapObjectCollectionController = mapObjectCollectionControllers.first(where: { $0.id == id })!
-    let idx = mapObjectCollectionControllers.firstIndex(of: mapObjectCollectionController)!
 
-    mapObjectCollectionController.remove()
-    mapObjectCollectionControllers.remove(at: idx)
+    mapObjectCollections[id]?.remove()
+    mapObjectCollections.removeValue(forKey: id)
   }
 
   private func addPlacemark(_ params: [String: Any]) {
@@ -183,23 +188,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    placemarkControllers.append(placemarkController)
+    placemarks[placemarkController.id] = placemarkController
   }
 
   private func changePlacemark(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let placemarkController = placemarkControllers.first(where: { $0.id == id })!
 
-    placemarkController.update(params)
+    placemarks[id]?.update(params)
   }
 
   private func removePlacemark(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let placemarkController = placemarkControllers.first(where: { $0.id == id })!
-    let idx = placemarkControllers.firstIndex(of: placemarkController)!
 
-    placemarkController.remove()
-    placemarkControllers.remove(at: idx)
+    placemarks[id]?.remove()
+    placemarks.removeValue(forKey: id)
   }
 
   private func addCircle(_ params: [String: Any]) {
@@ -209,23 +211,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    circleControllers.append(circleController)
+    circles[circleController.id] = circleController
   }
 
   private func changeCircle(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let circleController = circleControllers.first(where: { $0.id == id })!
 
-    circleController.update(params)
+    circles[id]?.update(params)
   }
 
   private func removeCircle(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let circleController = circleControllers.first(where: { $0.id == id })!
-    let idx = circleControllers.firstIndex(of: circleController)!
 
-    circleController.remove()
-    circleControllers.remove(at: idx)
+    circles[id]?.remove()
+    circles.removeValue(forKey: id)
   }
 
   private func addPolyline(_ params: [String: Any]) {
@@ -235,23 +234,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    polylineControllers.append(polylineController)
+    polylines[polylineController.id] = polylineController
   }
 
   private func changePolyline(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let polylineController = polylineControllers.first(where: { $0.id == id })!
 
-    polylineController.update(params)
+    polylines[id]?.update(params)
   }
 
   private func removePolyline(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let polylineController = polylineControllers.first(where: { $0.id == id })!
-    let idx = polylineControllers.firstIndex(of: polylineController)!
 
-    polylineController.remove()
-    polylineControllers.remove(at: idx)
+    polylines[id]?.remove()
+    polylines.removeValue(forKey: id)
   }
 
   private func addPolygon(_ params: [String: Any]) {
@@ -261,23 +257,20 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    polygonControllers.append(polygonController)
+    polygons[polygonController.id] = polygonController
   }
 
   private func changePolygon(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let polygonController = polygonControllers.first(where: { $0.id == id })!
 
-    polygonController.update(params)
+    polygons[id]?.update(params)
   }
 
   private func removePolygon(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let polygonController = polygonControllers.first(where: { $0.id == id })!
-    let idx = polygonControllers.firstIndex(of: polygonController)!
 
-    polygonController.remove()
-    polygonControllers.remove(at: idx)
+    polygons[id]?.remove()
+    polygons.removeValue(forKey: id)
   }
 
   private func addClusterizedPlacemarkCollection(_ params: [String: Any]) {
@@ -287,27 +280,21 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
       controller: controller
     )
 
-    clusterizedPlacemarkCollectionControllers.append(clusterizedPlacemarkCollectionController)
+    clusterizedPlacemarkCollections[clusterizedPlacemarkCollectionController.id] =
+      clusterizedPlacemarkCollectionController
   }
 
   private func changeClusterizedPlacemarkCollection(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let clusterizedPlacemarkCollectionController = clusterizedPlacemarkCollectionControllers.first(
-      where: { $0.id == id }
-    )!
 
-    clusterizedPlacemarkCollectionController.update(params)
+    clusterizedPlacemarkCollections[id]?.update(params)
   }
 
   private func removeClusterizedPlacemarkCollection(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let clusterizedPlacemarkCollectionController = clusterizedPlacemarkCollectionControllers.first(
-      where: { $0.id == id }
-    )!
-    let idx = clusterizedPlacemarkCollectionControllers.firstIndex(of: clusterizedPlacemarkCollectionController)!
 
-    clusterizedPlacemarkCollectionController.remove()
-    clusterizedPlacemarkCollectionControllers.remove(at: idx)
+    clusterizedPlacemarkCollections[id]?.remove()
+    clusterizedPlacemarkCollections.removeValue(forKey: id)
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {

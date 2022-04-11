@@ -27,7 +27,7 @@ public class YandexClusterizedPlacemarkCollectionController
 {
   private int clusterCnt = 0;
   private final Map<Cluster, YandexPlacemarkController> clusters = new HashMap<>();
-  private final List<YandexPlacemarkController> placemarkControllers = new ArrayList<>();
+  private final Map<String, YandexPlacemarkController> placemarks = new HashMap<>();
   public final ClusterizedPlacemarkCollection clusterizedPlacemarkCollection;
   private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
@@ -64,9 +64,11 @@ public class YandexClusterizedPlacemarkCollectionController
   }
 
   public void remove() {
-    for (YandexPlacemarkController placemarkController : placemarkControllers) {
+    for (YandexPlacemarkController placemarkController : placemarks.values()) {
       placemarkController.remove();
     }
+
+    placemarks.clear();
     clusterizedPlacemarkCollection.getParent().remove(clusterizedPlacemarkCollection);
 
     removeClusters();
@@ -104,30 +106,22 @@ public class YandexClusterizedPlacemarkCollectionController
       controller
     );
 
-    placemarkControllers.add(placemarkController);
+    placemarks.put(placemarkController.id, placemarkController);
   }
 
   private void changePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
+    YandexPlacemarkController placemarkController = placemarks.get(id);
 
-    for (YandexPlacemarkController placemarkController : placemarkControllers) {
-      if (placemarkController.id.equals(id)) {
-        placemarkController.update(params);
-        break;
-      }
-    }
+    if (placemarkController != null) placemarkController.update(params);
   }
 
   private void removePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
+    YandexPlacemarkController placemarkController = placemarks.get(id);
 
-    for (YandexPlacemarkController placemarkController : placemarkControllers) {
-      if (placemarkController.id.equals(id)) {
-        placemarkController.remove();
-        placemarkControllers.remove(placemarkController);
-        break;
-      }
-    }
+    if (placemarkController != null) placemarkController.remove();
+    placemarks.remove(id);
   }
 
   public void removeClusters() {

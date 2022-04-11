@@ -9,7 +9,7 @@ class YandexClusterizedPlacemarkCollectionController:
 {
   private var clusterCnt: Int = 0
   private var clusters: [YMKCluster: YandexPlacemarkController] = [:]
-  private var placemarkControllers: [YandexPlacemarkController] = []
+  private var placemarks: [String: YandexPlacemarkController] = [:]
   private let parent: YMKMapObjectCollection
   public lazy var clusterizedPlacemarkCollection: YMKClusterizedPlacemarkCollection = {
     parent.addClusterizedPlacemarkCollection(with: self)
@@ -46,7 +46,8 @@ class YandexClusterizedPlacemarkCollectionController:
   }
 
   public func remove() {
-    placemarkControllers.forEach({ $0.remove() })
+    placemarks.forEach({ $0.value.remove() })
+    placemarks.removeAll()
     clusterizedPlacemarkCollection.parent.remove(with: clusterizedPlacemarkCollection)
 
     removeClusters()
@@ -83,23 +84,20 @@ class YandexClusterizedPlacemarkCollectionController:
       controller: controller
     )
 
-    placemarkControllers.append(placemarkController)
+    placemarks[placemarkController.id] = placemarkController
   }
 
   private func changePlacemark(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let placemarkController = placemarkControllers.first(where: { $0.id == id })!
 
-    placemarkController.update(params)
+    placemarks[id]?.update(params)
   }
 
   private func removePlacemark(_ params: [String: Any]) {
     let id = params["id"] as! String
-    let placemarkController = placemarkControllers.first(where: { $0.id == id })!
-    let idx = placemarkControllers.firstIndex(of: placemarkController)!
 
-    placemarkController.remove()
-    placemarkControllers.remove(at: idx)
+    placemarks[id]?.remove()
+    placemarks.removeValue(forKey: id)
   }
 
   public func removeClusters() {
