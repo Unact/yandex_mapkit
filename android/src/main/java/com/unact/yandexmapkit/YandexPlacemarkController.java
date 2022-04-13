@@ -1,5 +1,6 @@
 package com.unact.yandexmapkit;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.RotationType;
 import com.yandex.runtime.image.ImageProvider;
 
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
@@ -142,21 +144,32 @@ public class YandexPlacemarkController
   @SuppressWarnings({"ConstantConditions"})
   private ImageProvider getIconImage(Map<String, Object> image) {
     String type = (String) image.get("type");
+    ImageProvider defaultImage = ImageProvider.fromBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888));
 
     if (type.equals("fromAssetImage")) {
-      return ImageProvider.fromAsset(
-        controller.get().context,
-        FlutterInjector.instance().flutterLoader().getLookupKeyForAsset((String) image.get("assetName"))
-      );
+      String assetName = FlutterInjector.instance().flutterLoader().getLookupKeyForAsset((String) image.get("assetName"));
+
+      try (InputStream i = controller.get().context.getAssets().open(assetName)) {
+        Bitmap result = BitmapFactory.decodeStream(i);
+
+        return ImageProvider.fromBitmap(result);
+      } catch (java.io.IOException e) {
+        return defaultImage;
+      }
     }
 
     if (type.equals("fromBytes")) {
       byte[] rawImageData = (byte[]) image.get("rawImageData");
+      Bitmap bitmap = BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length);
 
-      return ImageProvider.fromBitmap(BitmapFactory.decodeByteArray(rawImageData, 0, rawImageData.length));
+      if (bitmap != null) {
+        return ImageProvider.fromBitmap(bitmap);
+      }
+
+      return defaultImage;
     }
 
-    return null;
+    return defaultImage;
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})

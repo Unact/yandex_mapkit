@@ -141,16 +141,21 @@ class YandexPlacemarkController:
 
   private func getIconImage(_ image: [String: Any]) -> UIImage {
     let type = image["type"] as! String
+    let defaultImage = UIImage()
 
     if (type == "fromAssetImage") {
-      return UIImage(named: controller.pluginRegistrar.lookupKey(forAsset: image["assetName"] as! String))!
+      let assetName = controller.pluginRegistrar.lookupKey(forAsset: image["assetName"] as! String)
+
+      return UIImage(named: assetName) ?? defaultImage
     }
 
     if (type == "fromBytes") {
-      return UIImage(data: (image["rawImageData"] as! FlutterStandardTypedData).data)!
+      let imageData = (image["rawImageData"] as! FlutterStandardTypedData).data
+
+      return UIImage(data: imageData) ?? defaultImage
     }
 
-    return UIImage()
+    return defaultImage
   }
 
   private func getIconStyle(_ style: [String: Any]) -> YMKIconStyle {
