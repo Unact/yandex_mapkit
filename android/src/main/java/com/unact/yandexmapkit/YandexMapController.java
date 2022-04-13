@@ -39,6 +39,7 @@ import java.util.Map;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.FlutterException;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.platform.PlatformView;
@@ -531,11 +532,11 @@ public class YandexMapController implements
     methodChannel.invokeMethod("onUserLocationAdded", arguments, new MethodChannel.Result() {
       @Override
       public void success(@Nullable Object result) {
-        Map<String, Object> params = ((Map<String, Object>) result);
-
-        if (!view.isValid()) {
+        if (result instanceof FlutterException || !view.isValid()) {
           return;
         }
+
+        Map<String, Object> params = ((Map<String, Object>) result);
 
         userPinController = new YandexPlacemarkController(
           view.getPin().getParent(),

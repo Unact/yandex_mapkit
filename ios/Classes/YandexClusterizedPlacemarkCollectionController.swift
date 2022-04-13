@@ -122,11 +122,11 @@ class YandexClusterizedPlacemarkCollectionController:
     ]
 
     controller.methodChannel.invokeMethod("onClusterAdded", arguments: arguments) { result in
-      let params = result as! [String: Any]
-
-      if (!cluster.isValid) {
+      if (result is FlutterError || !cluster.isValid) {
         return
       }
+
+      let params = result as! [String: Any]
 
       self.clusters[cluster] = YandexPlacemarkController(
         parent: self.clusterizedPlacemarkCollection,

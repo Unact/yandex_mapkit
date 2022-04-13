@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.flutter.plugin.common.FlutterException;
 import io.flutter.plugin.common.MethodChannel;
 
 public class YandexClusterizedPlacemarkCollectionController
@@ -159,11 +160,11 @@ public class YandexClusterizedPlacemarkCollectionController
       @Override
       @SuppressWarnings({"unchecked", "ConstantConditions"})
       public void success(@Nullable Object result) {
-        Map<String, Object> params = ((Map<String, Object>) result);
-
-        if (!cluster.isValid()) {
+        if (result instanceof FlutterException || !cluster.isValid()) {
           return;
         }
+
+        Map<String, Object> params = ((Map<String, Object>) result);
 
         clusters.put(
           cluster,

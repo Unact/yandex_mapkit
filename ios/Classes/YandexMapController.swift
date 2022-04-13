@@ -437,11 +437,11 @@ public class YandexMapController:
     ]
 
     methodChannel.invokeMethod("onUserLocationAdded", arguments: arguments) { result in
-      let params = result as! [String: Any]
-
-      if (!view.isValid) {
+      if (result is FlutterError || !view.isValid) {
         return
       }
+
+      let params = result as! [String: Any]
 
       self.userPinController = YandexPlacemarkController(
         parent: view.pin.parent,
