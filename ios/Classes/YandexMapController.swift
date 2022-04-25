@@ -325,6 +325,12 @@ public class YandexMapController:
     animationParams: [String: Any]?,
     result: @escaping FlutterResult
   ) {
+    if mapView.frame.isEmpty {
+      result(false)
+
+      return
+    }
+
     if animationParams == nil {
       mapView.mapWindow.map.move(with: cameraPosition)
       result(true)
