@@ -215,10 +215,13 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
+                        final cameraPosition = await controller.getCameraPosition();
+                        final screenPoint = await controller.getScreenPoint(cameraPosition.target);
+
                         setState(() {
-                          screenRect = const ScreenRect(
-                            bottomRight: ScreenPoint(x: 600, y: 600),
-                            topLeft: ScreenPoint(x: 200, y: 200)
+                          screenRect = ScreenRect(
+                            topLeft: ScreenPoint(x: 0, y: 0),
+                            bottomRight: screenPoint!
                           );
                         });
                       },

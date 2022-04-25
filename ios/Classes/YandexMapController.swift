@@ -431,6 +431,15 @@ public class YandexMapController:
       bottomRight: Utils.screenPointFromJson(params!["bottomRight"] as! [String: NSNumber])
     )
 
+    if (
+      screenRect.topLeft.y < 0 ||
+      screenRect.topLeft.x < 0 ||
+      screenRect.bottomRight.y > Float(mapView.mapWindow.height()) ||
+      screenRect.bottomRight.x > Float(mapView.mapWindow.width())
+    ) {
+      return
+    }
+
     mapView.mapWindow.focusRect = screenRect
     mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
   }
