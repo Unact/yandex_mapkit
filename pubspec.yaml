@@ -1,6 +1,6 @@
 name: yandex_mapkit
 description: A Flutter plugin for integrating Yandex.MapKit in Android and iOS applications.
-version: 2.0.4
+version: 2.0.5
 homepage: https://github.com/Unact/yandex_mapkit
 
 environment:

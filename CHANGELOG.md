@@ -1,3 +1,7 @@
+## 2.0.5
+
+* Fix several crashes for iOS and Android
+
 ## 2.0.4
 
 * Minor optimizations
