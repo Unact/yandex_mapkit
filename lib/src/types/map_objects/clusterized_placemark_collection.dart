@@ -16,18 +16,15 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     this.onClusterTap,
     this.consumeTapEvents = false,
     this.isVisible = true
-  }) : _placemarks = placemarks.groupFoldBy<MapObjectId, Placemark>(
+  }) : placemarks = List.unmodifiable(placemarks.groupFoldBy<MapObjectId, Placemark>(
       (element) => element.mapId,
       (previous, element) => element
-    ).values.toList();
-
-  /// All placemarks in this collection
-  final List<Placemark> _placemarks;
+    ).values);
 
   /// List of [Placemark] eligible for clusterization.
   ///
   /// All [placemarks] must be unique, i.e. each [MapObject.mapId] must be unique
-  List<Placemark> get placemarks => List.unmodifiable(_placemarks);
+  final List<Placemark> placemarks;
 
   /// z-order
   ///
@@ -161,7 +158,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       'id': mapId.value,
       'radius': radius,
       'minZoom': minZoom,
-      'placemarks': _placemarks.map((Placemark p) => p.toJson()).toList(),
+      'placemarks': placemarks.map((Placemark p) => p.toJson()).toList(),
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible

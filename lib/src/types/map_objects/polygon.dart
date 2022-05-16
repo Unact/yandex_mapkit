@@ -2,10 +2,10 @@ part of yandex_mapkit;
 
 /// A polygon to be displayed on [YandexMap]
 class Polygon extends Equatable implements MapObject {
-  const Polygon({
+  Polygon({
     required this.mapId,
-    required this.outerRingCoordinates,
-    this.innerRingsCoordinates = const <List<Point>>[],
+    required List<Point> outerRingCoordinates,
+    List<List<Point>> innerRingsCoordinates = const <List<Point>>[],
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
@@ -14,7 +14,9 @@ class Polygon extends Equatable implements MapObject {
     this.strokeWidth = 1,
     this.strokeColor = const Color(0xFF0066FF),
     this.fillColor = const Color(0x00000000),
-  });
+  }) :
+    outerRingCoordinates = List.unmodifiable(outerRingCoordinates),
+    innerRingsCoordinates = List.unmodifiable(innerRingsCoordinates.map<List<Point>>((e) => List.unmodifiable(e)));
 
   /// The ring specifying the area.
   final List<Point> outerRingCoordinates;

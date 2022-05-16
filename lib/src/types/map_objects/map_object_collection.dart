@@ -10,18 +10,15 @@ class MapObjectCollection extends Equatable implements MapObject {
     this.onTap,
     this.consumeTapEvents = false,
     this.isVisible = true
-  }) : _mapObjects = mapObjects.groupFoldBy<MapObjectId, MapObject>(
+  }) : mapObjects = List.unmodifiable(mapObjects.groupFoldBy<MapObjectId, MapObject>(
       (element) => element.mapId,
       (previous, element) => element
-    ).values.toList();
-
-  /// All map objects in this collection
-  final List<MapObject> _mapObjects;
+    ).values);
 
   /// List of [MapObject] in this collection.
   ///
   /// All [mapObjects] must be unique, i.e. each [MapObject.mapId] must be unique
-  List<MapObject> get mapObjects => List.unmodifiable(_mapObjects);
+  final List<MapObject> mapObjects;
 
   /// z-order
   ///
@@ -107,7 +104,7 @@ class MapObjectCollection extends Equatable implements MapObject {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': mapId.value,
-      'mapObjects': _mapObjects.map((MapObject p) => p.toJson()).toList(),
+      'mapObjects': mapObjects.map((MapObject p) => p.toJson()).toList(),
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible

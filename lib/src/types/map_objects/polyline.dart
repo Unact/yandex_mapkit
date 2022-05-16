@@ -2,9 +2,9 @@ part of yandex_mapkit;
 
 /// Collection of points connected by lines to be displayed on [YandexMap]
 class Polyline extends Equatable implements MapObject {
-  const Polyline({
+  Polyline({
     required this.mapId,
-    required this.coordinates,
+    required List<Point> coordinates,
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
@@ -17,7 +17,8 @@ class Polyline extends Equatable implements MapObject {
     this.dashLength = 0.0,
     this.dashOffset = 0.0,
     this.gapLength = 0.0,
-  });
+  }) :
+    coordinates = List.unmodifiable(coordinates);
 
   /// The list of points to connect.
   final List<Point> coordinates;
