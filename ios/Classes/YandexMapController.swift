@@ -112,6 +112,14 @@ public class YandexMapController:
     userLocationLayer.setVisibleWithOn(params["visible"] as! Bool)
     userLocationLayer.isHeadingEnabled = params["headingEnabled"] as! Bool
     userLocationLayer.isAutoZoomEnabled = params["autoZoomEnabled"] as! Bool
+    userLocationLayer.resetAnchor()
+
+    if let anchor = params["anchor"] as? [String: Any] {
+      userLocationLayer.setAnchorWithAnchorNormal(
+        Utils.rectPointFromJson(anchor["normal"] as! [String: NSNumber]),
+        anchorCourse: Utils.rectPointFromJson(anchor["course"] as! [String: NSNumber])
+      )
+    }
   }
 
   public func setMapStyle(_ call: FlutterMethodCall) -> Bool {

@@ -21,6 +21,7 @@ class _UserLayerExample extends StatefulWidget {
 
 class _UserLayerExampleState extends State<_UserLayerExample> {
   late YandexMapController controller;
+  GlobalKey mapKey = GlobalKey();
 
   Future<bool> get locationPermissionNotGranted async => !(await Permission.location.request().isGranted);
 
@@ -36,6 +37,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
+            key: mapKey,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
             },
@@ -73,7 +75,18 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                           return;
                         }
 
-                        await controller.toggleUserLayer(visible: true);
+                        final mediaQuery = MediaQuery.of(context);
+                        final height = mapKey.currentContext!.size!.height * mediaQuery.devicePixelRatio;
+                        final width = mapKey.currentContext!.size!.width * mediaQuery.devicePixelRatio;
+
+                        await controller.toggleUserLayer(
+                          visible: true,
+                          autoZoomEnabled: true,
+                          anchor: UserLocationAnchor(
+                            course: Offset(0.5 * height , 0.5 * width),
+                            normal: Offset(0.5 * height, 0.5 * width)
+                          )
+                        );
                       },
                       title:'Show user layer'
                     ),

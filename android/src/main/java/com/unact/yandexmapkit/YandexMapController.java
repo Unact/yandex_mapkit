@@ -188,9 +188,19 @@ public class YandexMapController implements
     if (!hasLocationPermission()) return;
 
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    Map<String, Object> anchor = (Map<String, Object>) params.get("anchor");
+
     userLocationLayer.setVisible((Boolean) params.get("visible"));
     userLocationLayer.setHeadingEnabled((Boolean) params.get("headingEnabled"));
     userLocationLayer.setAutoZoomEnabled((Boolean) params.get("autoZoomEnabled"));
+    userLocationLayer.resetAnchor();
+
+    if (anchor != null) {
+      userLocationLayer.setAnchor(
+        Utils.rectPointFromJson((Map<String, Double>) anchor.get("normal")),
+        Utils.rectPointFromJson((Map<String, Double>) anchor.get("course"))
+      );
+    }
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})

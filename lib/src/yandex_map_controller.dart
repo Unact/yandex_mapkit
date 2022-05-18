@@ -26,7 +26,8 @@ class YandexMapController extends ChangeNotifier {
   Future<void> toggleUserLayer({
     required bool visible,
     bool headingEnabled = true,
-    bool autoZoomEnabled = false
+    bool autoZoomEnabled = false,
+    UserLocationAnchor? anchor
   }) async {
     await _channel.invokeMethod(
       'toggleUserLayer',
@@ -34,6 +35,7 @@ class YandexMapController extends ChangeNotifier {
         'visible': visible,
         'headingEnabled': headingEnabled,
         'autoZoomEnabled': autoZoomEnabled,
+        'anchor': anchor?.toJson()
       }
     );
   }
