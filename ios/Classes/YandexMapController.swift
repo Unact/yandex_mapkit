@@ -55,11 +55,7 @@ public class YandexMapController:
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "waitForInit":
-      if (mapView.frame.isEmpty) {
-        mapView.initResult = result
-      } else {
-        result(nil)
-      }
+      result(nil)
     case "toggleUserLayer":
       toggleUserLayer(call)
       result(nil)
@@ -320,12 +316,20 @@ public class YandexMapController:
     )
   }
 
+  private func validCameraPosition(_ cameraPosition: YMKCameraPosition) -> Bool {
+    return !cameraPosition.zoom.isNaN &&
+      !cameraPosition.tilt.isNaN &&
+      !cameraPosition.azimuth.isNaN &&
+      !cameraPosition.target.latitude.isNaN &&
+      !cameraPosition.target.longitude.isNaN
+  }
+
   private func move(
     cameraPosition: YMKCameraPosition,
     animationParams: [String: Any]?,
     result: @escaping FlutterResult
   ) {
-    if mapView.frame.isEmpty {
+    if !validCameraPosition(cameraPosition) {
       result(false)
 
       return

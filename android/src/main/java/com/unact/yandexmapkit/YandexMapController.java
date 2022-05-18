@@ -403,15 +403,30 @@ public class YandexMapController implements
     );
   }
 
+  private boolean validCameraPosition(CameraPosition cameraPosition) {
+    return !((Float) cameraPosition.getZoom()).isNaN() &&
+      !((Float) cameraPosition.getZoom()).isNaN() &&
+      !((Float) cameraPosition.getAzimuth()).isNaN() &&
+      !((Double) cameraPosition.getTarget().getLatitude()).isNaN() &&
+      !((Double) cameraPosition.getTarget().getLongitude()).isNaN();
+  }
+
   @SuppressWarnings({"ConstantConditions"})
   private void move(
     CameraPosition cameraPosition,
     Map<String, Object> paramsAnimation,
     final MethodChannel.Result result
   ) {
+    if (!validCameraPosition(cameraPosition)) {
+      result.success(false);
+
+      return;
+    }
+
     if (paramsAnimation == null) {
       mapView.getMap().move(cameraPosition);
       result.success(true);
+
       return;
     }
 
