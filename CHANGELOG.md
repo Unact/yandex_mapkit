@@ -1,3 +1,10 @@
+## 2.0.6
+
+* Fix iOS crash for `YandexMapController.moveCamera`
+* Add the ability to follow user
+* Fixed mutable lists in `Polygon`, `Polyline`
+* **Breaking change**. Removed const definition from `Polygon`, `Polyline`, `Circle`, `Placemark`
+
 ## 2.0.5
 
 * Fix several crashes for iOS and Android
