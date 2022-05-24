@@ -27,9 +27,9 @@ class YandexPolylineController: NSObject, YandexMapObjectController, YMKMapObjec
   public func update(_ params: [String: Any]) {
     polyline.geometry = Utils.polylineFromJson(params)
     polyline.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    polyline.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
+//    polyline.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polyline.isVisible = (params["isVisible"] as! NSNumber).boolValue
-    polyline.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
+//    polyline.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
     polyline.outlineColor = Utils.uiColor(fromInt: (params["outlineColor"] as! NSNumber).int64Value)
     polyline.outlineWidth = (params["outlineWidth"] as! NSNumber).floatValue
     polyline.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue

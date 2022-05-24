@@ -71,8 +71,8 @@ class Utils {
       appleCtx: json["appleCtx"] as? String,
       geometry: (json["geometry"] as! NSNumber).boolValue,
       advertPageId: json["advertPageId"] as? String,
-      suggestWords: (json["suggestWords"] as! NSNumber).boolValue,
-      disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue
+      disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue,
+      filters: nil
     )
   }
 

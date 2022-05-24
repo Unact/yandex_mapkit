@@ -263,9 +263,7 @@ public class YandexMapController:
 
   private func newTiltAzimuthBounds(_ params: [String: Any]) -> YMKCameraPosition {
     return mapView.mapWindow.map.cameraPosition(
-      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
-      azimuth: (params["azimuth"] as! NSNumber).floatValue,
-      tilt: (params["tilt"] as! NSNumber).floatValue
+      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any])
     )
   }
 
@@ -453,7 +451,7 @@ public class YandexMapController:
     }
 
     mapView.mapWindow.focusRect = screenRect
-    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
+//    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
   }
 
   public func onObjectAdded(with view: YMKUserLocationView) {

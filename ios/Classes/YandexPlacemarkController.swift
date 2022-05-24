@@ -85,7 +85,7 @@ class YandexPlacemarkController:
     }
 
     if (parent is YMKClusterizedPlacemarkCollection) {
-      (parent as! YMKClusterizedPlacemarkCollection).remove(withPlacemark: placemark)
+      (parent as! YMKClusterizedPlacemarkCollection).remove(with: placemark)
     }
 
     if (parent is YMKMapObjectCollection) {
