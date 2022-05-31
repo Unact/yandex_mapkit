@@ -40,6 +40,33 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
+  /// Toggles layer with traffic information
+  Future<void> toggleTrafficLayer({
+    required bool visible
+  }) async {
+    await _channel.invokeMethod(
+      'toggleTrafficLayer',
+      {
+        'visible': visible
+      }
+    );
+  }
+
+  /// Selects a geo object with the specified objectId in the specified layerId.
+  /// If the object is not currently on the screen, it is selected anyway, but the user will not actually see that.
+  /// You need to move the camera in addition to this call to be sure that the selected object is visible for the user.
+  Future<void> selectGeoObject(String objectId, String layerId) async {
+    await _channel.invokeMethod('selectGeoObject', {
+      'objectId': objectId,
+      'layerId': layerId
+    });
+  }
+
+  /// Resets the currently selected geo object.
+  Future<void> deselectGeoObject() async {
+    await _channel.invokeMethod('deselectGeoObject');
+  }
+
   /// Applies JSON style transformations to the map.
   /// Set to empty string to clear previous styling.
   ///
@@ -161,6 +188,8 @@ class YandexMapController extends ChangeNotifier {
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
+      case 'onTrafficChanged':
+        return _onTrafficChanged(call.arguments);
       case 'onMapTap':
         return _onMapTap(call.arguments);
       case 'onClustersRemoved':
@@ -171,6 +200,8 @@ class YandexMapController extends ChangeNotifier {
         return _onClusterTap(call.arguments);
       case 'onMapLongTap':
         return _onMapLongTap(call.arguments);
+      case 'onObjectTap':
+        return _onObjectTap(call.arguments);
       case 'onMapObjectTap':
         return _onMapObjectTap(call.arguments);
       case 'onMapObjectDragStart':
@@ -186,6 +217,14 @@ class YandexMapController extends ChangeNotifier {
       default:
         throw MissingPluginException();
     }
+  }
+
+  void _onObjectTap(dynamic arguments) {
+    if (_yandexMapState.widget.onObjectTap == null) {
+      return;
+    }
+
+    _yandexMapState.widget.onObjectTap!(GeoObject._fromJson(arguments['geoObject']));
   }
 
   void _onMapTap(dynamic arguments) {
@@ -217,18 +256,17 @@ class YandexMapController extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>?> _onUserLocationAdded(dynamic arguments) async {
-    final pin = Placemark(
+    final pin = PlacemarkMapObject(
       mapId: MapObjectId('user_location_pin'),
       point: Point._fromJson(arguments['pinPoint'])
     );
-    final arrow = Placemark(
+    final arrow = PlacemarkMapObject(
       mapId: MapObjectId('user_location_arrow'),
       point: Point._fromJson(arguments['arrowPoint'])
     );
-    final accuracyCircle = Circle(
+    final accuracyCircle = CircleMapObject(
       mapId: MapObjectId('user_location_accuracy_circle'),
-      center: Point._fromJson(arguments['circle']['center']),
-      radius: arguments['circle']['radius']
+      circle: Circle._fromJson(arguments['circle'])
     );
     final view = UserLocationView._(arrow: arrow, pin: pin, accuracyCircle: accuracyCircle);
     final newView = _yandexMapState.widget.onUserLocationAdded != null ?
@@ -260,9 +298,9 @@ class YandexMapController extends ChangeNotifier {
     final size = arguments['size'];
     final mapObject = _findMapObject(_yandexMapState._allMapObjects, id) as ClusterizedPlacemarkCollection;
     final placemarks = arguments['placemarkIds']
-      .map<Placemark>((el) => _findMapObject(mapObject.placemarks, el) as Placemark)
+      .map<PlacemarkMapObject>((el) => _findMapObject(mapObject.placemarks, el) as PlacemarkMapObject)
       .toList();
-    final appearance = Placemark(
+    final appearance = PlacemarkMapObject(
       mapId: MapObjectId(arguments['appearancePlacemarkId']),
       point: Point._fromJson(arguments['point'])
     );
@@ -279,9 +317,12 @@ class YandexMapController extends ChangeNotifier {
     final size = arguments['size'];
     final mapObject = _findMapObject(_yandexMapState._allMapObjects, id) as ClusterizedPlacemarkCollection;
     final placemarks = arguments['placemarkIds']
-      .map<Placemark>((el) => _findMapObject(mapObject.placemarks, el) as Placemark)
+      .map<PlacemarkMapObject>((el) => _findMapObject(mapObject.placemarks, el) as PlacemarkMapObject)
       .toList();
-    final appearance = _findMapObject(_yandexMapState._allMapObjects, arguments['appearancePlacemarkId']) as Placemark;
+    final appearance = _findMapObject(
+      _yandexMapState._allMapObjects,
+      arguments['appearancePlacemarkId']
+    ) as PlacemarkMapObject;
     final cluster = Cluster._(size: size, appearance: appearance, placemarks: placemarks);
 
     mapObject._clusterTap(cluster);
@@ -315,6 +356,15 @@ class YandexMapController extends ChangeNotifier {
     final mapObject = _findMapObject(_yandexMapState._allMapObjects, id);
 
     mapObject!._dragEnd();
+  }
+
+  void _onTrafficChanged(dynamic arguments) {
+    if (_yandexMapState.widget.onTrafficChanged == null) {
+      return;
+    }
+
+    final trafficLevel = arguments['trafficLevel'] == null ? null : TrafficLevel._fromJson(arguments['trafficLevel']);
+    _yandexMapState.widget.onTrafficChanged!(trafficLevel);
   }
 
   MapObject? _findMapObject(List<MapObject> mapObjects, String id) {

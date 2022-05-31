@@ -13,9 +13,6 @@ class SearchOptions extends Equatable {
   /// Adds the geometry to the server response.
   final bool geometry;
 
-  /// Enable word-by-word suggestion items.
-  final bool suggestWords;
-
   /// Force disable correction of spelling mistakes.
   final bool disableSpellingCorrection;
 
@@ -42,7 +39,6 @@ class SearchOptions extends Equatable {
     this.searchType = SearchType.none,
     this.searchSnippet = SearchSnippet.none,
     this.geometry = false,
-    this.suggestWords = true,
     this.disableSpellingCorrection = false,
     this.resultPageSize,
     this.userPosition,
@@ -57,7 +53,6 @@ class SearchOptions extends Equatable {
       'searchSnippet': searchSnippet.index,
       'searchType': searchType.index,
       'geometry': geometry,
-      'suggestWords': suggestWords,
       'disableSpellingCorrection': disableSpellingCorrection,
       'resultPageSize': resultPageSize,
       'userPosition': userPosition,
@@ -72,7 +67,6 @@ class SearchOptions extends Equatable {
   List<Object?> get props => <Object?>[
     searchType,
     geometry,
-    suggestWords,
     disableSpellingCorrection,
     resultPageSize,
     userPosition,

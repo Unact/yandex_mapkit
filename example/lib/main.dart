@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
-import 'package:yandex_mapkit_example/examples/circle_page.dart';
+import 'package:yandex_mapkit_example/examples/circle_map_object_page.dart';
 import 'package:yandex_mapkit_example/examples/clusterized_placemark_collection_page.dart';
 import 'package:yandex_mapkit_example/examples/driving_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/map_object_collection_page.dart';
-import 'package:yandex_mapkit_example/examples/placemark_page.dart';
-import 'package:yandex_mapkit_example/examples/polyline_page.dart';
-import 'package:yandex_mapkit_example/examples/polygon_page.dart';
+import 'package:yandex_mapkit_example/examples/placemark_map_object_page.dart';
+import 'package:yandex_mapkit_example/examples/polyline_map_object_page.dart';
+import 'package:yandex_mapkit_example/examples/polygon_map_object_page.dart';
 import 'package:yandex_mapkit_example/examples/reverse_search_page.dart';
 import 'package:yandex_mapkit_example/examples/search_page.dart';
 import 'package:yandex_mapkit_example/examples/suggest_page.dart';
@@ -24,10 +24,10 @@ const List<MapPage> _allPages = <MapPage>[
   MapControlsPage(),
   ClusterizedPlacemarkCollectionPage(),
   MapObjectCollectionPage(),
-  PlacemarkPage(),
-  PolylinePage(),
-  PolygonPage(),
-  CirclePage(),
+  PlacemarkMapObjectPage(),
+  PolylineMapObjectPage(),
+  PolygonMapObjectPage(),
+  CircleMapObjectPage(),
   UserLayerPage(),
   SuggestionsPage(),
   SearchPage(),

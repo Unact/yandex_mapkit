@@ -1,6 +1,6 @@
 import YandexMapsMobile
 
-class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
+class CircleMapObjectController: NSObject, MapObjectController, YMKMapObjectTapListener {
   private let internallyControlled: Bool
   public let circle: YMKCircleMapObject
   private var consumeTapEvents: Bool = false
@@ -13,7 +13,7 @@ class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectT
     controller: YandexMapController
   ) {
     let circle = parent.addCircle(
-      with: Utils.circleFromJson(params),
+      with: Utils.circleFromJson(params["circle"] as! [String: Any]),
       stroke: Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value),
       strokeWidth: (params["strokeWidth"] as! NSNumber).floatValue,
       fill: Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
@@ -50,7 +50,7 @@ class YandexCircleController: NSObject, YandexMapObjectController, YMKMapObjectT
 
   public func update(_ params: [String: Any]) {
     if (!internallyControlled) {
-      circle.geometry = Utils.circleFromJson(params)
+      circle.geometry = Utils.circleFromJson(params["circle"] as! [String: Any])
       circle.isVisible = (params["isVisible"] as! NSNumber).boolValue
     }
 

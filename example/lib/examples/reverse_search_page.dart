@@ -24,7 +24,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   final TextEditingController queryController = TextEditingController();
   late YandexMapController controller;
   late final List<MapObject> mapObjects = [
-    Placemark(
+    PlacemarkMapObject(
       mapId: cameraMapObjectId,
       point: Point(latitude: 55.755848, longitude: 37.620409),
       icon: PlacemarkIcon.single(
@@ -56,26 +56,30 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
                 YandexMap(
                   mapObjects: mapObjects,
                   onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason _, bool __) async {
-                    final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
+                    final placemarkMapObject = mapObjects
+                      .firstWhere((el) => el.mapId == cameraMapObjectId) as PlacemarkMapObject;
 
                     setState(() {
-                      mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(point: cameraPosition.target);
+                      mapObjects[mapObjects.indexOf(placemarkMapObject)] = placemarkMapObject.copyWith(
+                        point: cameraPosition.target
+                      );
                     });
                   },
                   onMapCreated: (YandexMapController yandexMapController) async {
-                    final placemark = mapObjects.firstWhere((el) => el.mapId == cameraMapObjectId) as Placemark;
+                    final placemarkMapObject = mapObjects
+                      .firstWhere((el) => el.mapId == cameraMapObjectId) as PlacemarkMapObject;
 
                     controller = yandexMapController;
 
                     await controller.moveCamera(
-                      CameraUpdate.newCameraPosition(CameraPosition(target: placemark.point, zoom: 17))
+                      CameraUpdate.newCameraPosition(CameraPosition(target: placemarkMapObject.point, zoom: 17))
                     );
                   },
                 )
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -160,7 +164,7 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Search ${widget.session.id}')),
       body: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -174,7 +178,7 @@ class _SessionState extends State<_SessionPage> {
                   YandexMap(
                     mapObjects: mapObjects,
                     onMapCreated: (YandexMapController yandexMapController) async {
-                      final placemark = Placemark(
+                      final placemarkMapObject = PlacemarkMapObject(
                         mapId: MapObjectId('search_placemark'),
                         point: widget.point,
                         icon: PlacemarkIcon.single(
@@ -186,7 +190,7 @@ class _SessionState extends State<_SessionPage> {
                       );
 
                       setState(() {
-                        mapObjects.add(placemark);
+                        mapObjects.add(placemarkMapObject);
                       });
 
                       await yandexMapController.moveCamera(
@@ -197,7 +201,7 @@ class _SessionState extends State<_SessionPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -213,8 +217,8 @@ class _SessionState extends State<_SessionPage> {
                             style: TextStyle(fontSize: 20),
                           ),
                           !_progress ? Container() : TextButton.icon(
-                            icon: const CircularProgressIndicator(),
-                            label: const Text('Cancel'),
+                            icon: CircularProgressIndicator(),
+                            label: Text('Cancel'),
                             onPressed: _cancel
                           )
                         ],

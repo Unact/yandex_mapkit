@@ -88,31 +88,35 @@ class CameraUpdate {
   }
 
   /// Returns a camera update that moves the camera target to the specified
-  /// geographical location.
-  static CameraUpdate newBounds(BoundingBox boundingBox) {
+  /// geographical location in the custom focus rect.
+  /// If [focusRect] is null then the current focus rect is used.
+  static CameraUpdate newBounds(BoundingBox boundingBox, { ScreenRect? focusRect }) {
     return CameraUpdate._({
       'type': 'newBounds',
       'params': {
-        'boundingBox': boundingBox.toJson()
+        'boundingBox': boundingBox.toJson(),
+        'focusRect': focusRect?.toJson()
       }
     });
   }
 
-  /// Returns a camera update that transforms the camera so that the specified
+  /// Returns a camera update so that the specified
   /// geographical bounding box is centered in the map view at the greatest
-  /// possible zoom level. A non-zero [left], [top], [right] and [bottom] padding
-  /// insets the bounding box from the map view's edges.
+  /// possible zoom level in the custom focus rect.
+  /// If [focusRect] is null then the current focus rect is used.
   /// The camera's new tilt and bearing will both be 0.0.
   static CameraUpdate newTiltAzimuthBounds(BoundingBox boundingBox, {
     double azimuth = 0,
-    double tilt = 0
+    double tilt = 0,
+    ScreenRect? focusRect
   }) {
     return CameraUpdate._({
       'type': 'newTiltAzimuthBounds',
       'params': {
         'boundingBox': boundingBox.toJson(),
         'azimuth': azimuth,
-        'tilt': tilt
+        'tilt': tilt,
+        'focusRect': focusRect?.toJson()
       }
     });
   }

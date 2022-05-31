@@ -1,27 +1,22 @@
 part of yandex_mapkit;
 
-/// Collection of points connected by lines to be displayed on [YandexMap]
-class Polyline extends Equatable implements MapObject {
-  Polyline({
+/// A polygon to be displayed on [YandexMap]
+class PolygonMapObject extends Equatable implements MapObject {
+  PolygonMapObject({
     required this.mapId,
-    required List<Point> coordinates,
+    required this.polygon,
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
     this.consumeTapEvents = false,
     this.isVisible = true,
+    this.strokeWidth = 1,
     this.strokeColor = const Color(0xFF0066FF),
-    this.strokeWidth = 5.0,
-    this.outlineColor = const Color(0x00000000),
-    this.outlineWidth = 0.0,
-    this.dashLength = 0.0,
-    this.dashOffset = 0.0,
-    this.gapLength = 0.0,
-  }) :
-    coordinates = List.unmodifiable(coordinates);
+    this.fillColor = const Color(0x00000000),
+  });
 
-  /// The list of points to connect.
-  final List<Point> coordinates;
+  /// The geometry of the map object.
+  final Polygon polygon;
 
   /// The object's geometry can be interpreted in two different ways:
   ///
@@ -36,8 +31,8 @@ class Polyline extends Equatable implements MapObject {
   /// 2. Dispatching of UI events(taps and drags are dispatched to objects with higher z-indexes first).
   final double zIndex;
 
-  /// Callback to call when this polyline receives a tap
-  final TapCallback<Polyline>? onTap;
+  /// Callback to call when this polygon receives a tap
+  final TapCallback<PolygonMapObject>? onTap;
 
   /// True if the placemark consumes tap events.
   /// If not, the map will propagate tap events to other map objects at the point of tap.
@@ -45,6 +40,11 @@ class Polyline extends Equatable implements MapObject {
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
+
+  /// Fill color.
+  ///
+  /// Setting the stroke color to any transparent color (i.e. RGBA code 0x00000000) effectively disables the stroke.
+  final Color fillColor;
 
   /// Stroke color.
   ///
@@ -57,56 +57,29 @@ class Polyline extends Equatable implements MapObject {
   /// with the camera position's tilt at 0 and a scale factor of 1
   final double strokeWidth;
 
-  /// Outline color.
-  ///
-  /// Setting the color to any transparent color (i.e. RGBA code 0x00000000) effectively disables the outline.
-  final Color outlineColor;
-
-  /// Outline width in units.
-  ///
-  /// The size of a unit is equal to the size of a pixel at the current zoom
-  /// with the camera position's tilt at 0 and a scale factor of 1
-  final double outlineWidth;
-
-  /// Length of a dash in units. Default: 0 (dashing is turned off).
-  final double dashLength;
-
-  /// Offset from the start of the polyline to the reference dash in units.
-  final double dashOffset;
-
-  /// Length of the gap between two dashes in units. Default: 0 (dashing is turned off).
-  final double gapLength;
-
-  Polyline copyWith({
-    List<Point>? coordinates,
+  PolygonMapObject copyWith({
+    Polygon? polygon,
+    List<List<Point>>? innerRingsCoordinates,
     bool? isGeodesic,
     double? zIndex,
-    TapCallback<Polyline>? onTap,
+    TapCallback<PolygonMapObject>? onTap,
     bool? consumeTapEvents,
     bool? isVisible,
+    Color? fillColor,
     Color? strokeColor,
-    double? strokeWidth,
-    Color? outlineColor,
-    double? outlineWidth,
-    double? dashLength,
-    double? dashOffset,
-    double? gapLength,
+    double? strokeWidth
   }) {
-    return Polyline(
+    return PolygonMapObject(
       mapId: mapId,
-      coordinates: coordinates ?? this.coordinates,
+      polygon: polygon ?? this.polygon,
       isGeodesic: isGeodesic ?? this.isGeodesic,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
       consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
       isVisible: isVisible ?? this.isVisible,
+      fillColor: fillColor ?? this.fillColor,
       strokeColor: strokeColor ?? this.strokeColor,
-      strokeWidth: strokeWidth ?? this.strokeWidth,
-      outlineColor: outlineColor ?? this.outlineColor,
-      outlineWidth: outlineWidth ?? this.outlineWidth,
-      dashLength: dashLength ?? this.dashLength,
-      dashOffset: dashOffset ?? this.dashOffset,
-      gapLength: gapLength ?? this.gapLength,
+      strokeWidth: strokeWidth ?? this.strokeWidth
     );
   }
 
@@ -114,25 +87,21 @@ class Polyline extends Equatable implements MapObject {
   final MapObjectId mapId;
 
   @override
-  Polyline clone() => copyWith();
+  PolygonMapObject clone() => copyWith();
 
   @override
-  Polyline dup(MapObjectId mapId) {
-    return Polyline(
+  PolygonMapObject dup(MapObjectId mapId) {
+    return PolygonMapObject(
       mapId: mapId,
-      coordinates: coordinates,
+      polygon: polygon,
       isGeodesic: isGeodesic,
       zIndex: zIndex,
       onTap: onTap,
       consumeTapEvents: consumeTapEvents,
       isVisible: isVisible,
+      fillColor: fillColor,
       strokeColor: strokeColor,
-      strokeWidth: strokeWidth,
-      outlineColor: outlineColor,
-      outlineWidth: outlineWidth,
-      dashLength: dashLength,
-      dashOffset: dashOffset,
-      gapLength: gapLength,
+      strokeWidth: strokeWidth
     );
   }
 
@@ -144,21 +113,21 @@ class Polyline extends Equatable implements MapObject {
   }
 
   /// Stub for [MapObject]
-  /// [Polyline] does not support drag
+  /// [PolygonMapObject] does not support drag
   @override
   void _dragStart() {
     throw UnsupportedError;
   }
 
   /// Stub for [MapObject]
-  /// [Polyline] does not support drag
+  /// [PolygonMapObject] does not support drag
   @override
   void _drag(Point point) {
     throw UnsupportedError;
   }
 
   /// Stub for [MapObject]
-  /// [Polyline] does not support drag
+  /// [PolygonMapObject] does not support drag
   @override
   void _dragEnd() {
     throw UnsupportedError;
@@ -168,18 +137,14 @@ class Polyline extends Equatable implements MapObject {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'id': mapId.value,
-      'coordinates': coordinates.map((Point p) => p.toJson()).toList(),
+      'polygon': polygon.toJson(),
       'isGeodesic': isGeodesic,
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible,
       'strokeColor': strokeColor.value,
       'strokeWidth': strokeWidth,
-      'outlineColor': outlineColor.value,
-      'outlineWidth': outlineWidth,
-      'dashLength': dashLength,
-      'dashOffset': dashOffset,
-      'gapLength': gapLength,
+      'fillColor': fillColor.value,
     };
   }
 
@@ -210,18 +175,14 @@ class Polyline extends Equatable implements MapObject {
   @override
   List<Object> get props => <Object>[
     mapId,
-    coordinates,
+    polygon,
     isGeodesic,
     zIndex,
     consumeTapEvents,
     isVisible,
     strokeColor,
     strokeWidth,
-    outlineColor,
-    outlineWidth,
-    dashLength,
-    dashOffset,
-    gapLength,
+    fillColor
   ];
 
   @override

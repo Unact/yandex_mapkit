@@ -12,20 +12,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class YandexMapObjectCollectionController extends YandexMapObjectController implements MapObjectTapListener {
-  private final Map<String, YandexMapObjectCollectionController> mapObjectCollections = new HashMap<>();
-  private final Map<String, YandexClusterizedPlacemarkCollectionController> clusterizedPlacemarkCollections =
+public class MapObjectCollectionController extends MapObjectController implements MapObjectTapListener {
+  private final Map<String, MapObjectCollectionController> mapObjectCollections = new HashMap<>();
+  private final Map<String, ClusterizedPlacemarkCollectionController> clusterizedPlacemarkCollections =
     new HashMap<>();
-  private final Map<String, YandexCircleController> circles = new HashMap<>();
-  private final Map<String, YandexPlacemarkController> placemarks = new HashMap<>();
-  private final Map<String, YandexPolygonController> polygons = new HashMap<>();
-  private final Map<String, YandexPolylineController> polylines = new HashMap<>();
+  private final Map<String, CircleMapObjectController> circles = new HashMap<>();
+  private final Map<String, PlacemarkMapObjectController> placemarks = new HashMap<>();
+  private final Map<String, PolygonMapObjectController> polygons = new HashMap<>();
+  private final Map<String, PolylineMapObjectController> polylines = new HashMap<>();
   public final MapObjectCollection mapObjectCollection;
   private boolean consumeTapEvents = false;
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  public YandexMapObjectCollectionController(
+  public MapObjectCollectionController(
     MapObjectCollection root,
     String id,
     WeakReference<YandexMapController> controller
@@ -38,7 +38,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
     mapObjectCollection.addTapListener(this);
   }
 
-  public YandexMapObjectCollectionController(
+  public MapObjectCollectionController(
     MapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
@@ -64,22 +64,22 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   }
 
   public void remove() {
-    for (YandexClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollections.values()) {
+    for (ClusterizedPlacemarkCollectionController colController : clusterizedPlacemarkCollections.values()) {
       colController.remove();
     }
-    for (YandexCircleController circleController : circles.values()) {
+    for (CircleMapObjectController circleController : circles.values()) {
       circleController.remove();
     }
-    for (YandexMapObjectController mapObjectCollectionController : mapObjectCollections.values()) {
+    for (MapObjectCollectionController mapObjectCollectionController : mapObjectCollections.values()) {
       mapObjectCollectionController.remove();
     }
-    for (YandexPlacemarkController placemarkController : placemarks.values()) {
+    for (PlacemarkMapObjectController placemarkController : placemarks.values()) {
       placemarkController.remove();
     }
-    for (YandexPolygonController polygonController : polygons.values()) {
+    for (PolygonMapObjectController polygonController : polygons.values()) {
       polygonController.remove();
     }
-    for (YandexPolylineController polylineController : polylines.values()) {
+    for (PolylineMapObjectController polylineController : polylines.values()) {
       polylineController.remove();
     }
 
@@ -104,19 +104,19 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   private void addMapObjects(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       switch ((String) el.get("type")) {
-        case "Circle":
+        case "CircleMapObject":
           addCircle(el);
           break;
         case "MapObjectCollection":
           addMapObjectCollection(el);
           break;
-        case "Placemark":
+        case "PlacemarkMapObject":
           addPlacemark(el);
           break;
-        case "Polygon":
+        case "PolygonMapObject":
           addPolygon(el);
           break;
-        case "Polyline":
+        case "PolylineMapObject":
           addPolyline(el);
           break;
         case "ClusterizedPlacemarkCollection":
@@ -132,19 +132,19 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   private void changeMapObjects(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       switch ((String) el.get("type")) {
-        case "Circle":
+        case "CircleMapObject":
           changeCircle(el);
           break;
         case "MapObjectCollection":
           changeMapObjectCollection(el);
           break;
-        case "Placemark":
+        case "PlacemarkMapObject":
           changePlacemark(el);
           break;
-        case "Polygon":
+        case "PolygonMapObject":
           changePolygon(el);
           break;
-        case "Polyline":
+        case "PolylineMapObject":
           changePolyline(el);
           break;
         case "ClusterizedPlacemarkCollection":
@@ -160,19 +160,19 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   private void removeMapObjects(List<Map<String, Object>> params) {
     for (Map<String, Object> el : params) {
       switch ((String) el.get("type")) {
-        case "Circle":
+        case "CircleMapObject":
           removeCircle(el);
           break;
         case "MapObjectCollection":
           removeMapObjectCollection(el);
           break;
-        case "Placemark":
+        case "PlacemarkMapObject":
           removePlacemark(el);
           break;
-        case "Polygon":
+        case "PolygonMapObject":
           removePolygon(el);
           break;
-        case "Polyline":
+        case "PolylineMapObject":
           removePolyline(el);
           break;
         case "ClusterizedPlacemarkCollection":
@@ -185,7 +185,7 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
   }
 
   private void addCircle(Map<String, Object> params) {
-    YandexCircleController circleController = new YandexCircleController(
+    CircleMapObjectController circleController = new CircleMapObjectController(
       mapObjectCollection,
       params,
       controller
@@ -196,21 +196,21 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changeCircle(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexCircleController circleController = circles.get(id);
+    CircleMapObjectController circleController = circles.get(id);
 
     if (circleController != null) circleController.update(params);
   }
 
   private void removeCircle(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexCircleController circleController = circles.get(id);
+    CircleMapObjectController circleController = circles.get(id);
 
     if (circleController != null) circleController.remove();
     circles.remove(id);
   }
 
   private void addMapObjectCollection(Map<String, Object> params) {
-    YandexMapObjectCollectionController mapObjectCollectionController = new YandexMapObjectCollectionController(
+    MapObjectCollectionController mapObjectCollectionController = new MapObjectCollectionController(
       mapObjectCollection,
       params,
       controller
@@ -221,21 +221,21 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changeMapObjectCollection(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexMapObjectCollectionController mapObjectCollectionController = mapObjectCollections.get(id);
+    MapObjectCollectionController mapObjectCollectionController = mapObjectCollections.get(id);
 
     if (mapObjectCollectionController != null) mapObjectCollectionController.update(params);
   }
 
   private void removeMapObjectCollection(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexMapObjectCollectionController mapObjectCollectionController = mapObjectCollections.get(id);
+    MapObjectCollectionController mapObjectCollectionController = mapObjectCollections.get(id);
 
     if (mapObjectCollectionController != null) mapObjectCollectionController.remove();
     mapObjectCollections.remove(id);
   }
 
   private void addPlacemark(Map<String, Object> params) {
-    YandexPlacemarkController placemarkController = new YandexPlacemarkController(
+    PlacemarkMapObjectController placemarkController = new PlacemarkMapObjectController(
       mapObjectCollection,
       params,
       controller
@@ -246,21 +246,21 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPlacemarkController placemarkController = placemarks.get(id);
+    PlacemarkMapObjectController placemarkController = placemarks.get(id);
 
     if (placemarkController != null) placemarkController.update(params);
   }
 
   private void removePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPlacemarkController placemarkController = placemarks.get(id);
+    PlacemarkMapObjectController placemarkController = placemarks.get(id);
 
     if (placemarkController != null) placemarkController.remove();
     placemarks.remove(id);
   }
 
   private void addPolygon(Map<String, Object> params) {
-    YandexPolygonController polygonController = new YandexPolygonController(
+    PolygonMapObjectController polygonController = new PolygonMapObjectController(
       mapObjectCollection,
       params,
       controller
@@ -271,21 +271,21 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changePolygon(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPolygonController polygonController = polygons.get(id);
+    PolygonMapObjectController polygonController = polygons.get(id);
 
     if (polygonController != null) polygonController.update(params);
   }
 
   private void removePolygon(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPolygonController polygonController = polygons.get(id);
+    PolygonMapObjectController polygonController = polygons.get(id);
 
     if (polygonController != null) polygonController.remove();
     polygons.remove(id);
   }
 
   private void addPolyline(Map<String, Object> params) {
-    YandexPolylineController polylineController = new YandexPolylineController(
+    PolylineMapObjectController polylineController = new PolylineMapObjectController(
       mapObjectCollection,
       params,
       controller
@@ -296,21 +296,21 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changePolyline(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPolylineController polylineController = polylines.get(id);
+    PolylineMapObjectController polylineController = polylines.get(id);
 
     if (polylineController != null) polylineController.update(params);
   }
 
   private void removePolyline(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPolylineController polylineController = polylines.get(id);
+    PolylineMapObjectController polylineController = polylines.get(id);
 
-    if (polylineController != null) polylineController.update(params);
+    if (polylineController != null) polylineController.remove();
     polylines.remove(id);
   }
 
   private void addClusterizedPlacemarkCollection(Map<String, Object> params) {
-    YandexClusterizedPlacemarkCollectionController colController = new YandexClusterizedPlacemarkCollectionController(
+    ClusterizedPlacemarkCollectionController colController = new ClusterizedPlacemarkCollectionController(
       mapObjectCollection,
       params,
       controller
@@ -321,14 +321,14 @@ public class YandexMapObjectCollectionController extends YandexMapObjectControll
 
   private void changeClusterizedPlacemarkCollection(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexClusterizedPlacemarkCollectionController colController = clusterizedPlacemarkCollections.get(id);
+    ClusterizedPlacemarkCollectionController colController = clusterizedPlacemarkCollections.get(id);
 
     if (colController != null) colController.update(params);
   }
 
   private void removeClusterizedPlacemarkCollection(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexClusterizedPlacemarkCollectionController colController = clusterizedPlacemarkCollections.get(id);
+    ClusterizedPlacemarkCollectionController colController = clusterizedPlacemarkCollections.get(id);
 
     if (colController != null) colController.remove();
     clusterizedPlacemarkCollections.remove(id);

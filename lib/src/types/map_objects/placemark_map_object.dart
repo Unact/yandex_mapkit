@@ -1,9 +1,8 @@
 part of yandex_mapkit;
 
-
 /// A placemark to be displayed on [YandexMap] at a specific point
-class Placemark extends Equatable implements MapObject {
-  Placemark({
+class PlacemarkMapObject extends Equatable implements MapObject {
+  PlacemarkMapObject({
     required this.mapId,
     required this.point,
     this.zIndex = 0.0,
@@ -19,7 +18,7 @@ class Placemark extends Equatable implements MapObject {
     this.direction = 0,
   });
 
-  /// The coordinates of this placemark.
+  /// The geometry of the map object.
   final Point point;
 
   /// z-order
@@ -30,20 +29,20 @@ class Placemark extends Equatable implements MapObject {
   final double zIndex;
 
   /// Callback to call when this placemark receives a tap
-  final TapCallback<Placemark>? onTap;
+  final TapCallback<PlacemarkMapObject>? onTap;
 
   /// True if the placemark consumes tap events.
   /// If not, the map will propagate tap events to other map objects at the point of tap.
   final bool consumeTapEvents;
 
   /// Raised when dragging mode is active for the given map object.
-  final DragStartCallback<Placemark>? onDragStart;
+  final DragStartCallback<PlacemarkMapObject>? onDragStart;
 
   /// Raised when the user is moving a finger and the map object follows it.
-  final DragCallback<Placemark>? onDrag;
+  final DragCallback<PlacemarkMapObject>? onDrag;
 
   /// Raised when the user released the tap.
-  final DragEndCallback<Placemark>? onDragEnd;
+  final DragEndCallback<PlacemarkMapObject>? onDragEnd;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
@@ -51,7 +50,7 @@ class Placemark extends Equatable implements MapObject {
   /// Manages if map object can be dragged by the user.
   final bool isDraggable;
 
-  /// Visual appearance of [Placemark] on the map.
+  /// Visual appearance of [PlacemarkMapObject] on the map.
   final PlacemarkIcon? icon;
 
   /// Opacity multiplicator for the placemark content.
@@ -62,13 +61,13 @@ class Placemark extends Equatable implements MapObject {
   /// Measured in degrees.
   final double direction;
 
-  Placemark copyWith({
+  PlacemarkMapObject copyWith({
     Point? point,
     double? zIndex,
-    TapCallback<Placemark>? onTap,
-    DragStartCallback<Placemark>? onDragStart,
-    DragCallback<Placemark>? onDrag,
-    DragEndCallback<Placemark>? onDragEnd,
+    TapCallback<PlacemarkMapObject>? onTap,
+    DragStartCallback<PlacemarkMapObject>? onDragStart,
+    DragCallback<PlacemarkMapObject>? onDrag,
+    DragEndCallback<PlacemarkMapObject>? onDragEnd,
     bool? consumeTapEvents,
     bool? isVisible,
     bool? isDraggable,
@@ -76,7 +75,7 @@ class Placemark extends Equatable implements MapObject {
     double? opacity,
     double? direction,
   }) {
-    return Placemark(
+    return PlacemarkMapObject(
       mapId: mapId,
       point: point ?? this.point,
       zIndex: zIndex ?? this.zIndex,
@@ -97,11 +96,11 @@ class Placemark extends Equatable implements MapObject {
   final MapObjectId mapId;
 
   @override
-  Placemark clone() => copyWith();
+  PlacemarkMapObject clone() => copyWith();
 
   @override
-  Placemark dup(MapObjectId mapId) {
-    return Placemark(
+  PlacemarkMapObject dup(MapObjectId mapId) {
+    return PlacemarkMapObject(
       mapId: mapId,
       point: point,
       zIndex: zIndex,
@@ -202,14 +201,14 @@ class Placemark extends Equatable implements MapObject {
   bool get stringify => true;
 }
 
-/// Visual icon of a single [Placemark]
+/// Visual icon of a single [PlacemarkMapObject]
 class PlacemarkIcon extends Equatable {
-  /// Serialized information about how to visually show a single [Placemark]
+  /// Serialized information about how to visually show a single [PlacemarkMapObject]
   final Map<String, dynamic> _json;
 
   const PlacemarkIcon._(this._json);
 
-  /// Used to describe a set of icons to be used as part of a single icon to represent a [Placemark] on the map.
+  /// Used to describe a set of icons to be used as part of a single icon to represent a [PlacemarkMapObject] on the map.
   factory PlacemarkIcon.composite(List<PlacemarkCompositeIconItem> iconParts) {
     return PlacemarkIcon._({
       'type': 'composite',
@@ -217,7 +216,7 @@ class PlacemarkIcon extends Equatable {
     });
   }
 
-  /// Used to describe a single icon to represent a [Placemark] on the map.
+  /// Used to describe a single icon to represent a [PlacemarkMapObject] on the map.
   factory PlacemarkIcon.single(PlacemarkIconStyle style) {
     return PlacemarkIcon._({
       'type': 'single',
@@ -236,7 +235,7 @@ class PlacemarkIcon extends Equatable {
   bool get stringify => true;
 }
 
-/// Visual icon of an icon to be used to visually show a [Placemark]
+/// Visual icon of an icon to be used to visually show a [PlacemarkMapObject]
 class PlacemarkIconStyle extends Equatable {
   /// Asset name to use as Placemark icon
   final BitmapDescriptor image;
@@ -267,7 +266,7 @@ class PlacemarkIconStyle extends Equatable {
   /// By default, icons process all taps.
   final MapRect? tappableArea;
 
-  /// Creates an icon to be used to represent a [Placemark] on the map.
+  /// Creates an icon to be used to represent a [PlacemarkMapObject] on the map.
   const PlacemarkIconStyle({
     required this.image,
     this.anchor = const Offset(0.5, 0.5),
@@ -311,7 +310,7 @@ class PlacemarkIconStyle extends Equatable {
 }
 
 
-/// A part of a composite icon to visually show a [Placemark] icon
+/// A part of a composite icon to visually show a [PlacemarkMapObject] icon
 class PlacemarkCompositeIconItem extends Equatable {
   /// Base icon to use for composition
   final PlacemarkIconStyle style;
@@ -322,7 +321,7 @@ class PlacemarkCompositeIconItem extends Equatable {
   /// If same name is specified for several icons then layer with that name will be reset with the last one.
   final String name;
 
-  /// Creates an icon to be used as part of a single icon to represent a [Placemark] on the map.
+  /// Creates an icon to be used as part of a single icon to represent a [PlacemarkMapObject] on the map.
   const PlacemarkCompositeIconItem({
     required this.style,
     required this.name

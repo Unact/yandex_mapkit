@@ -29,7 +29,7 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -118,12 +118,12 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Suggest ${widget.session.id}')),
       body: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -136,8 +136,8 @@ class _SessionState extends State<_SessionPage> {
                         children: [
                           Text(widget.query, style: TextStyle(fontSize: 20,)),
                           !_progress ? Container() : TextButton.icon(
-                            icon: const CircularProgressIndicator(),
-                            label: const Text('Reset'),
+                            icon: CircularProgressIndicator(),
+                            label: Text('Reset'),
                             onPressed: _reset
                           )
                         ],

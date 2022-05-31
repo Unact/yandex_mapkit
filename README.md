@@ -130,25 +130,8 @@ For usage examples refer to example [app](https://github.com/Unact/yandex_mapkit
 
 ### Additional remarks
 
-This project only supports Android V2 embedding. V1 support has been completly dropped.
-If you are creating a new flutter project then you are automatically using V2 and don't have to worry.
-Other projects are strongly recommended to migrate to V2. See [this](https://github.com/flutter/flutter/wiki/Upgrading-pre-1.12-Android-projects) page for more details.
-
 YandexMapkit always works with __one language__ only.  
 Due to native constraints after the application is launched it can't be changed.
-
-#### iOS
-
-Currently native library doesn't support Silicon Mac.  
-If you receive this type of error
-
-```text
-ld: in /.../ios/Pods/YandexMapsMobile/YandexMapsMobile.framework/YandexMapsMobile(YMKRouteView_Binding.mm.o), building for iOS Simulator, but linking in object file built for iOS, file '/.../ios/Pods/YandexMapsMobile/YandexMapsMobile.framework/YandexMapsMobile' for architecture arm64
-clang: error: linker command failed with exit code 1 (use -v to see invocation)
-```
-
-Add in your projects `Build Settings` in section `Excluded Architectures` for `Debug` this line - `arm64`  
-This way XCode won't try to build for Silicon Macs iOS Simulators
 
 #### Android
 
@@ -175,3 +158,5 @@ AndroidYandexMap.useAndroidViewSurface = false;
 - [X] Address suggestions
 - [X] Basic driving routing
 - [X] Basic address direct/reverse search
+- [X] Workking with geo objects
+- [X] Showing current traffic conditions

@@ -9,19 +9,19 @@ class UserLocationView extends Equatable {
   });
 
   /// GPS accuracy circle
-  final Circle accuracyCircle;
+  final CircleMapObject accuracyCircle;
 
   /// Location arrow placemark
-  final Placemark arrow;
+  final PlacemarkMapObject arrow;
 
   /// Location pin placemark
-  final Placemark pin;
+  final PlacemarkMapObject pin;
 
   /// Returns a copy of [UserLocationView] with new appearance
   UserLocationView copyWith({
-    Placemark? arrow,
-    Placemark? pin,
-    Circle? accuracyCircle
+    PlacemarkMapObject? arrow,
+    PlacemarkMapObject? pin,
+    CircleMapObject? accuracyCircle
   }) {
     return UserLocationView._(
       arrow: arrow ?? this.arrow,
@@ -47,5 +47,4 @@ class UserLocationView extends Equatable {
       'accuracyCircle': accuracyCircle.toJson()
     };
   }
-
 }

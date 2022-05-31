@@ -30,12 +30,16 @@ class YandexMap extends StatefulWidget {
     this.indoorEnabled = false,
     this.liteModeEnabled = false,
     this.logoAlignment = const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.bottom),
-    this.screenRect,
+    this.focusRect,
     this.onMapCreated,
     this.onMapTap,
     this.onMapLongTap,
     this.onUserLocationAdded,
-    this.onCameraPositionChanged
+    this.onCameraPositionChanged,
+    this.onTrafficChanged,
+    this.mapType = MapType.vector,
+    this.poiLimit,
+    this.onObjectTap
   }) : super(key: key);
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
@@ -88,7 +92,7 @@ class YandexMap extends StatefulWidget {
 
   /// Allows to set map focus to a certain rectangle instead of the whole map
   /// For more info refer to https://yandex.com/dev/maps/mapkit/doc/ios-ref/full/Classes/YMKMapWindow.html#focusRect
-  final ScreenRect? screenRect;
+  final ScreenRect? focusRect;
 
   /// Callback method for when the map is ready to be used.
   ///
@@ -113,6 +117,19 @@ class YandexMap extends StatefulWidget {
   ///
   /// This is called only once when the layer is made visible for the first time
   final UserLocationCallback? onUserLocationAdded;
+
+  /// Callback to be called where a change has occured in traffic layer.
+  final TrafficChangedCallback? onTrafficChanged;
+
+  /// Selects one of predefined map style modes optimized for particular use case(transit, driving, etc).
+  /// Resets json styles set with [YandexMapController.setMapStyle].
+  final MapType mapType;
+
+  /// Limits the number of visible basemap POIs
+  final int? poiLimit;
+
+  /// Called every time a [YandexMap] geo object is tapped.
+  final ObjectTapCallback? onObjectTap;
 
   @override
   _YandexMapState createState() => _YandexMapState();
@@ -271,7 +288,9 @@ class _YandexMapOptions {
     indoorEnabled = map.indoorEnabled,
     liteModeEnabled = map.liteModeEnabled,
     logoAlignment = map.logoAlignment,
-    screenRect = map.screenRect;
+    focusRect = map.focusRect,
+    mapType = map.mapType,
+    poiLimit = map.poiLimit;
 
     final bool tiltGesturesEnabled;
 
@@ -295,7 +314,11 @@ class _YandexMapOptions {
 
     final MapAlignment logoAlignment;
 
-    final ScreenRect? screenRect;
+    final ScreenRect? focusRect;
+
+    final MapType mapType;
+
+    final int? poiLimit;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -310,7 +333,9 @@ class _YandexMapOptions {
       'liteModeEnabled': liteModeEnabled,
       'modelsEnabled': modelsEnabled,
       'logoAlignment': logoAlignment.toJson(),
-      'screenRect': screenRect?.toJson()
+      'focusRect': focusRect?.toJson(),
+      'mapType': mapType.index,
+      'poiLimit': poiLimit
     };
   }
 

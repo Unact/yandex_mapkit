@@ -10,3 +10,5 @@ typedef ClusterCallback = Future<Cluster?> Function(ClusterizedPlacemarkCollecti
 typedef ClusterTapCallback = void Function(ClusterizedPlacemarkCollection self, Cluster cluster);
 typedef MapCreatedCallback = void Function(YandexMapController controller);
 typedef UserLocationCallback = Future<UserLocationView>? Function(UserLocationView view);
+typedef TrafficChangedCallback = void Function(TrafficLevel? trafficLevel);
+typedef ObjectTapCallback = void Function(GeoObject geoObject);

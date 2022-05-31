@@ -1,20 +1,19 @@
 import YandexMapsMobile
 
-class YandexPlacemarkController:
+class PlacemarkMapObjectController:
   NSObject,
-  YandexMapObjectController,
+  MapObjectController,
   YMKMapObjectTapListener,
   YMKMapObjectDragListener
 {
   private let internallyControlled: Bool
-  private let parent: YMKMapObject // Workaround https://github.com/yandex/mapkit-ios-demo/issues/100
   public let placemark: YMKPlacemarkMapObject
   private var consumeTapEvents: Bool = false
   public unowned var controller: YandexMapController
   public let id: String
 
   public required init(
-    parent: YMKMapObject,
+    parent: YMKBaseMapObjectCollection,
     params: [String: Any],
     controller: YandexMapController
   ) {
@@ -29,7 +28,6 @@ class YandexPlacemarkController:
       placemark = (parent as! YMKMapObjectCollection).addPlacemark(with: point)
     }
 
-    self.parent = parent
     self.placemark = placemark!
     self.id = params["id"] as! String
     self.controller = controller
@@ -44,12 +42,10 @@ class YandexPlacemarkController:
   }
 
   public required init(
-    parent: YMKMapObject,
     placemark: YMKPlacemarkMapObject,
     params: [String: Any],
     controller: YandexMapController
   ) {
-    self.parent = parent
     self.placemark = placemark
     self.id = params["id"] as! String
     self.controller = controller
@@ -72,7 +68,7 @@ class YandexPlacemarkController:
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
-    placemark.direction = (params["direction"] as! NSNumber).floatValue
+    placemark.direction = (params["direction"] as! NSNumber).floatValue 
 
     setIcon(params["icon"] as? [String: Any])
 
@@ -84,13 +80,7 @@ class YandexPlacemarkController:
       return
     }
 
-    if (parent is YMKClusterizedPlacemarkCollection) {
-      (parent as! YMKClusterizedPlacemarkCollection).remove(withPlacemark: placemark)
-    }
-
-    if (parent is YMKMapObjectCollection) {
-      (parent as! YMKMapObjectCollection).remove(with: placemark)
-    }
+    placemark.parent.remove(with: placemark)
   }
 
   func onMapObjectDragStart(with mapObject: YMKMapObject) {

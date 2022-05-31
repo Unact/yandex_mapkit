@@ -26,7 +26,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
     stopByPlacemark,
     endPlacemark
   ];
-  final Placemark startPlacemark = Placemark(
+  final PlacemarkMapObject startPlacemark = PlacemarkMapObject(
     mapId: MapObjectId('start_placemark'),
     point: Point(latitude: 55.7558, longitude: 37.6173),
     icon: PlacemarkIcon.single(
@@ -36,7 +36,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
       )
     ),
   );
-  final Placemark stopByPlacemark = Placemark(
+  final PlacemarkMapObject stopByPlacemark = PlacemarkMapObject(
     mapId: MapObjectId('stop_by_placemark'),
     point: Point(latitude: 45.0360, longitude: 38.9746),
     icon: PlacemarkIcon.single(
@@ -46,7 +46,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
       )
     ),
   );
-  final Placemark endPlacemark = Placemark(
+  final PlacemarkMapObject endPlacemark = PlacemarkMapObject(
     mapId: MapObjectId('end_placemark'),
     point: Point(latitude: 48.4814, longitude: 135.0721),
     icon: PlacemarkIcon.single(
@@ -68,7 +68,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
             mapObjects: mapObjects
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -119,8 +119,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
 class _SessionPage extends StatefulWidget {
   final Future<DrivingSessionResult> result;
   final DrivingSession session;
-  final Placemark startPlacemark;
-  final Placemark endPlacemark;
+  final PlacemarkMapObject startPlacemark;
+  final PlacemarkMapObject endPlacemark;
 
   _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
 
@@ -156,7 +156,7 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Driving ${widget.session.id}')),
       body: Container(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,7 +173,7 @@ class _SessionState extends State<_SessionPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -185,8 +185,8 @@ class _SessionState extends State<_SessionPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           !_progress ? Container() : TextButton.icon(
-                            icon: const CircularProgressIndicator(),
-                            label: const Text('Cancel'),
+                            icon: CircularProgressIndicator(),
+                            label: Text('Cancel'),
                             onPressed: _cancel
                           )
                         ],
@@ -261,9 +261,9 @@ class _SessionState extends State<_SessionPage> {
     setState(() { results.add(result); });
     setState(() {
       result.routes!.asMap().forEach((i, route) {
-        mapObjects.add(Polyline(
+        mapObjects.add(PolylineMapObject(
           mapId: MapObjectId('route_${i}_polyline'),
-          coordinates: route.geometry,
+          polyline: Polyline(points: route.geometry),
           strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
           strokeWidth: 3,
         ));

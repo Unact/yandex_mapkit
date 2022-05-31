@@ -1,27 +1,29 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class CirclePage extends MapPage {
-  const CirclePage() : super('Circle example');
+class CircleMapObjectPage extends MapPage {
+  const CircleMapObjectPage() : super('Circle example');
 
   @override
   Widget build(BuildContext context) {
-    return _CircleExample();
+    return _CircleMapObjectExample();
   }
 }
 
-class _CircleExample extends StatefulWidget {
+class _CircleMapObjectExample extends StatefulWidget {
   @override
-  _CircleExampleState createState() => _CircleExampleState();
+  _CircleMapObjectExampleState createState() => _CircleMapObjectExampleState();
 }
 
-class _CircleExampleState extends State<_CircleExample> {
+class _CircleMapObjectExampleState extends State<_CircleMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId circleId = MapObjectId('circle');
+  final MapObjectId mapObjectId = MapObjectId('circle');
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class _CircleExampleState extends State<_CircleExample> {
             mapObjects: mapObjects
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -44,35 +46,39 @@ class _CircleExampleState extends State<_CircleExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == circleId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final circle = Circle(
-                          mapId: circleId,
-                          center: const Point(latitude: 55.781863, longitude: 37.451159),
-                          radius: 1000000,
+                        final mapObject = CircleMapObject(
+                          mapId: mapObjectId,
+                          circle: Circle(
+                            center: Point(latitude: 55.781863, longitude: 37.451159),
+                            radius: 1000000
+                          ),
                           strokeColor: Colors.blue[700]!,
                           strokeWidth: 5,
                           fillColor: Colors.blue[300]!,
-                          onTap: (Circle self, Point point) => print('Tapped me at $point'),
+                          onTap: (CircleMapObject self, Point point) => print('Tapped me at $point'),
                         );
 
                         setState(() {
-                          mapObjects.add(circle);
+                          mapObjects.add(mapObject);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == circleId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final circle = mapObjects.firstWhere((el) => el.mapId == circleId) as Circle;
+                        final mapObject = mapObjects.firstWhere((el) => el.mapId == mapObjectId) as CircleMapObject;
                         setState(() {
-                          mapObjects[mapObjects.indexOf(circle)] = circle.copyWith(radius: circle.radius - 10000);
+                          mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(
+                            fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
+                          );
                         });
                       },
                       title: 'Update'
@@ -80,7 +86,7 @@ class _CircleExampleState extends State<_CircleExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == circleId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectId);
                         });
                       },
                       title: 'Remove'

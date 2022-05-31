@@ -1,6 +1,6 @@
 import YandexMapsMobile
 
-class YandexPolylineController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
+class PolylineMapObjectController: NSObject, MapObjectController, YMKMapObjectTapListener {
   public let polyline: YMKPolylineMapObject
   private var consumeTapEvents: Bool = false
   public unowned var controller: YandexMapController
@@ -11,7 +11,7 @@ class YandexPolylineController: NSObject, YandexMapObjectController, YMKMapObjec
     params: [String: Any],
     controller: YandexMapController
   ) {
-    let polyline = parent.addPolyline(with: Utils.polylineFromJson(params))
+    let polyline = parent.addPolyline(with: Utils.polylineFromJson(params["polyline"] as! [String: Any]))
 
     self.polyline = polyline
     self.id = params["id"] as! String
@@ -25,17 +25,20 @@ class YandexPolylineController: NSObject, YandexMapObjectController, YMKMapObjec
   }
 
   public func update(_ params: [String: Any]) {
-    polyline.geometry = Utils.polylineFromJson(params)
+    polyline.geometry = Utils.polylineFromJson(params["polyline"] as! [String: Any])
     polyline.zIndex = (params["zIndex"] as! NSNumber).floatValue
-    polyline.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polyline.isVisible = (params["isVisible"] as! NSNumber).boolValue
-    polyline.strokeColor = Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value)
+    polyline.setStrokeColorWith(Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value))
     polyline.outlineColor = Utils.uiColor(fromInt: (params["outlineColor"] as! NSNumber).int64Value)
     polyline.outlineWidth = (params["outlineWidth"] as! NSNumber).floatValue
     polyline.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
     polyline.dashLength = (params["dashLength"] as! NSNumber).floatValue
     polyline.dashOffset = (params["dashOffset"] as! NSNumber).floatValue
     polyline.gapLength = (params["gapLength"] as! NSNumber).floatValue
+    polyline.turnRadius = (params["turnRadius"] as! NSNumber).floatValue
+    polyline.arcApproximationStep = (params["arcApproximationStep"] as! NSNumber).floatValue
+    polyline.gradientLength = (params["gradientLength"] as! NSNumber).floatValue
+    polyline.isInnerOutlineEnabled = (params["isInnerOutlineEnabled"] as! NSNumber).boolValue
 
     consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }

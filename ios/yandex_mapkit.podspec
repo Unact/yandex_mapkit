@@ -11,9 +11,7 @@ Pod::Spec.new do |s|
   s.public_header_files = 'Classes/**/*.h'
   s.static_framework = true
   s.dependency 'Flutter'
-  s.dependency 'YandexMapsMobile', '4.0.0-full'
+  s.dependency 'YandexMapsMobile', '4.1.0-full'
 
-  s.ios.deployment_target = '9.0'
-  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
-  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'}
+  s.ios.deployment_target = '12.0'
 end

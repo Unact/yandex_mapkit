@@ -11,19 +11,22 @@ import com.yandex.mapkit.map.PolylineMapObject;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-public class YandexPolylineController extends YandexMapObjectController implements MapObjectTapListener {
+public class PolylineMapObjectController extends MapObjectController implements MapObjectTapListener {
   public final PolylineMapObject polyline;
   private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  public YandexPolylineController(
+  @SuppressWarnings({"ConstantConditions", "unchecked"})
+  public PolylineMapObjectController(
     MapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
-    PolylineMapObject polyline = parent.addPolyline(Utils.polylineFromJson(params));
+    PolylineMapObject polyline = parent.addPolyline(
+      Utils.polylineFromJson((Map<String, Object>) params.get("polyline"))
+    );
 
     this.polyline = polyline;
     this.id = (String) params.get("id");
@@ -34,10 +37,9 @@ public class YandexPolylineController extends YandexMapObjectController implemen
     update(params);
   }
 
-  @SuppressWarnings({"ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions", "unchecked"})
   public void update(Map<String, Object> params) {
-    polyline.setGeometry(Utils.polylineFromJson(params));
-    polyline.setGeodesic((Boolean) params.get("isGeodesic"));
+    polyline.setGeometry(Utils.polylineFromJson((Map<String, Object>) params.get("polyline")));
     polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
     polyline.setVisible((Boolean) params.get("isVisible"));
     polyline.setOutlineColor(((Number) params.get("outlineColor")).intValue());
@@ -47,6 +49,10 @@ public class YandexPolylineController extends YandexMapObjectController implemen
     polyline.setDashLength(((Double) params.get("dashLength")).floatValue());
     polyline.setDashOffset(((Double) params.get("dashOffset")).floatValue());
     polyline.setGapLength(((Double) params.get("gapLength")).floatValue());
+    polyline.setTurnRadius(((Double) params.get("turnRadius")).floatValue());
+    polyline.setArcApproximationStep(((Double) params.get("arcApproximationStep")).floatValue());
+    polyline.setGradientLength(((Double) params.get("gradientLength")).floatValue());
+    polyline.setInnerOutlineEnabled(((Boolean) params.get("isInnerOutlineEnabled")));
 
     consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }

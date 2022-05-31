@@ -10,17 +10,17 @@ class Utils {
     )
   }
 
-  static func pointFromJson(_ json: [String: NSNumber]) -> YMKPoint {
-    return YMKPoint(
-      latitude: json["latitude"]!.doubleValue,
-      longitude: json["longitude"]!.doubleValue
-    )
-  }
-
   static func screenPointFromJson(_ json: [String: NSNumber]) -> YMKScreenPoint {
     return YMKScreenPoint(
       x: json["x"]!.floatValue,
       y: json["y"]!.floatValue
+    )
+  }
+
+  static func screenRectFromJson(_ json: [String: Any]) -> YMKScreenRect {
+    return YMKScreenRect(
+      topLeft: screenPointFromJson(json["topLeft"] as! [String: NSNumber]),
+      bottomRight: screenPointFromJson(json["bottomRight"] as! [String: NSNumber])
     )
   }
 
@@ -33,8 +33,8 @@ class Utils {
 
   static func rectFromJson(_ json: [String: Any]) -> YMKRect {
     return YMKRect(
-      min: Utils.rectPointFromJson(json["min"] as! [String: NSNumber]),
-      max: Utils.rectPointFromJson(json["max"] as! [String: NSNumber])
+      min: rectPointFromJson(json["min"] as! [String: NSNumber]),
+      max: rectPointFromJson(json["max"] as! [String: NSNumber])
     )
   }
 
@@ -71,8 +71,8 @@ class Utils {
       appleCtx: json["appleCtx"] as? String,
       geometry: (json["geometry"] as! NSNumber).boolValue,
       advertPageId: json["advertPageId"] as? String,
-      suggestWords: (json["suggestWords"] as! NSNumber).boolValue,
-      disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue
+      disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue,
+      filters: nil
     )
   }
 
@@ -88,21 +88,29 @@ class Utils {
     )
   }
 
-  static func boundingBoxFromJson(_ json: [String: Any]) -> YMKBoundingBox {
-    return YMKBoundingBox(
-      southWest: Utils.pointFromJson(json["southWest"] as! [String: NSNumber]),
-      northEast: Utils.pointFromJson(json["northEast"] as! [String: NSNumber])
-    )
-  }
-
   static func geometryFromJson(_ json: [String: Any]) -> YMKGeometry {
     if let geometryPoint = json["point"] as? [String: NSNumber] {
-      return YMKGeometry(point: Utils.pointFromJson(geometryPoint))
+      return YMKGeometry(point: pointFromJson(geometryPoint))
     } else if let geometryBoundingBox = json["boundingBox"] as? [String: Any] {
-      return YMKGeometry(boundingBox: Utils.boundingBoxFromJson(geometryBoundingBox))
+      return YMKGeometry(boundingBox: boundingBoxFromJson(geometryBoundingBox))
+    } else if let geometryCircle = json["circle"] as? [String: Any] {
+      return YMKGeometry(circle: circleFromJson(geometryCircle))
+    } else if let geometryPolyline = json["polyline"] as? [String: Any] {
+      return YMKGeometry(polyline: polylineFromJson(geometryPolyline))
+    } else if let geometryPolygon = json["polygon"] as? [String: Any] {
+      return YMKGeometry(polygon: polygonFromJson(geometryPolygon))
+    } else if let geometryMultiPolygon = json["multiPolygon"] as? [String: Any] {
+      return YMKGeometry(multiPolygon: multiPolygonFromJson(geometryMultiPolygon))
     }
 
     return YMKGeometry()
+  }
+
+  static func boundingBoxFromJson(_ json: [String: Any]) -> YMKBoundingBox {
+    return YMKBoundingBox(
+      southWest: pointFromJson(json["southWest"] as! [String: NSNumber]),
+      northEast: pointFromJson(json["northEast"] as! [String: NSNumber])
+    )
   }
 
   static func circleFromJson(_ json: [String: Any]) -> YMKCircle {
@@ -112,23 +120,42 @@ class Utils {
     )
   }
 
-  static func polylineFromJson(_ json: [String: Any]) -> YMKPolyline {
-    return YMKPolyline(points: (json["coordinates"] as! [[String: NSNumber]]).map { pointFromJson($0) })
+  static func linearRingFromJson(_ json: [String: Any]) -> YMKLinearRing {
+    return YMKLinearRing(points: (json["points"] as! [[String: NSNumber]]).map { pointFromJson($0) })
+  }
+
+  static func multiPolygonFromJson(_ json: [String: Any]) -> YMKMultiPolygon {
+    return YMKMultiPolygon(
+      polygons: (json["polygons"] as! [[String: Any]]).map { polygonFromJson($0) }
+    )
+  }
+
+  static func pointFromJson(_ json: [String: NSNumber]) -> YMKPoint {
+    return YMKPoint(
+      latitude: json["latitude"]!.doubleValue,
+      longitude: json["longitude"]!.doubleValue
+    )
   }
 
   static func polygonFromJson(_ json: [String: Any]) -> YMKPolygon {
     return YMKPolygon(
-      outerRing: YMKLinearRing(points: (json["outerRingCoordinates"] as! [[String: NSNumber]]).map { pointFromJson($0) }),
-      innerRings: (json["innerRingsCoordinates"] as! [[[String: NSNumber]]]).map {
-        YMKLinearRing(points: $0.map { pointFromJson($0) })
-      }
+      outerRing: linearRingFromJson(json["outerRing"] as! [String: Any]),
+      innerRings: (json["innerRings"] as! [[String: Any]]).map { linearRingFromJson($0) }
     )
   }
 
-  static func pointToJson(_ point: YMKPoint) -> [String: Any] {
+  static func polylineFromJson(_ json: [String: Any]) -> YMKPolyline {
+    return YMKPolyline(points: (json["points"] as! [[String: NSNumber]]).map { pointFromJson($0) })
+  }
+
+  static func geometryToJson(_ geometry: YMKGeometry) -> [String: Any?] {
     return [
-      "latitude": point.latitude,
-      "longitude": point.longitude
+      "boundingBox": geometry.boundingBox == nil ? nil : boundingBoxToJson(geometry.boundingBox!),
+      "circle": geometry.circle == nil ? nil : circleToJson(geometry.circle!),
+      "multiPolygon": geometry.multiPolygon == nil ? nil : multiPolygonToJson(geometry.multiPolygon!),
+      "point": geometry.point == nil ? nil : pointToJson(geometry.point!),
+      "polygon": geometry.polygon == nil ? nil : polygonToJson(geometry.polygon!),
+      "polyline": geometry.polyline == nil ? nil : polylineToJson(geometry.polyline!),
     ]
   }
 
@@ -139,33 +166,49 @@ class Utils {
     ]
   }
 
-  static func geometryToJson(_ geometry: YMKGeometry) -> [String: Any] {
-    if geometry.point != nil {
-      return [
-        "point": pointToJson(geometry.point!)
-      ]
-    }
+  static func circleToJson(_ circle: YMKCircle) -> [String: Any] {
+    return [
+      "center": pointToJson(circle.center),
+      "radius": circle.radius
+    ]
+  }
 
-    if geometry.boundingBox != nil {
-      return [
-        "boundingBox": boundingBoxToJson(geometry.boundingBox!)
-      ]
-    }
+  static func linearRingToJson(_ linearRing: YMKLinearRing) -> [String: Any] {
+    return [
+      "points": linearRing.points.map({ pointToJson($0) })
+    ]
+  }
 
-    return [:]
+  static func multiPolygonToJson(_ multiPolygon: YMKMultiPolygon) -> [String: Any] {
+    return [
+      "polygons": multiPolygon.polygons.map({ polygonToJson($0) })
+    ]
+  }
+
+  static func pointToJson(_ point: YMKPoint) -> [String: Any] {
+    return [
+      "latitude": point.latitude,
+      "longitude": point.longitude
+    ]
+  }
+
+  static func polygonToJson(_ polygon: YMKPolygon) -> [String: Any] {
+    return [
+      "outerRing": linearRingToJson(polygon.outerRing),
+      "innerRings": polygon.innerRings.map({ linearRingToJson($0) })
+    ]
+  }
+
+  static func polylineToJson(_ polyline: YMKPolyline) -> [String: Any] {
+    return [
+      "points": polyline.points.map({ pointToJson($0) })
+    ]
   }
 
   static func screenPointToJson(_ screenPoint: YMKScreenPoint) -> [String: Any] {
     return [
       "x": screenPoint.x,
       "y": screenPoint.y
-    ]
-  }
-
-  static func circleToJson(_ circle: YMKCircle) -> [String: Any] {
-    return [
-      "center": pointToJson(circle.center),
-      "radius": circle.radius
     ]
   }
 
