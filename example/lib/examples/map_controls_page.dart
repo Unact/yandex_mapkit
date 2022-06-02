@@ -23,8 +23,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   final List<MapObject> mapObjects = [];
 
   final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
-  static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  final animation = const MapAnimation(type: MapAnimationType.smooth, duration: 2.0);
+  static final Point _point = Point(latitude: 59.945933, longitude: 30.320045);
+  final animation = MapAnimation(type: MapAnimationType.smooth, duration: 2.0);
 
   bool tiltGesturesEnabled = true;
   bool zoomGesturesEnabled = true;
@@ -36,7 +36,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool mode2DEnabled = false;
   bool indoorEnabled = false;
   bool liteModeEnabled = false;
-  ScreenRect? screenRect;
+  ScreenRect? focusRect;
+  MapType mapType = MapType.vector;
+  int? poiLimit;
 
   final String style = '''
     [
@@ -57,6 +59,23 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
     return enabled ? 'on' : 'off';
   }
 
+  MapType _nextMapType(MapType oldMapType) {
+    switch (oldMapType) {
+      case MapType.map:
+        return MapType.hybrid;
+      case MapType.hybrid:
+        return MapType.satellite;
+      case MapType.satellite:
+        return MapType.vector;
+      case MapType.vector:
+        return MapType.none;
+      case MapType.none:
+        return MapType.map;
+      default:
+        return MapType.none;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -65,6 +84,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
       children: <Widget>[
         Expanded(
           child: YandexMap(
+            mapType: mapType,
+            poiLimit: poiLimit,
             tiltGesturesEnabled: tiltGesturesEnabled,
             zoomGesturesEnabled: zoomGesturesEnabled,
             rotateGesturesEnabled: rotateGesturesEnabled,
@@ -76,7 +97,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             indoorEnabled: indoorEnabled,
             liteModeEnabled: liteModeEnabled,
             logoAlignment: MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
-            screenRect: screenRect,
+            focusRect: focusRect,
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
@@ -88,7 +109,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
               print('Camera position: $cameraPosition');
               print('Min zoom: $minZoom, Max zoom: $maxZoom');
             },
-            onMapTap: (Point point) => print('Tapped map at $point'),
+            onMapTap: (Point point) async {
+              print('Tapped map at $point');
+
+              await controller.deselectGeoObject();
+            },
             onMapLongTap: (Point point) => print('Long tapped map at $point'),
             onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason reason, bool finished) {
               print('Camera position: $cameraPosition, Reason: $reason');
@@ -97,9 +122,16 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 print('Camera position movement has been finished');
               }
             },
+            onObjectTap: (GeoObject geoObject) async {
+              print('Tapped object: ${geoObject.name}');
+
+              if (geoObject.selectionMetadata != null) {
+                await controller.selectGeoObject(geoObject.selectionMetadata!.id, geoObject.selectionMetadata!.layerId);
+              }
+            },
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Table(
@@ -153,8 +185,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       final newBounds = BoundingBox(
-                        northEast: const Point(latitude: 65.0, longitude: 40.0),
-                        southWest: const Point(latitude: 60.0, longitude: 30.0),
+                        northEast: Point(latitude: 65.0, longitude: 40.0),
+                        southWest: Point(latitude: 60.0, longitude: 30.0),
                       );
                       await controller.moveCamera(CameraUpdate.newBounds(newBounds), animation: animation);
                     },
@@ -163,8 +195,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       final newBounds = BoundingBox(
-                        northEast: const Point(latitude: 65.0, longitude: 40.0),
-                        southWest: const Point(latitude: 60.0, longitude: 30.0),
+                        northEast: Point(latitude: 65.0, longitude: 40.0),
+                        southWest: Point(latitude: 60.0, longitude: 30.0),
                       );
                       await controller.moveCamera(
                         CameraUpdate.newTiltAzimuthBounds(newBounds, azimuth: 1, tilt: 1),
@@ -177,7 +209,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      final placemark = Placemark(
+                      final placemark = PlacemarkMapObject(
                         mapId: targetMapObjectId,
                         point: (await controller.getCameraPosition()).target,
                         opacity: 0.7,
@@ -195,7 +227,14 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Target point'
                   ),
-                  Container()
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        mapType = _nextMapType(mapType);
+                      });
+                    },
+                    title: 'Map type: ${mapType.name}'
+                  )
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
@@ -219,7 +258,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         final screenPoint = await controller.getScreenPoint(cameraPosition.target);
 
                         setState(() {
-                          screenRect = ScreenRect(
+                          focusRect = ScreenRect(
                             topLeft: ScreenPoint(x: 0, y: 0),
                             bottomRight: screenPoint!
                           );
@@ -230,7 +269,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          screenRect = null;
+                          focusRect = null;
                         });
                       },
                       title: 'Clear focus rect'
@@ -367,7 +406,25 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: 'Lite mode: ${_enabledText(liteModeEnabled)}'
                   )
-                ])
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        poiLimit = 10;
+                      });
+                    },
+                    title: 'Set poi limit'
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        poiLimit = null;
+                      });
+                    },
+                    title: 'Remove poi limit'
+                  )
+                ]),
               ],
             ),
           ),

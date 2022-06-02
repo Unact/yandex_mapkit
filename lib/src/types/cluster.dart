@@ -10,17 +10,17 @@ class Cluster extends Equatable {
   });
 
   /// Placemarks from [ClusterizedPlacemarkCollection] in this cluster
-  final List<Placemark> placemarks;
+  final List<PlacemarkMapObject> placemarks;
 
   /// Number of placemarks in this cluster
   final int size;
 
   /// Placemark which indicates how to visually show cluster on [YandexMap]
-  final Placemark appearance;
+  final PlacemarkMapObject appearance;
 
   /// Returns a copy of [Cluster] with new appearance
   Cluster copyWith({
-    Placemark? appearance
+    PlacemarkMapObject? appearance
   }) {
     return Cluster._(
       size: size,

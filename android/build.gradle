@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.2'
+        classpath 'com.android.tools.build:gradle:7.1.3'
     }
 }
 
@@ -22,13 +22,13 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
     }
 }
 
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.0.0-full'
+    implementation 'com.yandex.android:maps.mobile:4.1.0-full'
 }

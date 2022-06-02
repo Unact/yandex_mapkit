@@ -1,11 +1,10 @@
 part of yandex_mapkit;
 
 /// A circle to be displayed on [YandexMap].
-class Circle extends Equatable implements MapObject<Circle> {
-  Circle({
+class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
+  CircleMapObject({
     required this.mapId,
-    required this.center,
-    required this.radius,
+    required this.circle,
     this.isGeodesic = false,
     this.zIndex = 0.0,
     this.onTap,
@@ -16,11 +15,8 @@ class Circle extends Equatable implements MapObject<Circle> {
     this.fillColor = const Color(0xFF64B5F6),
   });
 
-  /// The coordinates of the center of the circle.
-  final Point center;
-
-  /// The radius of the circle in meters.
-  final double radius;
+  /// The geometry of the map object.
+  final Circle circle;
 
   /// The object's geometry can be interpreted in two different ways:
   ///
@@ -36,7 +32,7 @@ class Circle extends Equatable implements MapObject<Circle> {
   final double zIndex;
 
   /// Callback to call on circle tap
-  final TapCallback<Circle>? onTap;
+  final TapCallback<CircleMapObject>? onTap;
 
   /// Manages visibility of the object on the map.
   final bool isVisible;
@@ -61,22 +57,20 @@ class Circle extends Equatable implements MapObject<Circle> {
   /// with the camera position's tilt at 0 and a scale factor of 1
   final double strokeWidth;
 
-  Circle copyWith({
-    Point? center,
-    double? radius,
+  CircleMapObject copyWith({
+    Circle? circle,
     bool? isGeodesic,
     double? zIndex,
-    TapCallback<Circle>? onTap,
+    TapCallback<CircleMapObject>? onTap,
     bool? consumeTapEvents,
     bool? isVisible,
     Color? fillColor,
     Color? strokeColor,
     double? strokeWidth
   }) {
-    return Circle(
+    return CircleMapObject(
       mapId: mapId,
-      center: center ?? this.center,
-      radius: radius ?? this.radius,
+      circle: circle ?? this.circle,
       isGeodesic: isGeodesic ?? this.isGeodesic,
       zIndex: zIndex ?? this.zIndex,
       onTap: onTap ?? this.onTap,
@@ -92,14 +86,13 @@ class Circle extends Equatable implements MapObject<Circle> {
   final MapObjectId mapId;
 
   @override
-  Circle clone() => copyWith();
+  CircleMapObject clone() => copyWith();
 
   @override
-  Circle dup(MapObjectId mapId) {
-    return Circle(
+  CircleMapObject dup(MapObjectId mapId) {
+    return CircleMapObject(
       mapId: mapId,
-      center: center,
-      radius: radius,
+      circle: circle,
       isGeodesic: isGeodesic,
       zIndex: zIndex,
       onTap: onTap,
@@ -119,21 +112,21 @@ class Circle extends Equatable implements MapObject<Circle> {
   }
 
   /// Stub for [MapObject]
-  /// [Circle] does not support drag
+  /// [CircleMapObject] does not support drag
   @override
   void _dragStart() {
     throw UnsupportedError;
   }
 
   /// Stub for [MapObject]
-  /// [Circle] does not support drag
+  /// [CircleMapObject] does not support drag
   @override
   void _drag(Point point) {
     throw UnsupportedError;
   }
 
   /// Stub for [MapObject]
-  /// [Circle] does not support drag
+  /// [CircleMapObject] does not support drag
   @override
   void _dragEnd() {
     throw UnsupportedError;
@@ -143,8 +136,7 @@ class Circle extends Equatable implements MapObject<Circle> {
   Map<String, dynamic> toJson() {
     return {
       'id': mapId.value,
-      'center': center.toJson(),
-      'radius': radius,
+      'circle': circle.toJson(),
       'isGeodesic': isGeodesic,
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
@@ -182,8 +174,7 @@ class Circle extends Equatable implements MapObject<Circle> {
   @override
   List<Object> get props => <Object>[
     mapId,
-    center,
-    radius,
+    circle,
     isGeodesic,
     zIndex,
     consumeTapEvents,

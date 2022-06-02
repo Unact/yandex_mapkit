@@ -11,7 +11,7 @@ import com.yandex.mapkit.map.MapObjectTapListener;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 
-public class YandexCircleController extends YandexMapObjectController implements MapObjectTapListener {
+public class CircleMapObjectController extends MapObjectController implements MapObjectTapListener {
   private final boolean internallyControlled;
   public final CircleMapObject circle;
   private boolean consumeTapEvents = false;
@@ -19,14 +19,14 @@ public class YandexCircleController extends YandexMapObjectController implements
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  @SuppressWarnings({"ConstantConditions"})
-  public YandexCircleController(
+  @SuppressWarnings({"ConstantConditions", "unchecked"})
+  public CircleMapObjectController(
     MapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
     CircleMapObject circle = parent.addCircle(
-      Utils.circleFromJson(params),
+      Utils.circleFromJson((Map<String, Object>) params.get("circle")),
       ((Number) params.get("strokeColor")).intValue(),
       ((Double) params.get("strokeWidth")).floatValue(),
       ((Number) params.get("fillColor")).intValue()
@@ -42,7 +42,7 @@ public class YandexCircleController extends YandexMapObjectController implements
     update(params);
   }
 
-  public YandexCircleController(
+  public CircleMapObjectController(
     CircleMapObject circle,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
@@ -57,10 +57,10 @@ public class YandexCircleController extends YandexMapObjectController implements
     update(params);
   }
 
-  @SuppressWarnings({"ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions", "unchecked"})
   public void update(Map<String, Object> params) {
     if (!internallyControlled) {
-      circle.setGeometry(Utils.circleFromJson(params));
+      circle.setGeometry(Utils.circleFromJson((Map<String, Object>) params.get("circle")));
       circle.setVisible((Boolean) params.get("isVisible"));
     }
 

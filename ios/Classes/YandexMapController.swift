@@ -7,42 +7,49 @@ public class YandexMapController:
   NSObject,
   FlutterPlatformView,
   YMKUserLocationObjectListener,
+  YMKTrafficDelegate,
   YMKMapInputListener,
-  YMKMapCameraListener
+  YMKMapCameraListener,
+  YMKLayersGeoObjectTapListener
 {
   public let methodChannel: FlutterMethodChannel!
   public let pluginRegistrar: FlutterPluginRegistrar!
   private let userLocationLayer: YMKUserLocationLayer!
+  private let trafficLayer: YMKTrafficLayer!
   private var mapObjectCollections: [YMKMapObjectCollection] = []
-  private var userPinController: YandexPlacemarkController?
-  private var userArrowController: YandexPlacemarkController?
-  private var userAccuracyCircleController: YandexCircleController?
-  private lazy var rootController: YandexMapObjectCollectionController = {
-    YandexMapObjectCollectionController.init(
+  private var userPinController: PlacemarkMapObjectController?
+  private var userArrowController: PlacemarkMapObjectController?
+  private var userAccuracyCircleController: CircleMapObjectController?
+  private lazy var rootController: MapObjectCollectionController = {
+    MapObjectCollectionController.init(
       root: mapView.mapWindow.map.mapObjects,
       id: "root_map_object_collection",
       controller: self
     )
   }()
-  private let mapView: FLYMKMapView
+  private let mapView: YMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
-    self.mapView = FLYMKMapView(frame: frame)
+    self.mapView = YMKMapView(frame: frame)
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
     )
     self.userLocationLayer = YMKMapKit.sharedInstance().createUserLocationLayer(with: mapView.mapWindow)
+    self.trafficLayer = YMKMapKit.sharedInstance().createTrafficLayer(with: mapView.mapWindow)
 
     super.init()
 
     weak var weakSelf = self
     self.methodChannel.setMethodCallHandler({ weakSelf?.handle($0, result: $1) })
 
+    mapView.mapWindow.map.addTapListener(with: self)
     mapView.mapWindow.map.addInputListener(with: self)
     mapView.mapWindow.map.addCameraListener(with: self)
+
     userLocationLayer.setObjectListenerWith(self)
+    trafficLayer.addTrafficListener(withTrafficListener: self)
 
     applyMapOptions(params["mapOptions"] as! [String: Any])
     applyMapObjects(params["mapObjects"] as! [String: Any])
@@ -58,6 +65,9 @@ public class YandexMapController:
       result(nil)
     case "toggleUserLayer":
       toggleUserLayer(call)
+      result(nil)
+    case "toggleTrafficLayer":
+      toggleTrafficLayer(call)
       result(nil)
     case "setMapStyle":
       result(setMapStyle(call))
@@ -87,7 +97,12 @@ public class YandexMapController:
       result(getFocusRegion())
     case "getUserCameraPosition":
       result(getUserCameraPosition())
-
+    case "selectGeoObject":
+      selectGeoObject(call)
+      result(nil)
+    case "deselectGeoObject":
+      deselectGeoObject()
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -122,10 +137,29 @@ public class YandexMapController:
     }
   }
 
+  public func toggleTrafficLayer(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+
+    trafficLayer.setTrafficVisibleWithOn(params["visible"] as! Bool)
+  }
+
   public func setMapStyle(_ call: FlutterMethodCall) -> Bool {
     let params = call.arguments as! [String: Any]
 
     return mapView.mapWindow.map.setMapStyleWithStyle(params["style"] as! String)
+  }
+
+  public func selectGeoObject(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+
+    mapView.mapWindow.map.selectGeoObject(
+      withObjectId: params["objectId"] as! String,
+      layerId: params["layerId"] as! String
+    )
+  }
+
+  public func deselectGeoObject() {
+    mapView.mapWindow.map.deselectGeoObject()
   }
 
   public func getMinZoom() -> Float {
@@ -158,6 +192,12 @@ public class YandexMapController:
 
   public func moveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     let params = call.arguments as! [String: Any]
+
+    if (mapView.mapWindow.width() == 0 && mapView.mapWindow.height() == 0) {
+      result(false)
+
+      return
+    }
 
     move(
       cameraPosition: cameraUpdateToPosition(params["cameraUpdate"] as! [String: Any]),
@@ -256,16 +296,28 @@ public class YandexMapController:
   }
 
   private func newBounds(_ params: [String: Any]) -> YMKCameraPosition {
+    if (params["focusRect"] as? [String: Any] != nil) {
+      return mapView.mapWindow.map.cameraPosition(
+        with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
+        focus: Utils.screenRectFromJson(params["focusRect"] as! [String: Any])
+      )
+    }
+
     return mapView.mapWindow.map.cameraPosition(
       with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any])
     )
   }
 
   private func newTiltAzimuthBounds(_ params: [String: Any]) -> YMKCameraPosition {
+    let focus = params["focusRect"] as? [String: Any] != nil ?
+      Utils.screenRectFromJson(params["focusRect"] as! [String: Any]) :
+      nil
+
     return mapView.mapWindow.map.cameraPosition(
       with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
       azimuth: (params["azimuth"] as! NSNumber).floatValue,
-      tilt: (params["tilt"] as! NSNumber).floatValue
+      tilt: (params["tilt"] as! NSNumber).floatValue,
+      focus: focus
     )
   }
 
@@ -324,25 +376,11 @@ public class YandexMapController:
     )
   }
 
-  private func validCameraPosition(_ cameraPosition: YMKCameraPosition) -> Bool {
-    return !cameraPosition.zoom.isNaN &&
-      !cameraPosition.tilt.isNaN &&
-      !cameraPosition.azimuth.isNaN &&
-      !cameraPosition.target.latitude.isNaN &&
-      !cameraPosition.target.longitude.isNaN
-  }
-
   private func move(
     cameraPosition: YMKCameraPosition,
     animationParams: [String: Any]?,
     result: @escaping FlutterResult
   ) {
-    if !validCameraPosition(cameraPosition) {
-      result(false)
-
-      return
-    }
-
     if animationParams == nil {
       mapView.mapWindow.map.move(with: cameraPosition)
       result(true)
@@ -409,8 +447,16 @@ public class YandexMapController:
       applyAlignLogo(logoAlignment)
     }
 
-    if params.keys.contains("screenRect") {
-      applyScreenRect(params["screenRect"] as? [String: Any])
+    if params.keys.contains("focusRect") {
+      applyFocusRect(params["focusRect"] as? [String: Any])
+    }
+
+    if let mapType = params["mapType"] as? NSNumber {
+      map.mapType = YMKMapType.init(rawValue: mapType.uintValue)!
+    }
+
+    if params.keys.contains("poiLimit") {
+      map.poiLimit = params["poiLimit"] as? NSNumber
     }
   }
 
@@ -430,7 +476,7 @@ public class YandexMapController:
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
   }
 
-  private func applyScreenRect(_ params: [String: Any]?) {
+  private func applyFocusRect(_ params: [String: Any]?) {
     if (params == nil) {
       mapView.mapWindow.focusRect = nil
       mapView.mapWindow.pointOfView = YMKPointOfView.screenCenter
@@ -438,22 +484,19 @@ public class YandexMapController:
       return
     }
 
-    let screenRect = YMKScreenRect(
-      topLeft: Utils.screenPointFromJson(params!["topLeft"] as! [String: NSNumber]),
-      bottomRight: Utils.screenPointFromJson(params!["bottomRight"] as! [String: NSNumber])
-    )
+    let focusRect = Utils.screenRectFromJson(params!)
 
     if (
-      screenRect.topLeft.y < 0 ||
-      screenRect.topLeft.x < 0 ||
-      screenRect.bottomRight.y > Float(mapView.mapWindow.height()) ||
-      screenRect.bottomRight.x > Float(mapView.mapWindow.width())
+      focusRect.topLeft.y < 0 ||
+      focusRect.topLeft.x < 0 ||
+      focusRect.bottomRight.y > Float(mapView.mapWindow.height()) ||
+      focusRect.bottomRight.x > Float(mapView.mapWindow.width())
     ) {
       return
     }
 
-    mapView.mapWindow.focusRect = screenRect
-    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusRectHorizontally
+    mapView.mapWindow.focusRect = focusRect
+    mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusPointHorizontally
   }
 
   public func onObjectAdded(with view: YMKUserLocationView) {
@@ -470,21 +513,19 @@ public class YandexMapController:
 
       let params = result as! [String: Any]
 
-      self.userPinController = YandexPlacemarkController(
-        parent: view.pin.parent,
+      self.userPinController = PlacemarkMapObjectController(
         placemark: view.pin,
         params: params["pin"] as! [String: Any],
         controller: self
       )
 
-      self.userArrowController = YandexPlacemarkController(
-        parent: view.arrow.parent,
+      self.userArrowController = PlacemarkMapObjectController(
         placemark: view.arrow,
         params: params["arrow"] as! [String: Any],
         controller: self
       )
 
-      self.userAccuracyCircleController = YandexCircleController(
+      self.userAccuracyCircleController = CircleMapObjectController(
         circle: view.accuracyCircle,
         params: params["accuracyCircle"] as! [String: Any],
         controller: self
@@ -495,6 +536,21 @@ public class YandexMapController:
   public func onObjectRemoved(with view: YMKUserLocationView) {}
 
   public func onObjectUpdated(with view: YMKUserLocationView, event: YMKObjectEvent) {}
+
+  public func onTrafficChanged(with trafficLevel: YMKTrafficLevel?) {
+    let arguments: [String: Any?] = [
+      "trafficLevel": trafficLevel == nil ? nil : [
+        "level": trafficLevel!.level,
+        "color": trafficLevel!.color.rawValue
+      ]
+    ]
+
+    methodChannel.invokeMethod("onTrafficChanged", arguments: arguments)
+  }
+
+  public func onTrafficLoading() {}
+
+  public func onTrafficExpired() {}
 
   public func onMapTap(with map: YMKMap, point: YMKPoint) {
     let arguments: [String: Any?] = [
@@ -522,6 +578,29 @@ public class YandexMapController:
       "finished": finished
     ]
     methodChannel.invokeMethod("onCameraPositionChanged", arguments: arguments)
+  }
+
+  public func onObjectTap(with event: YMKGeoObjectTapEvent) -> Bool {
+    let geoObj = event.geoObject
+    let meta = geoObj.metadataContainer.getItemOf(YMKGeoObjectSelectionMetadata.self) as? YMKGeoObjectSelectionMetadata
+
+    let arguments: [String: Any?] = [
+      "geoObject": [
+        "name": geoObj.name,
+        "descriptionText": geoObj.descriptionText,
+        "geometry": geoObj.geometry.map({ Utils.geometryToJson($0) }),
+        "boundingBox": geoObj.boundingBox != nil ? Utils.boundingBoxToJson(geoObj.boundingBox!) : nil,
+        "selectionMetadata": meta == nil ? nil : [
+          "id": meta!.id,
+          "layerId": meta!.layerId
+        ],
+        "aref": geoObj.aref
+      ]
+    ]
+
+    methodChannel.invokeMethod("onObjectTap", arguments: arguments)
+
+    return true
   }
 
   internal func mapObjectTap(id: String, point: YMKPoint) {
@@ -555,19 +634,5 @@ public class YandexMapController:
     ]
 
     methodChannel.invokeMethod("onMapObjectDragEnd", arguments: arguments)
-  }
-
-  // Fix https://github.com/flutter/flutter/issues/67514
-  internal class FLYMKMapView: YMKMapView {
-    public var initResult: FlutterResult?
-
-    override var frame: CGRect {
-      didSet {
-        if initResult != nil {
-          initResult!(nil)
-          initResult = nil
-        }
-      }
-    }
   }
 }

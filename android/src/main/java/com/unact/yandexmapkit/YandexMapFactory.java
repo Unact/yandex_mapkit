@@ -2,6 +2,8 @@ package com.unact.yandexmapkit;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -19,6 +21,7 @@ public class YandexMapFactory extends PlatformViewFactory {
     this.lifecycleProvider = lifecycleProvider;
   }
 
+  @NonNull
   @Override
   @SuppressWarnings({"unchecked"})
   public PlatformView create(Context context, int id, Object args) {

@@ -22,20 +22,20 @@ import java.util.Map;
 import io.flutter.plugin.common.FlutterException;
 import io.flutter.plugin.common.MethodChannel;
 
-public class YandexClusterizedPlacemarkCollectionController
-  extends YandexMapObjectController
+public class ClusterizedPlacemarkCollectionController
+  extends MapObjectController
   implements ClusterListener, ClusterTapListener, MapObjectTapListener
 {
   private int clusterCnt = 0;
-  private final Map<Cluster, YandexPlacemarkController> clusters = new HashMap<>();
-  private final Map<String, YandexPlacemarkController> placemarks = new HashMap<>();
+  private final Map<Cluster, PlacemarkMapObjectController> clusters = new HashMap<>();
+  private final Map<String, PlacemarkMapObjectController> placemarks = new HashMap<>();
   public final ClusterizedPlacemarkCollection clusterizedPlacemarkCollection;
   private boolean consumeTapEvents = false;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  public YandexClusterizedPlacemarkCollectionController(
+  public ClusterizedPlacemarkCollectionController(
     MapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
@@ -65,7 +65,7 @@ public class YandexClusterizedPlacemarkCollectionController
   }
 
   public void remove() {
-    for (YandexPlacemarkController placemarkController : placemarks.values()) {
+    for (PlacemarkMapObjectController placemarkController : placemarks.values()) {
       placemarkController.remove();
     }
 
@@ -101,7 +101,7 @@ public class YandexClusterizedPlacemarkCollectionController
   }
 
   private void addPlacemark(Map<String, Object> params) {
-    YandexPlacemarkController placemarkController = new YandexPlacemarkController(
+    PlacemarkMapObjectController placemarkController = new PlacemarkMapObjectController(
       clusterizedPlacemarkCollection,
       params,
       controller
@@ -112,14 +112,14 @@ public class YandexClusterizedPlacemarkCollectionController
 
   private void changePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPlacemarkController placemarkController = placemarks.get(id);
+    PlacemarkMapObjectController placemarkController = placemarks.get(id);
 
     if (placemarkController != null) placemarkController.update(params);
   }
 
   private void removePlacemark(Map<String, Object> params) {
     String id = (String) params.get("id");
-    YandexPlacemarkController placemarkController = placemarks.get(id);
+    PlacemarkMapObjectController placemarkController = placemarks.get(id);
 
     if (placemarkController != null) placemarkController.remove();
     placemarks.remove(id);
@@ -127,7 +127,7 @@ public class YandexClusterizedPlacemarkCollectionController
 
   public void removeClusters() {
     List<String> appearancePlacemarkIds = new ArrayList<>();
-    for (YandexPlacemarkController placemarkController : clusters.values()) {
+    for (PlacemarkMapObjectController placemarkController : clusters.values()) {
       appearancePlacemarkIds.add(placemarkController.id);
       placemarkController.remove();
     }
@@ -142,7 +142,7 @@ public class YandexClusterizedPlacemarkCollectionController
   }
 
   public void onClusterAdded(final Cluster cluster) {
-    final YandexClusterizedPlacemarkCollectionController self = this;
+    final ClusterizedPlacemarkCollectionController self = this;
     clusterCnt += 1;
     List<String> placemarkIds = new ArrayList<>();
     for (PlacemarkMapObject placemark : cluster.getPlacemarks()) {
@@ -168,7 +168,7 @@ public class YandexClusterizedPlacemarkCollectionController
 
         clusters.put(
           cluster,
-          new YandexPlacemarkController(clusterizedPlacemarkCollection, cluster.getAppearance(), params, controller)
+          new PlacemarkMapObjectController(cluster.getAppearance(), params, controller)
         );
 
         cluster.addClusterTapListener(self);

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.BaseMapObjectCollection;
 import com.yandex.mapkit.map.ClusterizedPlacemarkCollection;
 import com.yandex.mapkit.map.CompositeIcon;
 import com.yandex.mapkit.map.IconStyle;
@@ -24,20 +25,19 @@ import java.util.Map;
 
 import io.flutter.FlutterInjector;
 
-public class YandexPlacemarkController
-  extends YandexMapObjectController
+public class PlacemarkMapObjectController
+  extends MapObjectController
   implements MapObjectTapListener, MapObjectDragListener
 {
   private final boolean internallyControlled;
-  private final MapObject parent; // Workaround https://github.com/yandex/mapkit-android-demo/issues/258
   public final PlacemarkMapObject placemark;
   private boolean consumeTapEvents = false;
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public YandexPlacemarkController(
-    MapObject parent,
+  public PlacemarkMapObjectController(
+    BaseMapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
@@ -52,7 +52,6 @@ public class YandexPlacemarkController
        placemark = ((MapObjectCollection) parent).addPlacemark(point);
     }
 
-    this.parent = parent;
     this.placemark = placemark;
     this.id = (String) params.get("id");
     this.controller = controller;
@@ -64,13 +63,11 @@ public class YandexPlacemarkController
     update(params);
   }
 
-  public YandexPlacemarkController(
-    MapObject parent,
+  public PlacemarkMapObjectController(
     PlacemarkMapObject placemark,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
-    this.parent = parent;
     this.placemark = placemark;
     this.id = (String) params.get("id");
     this.controller = controller;
@@ -103,13 +100,7 @@ public class YandexPlacemarkController
       return;
     }
 
-    if (parent instanceof ClusterizedPlacemarkCollection) {
-      ((ClusterizedPlacemarkCollection) parent).remove(placemark);
-    }
-
-    if (parent instanceof MapObjectCollection) {
-      ((MapObjectCollection) parent).remove(placemark);
-    }
+    placemark.getParent().remove(placemark);
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})

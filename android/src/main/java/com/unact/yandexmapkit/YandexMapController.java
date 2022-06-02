@@ -13,25 +13,35 @@ import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.yandex.mapkit.Animation;
+import com.yandex.mapkit.GeoObject;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.ScreenRect;
+import com.yandex.mapkit.geometry.Geometry;
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.layers.GeoObjectTapEvent;
+import com.yandex.mapkit.layers.GeoObjectTapListener;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.logo.Alignment;
 import com.yandex.mapkit.logo.HorizontalAlignment;
 import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata;
 import com.yandex.mapkit.map.InputListener;
+import com.yandex.mapkit.map.MapType;
 import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.CameraUpdateReason;
 import com.yandex.mapkit.map.CameraListener;
 import com.yandex.mapkit.mapview.MapView;
+import com.yandex.mapkit.traffic.TrafficLayer;
+import com.yandex.mapkit.traffic.TrafficLevel;
+import com.yandex.mapkit.traffic.TrafficListener;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,21 +59,24 @@ public class YandexMapController implements
   MethodChannel.MethodCallHandler,
   DefaultLifecycleObserver,
   UserLocationObjectListener,
+  TrafficListener,
   InputListener,
-  CameraListener
+  CameraListener,
+  GeoObjectTapListener
 {
   private final MapView mapView;
   public final Context context;
   public final MethodChannel methodChannel;
   private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
+  private final TrafficLayer trafficLayer;
   private final UserLocationLayer userLocationLayer;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private YandexPlacemarkController userPinController;
+  private PlacemarkMapObjectController userPinController;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private YandexPlacemarkController userArrowController;
+  private PlacemarkMapObjectController userArrowController;
   @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private YandexCircleController userAccuracyCircleController;
-  private final YandexMapObjectCollectionController rootController;
+  private CircleMapObjectController userAccuracyCircleController;
+  private final MapObjectCollectionController rootController;
   private boolean disposed = false;
 
   @SuppressWarnings({"unchecked", "ConstantConditions", "InflateParams"})
@@ -88,11 +101,12 @@ public class YandexMapController implements
     mapView.onStart();
 
     userLocationLayer = MapKitFactory.getInstance().createUserLocationLayer(mapView.getMapWindow());
+    trafficLayer = MapKitFactory.getInstance().createTrafficLayer(mapView.getMapWindow());
 
     methodChannel = new MethodChannel(messenger, "yandex_mapkit/yandex_map_" + id);
     methodChannel.setMethodCallHandler(this);
 
-    rootController = new YandexMapObjectCollectionController(
+    rootController = new MapObjectCollectionController(
       mapView.getMap().getMapObjects(),
       "root_map_object_collection",
       new WeakReference<>(this)
@@ -100,9 +114,11 @@ public class YandexMapController implements
 
     mapView.getMap().addInputListener(this);
     mapView.getMap().addCameraListener(this);
+    mapView.getMap().addTapListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
+    trafficLayer.addTrafficListener(this);
 
     applyMapOptions((Map<String, Object>) params.get("mapOptions"));
     applyMapObjects((Map<String, Object>) params.get("mapObjects"));
@@ -121,6 +137,10 @@ public class YandexMapController implements
         break;
       case "toggleUserLayer":
         toggleUserLayer(call);
+        result.success(null);
+        break;
+      case "toggleTrafficLayer":
+        toggleTrafficLayer(call);
         result.success(null);
         break;
       case "setMapStyle":
@@ -163,6 +183,14 @@ public class YandexMapController implements
       case "getUserCameraPosition":
         result.success(getUserCameraPosition());
         break;
+      case "selectGeoObject":
+        selectGeoObject(call);
+        result.success(null);
+        break;
+      case "deselectGeoObject":
+        deselectGeoObject();
+        result.success(null);
+        break;
       default:
         result.notImplemented();
         break;
@@ -204,10 +232,31 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void toggleTrafficLayer(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    trafficLayer.setTrafficVisible((Boolean) params.get("visible"));
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public boolean setMapStyle(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
     return mapView.getMap().setMapStyle((String) params.get("style"));
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  public void selectGeoObject(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    mapView.getMapWindow().getMap().selectGeoObject(
+      (String) params.get("objectId"),
+      (String) params.get("layerId")
+    );
+  }
+
+  public void deselectGeoObject() {
+    mapView.getMapWindow().getMap().deselectGeoObject();
   }
 
   public float getMinZoom() {
@@ -247,6 +296,12 @@ public class YandexMapController implements
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public void moveCamera(MethodCall call, MethodChannel.Result result) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    if (mapView.getMapWindow().width() == 0 || mapView.getMapWindow().height() == 0) {
+      result.success(false);
+
+      return;
+    }
 
     move(
       cameraUpdateToPosition((Map<String, Object>) params.get("cameraUpdate")),
@@ -343,15 +398,29 @@ public class YandexMapController implements
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public CameraPosition newBounds(Map<String, Object> params) {
-    return mapView.getMap().cameraPosition(Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")));
+    if ((Map<String, Object>) params.get("focusRect") != null) {
+      return mapView.getMap().cameraPosition(
+        Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
+        Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect"))
+      );
+    }
+
+    return mapView.getMap().cameraPosition(
+      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox"))
+    );
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public CameraPosition newTiltAzimuthBounds(Map<String, Object> params) {
+    ScreenRect focus = (Map<String, Object>) params.get("focusRect") != null ?
+      Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect")) :
+      null;
+
     return mapView.getMap().cameraPosition(
       Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
       ((Double) params.get("azimuth")).floatValue(),
-      ((Double) params.get("tilt")).floatValue()
+      ((Double) params.get("tilt")).floatValue(),
+      focus
     );
   }
 
@@ -503,8 +572,16 @@ public class YandexMapController implements
       applyAlignLogo((Map<String, Object>) params.get("logoAlignment"));
     }
 
-    if (params.containsKey("screenRect")) {
-      applyScreenRect((Map<String, Object>) params.get("screenRect"));
+    if (params.containsKey("focusRect")) {
+      applyFocusRect((Map<String, Object>) params.get("focusRect"));
+    }
+
+    if (params.get("mapType") != null) {
+      map.setMapType(MapType.values()[(Integer) params.get("mapType")]);
+    }
+
+    if (params.containsKey("poiLimit")) {
+      map.setPoiLimit((Integer) params.get("poiLimit"));
     }
   }
 
@@ -528,8 +605,7 @@ public class YandexMapController implements
     mapView.getMap().getLogo().setAlignment(logoPosition);
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  private void applyScreenRect(Map<String, Object> params) {
+  private void applyFocusRect(Map<String, Object> params) {
     if (params == null) {
       mapView.setFocusRect(null);
       mapView.setPointOfView(PointOfView.SCREEN_CENTER);
@@ -537,13 +613,19 @@ public class YandexMapController implements
       return;
     }
 
-    ScreenRect screenRect = new ScreenRect(
-      Utils.screenPointFromJson(((Map<String, Object>) params.get("topLeft"))),
-      Utils.screenPointFromJson(((Map<String, Object>) params.get("bottomRight")))
-    );
+    ScreenRect focusRect = Utils.screenRectFromJson(params);
 
-    mapView.setFocusRect(screenRect);
-    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_RECT_HORIZONTALLY);
+    if (
+      focusRect.getTopLeft().getY() < 0 ||
+      focusRect.getTopLeft().getX() < 0 ||
+      focusRect.getBottomRight().getY() > mapView.getMapWindow().height() ||
+      focusRect.getBottomRight().getX() > mapView.getMapWindow().width()
+    ) {
+      return;
+    }
+
+    mapView.setFocusRect(focusRect);
+    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_POINT_HORIZONTALLY);
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -563,21 +645,19 @@ public class YandexMapController implements
 
         Map<String, Object> params = ((Map<String, Object>) result);
 
-        userPinController = new YandexPlacemarkController(
-          view.getPin().getParent(),
+        userPinController = new PlacemarkMapObjectController(
           view.getPin(),
           (Map<String, Object>) params.get("pin"),
           new WeakReference<>(self)
         );
 
-        userArrowController = new YandexPlacemarkController(
-          view.getArrow().getParent(),
+        userArrowController = new PlacemarkMapObjectController(
           view.getArrow(),
           (Map<String, Object>) params.get("arrow"),
           new WeakReference<>(self)
         );
 
-        userAccuracyCircleController = new YandexCircleController(
+        userAccuracyCircleController = new CircleMapObjectController(
           view.getAccuracyCircle(),
           (Map<String, Object>) params.get("accuracyCircle"),
           new WeakReference<>(self)
@@ -585,7 +665,7 @@ public class YandexMapController implements
       }
 
       @Override
-      public void error(String errorCode, @Nullable String errorMessage, @Nullable Object errorDetails) {}
+      public void error(@NonNull String errorCode, @Nullable String errorMessage, @Nullable Object errorDetails) {}
       @Override
       public void notImplemented() {}
     });
@@ -594,6 +674,24 @@ public class YandexMapController implements
   public void onObjectRemoved(@NonNull UserLocationView view) {}
 
   public void onObjectUpdated(@NonNull UserLocationView view, @NonNull ObjectEvent event) {}
+
+  public void onTrafficChanged(@Nullable TrafficLevel trafficLevel) {
+    Map<String, Object> arguments = new HashMap<>();
+    Map<String, Object> trafficLevelMap = new HashMap<>();
+
+    if (trafficLevel != null) {
+      trafficLevelMap.put("level", trafficLevel.getLevel());
+      trafficLevelMap.put("color", trafficLevel.getColor().ordinal());
+    }
+
+    arguments.put("trafficLevel", trafficLevelMap);
+
+    methodChannel.invokeMethod("onTrafficChanged", arguments);
+  }
+
+  public void onTrafficLoading() {}
+
+  public void onTrafficExpired() {}
 
   public void onCameraPositionChanged(
     @NonNull com.yandex.mapkit.map.Map map,
@@ -621,6 +719,40 @@ public class YandexMapController implements
     arguments.put("point", Utils.pointToJson(point));
 
     methodChannel.invokeMethod("onMapLongTap", arguments);
+  }
+
+  public boolean onObjectTap(@NonNull GeoObjectTapEvent geoObjectTapEvent) {
+    GeoObject geoObj = geoObjectTapEvent.getGeoObject();
+    GeoObjectSelectionMetadata meta = geoObj.getMetadataContainer().getItem(GeoObjectSelectionMetadata.class);
+    Map<String, Object> arguments = new HashMap<>();
+    Map<String, Object> geoObjMap = new HashMap<>();
+    Map<String, Object> metaMap = new HashMap<>();
+    List<Map<String, Object>> geometryList = new ArrayList<>();
+
+    for (Geometry geometry: geoObj.getGeometry()) {
+      geometryList.add(Utils.geometryToJson(geometry));
+    }
+
+    if (meta != null) {
+      metaMap.put("id", meta.getId());
+      metaMap.put("layerId", meta.getLayerId());
+    }
+
+    geoObjMap.put("name", geoObj.getName());
+    geoObjMap.put("descriptionText", geoObj.getDescriptionText());
+    geoObjMap.put("geometry", geometryList);
+    geoObjMap.put(
+      "boundingBox",
+      geoObj.getBoundingBox() == null ? null : Utils.boundingBoxToJson(geoObj.getBoundingBox())
+    );
+    geoObjMap.put("selectionMetadata", metaMap);
+    geoObjMap.put("aref", geoObj.getAref());
+
+    arguments.put("geoObject", geoObjMap);
+
+    methodChannel.invokeMethod("onObjectTap", arguments);
+
+    return true;
   }
 
   public void mapObjectDragStart(@NonNull String id) {

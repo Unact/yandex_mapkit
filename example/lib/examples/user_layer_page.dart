@@ -60,7 +60,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
             },
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -71,7 +71,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, const Text('Location permission was NOT granted'));
+                          _showMessage(context, Text('Location permission was NOT granted'));
                           return;
                         }
 
@@ -93,7 +93,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, const Text('Location permission was NOT granted'));
+                          _showMessage(context, Text('Location permission was NOT granted'));
                           return;
                         }
 
@@ -109,7 +109,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, const Text('Location permission was NOT granted'));
+                          _showMessage(context, Text('Location permission was NOT granted'));
                           return;
                         }
 

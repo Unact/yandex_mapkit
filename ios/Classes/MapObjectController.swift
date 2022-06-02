@@ -1,4 +1,4 @@
-protocol YandexMapObjectController {
+protocol MapObjectController {
   var id: String { get }
   var controller: YandexMapController { get }
 

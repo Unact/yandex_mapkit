@@ -1,13 +1,13 @@
 part of yandex_mapkit;
 
-/// A collection of [Placemark] to be displayed on [YandexMap]
+/// A collection of [PlacemarkMapObject] to be displayed on [YandexMap]
 ///
 /// Depending on distance from each other and current zoom level
 /// can be grouped into a single or multiple [Cluster]
 class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   ClusterizedPlacemarkCollection({
     required this.mapId,
-    required List<Placemark> placemarks,
+    required List<PlacemarkMapObject> placemarks,
     required this.radius,
     required this.minZoom,
     this.zIndex = 0.0,
@@ -16,15 +16,15 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     this.onClusterTap,
     this.consumeTapEvents = false,
     this.isVisible = true
-  }) : placemarks = List.unmodifiable(placemarks.groupFoldBy<MapObjectId, Placemark>(
+  }) : placemarks = List.unmodifiable(placemarks.groupFoldBy<MapObjectId, PlacemarkMapObject>(
       (element) => element.mapId,
       (previous, element) => element
     ).values);
 
-  /// List of [Placemark] eligible for clusterization.
+  /// List of [PlacemarkMapObject] eligible for clusterization.
   ///
   /// All [placemarks] must be unique, i.e. each [MapObject.mapId] must be unique
-  final List<Placemark> placemarks;
+  final List<PlacemarkMapObject> placemarks;
 
   /// z-order
   ///
@@ -64,7 +64,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   /// Specified fields will get the specified value, all other fields will get
   /// the same value from the current object.
   ClusterizedPlacemarkCollection copyWith({
-    List<Placemark>? placemarks,
+    List<PlacemarkMapObject>? placemarks,
     double? radius,
     int? minZoom,
     double? zIndex,
@@ -158,7 +158,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       'id': mapId.value,
       'radius': radius,
       'minZoom': minZoom,
-      'placemarks': placemarks.map((Placemark p) => p.toJson()).toList(),
+      'placemarks': placemarks.map((PlacemarkMapObject p) => p.toJson()).toList(),
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible
@@ -170,7 +170,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     return toJson()..addAll({
       'type': runtimeType.toString(),
       'placemarks': MapObjectUpdates.from(
-        <Placemark>{...[]},
+        <PlacemarkMapObject>{...[]},
         placemarks.toSet()
       ).toJson()
     });

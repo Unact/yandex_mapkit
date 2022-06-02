@@ -1,6 +1,6 @@
 import YandexMapsMobile
 
-class YandexPolygonController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
+class PolygonMapObjectController: NSObject, MapObjectController, YMKMapObjectTapListener {
   public let polygon: YMKPolygonMapObject
   private var consumeTapEvents: Bool = false
   public unowned var controller: YandexMapController
@@ -11,7 +11,7 @@ class YandexPolygonController: NSObject, YandexMapObjectController, YMKMapObject
     params: [String: Any],
     controller: YandexMapController
   ) {
-    let polygon = parent.addPolygon(with: Utils.polygonFromJson(params))
+    let polygon = parent.addPolygon(with: Utils.polygonFromJson(params["polygon"] as! [String: Any]))
 
     self.polygon = polygon
     self.id = params["id"] as! String
@@ -25,7 +25,7 @@ class YandexPolygonController: NSObject, YandexMapObjectController, YMKMapObject
   }
 
   public func update(_ params: [String: Any]) {
-    polygon.geometry = Utils.polygonFromJson(params)
+    polygon.geometry = Utils.polygonFromJson(params["polygon"] as! [String: Any])
     polygon.isGeodesic = (params["isGeodesic"] as! NSNumber).boolValue
     polygon.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polygon.isVisible = (params["isVisible"] as! NSNumber).boolValue

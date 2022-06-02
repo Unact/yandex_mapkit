@@ -7,26 +7,26 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class PlacemarkPage extends MapPage {
-  const PlacemarkPage() : super('Placemark example');
+class PlacemarkMapObjectPage extends MapPage {
+  const PlacemarkMapObjectPage() : super('Placemark example');
 
   @override
   Widget build(BuildContext context) {
-    return _PlacemarkExample();
+    return _PlacemarkMapObjectExample();
   }
 }
 
-class _PlacemarkExample extends StatefulWidget {
+class _PlacemarkMapObjectExample extends StatefulWidget {
   @override
-  _PlacemarkExampleState createState() => _PlacemarkExampleState();
+  _PlacemarkMapObjectExampleState createState() => _PlacemarkMapObjectExampleState();
 }
 
-class _PlacemarkExampleState extends State<_PlacemarkExample> {
+class _PlacemarkMapObjectExampleState extends State<_PlacemarkMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId placemarkId = MapObjectId('normal_icon_placemark');
-  final MapObjectId placemarkWithDynamicIconId = MapObjectId('dynamic_icon_placemark');
-  final MapObjectId placemarkWithCompositeIconId = MapObjectId('composite_icon_placemark');
+  final MapObjectId mapObjectId = MapObjectId('normal_icon_placemark');
+  final MapObjectId mapObjectWithDynamicIconId = MapObjectId('dynamic_icon_placemark');
+  final MapObjectId mapObjectWithCompositeIconId = MapObjectId('composite_icon_placemark');
 
   Future<Uint8List> _rawPlacemarkImage() async {
     final recorder = PictureRecorder();
@@ -74,14 +74,14 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == placemarkId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final placemark = Placemark(
-                          mapId: placemarkId,
+                        final mapObject = PlacemarkMapObject(
+                          mapId: mapObjectId,
                           point: Point(latitude: 59.945933, longitude: 30.320045),
-                          onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                          onTap: (PlacemarkMapObject self, Point point) => print('Tapped me at $point'),
                           opacity: 0.7,
                           direction: 90,
                           isDraggable: true,
@@ -95,24 +95,24 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                         );
 
                         setState(() {
-                          mapObjects.add(placemark);
+                          mapObjects.add(mapObject);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == placemarkId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final placemark = mapObjects.firstWhere((el) => el.mapId == placemarkId) as Placemark;
+                        final mapObject = mapObjects.firstWhere((el) => el.mapId == mapObjectId) as PlacemarkMapObject;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(placemark)] = placemark.copyWith(
+                          mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(
                             point: Point(
-                              latitude: placemark.point.latitude - 1,
-                              longitude: placemark.point.longitude - 1
+                              latitude: mapObject.point.latitude - 1,
+                              longitude: mapObject.point.longitude - 1
                             )
                           );
                         });
@@ -122,7 +122,7 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == placemarkId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectId);
                         });
                       },
                       title: 'Remove'
@@ -135,14 +135,14 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == placemarkWithDynamicIconId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectWithDynamicIconId)) {
                           return;
                         }
 
-                        final placemarkWithDynamicIcon = Placemark(
-                          mapId: placemarkWithDynamicIconId,
+                        final mapObjectWithDynamicIcon = PlacemarkMapObject(
+                          mapId: mapObjectWithDynamicIconId,
                           point: Point(latitude: 30.320045, longitude: 59.945933),
-                          onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                          onTap: (PlacemarkMapObject self, Point point) => print('Tapped me at $point'),
                           isDraggable: true,
                           onDragStart: (_) => print('Drag start'),
                           onDrag: (_, Point point) => print('Drag at point $point'),
@@ -154,25 +154,25 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                         );
 
                         setState(() {
-                          mapObjects.add(placemarkWithDynamicIcon);
+                          mapObjects.add(mapObjectWithDynamicIcon);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == placemarkWithDynamicIconId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectWithDynamicIconId)) {
                           return;
                         }
 
-                        final placemarkWithDynamicIcon = mapObjects
-                          .firstWhere((el) => el.mapId == placemarkWithDynamicIconId) as Placemark;
+                        final mapObjectWithDynamicIcon = mapObjects
+                          .firstWhere((el) => el.mapId == mapObjectWithDynamicIconId) as PlacemarkMapObject;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(placemarkWithDynamicIcon)] = placemarkWithDynamicIcon.copyWith(
+                          mapObjects[mapObjects.indexOf(mapObjectWithDynamicIcon)] = mapObjectWithDynamicIcon.copyWith(
                             point: Point(
-                              latitude: placemarkWithDynamicIcon.point.latitude + 1,
-                              longitude: placemarkWithDynamicIcon.point.longitude + 1
+                              latitude: mapObjectWithDynamicIcon.point.latitude + 1,
+                              longitude: mapObjectWithDynamicIcon.point.longitude + 1
                             )
                           );
                         });
@@ -182,27 +182,27 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == placemarkWithDynamicIconId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectWithDynamicIconId);
                         });
                       },
                       title: 'Remove'
                     ),
                   ],
                 ),
-                const Text('Placemark with Composite Icon:'),
+                Text('Placemark with Composite Icon:'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == placemarkWithCompositeIconId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectWithCompositeIconId)) {
                           return;
                         }
 
-                        final placemarkWithCompositeIcon = Placemark(
-                          mapId: placemarkWithCompositeIconId,
+                        final mapObjectWithCompositeIcon = PlacemarkMapObject(
+                          mapId: mapObjectWithCompositeIconId,
                           point: Point(latitude: 34.820045, longitude: 45.945933),
-                          onTap: (Placemark self, Point point) => print('Tapped me at $point'),
+                          onTap: (PlacemarkMapObject self, Point point) => print('Tapped me at $point'),
                           isDraggable: true,
                           onDragStart: (_) => print('Drag start'),
                           onDrag: (_, Point point) => print('Drag at point $point'),
@@ -227,26 +227,26 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                         );
 
                         setState(() {
-                          mapObjects.add(placemarkWithCompositeIcon);
+                          mapObjects.add(mapObjectWithCompositeIcon);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == placemarkWithCompositeIconId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectWithCompositeIconId)) {
                           return;
                         }
 
-                        final placemarkWithCompositeIcon = mapObjects
-                          .firstWhere((el) => el.mapId == placemarkWithCompositeIconId) as Placemark;
+                        final mapObjectWithCompositeIcon = mapObjects
+                          .firstWhere((el) => el.mapId == mapObjectWithCompositeIconId) as PlacemarkMapObject;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(placemarkWithCompositeIcon)] = placemarkWithCompositeIcon
+                          mapObjects[mapObjects.indexOf(mapObjectWithCompositeIcon)] = mapObjectWithCompositeIcon
                             .copyWith(
                               point: Point(
-                                latitude: placemarkWithCompositeIcon.point.latitude + 1,
-                                longitude: placemarkWithCompositeIcon.point.longitude + 1
+                                latitude: mapObjectWithCompositeIcon.point.latitude + 1,
+                                longitude: mapObjectWithCompositeIcon.point.longitude + 1
                               )
                             );
                         });
@@ -256,7 +256,7 @@ class _PlacemarkExampleState extends State<_PlacemarkExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == placemarkWithCompositeIconId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectWithCompositeIconId);
                         });
                       },
                       title: 'Remove'

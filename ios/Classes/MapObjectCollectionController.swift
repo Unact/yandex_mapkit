@@ -1,12 +1,12 @@
 import YandexMapsMobile
 
-class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, YMKMapObjectTapListener {
-  private var mapObjectCollections: [String:YandexMapObjectCollectionController] = [:]
-  private var clusterizedPlacemarkCollections: [String:YandexClusterizedPlacemarkCollectionController] = [:]
-  private var placemarks: [String:YandexPlacemarkController] = [:]
-  private var circles: [String:YandexCircleController] = [:]
-  private var polylines: [String:YandexPolylineController] = [:]
-  private var polygons: [String:YandexPolygonController] = [:]
+class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObjectTapListener {
+  private var mapObjectCollections: [String: MapObjectCollectionController] = [:]
+  private var clusterizedPlacemarkCollections: [String: ClusterizedPlacemarkCollectionController] = [:]
+  private var placemarks: [String: PlacemarkMapObjectController] = [:]
+  private var circles: [String: CircleMapObjectController] = [:]
+  private var polylines: [String: PolylineMapObjectController] = [:]
+  private var polygons: [String: PolygonMapObjectController] = [:]
   public let mapObjectCollection: YMKMapObjectCollection
   private var consumeTapEvents: Bool = false
   public unowned var controller: YandexMapController
@@ -80,19 +80,19 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   private func addMapObjects(_ toAdd: [[String: Any]]) {
     for el in toAdd {
       switch el["type"] as! String {
-      case "Circle":
+      case "CircleMapObject":
         addCircle(el)
         break
       case "MapObjectCollection":
         addMapObjectCollection(el)
         break
-      case "Placemark":
+      case "PlacemarkMapObject":
         addPlacemark(el)
         break
-      case "Polygon":
+      case "PolygonMapObject":
         addPolygon(el)
         break
-      case "Polyline":
+      case "PolylineMapObject":
         addPolyline(el)
         break
       case "ClusterizedPlacemarkCollection":
@@ -107,19 +107,19 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   private func changeMapObjects(_ toChange: [[String: Any]]) {
     for el in toChange {
       switch el["type"] as! String {
-      case "Circle":
+      case "CircleMapObject":
         changeCircle(el)
         break
       case "MapObjectCollection":
         changeMapObjectCollection(el)
         break
-      case "Placemark":
+      case "PlacemarkMapObject":
         changePlacemark(el)
         break
-      case "Polygon":
+      case "PolygonMapObject":
         changePolygon(el)
         break
-      case "Polyline":
+      case "PolylineMapObject":
         changePolyline(el)
         break
       case "ClusterizedPlacemarkCollection":
@@ -134,19 +134,19 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   private func removeMapObjects(_ toRemove: [[String: Any]]) {
     for el in toRemove {
       switch el["type"] as! String {
-      case "Circle":
+      case "CircleMapObject":
         removeCircle(el)
         break
       case "MapObjectCollection":
         removeMapObjectCollection(el)
         break
-      case "Placemark":
+      case "PlacemarkMapObject":
         removePlacemark(el)
         break
-      case "Polygon":
+      case "PolygonMapObject":
         removePolygon(el)
         break
-      case "Polyline":
+      case "PolylineMapObject":
         removePolyline(el)
         break
       case "ClusterizedPlacemarkCollection":
@@ -159,7 +159,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addMapObjectCollection(_ params: [String: Any]) {
-    let mapObjectCollectionController = YandexMapObjectCollectionController(
+    let mapObjectCollectionController = MapObjectCollectionController(
       parent: mapObjectCollection,
       params: params,
       controller: controller
@@ -182,7 +182,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addPlacemark(_ params: [String: Any]) {
-    let placemarkController = YandexPlacemarkController(
+    let placemarkController = PlacemarkMapObjectController(
       parent: mapObjectCollection,
       params: params,
       controller: controller
@@ -205,7 +205,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addCircle(_ params: [String: Any]) {
-    let circleController = YandexCircleController(
+    let circleController = CircleMapObjectController(
       parent: mapObjectCollection,
       params: params,
       controller: controller
@@ -228,7 +228,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addPolyline(_ params: [String: Any]) {
-    let polylineController = YandexPolylineController(
+    let polylineController = PolylineMapObjectController(
       parent: mapObjectCollection,
       params: params,
       controller: controller
@@ -251,7 +251,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addPolygon(_ params: [String: Any]) {
-    let polygonController = YandexPolygonController(
+    let polygonController = PolygonMapObjectController(
       parent: mapObjectCollection,
       params: params,
       controller: controller
@@ -274,7 +274,7 @@ class YandexMapObjectCollectionController: NSObject, YandexMapObjectController, 
   }
 
   private func addClusterizedPlacemarkCollection(_ params: [String: Any]) {
-    let clusterizedPlacemarkCollectionController = YandexClusterizedPlacemarkCollectionController(
+    let clusterizedPlacemarkCollectionController = ClusterizedPlacemarkCollectionController(
       parent: mapObjectCollection,
       params: params,
       controller: controller

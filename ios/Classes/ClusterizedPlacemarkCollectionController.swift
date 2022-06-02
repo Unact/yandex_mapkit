@@ -1,15 +1,15 @@
 import YandexMapsMobile
 
-class YandexClusterizedPlacemarkCollectionController:
+class ClusterizedPlacemarkCollectionController:
   NSObject,
-  YandexMapObjectController,
+  MapObjectController,
   YMKClusterListener,
   YMKClusterTapListener,
   YMKMapObjectTapListener
 {
   private var clusterCnt: Int = 0
-  private var clusters: [YMKCluster: YandexPlacemarkController] = [:]
-  private var placemarks: [String: YandexPlacemarkController] = [:]
+  private var clusters: [YMKCluster: PlacemarkMapObjectController] = [:]
+  private var placemarks: [String: PlacemarkMapObjectController] = [:]
   private let parent: YMKMapObjectCollection
   public lazy var clusterizedPlacemarkCollection: YMKClusterizedPlacemarkCollection = {
     parent.addClusterizedPlacemarkCollection(with: self)
@@ -78,7 +78,7 @@ class YandexClusterizedPlacemarkCollectionController:
   }
 
   private func addPlacemark(_ params: [String: Any]) {
-    let placemarkController = YandexPlacemarkController(
+    let placemarkController = PlacemarkMapObjectController(
       parent: clusterizedPlacemarkCollection,
       params: params,
       controller: controller
@@ -128,8 +128,7 @@ class YandexClusterizedPlacemarkCollectionController:
 
       let params = result as! [String: Any]
 
-      self.clusters[cluster] = YandexPlacemarkController(
-        parent: self.clusterizedPlacemarkCollection,
+      self.clusters[cluster] = PlacemarkMapObjectController(
         placemark: cluster.appearance,
         params: params,
         controller: self.controller

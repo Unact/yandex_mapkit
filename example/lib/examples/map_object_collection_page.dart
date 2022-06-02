@@ -21,7 +21,7 @@ class _MapObjectCollectionExample extends StatefulWidget {
 class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId mapObjectCollectionId = MapObjectId('map_object_collection');
+  final MapObjectId mapObjectId = MapObjectId('map_object_collection');
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
             mapObjects: mapObjects
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -44,28 +44,30 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == mapObjectCollectionId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final mapObjectCollection = MapObjectCollection(
-                          mapId: mapObjectCollectionId,
+                        final mapObject = MapObjectCollection(
+                          mapId: mapObjectId,
                           mapObjects: [
-                            Circle(
+                            CircleMapObject(
                               mapId: MapObjectId('circle'),
-                              center: Point(latitude: 59.945933, longitude: 30.320045),
-                              radius: 100000,
+                              circle: Circle(
+                                radius: 100000,
+                                center: Point(latitude: 59.945933, longitude: 30.320045)
+                              ),
                               consumeTapEvents: true,
-                              onTap: (Circle self, Point point) => print('Tapped circle at $point'),
+                              onTap: (CircleMapObject self, Point point) => print('Tapped circle at $point'),
                             ),
-                            Placemark(
+                            PlacemarkMapObject(
                               mapId: MapObjectId('placemark'),
                               point: Point(latitude: 59.945933, longitude: 30.320045)
                             ),
                             MapObjectCollection(
                               mapId: MapObjectId('inner_map_object_collection'),
                               mapObjects: [
-                                Placemark(
+                                PlacemarkMapObject(
                                   mapId: MapObjectId('inner_placemark'),
                                   point: Point(latitude: 57.945933, longitude: 28.320045),
                                   opacity: 0.7,
@@ -80,30 +82,31 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                         );
 
                         setState(() {
-                          mapObjects.add(mapObjectCollection);
+                          mapObjects.add(mapObject);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == mapObjectCollectionId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final mapObjectCollection = mapObjects
-                          .firstWhere((el) => el.mapId == mapObjectCollectionId) as MapObjectCollection;
+                        final mapObject = mapObjects.firstWhere((el) => el.mapId == mapObjectId) as MapObjectCollection;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(mapObjectCollection)] = mapObjectCollection.copyWith(mapObjects: [
-                            Circle(
+                          mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(mapObjects: [
+                            CircleMapObject(
                               mapId: MapObjectId('circle'),
-                              center: Point(latitude: 59.945933, longitude: 30.320045),
-                              radius: 10000,
+                              circle: Circle(
+                                radius: 10000,
+                                center: Point(latitude: 59.945933, longitude: 30.320045)
+                              ),
                               consumeTapEvents: true,
-                              onTap: (Circle self, Point point) => print('Tapped circle at $point'),
+                              onTap: (CircleMapObject self, Point point) => print('Tapped circle at $point'),
                             ),
-                            Placemark(
+                            PlacemarkMapObject(
                               mapId: MapObjectId('placemark_new'),
                               point: Point(latitude: 59.945933, longitude: 30.320045),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
@@ -119,7 +122,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == mapObjectCollectionId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectId);
                         });
                       },
                       title: 'Remove'

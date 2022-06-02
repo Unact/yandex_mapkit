@@ -6,24 +6,24 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class PolylinePage extends MapPage {
-  const PolylinePage() : super('Polyline example');
+class PolylineMapObjectPage extends MapPage {
+  const PolylineMapObjectPage() : super('Polyline example');
 
   @override
   Widget build(BuildContext context) {
-    return _PolylineExample();
+    return _PolylineMapObjectExample();
   }
 }
 
-class _PolylineExample extends StatefulWidget {
+class _PolylineMapObjectExample extends StatefulWidget {
   @override
-  _PolylineExampleState createState() => _PolylineExampleState();
+  _PolylineMapObjectExampleState createState() => _PolylineMapObjectExampleState();
 }
 
-class _PolylineExampleState extends State<_PolylineExample> {
+class _PolylineMapObjectExampleState extends State<_PolylineMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId polylineId = MapObjectId('polyline');
+  final MapObjectId mapObjectId = MapObjectId('polyline');
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
             mapObjects: mapObjects
           )
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -46,13 +46,13 @@ class _PolylineExampleState extends State<_PolylineExample> {
                   children: <Widget>[
                     ControlButton(
                       onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == polylineId)) {
+                        if (mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final polyline = Polyline(
-                          mapId: polylineId,
-                          coordinates: <Point>[
+                        final mapObject = PolylineMapObject(
+                          mapId: mapObjectId,
+                          polyline: Polyline(points: [
                             Point(latitude: 59.945933, longitude: 30.320045),
                             Point(latitude: 55.75222, longitude: 37.88398),
                             Point(latitude: 59.2239, longitude: 39.88398),
@@ -70,30 +70,34 @@ class _PolylineExampleState extends State<_PolylineExample> {
                             Point(latitude: 61.25, longitude: 73.41667),
                             Point(latitude: 55.0415, longitude: 82.9346),
                             Point(latitude: 66.42989, longitude: 112.4021),
-                          ],
+                          ]),
                           strokeColor: Colors.orange[700]!,
-                          strokeWidth: 7.5, // default value 5.0, this will be a little bold
+                          strokeWidth: 7.5,
                           outlineColor: Colors.yellow[200]!,
                           outlineWidth: 2.0,
-                          onTap: (Polyline self, Point point) => print('Tapped me at $point'),
+                          turnRadius: 10.0,
+                          arcApproximationStep: 1.0,
+                          gradientLength: 1.0,
+                          isInnerOutlineEnabled: true,
+                          onTap: (PolylineMapObject self, Point point) => print('Tapped me at $point'),
                         );
 
                         setState(() {
-                          mapObjects.add(polyline);
+                          mapObjects.add(mapObject);
                         });
                       },
                       title: 'Add'
                     ),
                     ControlButton(
                       onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == polylineId)) {
+                        if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
                           return;
                         }
 
-                        final polyline = mapObjects.firstWhere((el) => el.mapId == polylineId) as Polyline;
+                        final mapObject = mapObjects.firstWhere((el) => el.mapId == mapObjectId) as PolylineMapObject;
 
                         setState(() {
-                          mapObjects[mapObjects.indexOf(polyline)] = polyline.copyWith(
+                          mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(
                             strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
                             strokeWidth: 8.5
                           );
@@ -104,7 +108,7 @@ class _PolylineExampleState extends State<_PolylineExample> {
                     ControlButton(
                       onPressed: () async {
                         setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == polylineId);
+                          mapObjects.removeWhere((el) => el.mapId == mapObjectId);
                         });
                       },
                       title: 'Remove'
