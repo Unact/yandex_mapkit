@@ -5,11 +5,11 @@ homepage: https://github.com/Unact/yandex_mapkit
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.12.0"
+  flutter: ">=2.8.0"
 
 dependencies:
-  flutter_plugin_android_lifecycle: ^2.0.1
-  equatable: ^2.0.0
+  flutter_plugin_android_lifecycle: ^2.0.6
+  equatable: ^2.0.3
   collection: ^1.15.0
   flutter:
     sdk: flutter
