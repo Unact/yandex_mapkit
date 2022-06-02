@@ -1,3 +1,19 @@
+## 3.0.0
+
+* Update and lock YandexMapkit version to 4.1.0-full for iOS and Android
+* Add functionality to show traffic and listen to traffic changes
+* Add the ability to change current map type
+* Add the ability to select geo objects
+* `Geometry` object has been fully implemented to map the funcationality of native map geometry.
+* Updated `Polyline` to include new customization options.
+* Updated `CameraUpdate.newBounds` and `CameraUpdate.newTiltAzimuthBounds` to include new options.
+* **Breaking change** `SearchOptions.suggestWords` has been removed.
+* **Breaking change** `Polyline.isGeodesic` has been removed.
+* **Breaking change** `YandexMap.screenRect` has been renamed to `YandexMap.focusRect`
+* **Breaking change**. `Polygon`, `Polyline`, `Circle`, `Placemark` have been renamed to
+`PolygonMapObject`, `PolylineMapObject`, `CircleMapObject`, `PlacemarkMapObject` respectively.
+They now accept a corresponding object(`Polygon`, `Polyline`, `Circle`, `Placemark`) describing their geometry.
+
 ## 2.0.6
 
 * Fix iOS crash for `YandexMapController.moveCamera`
