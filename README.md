@@ -21,33 +21,9 @@ When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc
 1. Add `import YandexMapsMobile` to `ios/Runner/AppDelegate.swift`
 2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
 3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
-4. For Flutter version less than 1.22 add `<key>io.flutter.embedded_views_preview</key> <true/>` inside `<dict>` tag in `ios/Runner/Info.plist`
-5. Uncomment `platform :ios, '9.0'` in `ios/Podfile`
+4. Uncomment `platform :ios, '9.0'` in `ios/Podfile` and change to `platform :ios, '12.0'`
 
 `ios/Runner/AppDelegate.swift`:
-
-For Swift 4.0 and lesser
-
-```swift
-import UIKit
-import Flutter
-import YandexMapsMobile
-
-@UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?
-  ) -> Bool {
-    YMKMapKit.setLocale("YOUR_LOCALE") // Your preferred language. Not required, defaults to system language
-    YMKMapKit.setApiKey("YOUR_API_KEY") // Your generated API key
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-```
-
-For Swift 4.2 and greater
 
 ```swift
 import UIKit
@@ -70,18 +46,17 @@ import YandexMapsMobile
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.0.0-full'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.1.0-full'` to `android/app/build.gradle`
 2. Add permissions `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 4. `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
-6. Ensure that your `com.android.tools.build:gradle` version is below or equals 4.0.2
 
 `android/app/build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.0.0-full'
+    implementation 'com.yandex.android:maps.mobile:4.1.0-full'
 }
 ```
 
@@ -151,8 +126,6 @@ AndroidYandexMap.useAndroidViewSurface = false;
 
 ### Features
 
-- [X] iOS Support
-- [X] Android Support
 - [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
 - [X] Working with collections of map objects
 - [X] Working with clusters
