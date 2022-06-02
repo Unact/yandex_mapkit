@@ -2,6 +2,10 @@
 
 A flutter plugin for displaying yandex maps on iOS and Android.
 
+|             | Android |   iOS   |
+|-------------|---------|---------|
+| __Support__ | SDK 21+ | iOS 12+ |
+
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
 When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc/mapkit/3.x/concepts/conditions-docpage/)
 
@@ -138,7 +142,8 @@ Due to native constraints after the application is launched it can't be changed.
 ##### Hybrid Composition
 
 By default android views are rendered using [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views).
-To render the YandexMap widget on Android using Virtual Display(old composition), set AndroidYandexMap.useAndroidViewSurface to false.
+To render the `YandexMap` widget on Android using Virtual Display(old composition), set AndroidYandexMap.useAndroidViewSurface to false.
+Place this anywhere in your code, before using `YandexMap` widget.
 
 ```dart
 AndroidYandexMap.useAndroidViewSurface = false;
