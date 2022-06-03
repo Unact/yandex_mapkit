@@ -197,7 +197,7 @@ public class YandexMapController:
   public func moveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     let params = call.arguments as! [String: Any]
 
-    if (mapView.mapWindow.width() == 0 && mapView.mapWindow.height() == 0) {
+    if (mapView.frame.isEmpty) {
       result(false)
 
       return

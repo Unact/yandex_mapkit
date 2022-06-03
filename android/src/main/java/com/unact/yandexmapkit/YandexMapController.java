@@ -297,7 +297,7 @@ public class YandexMapController implements
   public void moveCamera(MethodCall call, MethodChannel.Result result) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    if (mapView.getMapWindow().width() == 0 || mapView.getMapWindow().height() == 0) {
+    if (mapView.getWidth() == 0 || mapView.getHeight() == 0) {
       result.success(false);
 
       return;
