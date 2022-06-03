@@ -27,11 +27,11 @@ public class YandexMapController:
       controller: self
     )
   }()
-  private let mapView: YMKMapView
+  private let mapView: FLYMKMapView
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
-    self.mapView = YMKMapView(frame: frame)
+    self.mapView = FLYMKMapView(frame: frame)
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
@@ -62,7 +62,11 @@ public class YandexMapController:
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "waitForInit":
-      result(nil)
+      if (mapView.frame.isEmpty) {
+        mapView.initResult = result
+      } else {
+        result(nil)
+      }
     case "toggleUserLayer":
       toggleUserLayer(call)
       result(nil)
@@ -634,5 +638,19 @@ public class YandexMapController:
     ]
 
     methodChannel.invokeMethod("onMapObjectDragEnd", arguments: arguments)
+  }
+
+  // Fix https://github.com/flutter/flutter/issues/67514
+  internal class FLYMKMapView: YMKMapView {
+    public var initResult: FlutterResult?
+
+    override var frame: CGRect {
+      didSet {
+        if initResult != nil {
+          initResult!(nil)
+          initResult = nil
+        }
+      }
+    }
   }
 }
