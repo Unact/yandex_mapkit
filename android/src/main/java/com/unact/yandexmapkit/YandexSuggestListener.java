@@ -5,8 +5,6 @@ import androidx.annotation.NonNull;
 import com.yandex.mapkit.search.SuggestItem;
 import com.yandex.mapkit.search.SuggestSession;
 import com.yandex.runtime.Error;
-import com.yandex.runtime.network.NetworkError;
-import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,19 +46,6 @@ public class YandexSuggestListener implements SuggestSession.SuggestListener {
 
   @Override
   public void onError(@NonNull Error error) {
-    String errorMessage = "Unknown error";
-
-    if (error instanceof NetworkError) {
-      errorMessage = "Network error";
-    }
-
-    if (error instanceof RemoteError) {
-      errorMessage = "Remote server error";
-    }
-
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("error", errorMessage);
-
-    result.success(arguments);
+    result.success(Utils.errorToJson(error));
   }
 }

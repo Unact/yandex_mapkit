@@ -4,6 +4,7 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 import 'package:yandex_mapkit_example/examples/circle_map_object_page.dart';
 import 'package:yandex_mapkit_example/examples/clusterized_placemark_collection_page.dart';
+import 'package:yandex_mapkit_example/examples/bicycle_page.dart';
 import 'package:yandex_mapkit_example/examples/driving_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/map_object_collection_page.dart';
@@ -20,7 +21,6 @@ void main() {
 }
 
 const List<MapPage> _allPages = <MapPage>[
-  DrivingPage(),
   MapControlsPage(),
   ClusterizedPlacemarkCollectionPage(),
   MapObjectCollectionPage(),
@@ -32,6 +32,8 @@ const List<MapPage> _allPages = <MapPage>[
   SuggestionsPage(),
   SearchPage(),
   ReverseSearchPage(),
+  BicyclePage(),
+  DrivingPage(),
 ];
 
 class MainPage extends StatelessWidget {

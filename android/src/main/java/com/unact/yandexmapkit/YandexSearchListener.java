@@ -12,8 +12,6 @@ import com.yandex.mapkit.search.Session;
 import com.yandex.mapkit.search.ToponymObjectMetadata;
 import com.yandex.runtime.Error;
 import com.yandex.runtime.any.Collection;
-import com.yandex.runtime.network.NetworkError;
-import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,20 +64,7 @@ public class YandexSearchListener implements Session.SearchListener {
 
   @Override
   public void onSearchError(@NonNull Error error) {
-    String errorMessage = "Unknown error";
-
-    if (error instanceof NetworkError) {
-      errorMessage = "Network error";
-    }
-
-    if (error instanceof RemoteError) {
-      errorMessage = "Remote server error";
-    }
-
-    Map<String, Object> arguments = new HashMap<>();
-    arguments.put("error", errorMessage);
-
-    result.success(arguments);
+    result.success(Utils.errorToJson(error));
   }
 
   private Map<String, Object> getToponymMetadata(Collection metadataContainer) {

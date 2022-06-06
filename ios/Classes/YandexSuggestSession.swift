@@ -79,22 +79,6 @@ public class YandexSuggestSession: NSObject {
   }
 
   private func onError(_ error: Error, _ result: @escaping FlutterResult) {
-    var errorMessage = "Unknown error"
-
-    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
-      if underlyingError.isKind(of: YRTNetworkError.self) {
-        errorMessage = "Network error"
-      } else if underlyingError.isKind(of: YRTRemoteError.self) {
-        errorMessage = "Remote server error"
-      }
-    } else if let msg = (error as NSError).userInfo["message"] {
-      errorMessage = msg as! String
-    }
-
-    let arguments: [String: Any?] = [
-      "error": errorMessage
-    ]
-
-    result(arguments)
+    result(Utils.errorToJson(error))
   }
 }

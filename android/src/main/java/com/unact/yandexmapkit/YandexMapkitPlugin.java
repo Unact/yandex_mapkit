@@ -19,12 +19,14 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private static final String SEARCH_CHANNEL_ID   = "yandex_mapkit/yandex_search";
   private static final String SUGGEST_CHANNEL_ID  = "yandex_mapkit/yandex_suggest";
   private static final String DRIVING_CHANNEL_ID  = "yandex_mapkit/yandex_driving";
+  private static final String BICYCLE_CHANNEL_ID  = "yandex_mapkit/yandex_bicycle";
 
   @Nullable private Lifecycle lifecycle;
 
   @Nullable private MethodChannel searchMethodChannel;
   @Nullable private MethodChannel suggestMethodChannel;
-  @Nullable private MethodChannel drivingRouterMethodChannel;
+  @Nullable private MethodChannel drivingMethodChannel;
+  @Nullable private MethodChannel bicycleMethodChannel;
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
@@ -50,9 +52,13 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     YandexSuggest yandexSuggest = new YandexSuggest(context, messenger);
     suggestMethodChannel.setMethodCallHandler(yandexSuggest);
 
-    drivingRouterMethodChannel = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
+    drivingMethodChannel = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
     YandexDriving yandexDriving = new YandexDriving(context, messenger);
-    drivingRouterMethodChannel.setMethodCallHandler(yandexDriving);
+    drivingMethodChannel.setMethodCallHandler(yandexDriving);
+
+    bicycleMethodChannel = new MethodChannel(messenger, BICYCLE_CHANNEL_ID);
+    YandexBicycle yandexBicycle = new YandexBicycle(context, messenger);
+    bicycleMethodChannel.setMethodCallHandler(yandexBicycle);
   }
 
   @SuppressWarnings({"ConstantConditions"})
@@ -63,8 +69,11 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     suggestMethodChannel.setMethodCallHandler(null);
     suggestMethodChannel = null;
 
-    drivingRouterMethodChannel.setMethodCallHandler(null);
-    drivingRouterMethodChannel = null;
+    drivingMethodChannel.setMethodCallHandler(null);
+    drivingMethodChannel = null;
+
+    bicycleMethodChannel.setMethodCallHandler(null);
+    bicycleMethodChannel = null;
   }
 
   @Override

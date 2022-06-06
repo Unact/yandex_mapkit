@@ -236,4 +236,22 @@ class Utils {
       "topRight": pointToJson(region.topRight)
     ]
   }
+
+  static func errorToJson(_ error: Error) -> [String: Any?] {
+    var errorMessage = "Unknown error"
+
+    if let underlyingError = (error as NSError).userInfo[YRTUnderlyingErrorKey] as? YRTError {
+      if underlyingError.isKind(of: YRTNetworkError.self) {
+        errorMessage = "Network error"
+      } else if underlyingError.isKind(of: YRTRemoteError.self) {
+        errorMessage = "Remote server error"
+      }
+    } else if let msg = (error as NSError).userInfo["message"] {
+      errorMessage = msg as! String
+    }
+
+    return [
+      "error": errorMessage
+    ]
+  }
 }

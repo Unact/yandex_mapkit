@@ -1,15 +1,15 @@
 import Foundation
 import YandexMapsMobile
 
-public class YandexDrivingSession: NSObject {
+public class YandexBicycleSession: NSObject {
   private var id: Int
-  private var session: YMKDrivingSession
+  private var session: YMKBicycleSession
   private let methodChannel: FlutterMethodChannel!
   private var onClose: (Int) -> ()
 
   public required init(
     id: Int,
-    session: YMKDrivingSession,
+    session: YMKBicycleSession,
     registrar: FlutterPluginRegistrar,
     onClose: @escaping ((Int) -> ())
   ) {
@@ -18,7 +18,7 @@ public class YandexDrivingSession: NSObject {
     self.onClose = onClose
 
     methodChannel = FlutterMethodChannel(
-      name: "yandex_mapkit/yandex_driving_session_\(id)",
+      name: "yandex_mapkit/yandex_bicycle_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
 
@@ -48,8 +48,8 @@ public class YandexDrivingSession: NSObject {
   }
 
   public func retry(_ result: @escaping FlutterResult) {
-    session.retry(routeHandler: {(drivingResponse: [YMKDrivingRoute]?, error: Error?) -> Void in
-      self.handleResponse(drivingResponse: drivingResponse, error: error, result: result)
+    session.retry(routeListener: {(bicycleResponse: [YMKBicycleRoute]?, error: Error?) -> Void in
+      self.handleResponse(bicycleResponse: bicycleResponse, error: error, result: result)
     })
   }
 
@@ -59,26 +59,23 @@ public class YandexDrivingSession: NSObject {
     onClose(id)
   }
 
-  public func handleResponse(drivingResponse: [YMKDrivingRoute]?, error: Error?, result: @escaping FlutterResult) {
-    if let response = drivingResponse {
+  public func handleResponse(bicycleResponse: [YMKBicycleRoute]?, error: Error?, result: @escaping FlutterResult) {
+    if let response = bicycleResponse {
       onSuccess(response, result)
     } else {
       onError(error!, result)
     }
   }
 
-  private func onSuccess(_ res: [YMKDrivingRoute], _ result: @escaping FlutterResult) {
+  private func onSuccess(_ res: [YMKBicycleRoute], _ result: @escaping FlutterResult) {
     let routes = res.map { (route) -> [String: Any] in
-      let weight = route.metadata.weight
+      let weight = route.weight
 
       return [
         "polyline": Utils.polylineToJson(route.geometry),
-        "metadata": [
-          "weight": [
-            "time": Utils.localizedValueToJson(weight.time),
-            "timeWithTraffic": Utils.localizedValueToJson(weight.timeWithTraffic),
-            "distance": Utils.localizedValueToJson(weight.distance)
-          ]
+        "weight": [
+          "time": Utils.localizedValueToJson(weight.time),
+          "distance": Utils.localizedValueToJson(weight.distance)
         ]
       ]
     }

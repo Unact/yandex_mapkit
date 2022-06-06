@@ -2,6 +2,8 @@ package com.unact.yandexmapkit;
 
 import android.graphics.PointF;
 
+import androidx.annotation.NonNull;
+
 import com.yandex.mapkit.LocalizedValue;
 import com.yandex.mapkit.RequestPoint;
 import com.yandex.mapkit.RequestPointType;
@@ -21,6 +23,9 @@ import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.search.SearchOptions;
 import com.yandex.mapkit.search.SuggestOptions;
+import com.yandex.runtime.Error;
+import com.yandex.runtime.network.NetworkError;
+import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -338,5 +343,22 @@ public class Utils {
     visibleRegionArguments.put("topRight", pointToJson(region.getTopRight()));
 
     return visibleRegionArguments;
+  }
+
+  public static Map<String, Object> errorToJson(@NonNull Error error) {
+    Map<String, Object> errorMap = new HashMap<>();
+    String errorMessage = "Unknown error";
+
+    if (error instanceof NetworkError) {
+      errorMessage = "Network error";
+    }
+
+    if (error instanceof RemoteError) {
+      errorMessage = "Remote server error";
+    }
+
+    errorMap.put("error", errorMessage);
+
+    return errorMap;
   }
 }
