@@ -62,7 +62,8 @@ public class YandexMapController implements
   TrafficListener,
   InputListener,
   CameraListener,
-  GeoObjectTapListener
+  GeoObjectTapListener,
+  View.OnLayoutChangeListener
 {
   private final MapView mapView;
   public final Context context;
@@ -78,6 +79,7 @@ public class YandexMapController implements
   private CircleMapObjectController userAccuracyCircleController;
   private final MapObjectCollectionController rootController;
   private boolean disposed = false;
+  private MethodChannel.Result initResult;
 
   @SuppressWarnings({"unchecked", "ConstantConditions", "InflateParams"})
   public YandexMapController(
@@ -115,6 +117,7 @@ public class YandexMapController implements
     mapView.getMap().addInputListener(this);
     mapView.getMap().addCameraListener(this);
     mapView.getMap().addTapListener(this);
+    mapView.addOnLayoutChangeListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
     userLocationLayer.setObjectListener(this);
@@ -133,7 +136,11 @@ public class YandexMapController implements
   public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
     switch (call.method) {
       case "waitForInit":
-        result.success(null);
+        if (mapView.getWidth() == 0 || mapView.getHeight() == 0) {
+          initResult = result;
+        } else {
+          result.success(null);
+        }
         break;
       case "toggleUserLayer":
         toggleUserLayer(call);
@@ -830,5 +837,13 @@ public class YandexMapController implements
   @Override
   public void onDestroy(@NonNull LifecycleOwner owner) {
     owner.getLifecycle().removeObserver(this);
+  }
+
+  @Override
+  public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+    if (initResult != null) {
+      initResult.success(null);
+      initResult = null;
+    }
   }
 }
