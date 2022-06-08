@@ -31,7 +31,7 @@ public class YandexMapController:
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
-    self.mapView = FLYMKMapView(frame: frame)
+    self.mapView = FLYMKMapView(frame: frame, vulkanPreferred: YandexMapController.isM1Simulator())
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
@@ -246,6 +246,10 @@ public class YandexMapController:
     ]
 
     return arguments
+  }
+
+  private static func isM1Simulator() -> Bool {
+    return (TARGET_IPHONE_SIMULATOR & TARGET_CPU_ARM64) != 0
   }
 
   private func hasLocationPermission() -> Bool {
