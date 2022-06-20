@@ -1,3 +1,9 @@
+## 3.0.1
+
+* Fix early initialization finish on iOS and Android
+* Implement `YandexBicycle`
+* Fix map initialization for iOS arm64 simulator
+
 ## 3.0.0
 
 * Update and lock YandexMapkit version to 4.1.0-full for iOS and Android
