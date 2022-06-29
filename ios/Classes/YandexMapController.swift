@@ -608,7 +608,7 @@ public class YandexMapController:
 
     methodChannel.invokeMethod("onObjectTap", arguments: arguments)
 
-    return true
+    return false
   }
 
   internal func mapObjectTap(id: String, point: YMKPoint) {

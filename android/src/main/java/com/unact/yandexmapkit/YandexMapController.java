@@ -759,7 +759,7 @@ public class YandexMapController implements
 
     methodChannel.invokeMethod("onObjectTap", arguments);
 
-    return true;
+    return false;
   }
 
   public void mapObjectDragStart(@NonNull String id) {
