@@ -189,7 +189,8 @@ class _YandexMapState extends State<YandexMap> {
 
     final controller = await _controller.future;
 
-    await controller._updateMapOptions(updates);
+    // ignore: unawaited_futures
+    controller._updateMapOptions(updates);
     _yandexMapOptions = newOptions;
   }
 
@@ -199,7 +200,8 @@ class _YandexMapState extends State<YandexMap> {
 
     final controller = await _controller.future;
 
-    await controller._updateMapObjects(updates.toJson());
+    // ignore: unawaited_futures
+    controller._updateMapObjects(updates.toJson());
     _mapObjectCollection = updatedMapObjectCollection;
   }
 
