@@ -1,3 +1,8 @@
+## 3.0.2
+
+* Fix state updating incorrectly
+* Fix `YandexMap.onMapTap` not always working
+
 ## 3.0.1
 
 * Fix early initialization finish on iOS and Android
