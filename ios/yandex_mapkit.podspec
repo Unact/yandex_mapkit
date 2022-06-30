@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.public_header_files = 'Classes/**/*.h'
   s.static_framework = true
   s.dependency 'Flutter'
-  s.dependency 'YandexMapsMobile', '4.1.0-full'
+  s.dependency 'YandexMapsMobile', '4.1.0-lite'
 
   s.ios.deployment_target = '12.0'
 end
