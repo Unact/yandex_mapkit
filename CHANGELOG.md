@@ -1,3 +1,7 @@
+## 3.0.3
+
+* Fix clusters not always showing [#255]
+
 ## 3.0.2
 
 * Fix state updating incorrectly
