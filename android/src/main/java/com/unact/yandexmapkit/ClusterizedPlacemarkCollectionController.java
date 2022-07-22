@@ -160,7 +160,11 @@ public class ClusterizedPlacemarkCollectionController
       @Override
       @SuppressWarnings({"unchecked", "ConstantConditions"})
       public void success(@Nullable Object result) {
-        if (result instanceof FlutterException || !cluster.isValid()) {
+        if (
+            result instanceof FlutterException ||
+            controller.get() == null ||
+            !self.clusterizedPlacemarkCollection.isValid()
+        ) {
           return;
         }
 

@@ -3,7 +3,7 @@ import YandexMapsMobile
 class PolygonMapObjectController: NSObject, MapObjectController, YMKMapObjectTapListener {
   public let polygon: YMKPolygonMapObject
   private var consumeTapEvents: Bool = false
-  public unowned var controller: YandexMapController
+  public weak var controller: YandexMapController?
   public let id: String
 
   public required init(
@@ -41,7 +41,7 @@ class PolygonMapObjectController: NSObject, MapObjectController, YMKMapObjectTap
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-    controller.mapObjectTap(id: id, point: point)
+    controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
   }

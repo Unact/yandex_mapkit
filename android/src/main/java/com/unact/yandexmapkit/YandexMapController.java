@@ -646,7 +646,7 @@ public class YandexMapController implements
     methodChannel.invokeMethod("onUserLocationAdded", arguments, new MethodChannel.Result() {
       @Override
       public void success(@Nullable Object result) {
-        if (result instanceof FlutterException || !view.isValid()) {
+        if (result instanceof FlutterException) {
           return;
         }
 

@@ -15,7 +15,7 @@ class ClusterizedPlacemarkCollectionController:
     parent.addClusterizedPlacemarkCollection(with: self)
   }()
   private var consumeTapEvents: Bool = false
-  public unowned var controller: YandexMapController
+  public weak var controller: YandexMapController?
   public let id: String
 
   public required init(
@@ -81,7 +81,7 @@ class ClusterizedPlacemarkCollectionController:
     let placemarkController = PlacemarkMapObjectController(
       parent: clusterizedPlacemarkCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     placemarks[placemarkController.id] = placemarkController
@@ -108,7 +108,7 @@ class ClusterizedPlacemarkCollectionController:
     clusters.values.forEach({ $0.remove() })
     clusters.removeAll()
 
-    controller.methodChannel.invokeMethod("onClustersRemoved", arguments: arguments)
+    controller!.methodChannel.invokeMethod("onClustersRemoved", arguments: arguments)
   }
 
   internal func onClusterAdded(with cluster: YMKCluster) {
@@ -121,8 +121,12 @@ class ClusterizedPlacemarkCollectionController:
       "placemarkIds": cluster.placemarks.map({$0.userData as! String})
     ]
 
-    controller.methodChannel.invokeMethod("onClusterAdded", arguments: arguments) { result in
-      if (result is FlutterError || !cluster.isValid) {
+    controller!.methodChannel.invokeMethod("onClusterAdded", arguments: arguments) { result in
+      if (
+        result is FlutterError ||
+        self.controller == nil ||
+        !self.clusterizedPlacemarkCollection.isValid
+      ) {
         return
       }
 
@@ -131,7 +135,7 @@ class ClusterizedPlacemarkCollectionController:
       self.clusters[cluster] = PlacemarkMapObjectController(
         placemark: cluster.appearance,
         params: params,
-        controller: self.controller
+        controller: self.controller!
       )
       cluster.addClusterTapListener(with: self)
     }
@@ -146,13 +150,13 @@ class ClusterizedPlacemarkCollectionController:
       "placemarkIds": cluster.placemarks.map({$0.userData as! String})
     ]
 
-    controller.methodChannel.invokeMethod("onClusterTap", arguments: arguments)
+    controller!.methodChannel.invokeMethod("onClusterTap", arguments: arguments)
 
     return true
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-    controller.mapObjectTap(id: id, point: point)
+    controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
   }

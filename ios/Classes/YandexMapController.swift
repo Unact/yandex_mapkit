@@ -515,7 +515,7 @@ public class YandexMapController:
     ]
 
     methodChannel.invokeMethod("onUserLocationAdded", arguments: arguments) { result in
-      if (result is FlutterError || !view.isValid) {
+      if (result is FlutterError) {
         return
       }
 

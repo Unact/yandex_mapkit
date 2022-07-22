@@ -9,7 +9,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
   private var polygons: [String: PolygonMapObjectController] = [:]
   public let mapObjectCollection: YMKMapObjectCollection
   private var consumeTapEvents: Bool = false
-  public unowned var controller: YandexMapController
+  public weak var controller: YandexMapController?
   public let id: String
 
   internal init(
@@ -162,7 +162,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let mapObjectCollectionController = MapObjectCollectionController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     mapObjectCollections[mapObjectCollectionController.id] = mapObjectCollectionController
@@ -185,7 +185,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let placemarkController = PlacemarkMapObjectController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     placemarks[placemarkController.id] = placemarkController
@@ -208,7 +208,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let circleController = CircleMapObjectController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     circles[circleController.id] = circleController
@@ -231,7 +231,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let polylineController = PolylineMapObjectController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     polylines[polylineController.id] = polylineController
@@ -254,7 +254,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let polygonController = PolygonMapObjectController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     polygons[polygonController.id] = polygonController
@@ -277,7 +277,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
     let clusterizedPlacemarkCollectionController = ClusterizedPlacemarkCollectionController(
       parent: mapObjectCollection,
       params: params,
-      controller: controller
+      controller: controller!
     )
 
     clusterizedPlacemarkCollections[clusterizedPlacemarkCollectionController.id] =
@@ -298,7 +298,7 @@ class MapObjectCollectionController: NSObject, MapObjectController, YMKMapObject
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-    controller.mapObjectTap(id: id, point: point)
+    controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
   }

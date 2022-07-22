@@ -4,7 +4,7 @@ class CircleMapObjectController: NSObject, MapObjectController, YMKMapObjectTapL
   private let internallyControlled: Bool
   public let circle: YMKCircleMapObject
   private var consumeTapEvents: Bool = false
-  public unowned var controller: YandexMapController
+  public weak var controller: YandexMapController?
   public let id: String
 
   public required init(
@@ -72,7 +72,7 @@ class CircleMapObjectController: NSObject, MapObjectController, YMKMapObjectTapL
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-    controller.mapObjectTap(id: id, point: point)
+    controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
   }

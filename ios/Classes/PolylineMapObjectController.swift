@@ -3,7 +3,7 @@ import YandexMapsMobile
 class PolylineMapObjectController: NSObject, MapObjectController, YMKMapObjectTapListener {
   public let polyline: YMKPolylineMapObject
   private var consumeTapEvents: Bool = false
-  public unowned var controller: YandexMapController
+  public weak var controller: YandexMapController?
   public let id: String
 
   public required init(
@@ -48,7 +48,7 @@ class PolylineMapObjectController: NSObject, MapObjectController, YMKMapObjectTa
   }
 
   func onMapObjectTap(with mapObject: YMKMapObject, point: YMKPoint) -> Bool {
-    controller.mapObjectTap(id: id, point: point)
+    controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
   }
