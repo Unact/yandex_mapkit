@@ -1,3 +1,14 @@
+## 3.1.0
+
+* Update and lock YandexMapkit version to 4.2.0-full for iOS and Android
+* **Breaking change** `SearchOptions.searchSnippet` has been removed.
+* **Breaking change** `SearchOptions.directPageId` has been removed.
+* **Breaking change** `SearchOptions.appleCtx` has been removed.
+* **Breaking change** `SearchOptions.advertPageId` has been removed.
+* **Breaking change** `YandexMap.indoorEnabled` has been removed.
+* **Breaking change** `YandexMap.liteModeEnabled` has been removed.
+* Added new options to `DrivingOptions`
+
 ## 3.0.3
 
 * Fix clusters not always showing [#255]
