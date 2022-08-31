@@ -1,3 +1,7 @@
+## 3.1.1
+
+* Fix not working for flutter versions less than 3.0.0
+
 ## 3.1.0
 
 * Update and lock YandexMapkit version to 4.2.0-full for iOS and Android
