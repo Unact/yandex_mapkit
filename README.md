@@ -46,7 +46,7 @@ import YandexMapsMobile
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.1.0-full'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.2.0-full'` to `android/app/build.gradle`
 2. Add permissions `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 4. `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
@@ -56,7 +56,7 @@ import YandexMapsMobile
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.1.0-full'
+    implementation 'com.yandex.android:maps.mobile:4.2.0-full'
 }
 ```
 

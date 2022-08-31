@@ -34,8 +34,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool nightModeEnabled = false;
   bool fastTapEnabled = false;
   bool mode2DEnabled = false;
-  bool indoorEnabled = false;
-  bool liteModeEnabled = false;
   ScreenRect? focusRect;
   MapType mapType = MapType.vector;
   int? poiLimit;
@@ -94,8 +92,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             nightModeEnabled: nightModeEnabled,
             fastTapEnabled: fastTapEnabled,
             mode2DEnabled: mode2DEnabled,
-            indoorEnabled: indoorEnabled,
-            liteModeEnabled: liteModeEnabled,
             logoAlignment: MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
             focusRect: focusRect,
             mapObjects: mapObjects,
@@ -387,24 +383,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       });
                     },
                     title: '2D mode: ${_enabledText(mode2DEnabled)}'
-                  )
-                ]),
-                TableRow(children: <Widget>[
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        indoorEnabled = !indoorEnabled;
-                      });
-                    },
-                    title: 'Indoor mode: ${_enabledText(indoorEnabled)}'
-                  ),
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        liteModeEnabled = !liteModeEnabled;
-                      });
-                    },
-                    title: 'Lite mode: ${_enabledText(liteModeEnabled)}'
                   )
                 ]),
                 TableRow(children: <Widget>[

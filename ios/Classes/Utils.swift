@@ -50,6 +50,8 @@ class Utils {
       initialAzimuth: json["initialAzimuth"] as? NSNumber,
       routesCount: json["routesCount"] as? NSNumber,
       avoidTolls: json["avoidTolls"] as? NSNumber,
+      avoidUnpaved: json["avoidUnpaved"] as? NSNumber,
+      avoidPoorConditions: json["avoidPoorConditions"] as? NSNumber,
       departureTime: nil,
       annotationLanguage: nil
     )
@@ -63,14 +65,9 @@ class Utils {
     return YMKSearchOptions(
       searchTypes: YMKSearchType(rawValue: (json["searchType"] as! NSNumber).uintValue),
       resultPageSize: json["resultPageSize"] as? NSNumber,
-      snippets: YMKSearchSnippet(rawValue: (json["searchSnippet"] as! NSNumber).uintValue),
-      experimentalSnippets: [String](),
       userPosition: userPosition,
       origin: json["origin"] as? String,
-      directPageId: json["directPageId"] as? String,
-      appleCtx: json["appleCtx"] as? String,
       geometry: (json["geometry"] as! NSNumber).boolValue,
-      advertPageId: json["advertPageId"] as? String,
       disableSpellingCorrection: (json["disableSpellingCorrection"] as! NSNumber).boolValue,
       filters: nil
     )

@@ -563,14 +563,6 @@ public class YandexMapController implements
       map.set2DMode((Boolean) params.get("mode2DEnabled"));
     }
 
-    if (params.get("indoorEnabled") != null) {
-      map.setIndoorEnabled((Boolean) params.get("indoorEnabled"));
-    }
-
-    if (params.get("liteModeEnabled") != null) {
-      map.setLiteModeEnabled((Boolean) params.get("liteModeEnabled"));
-    }
-
     if (params.get("modelsEnabled") != null) {
       map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
     }

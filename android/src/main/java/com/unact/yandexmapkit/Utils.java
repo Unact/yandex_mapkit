@@ -73,6 +73,8 @@ public class Utils {
       (Double) json.get("initialAzimuth"),
       (Integer) json.get("routesCount"),
       (Boolean) json.get("avoidTolls"),
+      (Boolean) json.get("avoidUnpaved"),
+      (Boolean) json.get("avoidPoorConditions"),
       null,
       null
     );
@@ -87,14 +89,9 @@ public class Utils {
     return new SearchOptions(
       ((Number) json.get("searchType")).intValue(),
       (Integer) json.get("resultPageSize"),
-      ((Number) json.get("searchSnippet")).intValue(),
-      new ArrayList<String>(),
       userPosition,
       (String) json.get("origin"),
-      (String) json.get("directPageId"),
-      (String) json.get("appleCtx"),
       (Boolean) json.get("geometry"),
-      (String) json.get("advertPageId"),
       (Boolean) json.get("disableSpellingCorrection"),
       null
     );
