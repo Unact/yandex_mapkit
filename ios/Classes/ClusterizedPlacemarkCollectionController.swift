@@ -125,7 +125,8 @@ class ClusterizedPlacemarkCollectionController:
       if (
         result is FlutterError ||
         self.controller == nil ||
-        !self.clusterizedPlacemarkCollection.isValid
+        !self.clusterizedPlacemarkCollection.isValid ||
+        !cluster.isValid
       ) {
         return
       }

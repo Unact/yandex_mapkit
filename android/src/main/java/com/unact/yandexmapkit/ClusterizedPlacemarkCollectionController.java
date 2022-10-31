@@ -163,7 +163,8 @@ public class ClusterizedPlacemarkCollectionController
         if (
             result instanceof FlutterException ||
             controller.get() == null ||
-            !self.clusterizedPlacemarkCollection.isValid()
+            !self.clusterizedPlacemarkCollection.isValid() ||
+            !cluster.isValid()
         ) {
           return;
         }
