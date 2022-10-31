@@ -2,7 +2,7 @@ library yandex_mapkit;
 
 import 'dart:async';
 import 'dart:core';
-import 'dart:typed_data';
+import 'dart:typed_data'; // ignore: unnecessary_import
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
