@@ -83,8 +83,8 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                           visible: true,
                           autoZoomEnabled: true,
                           anchor: UserLocationAnchor(
-                            course: Offset(0.5 * height , 0.5 * width),
-                            normal: Offset(0.5 * height, 0.5 * width)
+                            course: Offset(0.5 * width, 0.5 * height),
+                            normal: Offset(0.5 * width, 0.5 * height)
                           )
                         );
                       },
