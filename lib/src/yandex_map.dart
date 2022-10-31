@@ -211,7 +211,7 @@ class _YandexMapState extends State<YandexMap> {
             );
           },
           onCreatePlatformView: (PlatformViewCreationParams params) {
-            return PlatformViewsService.initSurfaceAndroidView(
+            return PlatformViewsService.initExpensiveAndroidView(
               id: params.id,
               viewType: YandexMap._viewType,
               layoutDirection: TextDirection.ltr,
