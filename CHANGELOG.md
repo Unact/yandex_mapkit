@@ -1,3 +1,11 @@
+## 3.2.0
+
+* Update and lock YandexMapkit version to 4.2.2-full for iOS and Android
+* Set minimum flutter version to 3.0.0
+* Fix incorrect example
+* Fix crashes on cluster styling
+* Fix incorrect Android view initialization
+
 ## 3.1.1
 
 * Fix not working for flutter versions less than 3.0.0
