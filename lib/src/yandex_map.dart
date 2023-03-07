@@ -197,6 +197,8 @@ class _YandexMapState extends State<YandexMap> {
     _mapObjectCollection = updatedMapObjectCollection;
   }
 
+  late final _creationParamsCached = _creationParams();
+
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android) {
@@ -215,7 +217,7 @@ class _YandexMapState extends State<YandexMap> {
               id: params.id,
               viewType: YandexMap._viewType,
               layoutDirection: TextDirection.ltr,
-              creationParams: _creationParams(),
+              creationParams: _creationParamsCached,
               creationParamsCodec: StandardMessageCodec(),
               onFocus: () => params.onFocusChanged(true),
             )
@@ -230,7 +232,7 @@ class _YandexMapState extends State<YandexMap> {
           onPlatformViewCreated: _onPlatformViewCreated,
           gestureRecognizers: widget.gestureRecognizers,
           creationParamsCodec: StandardMessageCodec(),
-          creationParams: _creationParams(),
+          creationParams: _creationParamsCached,
         );
       }
     } else {
@@ -239,7 +241,7 @@ class _YandexMapState extends State<YandexMap> {
         onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: widget.gestureRecognizers,
         creationParamsCodec: StandardMessageCodec(),
-        creationParams: _creationParams(),
+        creationParams: _creationParamsCached,
       );
     }
   }
