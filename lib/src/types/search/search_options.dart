@@ -37,7 +37,7 @@ class SearchOptions extends Equatable {
       'geometry': geometry,
       'disableSpellingCorrection': disableSpellingCorrection,
       'resultPageSize': resultPageSize,
-      'userPosition': userPosition,
+      'userPosition': userPosition?.toJson(),
       'origin': origin
     };
   }
