@@ -329,6 +329,11 @@ class _YandexMapOptions {
   Map<String, dynamic> mapUpdates(_YandexMapOptions newOptions) {
     final prevOptionsMap = toJson();
 
-    return newOptions.toJson()..removeWhere((String key, dynamic value) => prevOptionsMap[key] == value);
+    return newOptions.toJson()..removeWhere(
+      (String key, dynamic value) {
+        if (value is Map) return mapEquals(prevOptionsMap[key], value);
+        return prevOptionsMap[key] == value;
+      }
+    );
   }
 }
