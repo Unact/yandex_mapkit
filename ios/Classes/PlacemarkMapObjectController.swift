@@ -68,8 +68,9 @@ class PlacemarkMapObjectController:
     placemark.zIndex = (params["zIndex"] as! NSNumber).floatValue
     placemark.isDraggable = (params["isDraggable"] as! NSNumber).boolValue
     placemark.opacity = (params["opacity"] as! NSNumber).floatValue
-    placemark.direction = (params["direction"] as! NSNumber).floatValue 
+    placemark.direction = (params["direction"] as! NSNumber).floatValue
 
+    setText(params["text"] as? [String: Any])
     setIcon(params["icon"] as? [String: Any])
 
     consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
@@ -99,6 +100,14 @@ class PlacemarkMapObjectController:
     controller!.mapObjectTap(id: id, point: point)
 
     return consumeTapEvents
+  }
+
+  private func setText(_ text: [String: Any]?) {
+    if (text == nil) {
+      return
+    }
+
+    placemark.setTextWithText(text!["text"] as! String, style: getTextStyle(text!["style"] as! [String: Any]))
   }
 
   private func setIcon(_ icon: [String: Any]?) {
@@ -146,6 +155,26 @@ class PlacemarkMapObjectController:
     }
 
     return defaultImage
+  }
+
+  private func getTextStyle(_ style: [String: Any]) -> YMKTextStyle {
+    let textStyle = YMKTextStyle()
+
+    if let color = style["color"] as? NSNumber {
+      textStyle.color = Utils.uiColor(fromInt: color.int64Value)
+    }
+
+    if let outlineColor = style["outlineColor"] as? NSNumber {
+      textStyle.outlineColor = Utils.uiColor(fromInt: outlineColor.int64Value)
+    }
+
+    textStyle.size = (style["size"] as! NSNumber).floatValue
+    textStyle.offset = (style["offset"] as! NSNumber).floatValue
+    textStyle.offsetFromIcon = (style["offsetFromIcon"] as! NSNumber).boolValue
+    textStyle.textOptional = (style["textOptional"] as! NSNumber).boolValue
+    textStyle.placement = YMKTextStylePlacement.init(rawValue: (style["placement"] as! NSNumber).uintValue)!
+
+    return textStyle
   }
 
   private func getIconStyle(_ style: [String: Any]) -> YMKIconStyle {

@@ -16,6 +16,7 @@ class PlacemarkMapObject extends Equatable implements MapObject {
     this.icon,
     this.opacity = 0.5,
     this.direction = 0,
+    this.text
   });
 
   /// The geometry of the map object.
@@ -61,6 +62,9 @@ class PlacemarkMapObject extends Equatable implements MapObject {
   /// Measured in degrees.
   final double direction;
 
+  /// Text to display with a [PlacemarkMapObject]
+  final PlacemarkText? text;
+
   PlacemarkMapObject copyWith({
     Point? point,
     double? zIndex,
@@ -74,6 +78,7 @@ class PlacemarkMapObject extends Equatable implements MapObject {
     PlacemarkIcon? icon,
     double? opacity,
     double? direction,
+    PlacemarkText? text
   }) {
     return PlacemarkMapObject(
       mapId: mapId,
@@ -88,7 +93,8 @@ class PlacemarkMapObject extends Equatable implements MapObject {
       isDraggable: isDraggable ?? this.isDraggable,
       icon: icon ?? this.icon,
       opacity: opacity ?? this.opacity,
-      direction: direction ?? this.direction
+      direction: direction ?? this.direction,
+      text: text ?? this.text
     );
   }
 
@@ -113,7 +119,8 @@ class PlacemarkMapObject extends Equatable implements MapObject {
       isDraggable: isDraggable,
       icon: icon,
       opacity: opacity,
-      direction: direction
+      direction: direction,
+      text: text
     );
   }
 
@@ -156,7 +163,8 @@ class PlacemarkMapObject extends Equatable implements MapObject {
       'isDraggable': isDraggable,
       'opacity': opacity,
       'direction': direction,
-      'icon': icon?.toJson()
+      'icon': icon?.toJson(),
+      'text': text?.toJson()
     };
   }
 
@@ -194,7 +202,8 @@ class PlacemarkMapObject extends Equatable implements MapObject {
     isDraggable,
     opacity,
     direction,
-    icon
+    icon,
+    text
   ];
 
   @override
@@ -309,7 +318,6 @@ class PlacemarkIconStyle extends Equatable {
   bool get stringify => true;
 }
 
-
 /// A part of a composite icon to visually show a [PlacemarkMapObject] icon
 class PlacemarkCompositeIconItem extends Equatable {
   /// Base icon to use for composition
@@ -344,8 +352,112 @@ class PlacemarkCompositeIconItem extends Equatable {
   bool get stringify => true;
 }
 
+/// Text to display on top of a PlacemarkMapObject
+class PlacemarkText extends Equatable {
+  /// Text to display
+  final String text;
+
+  /// Text visuals
+  final PlacemarkTextStyle style;
+
+  const PlacemarkText({
+    required this.text,
+    required this.style
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'style': style.toJson(),
+    };
+  }
+
+  @override
+  List<Object?> get props => <Object?>[
+    text,
+    style
+  ];
+
+  @override
+  bool get stringify => true;
+}
+
+/// Visuals of text displayed with a [PlacemarkMapObject]
+class PlacemarkTextStyle extends Equatable {
+  /// Text offset in units.
+  final double offset;
+
+  /// Text color.
+  final Color? color;
+
+  /// Outline color.
+  final Color? outlineColor;
+
+  /// Text font size in units.
+  final double size;
+
+  /// If true, offset is a padding between the text and icon edges.
+  final bool offsetFromIcon;
+
+  /// Allow dropping text but keeping icon during conflict resolution.
+  final bool textOptional;
+
+  /// Text placement position.
+  final TextStylePlacement placement;
+
+  /// Creates an icon to be used to represent a [PlacemarkMapObject] on the map.
+  const PlacemarkTextStyle({
+    this.offset = 0,
+    this.color,
+    this.outlineColor,
+    this.size = 10,
+    this.offsetFromIcon = true,
+    this.textOptional = false,
+    this.placement = TextStylePlacement.center
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'offset': offset,
+      'color': color?.value,
+      'outlineColor': outlineColor?.value,
+      'size': size,
+      'offsetFromIcon': offsetFromIcon,
+      'textOptional': textOptional,
+      'placement': placement.index
+    };
+  }
+
+  @override
+  List<Object?> get props => <Object?>[
+    offset,
+    color,
+    outlineColor,
+    size,
+    offsetFromIcon,
+    textOptional,
+    placement
+  ];
+
+  @override
+  bool get stringify => true;
+}
+
 /// [PlacemarkIconStyle] rotation types
 enum RotationType {
   noRotation,
   rotate
+}
+
+/// [PlacemarkTextStyle] placement
+enum TextStylePlacement {
+  center,
+  left,
+  right,
+  top,
+  bottom,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight
 }

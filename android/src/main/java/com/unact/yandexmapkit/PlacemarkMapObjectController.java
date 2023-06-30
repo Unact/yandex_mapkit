@@ -16,6 +16,7 @@ import com.yandex.mapkit.map.MapObjectDragListener;
 import com.yandex.mapkit.map.MapObjectTapListener;
 import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.map.RotationType;
+import com.yandex.mapkit.map.TextStyle;
 import com.yandex.runtime.image.ImageProvider;
 
 import java.io.InputStream;
@@ -90,6 +91,7 @@ public class PlacemarkMapObjectController
     placemark.setOpacity(((Double) params.get("opacity")).floatValue());
     placemark.setDirection(((Double) params.get("direction")).floatValue());
 
+    setText(((Map<String, Object>) params.get("text")));
     setIcon(((Map<String, Object>) params.get("icon")));
 
     consumeTapEvents = (Boolean) params.get("consumeTapEvents");
@@ -130,6 +132,15 @@ public class PlacemarkMapObjectController
         compositeIcon.setIcon(name, getIconImage(image), getIconStyle(style));
       }
     }
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private void setText(Map<String, Object> text) {
+    if (text == null) {
+      return;
+    }
+
+    placemark.setText((String) text.get("text"), getTextStyle(((Map<String, Object>) text.get("style"))));
   }
 
   @SuppressWarnings({"ConstantConditions"})
@@ -179,6 +190,27 @@ public class PlacemarkMapObjectController
     iconStyle.setRotationType(RotationType.values()[(Integer) style.get("rotationType")]);
 
     return iconStyle;
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private TextStyle getTextStyle(Map<String, Object> style) {
+    TextStyle textStyle = new TextStyle();
+
+    if (style.get("color") != null) {
+      textStyle.setColor(((Number) style.get("color")).intValue());
+    }
+
+    if (style.get("outlineColor") != null) {
+      textStyle.setOutlineColor(((Number) style.get("outlineColor")).intValue());
+    }
+
+    textStyle.setSize(((Double) style.get("size")).floatValue());
+    textStyle.setOffset(((Double) style.get("offset")).floatValue());
+    textStyle.setOffsetFromIcon((Boolean) style.get("offsetFromIcon"));
+    textStyle.setTextOptional((Boolean) style.get("textOptional"));
+    textStyle.setPlacement(TextStyle.Placement.values()[(Integer) style.get("placement")]);
+
+    return textStyle;
   }
 
   @Override

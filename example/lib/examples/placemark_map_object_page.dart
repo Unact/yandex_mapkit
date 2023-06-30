@@ -91,7 +91,15 @@ class _PlacemarkMapObjectExampleState extends State<_PlacemarkMapObjectExample> 
                           icon: PlacemarkIcon.single(PlacemarkIconStyle(
                             image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                             rotationType: RotationType.rotate
-                          ))
+                          )),
+                          text: const PlacemarkText(
+                            text: 'Point',
+                            style: PlacemarkTextStyle(
+                              placement: TextStylePlacement.top,
+                              color: Colors.amber,
+                              outlineColor: Colors.black
+                            )
+                          )
                         );
 
                         setState(() {
