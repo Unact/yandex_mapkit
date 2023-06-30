@@ -67,7 +67,8 @@ public class YandexSuggestSession: NSObject {
         "displayText": suggestItem.displayText,
         "searchText": suggestItem.searchText,
         "type": suggestItem.type.rawValue,
-        "tags": suggestItem.tags
+        "tags": suggestItem.tags,
+        "center": suggestItem.center != nil ? Utils.pointToJson(suggestItem.center!) : nil
       ]
     }
 

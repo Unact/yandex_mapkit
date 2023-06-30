@@ -35,6 +35,7 @@ public class YandexSuggestListener implements SuggestSession.SuggestListener {
       suggestMap.put("searchText", suggestItem.getSearchText());
       suggestMap.put("type", suggestItem.getType().ordinal());
       suggestMap.put("tags", suggestItem.getTags());
+      suggestMap.put("center", suggestItem.getCenter() != null ? Utils.pointToJson(suggestItem.getCenter()) : null);
 
       suggests.add(suggestMap);
     }
