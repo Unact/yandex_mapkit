@@ -186,16 +186,16 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                       );
                       await controller.moveCamera(CameraUpdate.newBounds(newBounds), animation: animation);
                     },
-                    title: 'New bounds'
+                    title: 'New geometry'
                   ),
                   ControlButton(
                     onPressed: () async {
-                      final newBounds = BoundingBox(
+                      final newGeometry = Geometry.fromBoundingBox(BoundingBox(
                         northEast: Point(latitude: 65.0, longitude: 40.0),
                         southWest: Point(latitude: 60.0, longitude: 30.0),
-                      );
+                      ));
                       await controller.moveCamera(
-                        CameraUpdate.newTiltAzimuthBounds(newBounds, azimuth: 1, tilt: 1),
+                        CameraUpdate.newTiltAzimuthGeometry(newGeometry, azimuth: 1, tilt: 1),
                         animation: animation
                       );
                     },

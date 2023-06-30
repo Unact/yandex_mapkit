@@ -275,8 +275,8 @@ public class YandexMapController:
       return newCameraPosition(cameraUpdateParams!)
     case "newBounds":
       return newBounds(cameraUpdateParams!)
-    case "newTiltAzimuthBounds":
-      return newTiltAzimuthBounds(cameraUpdateParams!)
+    case "newTiltAzimuthGeometry":
+      return newTiltAzimuthGeometry(cameraUpdateParams!)
     case "zoomIn":
       return zoomIn()
     case "zoomOut":
@@ -316,15 +316,15 @@ public class YandexMapController:
     )
   }
 
-  private func newTiltAzimuthBounds(_ params: [String: Any]) -> YMKCameraPosition {
+  private func newTiltAzimuthGeometry(_ params: [String: Any]) -> YMKCameraPosition {
     let focus = params["focusRect"] as? [String: Any] != nil ?
       Utils.screenRectFromJson(params["focusRect"] as! [String: Any]) :
       nil
 
     return mapView.mapWindow.map.cameraPosition(
-      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
-      azimuth: (params["azimuth"] as! NSNumber).floatValue,
-      tilt: (params["tilt"] as! NSNumber).floatValue,
+      with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
+      azimuth: (params["azimuth"] as! NSNumber),
+      tilt: (params["tilt"] as! NSNumber),
       focus: focus
     )
   }

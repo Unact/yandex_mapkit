@@ -374,8 +374,8 @@ public class YandexMapController implements
         return newCameraPosition(cameraUpdateParams);
       case "newBounds":
         return newBounds(cameraUpdateParams);
-      case "newTiltAzimuthBounds":
-        return newTiltAzimuthBounds(cameraUpdateParams);
+      case "newTiltAzimuthGeometry":
+        return newTiltAzimuthGeometry(cameraUpdateParams);
       case "zoomIn":
         return zoomIn();
       case "zoomOut":
@@ -418,13 +418,13 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public CameraPosition newTiltAzimuthBounds(Map<String, Object> params) {
+  public CameraPosition newTiltAzimuthGeometry(Map<String, Object> params) {
     ScreenRect focus = (Map<String, Object>) params.get("focusRect") != null ?
       Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect")) :
       null;
 
     return mapView.getMap().cameraPosition(
-      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
+      Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
       ((Double) params.get("azimuth")).floatValue(),
       ((Double) params.get("tilt")).floatValue(),
       focus
