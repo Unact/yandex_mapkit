@@ -1,3 +1,8 @@
+## 3.3.1
+
+* Fix cluster marker tap crash [#289]
+* Fix moveCamera crash [#294]
+
 ## 3.3.0
 
 * Update and lock YandexMapkit version to 4.3.2-full for iOS and Android
