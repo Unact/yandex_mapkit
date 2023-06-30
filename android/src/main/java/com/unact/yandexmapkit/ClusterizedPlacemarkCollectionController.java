@@ -164,7 +164,8 @@ public class ClusterizedPlacemarkCollectionController
             result instanceof FlutterException ||
             controller.get() == null ||
             !self.clusterizedPlacemarkCollection.isValid() ||
-            !cluster.isValid()
+            !cluster.isValid() ||
+            !cluster.getAppearance().isValid()
         ) {
           return;
         }
