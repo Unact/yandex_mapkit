@@ -15,6 +15,12 @@ class YandexMapController extends ChangeNotifier {
     return YandexMapController._(methodChannel, yandexMapState);
   }
 
+  @override
+  void dispose() {
+    _channel.setMethodCallHandler(null);
+    super.dispose();
+  }
+
   /// Toggles current user location layer
   ///
   /// Requires location permissions:
