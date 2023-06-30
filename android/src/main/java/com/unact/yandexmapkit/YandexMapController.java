@@ -304,12 +304,6 @@ public class YandexMapController implements
   public void moveCamera(MethodCall call, MethodChannel.Result result) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    if (mapView.getWidth() == 0 || mapView.getHeight() == 0) {
-      result.success(false);
-
-      return;
-    }
-
     move(
       cameraUpdateToPosition((Map<String, Object>) params.get("cameraUpdate")),
       ((Map<String, Object>) params.get("animation")),

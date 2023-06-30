@@ -197,12 +197,6 @@ public class YandexMapController:
   public func moveCamera(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
     let params = call.arguments as! [String: Any]
 
-    if (mapView.frame.isEmpty) {
-      result(false)
-
-      return
-    }
-
     move(
       cameraPosition: cameraUpdateToPosition(params["cameraUpdate"] as! [String: Any]),
       animationParams: params["animation"] as? [String: Any],
@@ -384,11 +378,25 @@ public class YandexMapController:
     )
   }
 
+  private func validCameraPosition(_ cameraPosition: YMKCameraPosition) -> Bool {
+    return !cameraPosition.zoom.isNaN &&
+      !cameraPosition.tilt.isNaN &&
+      !cameraPosition.azimuth.isNaN &&
+      !cameraPosition.target.latitude.isNaN &&
+      !cameraPosition.target.longitude.isNaN
+  }
+
   private func move(
     cameraPosition: YMKCameraPosition,
     animationParams: [String: Any]?,
     result: @escaping FlutterResult
   ) {
+    if !validCameraPosition(cameraPosition) {
+      result(false)
+
+      return
+    }
+
     if animationParams == nil {
       mapView.mapWindow.map.move(with: cameraPosition)
       result(true)
