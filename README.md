@@ -7,14 +7,14 @@ A flutter plugin for displaying yandex maps on iOS and Android.
 | __Support__ | SDK 21+ | iOS 12+ |
 
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
-When using Mapkit refer to these [terms of use](https://tech.yandex.com/maps/doc/mapkit/3.x/concepts/conditions-docpage/)
+When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/doc/en/conditions)
 
 ## Getting Started
 
 ### Generate your API Key
 
-1. Go to https://developer.tech.yandex.com
-2. Create a `MapKit mobile SDK` key
+1. Go to https://developer.tech.yandex.ru/services/
+2. Create a `MapKit Mobile SDK` key
 
 ### Initializing for iOS
 
@@ -46,7 +46,7 @@ import YandexMapsMobile
 
 ### Initializing for Android
 
-1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.2.2-full'` to `android/app/build.gradle`
+1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.3.2-full'` to `android/app/build.gradle`
 2. Add permissions `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>` to `android/app/src/main/AndroidManifest.xml`
 3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
 4. `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
@@ -56,7 +56,7 @@ import YandexMapsMobile
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.2.2-full'
+    implementation 'com.yandex.android:maps.mobile:4.3.2-full'
 }
 ```
 
