@@ -1,3 +1,11 @@
+## 3.3.2
+
+* Add the ability to add text to PlacemarkMapObject
+* Add the ability to change current map mode
+* Add point information to SuggestItem
+* Fix map always updating logoAlignment
+* Fix ios permission error in UserLayerPage example
+
 ## 3.3.1
 
 * Fix cluster marker tap crash [#289]
