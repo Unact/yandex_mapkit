@@ -263,15 +263,15 @@ class YandexMapController extends ChangeNotifier {
 
   Future<Map<String, dynamic>?> _onUserLocationAdded(dynamic arguments) async {
     final pin = PlacemarkMapObject(
-      mapId: MapObjectId('user_location_pin'),
+      mapId: const MapObjectId('user_location_pin'),
       point: Point._fromJson(arguments['pinPoint'])
     );
     final arrow = PlacemarkMapObject(
-      mapId: MapObjectId('user_location_arrow'),
+      mapId: const MapObjectId('user_location_arrow'),
       point: Point._fromJson(arguments['arrowPoint'])
     );
     final accuracyCircle = CircleMapObject(
-      mapId: MapObjectId('user_location_accuracy_circle'),
+      mapId: const MapObjectId('user_location_accuracy_circle'),
       circle: Circle._fromJson(arguments['circle'])
     );
     final view = UserLocationView._(arrow: arrow, pin: pin, accuracyCircle: accuracyCircle);
@@ -375,7 +375,7 @@ class YandexMapController extends ChangeNotifier {
 
   MapObject? _findMapObject(List<MapObject> mapObjects, String id) {
     for (var mapObject in mapObjects) {
-      var foundMapObject;
+      MapObject? foundMapObject;
 
       if (mapObject.mapId.value == id) {
         foundMapObject = mapObject;

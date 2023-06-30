@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class CircleMapObjectPage extends MapPage {
-  const CircleMapObjectPage() : super('Circle example');
+  const CircleMapObjectPage({Key? key}) : super('Circle example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class _CircleMapObjectExample extends StatefulWidget {
 class _CircleMapObjectExampleState extends State<_CircleMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId mapObjectId = MapObjectId('circle');
+  final MapObjectId mapObjectId = const MapObjectId('circle');
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _CircleMapObjectExampleState extends State<_CircleMapObjectExample> {
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -52,7 +52,7 @@ class _CircleMapObjectExampleState extends State<_CircleMapObjectExample> {
 
                         final mapObject = CircleMapObject(
                           mapId: mapObjectId,
-                          circle: Circle(
+                          circle: const Circle(
                             center: Point(latitude: 55.781863, longitude: 37.451159),
                             radius: 1000000
                           ),

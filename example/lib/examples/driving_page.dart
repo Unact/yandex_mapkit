@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class DrivingPage extends MapPage {
-  const DrivingPage() : super('Driving example');
+  const DrivingPage({Key? key}) : super('Driving example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +27,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
     endPlacemark
   ];
   final PlacemarkMapObject startPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('start_placemark'),
-    point: Point(latitude: 55.7558, longitude: 37.6173),
+    mapId: const MapObjectId('start_placemark'),
+    point: const Point(latitude: 55.7558, longitude: 37.6173),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(
         image: BitmapDescriptor.fromAssetImage('lib/assets/route_start.png'),
@@ -37,8 +37,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
     ),
   );
   final PlacemarkMapObject stopByPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('stop_by_placemark'),
-    point: Point(latitude: 45.0360, longitude: 38.9746),
+    mapId: const MapObjectId('stop_by_placemark'),
+    point: const Point(latitude: 45.0360, longitude: 38.9746),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(
         image: BitmapDescriptor.fromAssetImage('lib/assets/route_stop_by.png'),
@@ -47,8 +47,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
     ),
   );
   final PlacemarkMapObject endPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('end_placemark'),
-    point: Point(latitude: 48.4814, longitude: 135.0721),
+    mapId: const MapObjectId('end_placemark'),
+    point: const Point(latitude: 48.4814, longitude: 135.0721),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(
         image: BitmapDescriptor.fromAssetImage('lib/assets/route_end.png'),
@@ -68,7 +68,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -94,7 +94,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
         RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
         RequestPoint(point: endPlacemark.point, requestPointType: RequestPointType.wayPoint),
       ],
-      drivingOptions: DrivingOptions(
+      drivingOptions: const DrivingOptions(
         initialAzimuth: 0,
         routesCount: 5,
         avoidTolls: true
@@ -122,7 +122,7 @@ class _SessionPage extends StatefulWidget {
   final PlacemarkMapObject startPlacemark;
   final PlacemarkMapObject endPlacemark;
 
-  _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
+  const _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -156,7 +156,7 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Driving ${widget.session.id}')),
       body: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -173,7 +173,7 @@ class _SessionState extends State<_SessionPage> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -185,8 +185,8 @@ class _SessionState extends State<_SessionPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           !_progress ? Container() : TextButton.icon(
-                            icon: CircularProgressIndicator(),
-                            label: Text('Cancel'),
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
                             onPressed: _cancel
                           )
                         ],
@@ -197,7 +197,7 @@ class _SessionState extends State<_SessionPage> {
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: _getList(),
@@ -220,7 +220,7 @@ class _SessionState extends State<_SessionPage> {
     final list = <Widget>[];
 
     if (results.isEmpty) {
-      list.add((Text('Nothing found')));
+      list.add((const Text('Nothing found')));
     }
 
     for (var r in results) {

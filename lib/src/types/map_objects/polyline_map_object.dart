@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 /// Collection of points connected by lines to be displayed on [YandexMap]
 class PolylineMapObject extends Equatable implements MapObject {
-  PolylineMapObject({
+  const PolylineMapObject({
     required this.mapId,
     required this.polyline,
     this.zIndex = 0.0,

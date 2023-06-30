@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 /// Structured toponym address
 class SearchAddress extends Equatable {
-  SearchAddress._({
+  const SearchAddress._({
     required this.formattedAddress,
     required this.addressComponents
   });

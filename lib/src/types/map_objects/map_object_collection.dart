@@ -116,7 +116,7 @@ class MapObjectCollection extends Equatable implements MapObject {
     return toJson()..addAll({
       'type': runtimeType.toString(),
       'mapObjects': MapObjectUpdates.from(
-        <MapObject>{...[]},
+        const <MapObject>{...[]},
         mapObjects.toSet()
       ).toJson()
     });

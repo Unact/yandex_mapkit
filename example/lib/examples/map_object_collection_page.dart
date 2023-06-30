@@ -5,7 +5,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class MapObjectCollectionPage extends MapPage {
-  const MapObjectCollectionPage() : super('MapObjectCollection example');
+  const MapObjectCollectionPage({Key? key}) : super('MapObjectCollection example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class _MapObjectCollectionExample extends StatefulWidget {
 class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId mapObjectId = MapObjectId('map_object_collection');
+  final MapObjectId mapObjectId = const MapObjectId('map_object_collection');
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -52,24 +52,24 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                           mapId: mapObjectId,
                           mapObjects: [
                             CircleMapObject(
-                              mapId: MapObjectId('circle'),
-                              circle: Circle(
+                              mapId: const MapObjectId('circle'),
+                              circle: const Circle(
                                 radius: 100000,
                                 center: Point(latitude: 59.945933, longitude: 30.320045)
                               ),
                               consumeTapEvents: true,
                               onTap: (CircleMapObject self, Point point) => print('Tapped circle at $point'),
                             ),
-                            PlacemarkMapObject(
+                            const PlacemarkMapObject(
                               mapId: MapObjectId('placemark'),
                               point: Point(latitude: 59.945933, longitude: 30.320045)
                             ),
                             MapObjectCollection(
-                              mapId: MapObjectId('inner_map_object_collection'),
+                              mapId: const MapObjectId('inner_map_object_collection'),
                               mapObjects: [
                                 PlacemarkMapObject(
-                                  mapId: MapObjectId('inner_placemark'),
-                                  point: Point(latitude: 57.945933, longitude: 28.320045),
+                                  mapId: const MapObjectId('inner_placemark'),
+                                  point: const Point(latitude: 57.945933, longitude: 28.320045),
                                   opacity: 0.7,
                                   icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                     image: BitmapDescriptor.fromAssetImage('lib/assets/place.png')
@@ -98,8 +98,8 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                         setState(() {
                           mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(mapObjects: [
                             CircleMapObject(
-                              mapId: MapObjectId('circle'),
-                              circle: Circle(
+                              mapId: const MapObjectId('circle'),
+                              circle: const Circle(
                                 radius: 10000,
                                 center: Point(latitude: 59.945933, longitude: 30.320045)
                               ),
@@ -107,8 +107,8 @@ class _MapObjectCollectionExampleState extends State<_MapObjectCollectionExample
                               onTap: (CircleMapObject self, Point point) => print('Tapped circle at $point'),
                             ),
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_new'),
-                              point: Point(latitude: 59.945933, longitude: 30.320045),
+                              mapId: const MapObjectId('placemark_new'),
+                              point: const Point(latitude: 59.945933, longitude: 30.320045),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/arrow.png'),
                                 scale: 0.2,

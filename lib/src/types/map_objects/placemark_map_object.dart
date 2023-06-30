@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 /// A placemark to be displayed on [YandexMap] at a specific point
 class PlacemarkMapObject extends Equatable implements MapObject {
-  PlacemarkMapObject({
+  const PlacemarkMapObject({
     required this.mapId,
     required this.point,
     this.zIndex = 0.0,

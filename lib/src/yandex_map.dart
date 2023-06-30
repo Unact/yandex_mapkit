@@ -124,6 +124,7 @@ class YandexMap extends StatefulWidget {
   final ObjectTapCallback? onObjectTap;
 
   @override
+  // ignore: library_private_types_in_public_api
   _YandexMapState createState() => _YandexMapState();
 }
 
@@ -132,8 +133,8 @@ class _YandexMapState extends State<YandexMap> {
 
   /// Root object which contains all [MapObject] which were added to the map by user
   MapObjectCollection _mapObjectCollection = MapObjectCollection(
-    mapId: MapObjectId('root_map_object_collection'),
-    mapObjects: []
+    mapId: const MapObjectId('root_map_object_collection'),
+    mapObjects: const []
   );
 
   /// All [MapObject] which were created natively
@@ -216,7 +217,7 @@ class _YandexMapState extends State<YandexMap> {
               viewType: YandexMap._viewType,
               layoutDirection: TextDirection.ltr,
               creationParams: _creationParams(),
-              creationParamsCodec: StandardMessageCodec(),
+              creationParamsCodec: const StandardMessageCodec(),
               onFocus: () => params.onFocusChanged(true),
             )
             ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
@@ -229,7 +230,7 @@ class _YandexMapState extends State<YandexMap> {
           viewType: YandexMap._viewType,
           onPlatformViewCreated: _onPlatformViewCreated,
           gestureRecognizers: widget.gestureRecognizers,
-          creationParamsCodec: StandardMessageCodec(),
+          creationParamsCodec: const StandardMessageCodec(),
           creationParams: _creationParams(),
         );
       }
@@ -238,7 +239,7 @@ class _YandexMapState extends State<YandexMap> {
         viewType: YandexMap._viewType,
         onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: widget.gestureRecognizers,
-        creationParamsCodec: StandardMessageCodec(),
+        creationParamsCodec: const StandardMessageCodec(),
         creationParams: _creationParams(),
       );
     }

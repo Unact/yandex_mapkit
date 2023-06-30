@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PolygonMapObjectPage extends MapPage {
-  const PolygonMapObjectPage() : super('Polygon example');
+  const PolygonMapObjectPage({Key? key}) : super('Polygon example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class _PolygonMapObjectExample extends StatefulWidget {
 class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId mapObjectId = MapObjectId('polygon');
+  final MapObjectId mapObjectId = const MapObjectId('polygon');
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -52,7 +52,7 @@ class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
 
                         final mapObject = PolygonMapObject(
                           mapId: mapObjectId,
-                          polygon: Polygon(
+                          polygon: const Polygon(
                             outerRing: LinearRing(points: [
                               Point(latitude: 56.34295, longitude: 74.62829),
                               Point(latitude: 70.12669, longitude: 98.97399),

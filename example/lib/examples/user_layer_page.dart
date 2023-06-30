@@ -6,7 +6,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class UserLayerPage extends MapPage {
-  const UserLayerPage() : super('User layer example');
+  const UserLayerPage({Key? key}) : super('User layer example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
 
   Future<bool> get locationPermissionNotGranted async => !(await Permission.location.request().isGranted);
 
-  void _showMessage(BuildContext context, Text text) {
+  void _showMessage(Text text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: text));
   }
 
@@ -60,7 +60,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
             },
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -71,7 +71,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, Text('Location permission was NOT granted'));
+                          _showMessage(const Text('Location permission was NOT granted'));
                           return;
                         }
 
@@ -93,7 +93,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, Text('Location permission was NOT granted'));
+                          _showMessage(const Text('Location permission was NOT granted'));
                           return;
                         }
 
@@ -109,7 +109,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                     ControlButton(
                       onPressed: () async {
                         if (await locationPermissionNotGranted) {
-                          _showMessage(context, Text('Location permission was NOT granted'));
+                          _showMessage(const Text('Location permission was NOT granted'));
                           return;
                         }
 

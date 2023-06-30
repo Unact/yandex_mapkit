@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class BicyclePage extends MapPage {
-  const BicyclePage() : super('Bicycle example');
+  const BicyclePage({Key? key}) : super('Bicycle example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,22 +27,22 @@ class _BicycleExampleState extends State<_BicycleExample> {
     endPlacemark
   ];
   final PlacemarkMapObject startPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('start_placemark'),
-    point: Point(latitude: 55.7558, longitude: 37.6173),
+    mapId: const MapObjectId('start_placemark'),
+    point: const Point(latitude: 55.7558, longitude: 37.6173),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(image: BitmapDescriptor.fromAssetImage('lib/assets/route_start.png'))
     ),
   );
   final PlacemarkMapObject stopByPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('stop_by_placemark'),
-    point: Point(latitude: 55.755173, longitude: 37.619097),
+    mapId: const MapObjectId('stop_by_placemark'),
+    point: const Point(latitude: 55.755173, longitude: 37.619097),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(image: BitmapDescriptor.fromAssetImage('lib/assets/route_stop_by.png'))
     ),
   );
   final PlacemarkMapObject endPlacemark = PlacemarkMapObject(
-    mapId: MapObjectId('end_placemark'),
-    point: Point(latitude: 55.7558, longitude: 37.62),
+    mapId: const MapObjectId('end_placemark'),
+    point: const Point(latitude: 55.7558, longitude: 37.62),
     icon: PlacemarkIcon.single(
       PlacemarkIconStyle(image: BitmapDescriptor.fromAssetImage('lib/assets/route_end.png'))
     )
@@ -117,7 +117,7 @@ class _SessionPage extends StatefulWidget {
   final PlacemarkMapObject startPlacemark;
   final PlacemarkMapObject endPlacemark;
 
-  _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
+  const _SessionPage(this.startPlacemark, this.endPlacemark, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -201,7 +201,7 @@ class _SessionState extends State<_SessionPage> {
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: _getList(),
@@ -224,7 +224,7 @@ class _SessionState extends State<_SessionPage> {
     final list = <Widget>[];
 
     if (results.isEmpty) {
-      list.add((Text('Nothing found')));
+      list.add((const Text('Nothing found')));
     }
 
     for (var r in results) {

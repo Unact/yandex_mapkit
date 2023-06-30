@@ -9,7 +9,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class ClusterizedPlacemarkCollectionPage extends MapPage {
-  const ClusterizedPlacemarkCollectionPage() : super('ClusterizedPlacemarkCollection example');
+  const ClusterizedPlacemarkCollectionPage({Key? key}) : super('ClusterizedPlacemarkCollection example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +27,13 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
 
   final int kPlacemarkCount = 500;
   final Random seed = Random();
-  final MapObjectId mapObjectId = MapObjectId('clusterized_placemark_collection');
-  final MapObjectId largeMapObjectId = MapObjectId('large_clusterized_placemark_collection');
+  final MapObjectId mapObjectId = const MapObjectId('clusterized_placemark_collection');
+  final MapObjectId largeMapObjectId = const MapObjectId('large_clusterized_placemark_collection');
 
   Future<Uint8List> _buildClusterAppearance(Cluster cluster) async {
     final recorder = PictureRecorder();
     final canvas = Canvas(recorder);
-    final size = Size(200, 200);
+    const size = Size(200, 200);
     final fillPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -41,12 +41,12 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
       ..color = Colors.black
       ..style = PaintingStyle.stroke
       ..strokeWidth = 10;
-    final radius = 60.0;
+    const radius = 60.0;
 
     final textPainter = TextPainter(
       text: TextSpan(
         text: cluster.size.toString(),
-        style: TextStyle(color: Colors.black, fontSize: 50)
+        style: const TextStyle(color: Colors.black, fontSize: 50)
       ),
       textDirection: TextDirection.ltr
     );
@@ -81,7 +81,7 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -114,8 +114,8 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                           },
                           placemarks: [
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_1'),
-                              point: Point(latitude: 55.756, longitude: 37.618),
+                              mapId: const MapObjectId('placemark_1'),
+                              point: const Point(latitude: 55.756, longitude: 37.618),
                               consumeTapEvents: true,
                               onTap: (PlacemarkMapObject self, Point point) => print('Tapped placemark at $point'),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
@@ -124,16 +124,16 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                               ))
                             ),
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_2'),
-                              point: Point(latitude: 59.956, longitude: 30.313),
+                              mapId: const MapObjectId('placemark_2'),
+                              point: const Point(latitude: 59.956, longitude: 30.313),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1
                               ))
                             ),
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_3'),
-                              point: Point(latitude: 39.956, longitude: 30.313),
+                              mapId: const MapObjectId('placemark_3'),
+                              point: const Point(latitude: 39.956, longitude: 30.313),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1
@@ -161,24 +161,24 @@ class _ClusterizedPlacemarkCollectionExampleState extends State<_ClusterizedPlac
                         setState(() {
                           mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(placemarks: [
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_2'),
-                              point: Point(latitude: 59.956, longitude: 30.313),
+                              mapId: const MapObjectId('placemark_2'),
+                              point: const Point(latitude: 59.956, longitude: 30.313),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1
                               ))
                             ),
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_3'),
-                              point: Point(latitude: 39.956, longitude: 31.313),
+                              mapId: const MapObjectId('placemark_3'),
+                              point: const Point(latitude: 39.956, longitude: 31.313),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1
                               ))
                             ),
                             PlacemarkMapObject(
-                              mapId: MapObjectId('placemark_4'),
-                              point: Point(latitude: 59.945933, longitude: 30.320045),
+                              mapId: const MapObjectId('placemark_4'),
+                              point: const Point(latitude: 59.945933, longitude: 30.320045),
                               icon: PlacemarkIcon.single(PlacemarkIconStyle(
                                 image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
                                 scale: 1

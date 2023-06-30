@@ -66,7 +66,6 @@ class BicycleSessionResult {
   BicycleSessionResult._(this.routes, this.error);
 
   factory BicycleSessionResult._fromJson(Map<dynamic, dynamic> json) {
-    print(json);
     return BicycleSessionResult._(
       json['routes']?.map<BicycleRoute>((dynamic route) => BicycleRoute._fromJson(route)).toList(),
       json['error']

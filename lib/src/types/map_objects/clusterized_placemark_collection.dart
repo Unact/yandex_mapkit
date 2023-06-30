@@ -170,7 +170,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     return toJson()..addAll({
       'type': runtimeType.toString(),
       'placemarks': MapObjectUpdates.from(
-        <PlacemarkMapObject>{...[]},
+        const <PlacemarkMapObject>{...[]},
         placemarks.toSet()
       ).toJson()
     });

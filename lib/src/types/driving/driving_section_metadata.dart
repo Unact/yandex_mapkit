@@ -7,7 +7,7 @@ class DrivingSectionMetadata extends Equatable {
   /// Route "weight".
   final DrivingWeight weight;
 
-  DrivingSectionMetadata._(this.weight);
+  const DrivingSectionMetadata._(this.weight);
 
   factory DrivingSectionMetadata._fromJson(Map<dynamic, dynamic> json) {
     return DrivingSectionMetadata._(DrivingWeight._fromJson(json['weight']));
@@ -34,7 +34,7 @@ class DrivingWeight extends Equatable {
   /// Distance to travel.
   final LocalizedValue distance;
 
-  DrivingWeight._(this.time, this.timeWithTraffic, this.distance);
+  const DrivingWeight._(this.time, this.timeWithTraffic, this.distance);
 
   factory DrivingWeight._fromJson(Map<dynamic, dynamic> json) {
     return DrivingWeight._(

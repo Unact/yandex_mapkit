@@ -17,7 +17,7 @@ import 'package:yandex_mapkit_example/examples/suggest_page.dart';
 import 'package:yandex_mapkit_example/examples/user_layer_page.dart';
 
 void main() {
-  runApp(MaterialApp(home: MainPage()));
+  runApp(const MaterialApp(home: MainPage()));
 }
 
 const List<MapPage> _allPages = <MapPage>[
@@ -37,6 +37,8 @@ const List<MapPage> _allPages = <MapPage>[
 ];
 
 class MainPage extends StatelessWidget {
+  const MainPage({ Key? key}) : super(key: key);
+
   void _pushPage(BuildContext context, MapPage page) {
     Navigator.push(
       context,

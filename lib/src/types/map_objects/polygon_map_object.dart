@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 /// A polygon to be displayed on [YandexMap]
 class PolygonMapObject extends Equatable implements MapObject {
-  PolygonMapObject({
+  const PolygonMapObject({
     required this.mapId,
     required this.polygon,
     this.isGeodesic = false,

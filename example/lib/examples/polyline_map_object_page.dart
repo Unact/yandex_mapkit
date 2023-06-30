@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class PolylineMapObjectPage extends MapPage {
-  const PolylineMapObjectPage() : super('Polyline example');
+  const PolylineMapObjectPage({Key? key}) : super('Polyline example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class _PolylineMapObjectExample extends StatefulWidget {
 class _PolylineMapObjectExampleState extends State<_PolylineMapObjectExample> {
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId mapObjectId = MapObjectId('polyline');
+  final MapObjectId mapObjectId = const MapObjectId('polyline');
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _PolylineMapObjectExampleState extends State<_PolylineMapObjectExample> {
             mapObjects: mapObjects
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -52,7 +52,7 @@ class _PolylineMapObjectExampleState extends State<_PolylineMapObjectExample> {
 
                         final mapObject = PolylineMapObject(
                           mapId: mapObjectId,
-                          polyline: Polyline(points: [
+                          polyline: const Polyline(points: [
                             Point(latitude: 59.945933, longitude: 30.320045),
                             Point(latitude: 55.75222, longitude: 37.88398),
                             Point(latitude: 59.2239, longitude: 39.88398),

@@ -5,7 +5,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class MapControlsPage extends MapPage {
-  const MapControlsPage() : super('Map controls example');
+  const MapControlsPage({Key? key}) : super('Map controls example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +22,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   late YandexMapController controller;
   final List<MapObject> mapObjects = [];
 
-  final MapObjectId targetMapObjectId = MapObjectId('target_placemark');
-  static final Point _point = Point(latitude: 59.945933, longitude: 30.320045);
-  final animation = MapAnimation(type: MapAnimationType.smooth, duration: 2.0);
+  final MapObjectId targetMapObjectId = const MapObjectId('target_placemark');
+  static const Point _point = Point(latitude: 59.945933, longitude: 30.320045);
+  final animation = const MapAnimation(type: MapAnimationType.smooth, duration: 2.0);
 
   bool tiltGesturesEnabled = true;
   bool zoomGesturesEnabled = true;
@@ -92,7 +92,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             nightModeEnabled: nightModeEnabled,
             fastTapEnabled: fastTapEnabled,
             mode2DEnabled: mode2DEnabled,
-            logoAlignment: MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
+            logoAlignment: const MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
             focusRect: focusRect,
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
@@ -127,7 +127,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             },
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Table(
@@ -136,7 +136,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       await controller.moveCamera(
-                        CameraUpdate.newCameraPosition(CameraPosition(target: _point)),
+                        CameraUpdate.newCameraPosition(const CameraPosition(target: _point)),
                         animation: animation
                       );
                     },
@@ -180,7 +180,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      final newBounds = BoundingBox(
+                      const newBounds = BoundingBox(
                         northEast: Point(latitude: 65.0, longitude: 40.0),
                         southWest: Point(latitude: 60.0, longitude: 30.0),
                       );
@@ -190,7 +190,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ),
                   ControlButton(
                     onPressed: () async {
-                      final newGeometry = Geometry.fromBoundingBox(BoundingBox(
+                      final newGeometry = Geometry.fromBoundingBox(const BoundingBox(
                         northEast: Point(latitude: 65.0, longitude: 40.0),
                         southWest: Point(latitude: 60.0, longitude: 30.0),
                       ));
@@ -229,7 +229,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         mapType = _nextMapType(mapType);
                       });
                     },
-                    title: 'Map type: ${mapType.name}'
+                    title: mapType.toString()
                   )
                 ]),
                 TableRow(children: <Widget>[
@@ -255,7 +255,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
 
                         setState(() {
                           focusRect = ScreenRect(
-                            topLeft: ScreenPoint(x: 0, y: 0),
+                            topLeft: const ScreenPoint(x: 0, y: 0),
                             bottomRight: screenPoint!
                           );
                         });

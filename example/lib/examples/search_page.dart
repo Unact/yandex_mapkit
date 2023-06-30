@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class SearchPage extends MapPage {
-  const SearchPage() : super('Search example');
+  const SearchPage({Key? key}) : super('Search example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _SearchExampleState extends State<_SearchExample> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -40,7 +40,7 @@ class _SearchExampleState extends State<_SearchExample> {
                     Flexible(
                       child: TextField(
                         controller: queryController,
-                        decoration: InputDecoration(hintText: 'Search'),
+                        decoration: const InputDecoration(hintText: 'Search'),
                       ),
                     ),
                     ControlButton(
@@ -65,12 +65,12 @@ class _SearchExampleState extends State<_SearchExample> {
     final resultWithSession = YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
-        BoundingBox(
+        const BoundingBox(
           southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
           northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
         )
       ),
-      searchOptions: SearchOptions(
+      searchOptions: const SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
       ),
@@ -90,7 +90,7 @@ class _SessionPage extends StatefulWidget {
   final SearchSession session;
   final String query;
 
-  _SessionPage(this.query, this.session, this.result);
+  const _SessionPage(this.query, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -119,12 +119,12 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Search ${widget.session.id}')),
       body: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -135,10 +135,10 @@ class _SessionState extends State<_SessionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(widget.query, style: TextStyle(fontSize: 20,)),
+                          Text(widget.query, style: const TextStyle(fontSize: 20,)),
                           !_progress ? Container() : TextButton.icon(
-                            icon: CircularProgressIndicator(),
-                            label: Text('Cancel'),
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
                             onPressed: _cancel
                           )
                         ],
@@ -149,7 +149,7 @@ class _SessionState extends State<_SessionPage> {
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: _getList(),
@@ -172,7 +172,7 @@ class _SessionState extends State<_SessionPage> {
     final list = <Widget>[];
 
     if (results.isEmpty) {
-      list.add((Text('Nothing found')));
+      list.add((const Text('Nothing found')));
     }
 
     for (var r in results) {

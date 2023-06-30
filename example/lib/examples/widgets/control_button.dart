@@ -13,7 +13,7 @@ class ControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: ElevatedButton(
         onPressed: onPressed,
         child: Text(title, textAlign: TextAlign.center),

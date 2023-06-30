@@ -9,7 +9,7 @@ class BicycleWeight extends Equatable {
   /// Distance to travel.
   final LocalizedValue distance;
 
-  BicycleWeight._(this.time, this.distance);
+  const BicycleWeight._(this.time, this.distance);
 
   factory BicycleWeight._fromJson(Map<dynamic, dynamic> json) {
     return BicycleWeight._(

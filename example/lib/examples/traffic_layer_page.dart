@@ -5,7 +5,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class TrafficLayerPage extends MapPage {
-  const TrafficLayerPage() : super('Traffic layer example');
+  const TrafficLayerPage({Key? key}) : super('Traffic layer example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +57,11 @@ class _TrafficLayerExampleState extends State<_TrafficLayerExample> {
                   });
                 }
               ),
-              Container(
+              SizedBox(
                 width: 28,
                 height: 28,
                 child: Padding(
-                  padding: EdgeInsets.all(2),
+                  padding: const EdgeInsets.all(2),
                   child: Container(
                     decoration: BoxDecoration(shape: BoxShape.circle, color: trafficColor),
                     child: Center(child: Text(level.toString()))
@@ -71,7 +71,7 @@ class _TrafficLayerExampleState extends State<_TrafficLayerExample> {
             ]
           )
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(

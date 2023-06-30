@@ -106,8 +106,9 @@ class CameraUpdate {
   /// If [focusRect] is null then the current focus rect is used.
   /// The camera's new tilt and bearing will both be 0.0.
   ///
-  /// Will be removed in future versions. Instead use [newTiltAzimuthGeometry]
-  @deprecated
+  @Deprecated("""
+    Will be removed in future versions. Instead use [newTiltAzimuthGeometry]
+  """)
   static CameraUpdate newTiltAzimuthBounds(BoundingBox boundingBox, {
     double azimuth = 0,
     double tilt = 0,

@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class ReverseSearchPage extends MapPage {
-  const ReverseSearchPage() : super('Reverse search example');
+  const ReverseSearchPage({Key? key}) : super('Reverse search example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
   late final List<MapObject> mapObjects = [
     PlacemarkMapObject(
       mapId: cameraMapObjectId,
-      point: Point(latitude: 55.755848, longitude: 37.620409),
+      point: const Point(latitude: 55.755848, longitude: 37.620409),
       icon: PlacemarkIcon.single(
         PlacemarkIconStyle(
           image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
@@ -37,11 +37,11 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     )
   ];
 
-  final MapObjectId cameraMapObjectId = MapObjectId('camera_placemark');
+  final MapObjectId cameraMapObjectId = const MapObjectId('camera_placemark');
 
   @override
   Widget build(BuildContext context) {
-    final mapHeight = 300.0;
+    const mapHeight = 300.0;
 
     return Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -79,7 +79,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
               ],
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -109,7 +109,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     final resultWithSession = YandexSearch.searchByPoint(
       point: cameraPosition.target,
       zoom: cameraPosition.zoom.toInt(),
-      searchOptions: SearchOptions(
+      searchOptions: const SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
       ),
@@ -133,7 +133,7 @@ class _SessionPage extends StatefulWidget {
   final SearchSession session;
   final Point point;
 
-  _SessionPage(this.point, this.session, this.result);
+  const _SessionPage(this.point, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -164,7 +164,7 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Search ${widget.session.id}')),
       body: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -179,7 +179,7 @@ class _SessionState extends State<_SessionPage> {
                     mapObjects: mapObjects,
                     onMapCreated: (YandexMapController yandexMapController) async {
                       final placemarkMapObject = PlacemarkMapObject(
-                        mapId: MapObjectId('search_placemark'),
+                        mapId: const MapObjectId('search_placemark'),
                         point: widget.point,
                         icon: PlacemarkIcon.single(
                           PlacemarkIconStyle(
@@ -201,7 +201,7 @@ class _SessionState extends State<_SessionPage> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -212,13 +212,13 @@ class _SessionState extends State<_SessionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Point',
                             style: TextStyle(fontSize: 20),
                           ),
                           !_progress ? Container() : TextButton.icon(
-                            icon: CircularProgressIndicator(),
-                            label: Text('Cancel'),
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Cancel'),
                             onPressed: _cancel
                           )
                         ],
@@ -234,7 +234,7 @@ class _SessionState extends State<_SessionPage> {
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: _getList(),
@@ -257,7 +257,7 @@ class _SessionState extends State<_SessionPage> {
     final list = <Widget>[];
 
     if (results.isEmpty) {
-      list.add((Text('Nothing found')));
+      list.add((const Text('Nothing found')));
     }
 
     for (var r in results) {

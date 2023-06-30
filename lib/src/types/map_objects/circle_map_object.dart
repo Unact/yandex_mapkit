@@ -2,7 +2,7 @@ part of yandex_mapkit;
 
 /// A circle to be displayed on [YandexMap].
 class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
-  CircleMapObject({
+  const CircleMapObject({
     required this.mapId,
     required this.circle,
     this.isGeodesic = false,

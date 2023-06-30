@@ -7,7 +7,7 @@ import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class SuggestionsPage extends MapPage {
-  const SuggestionsPage() : super('Suggest example');
+  const SuggestionsPage({Key? key}) : super('Suggest example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
@@ -40,7 +40,7 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
                     Flexible(
                       child: TextField(
                         controller: queryController,
-                        decoration: InputDecoration(hintText: 'Address part'),
+                        decoration: const InputDecoration(hintText: 'Address part'),
                       ),
                     ),
                     ControlButton(
@@ -64,11 +64,11 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
 
     final resultWithSession = YandexSuggest.getSuggestions(
       text: query,
-      boundingBox: BoundingBox(
+      boundingBox: const BoundingBox(
         northEast: Point(latitude: 56.0421, longitude: 38.0284),
         southWest: Point(latitude: 55.5143, longitude: 37.24841)
       ),
-      suggestOptions: SuggestOptions(
+      suggestOptions: const SuggestOptions(
         suggestType: SuggestType.geo,
         suggestWords: true,
         userPosition: Point(latitude: 56.0321, longitude: 38)
@@ -89,7 +89,7 @@ class _SessionPage extends StatefulWidget {
   final SuggestSession session;
   final String query;
 
-  _SessionPage(this.query, this.session, this.result);
+  const _SessionPage(this.query, this.session, this.result);
 
   @override
   _SessionState createState() => _SessionState();
@@ -118,12 +118,12 @@ class _SessionState extends State<_SessionPage> {
     return Scaffold(
       appBar: AppBar(title: Text('Suggest ${widget.session.id}')),
       body: Container(
-        padding: EdgeInsets.all(8),
+        padding: const EdgeInsets.all(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -134,10 +134,10 @@ class _SessionState extends State<_SessionPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(widget.query, style: TextStyle(fontSize: 20,)),
+                          Text(widget.query, style: const TextStyle(fontSize: 20,)),
                           !_progress ? Container() : TextButton.icon(
-                            icon: CircularProgressIndicator(),
-                            label: Text('Reset'),
+                            icon: const CircularProgressIndicator(),
+                            label: const Text('Reset'),
                             onPressed: _reset
                           )
                         ],
@@ -148,7 +148,7 @@ class _SessionState extends State<_SessionPage> {
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: const EdgeInsets.only(top: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: _getList(),
@@ -171,7 +171,7 @@ class _SessionState extends State<_SessionPage> {
     final list = <Widget>[];
 
     if (results.isEmpty) {
-      list.add((Text('Nothing found')));
+      list.add((const Text('Nothing found')));
     }
 
     for (var r in results) {
