@@ -466,6 +466,10 @@ public class YandexMapController:
     if params.keys.contains("poiLimit") {
       map.poiLimit = params["poiLimit"] as? NSNumber
     }
+
+    if let mapMode = params["mapMode"] as? NSNumber {
+      map.mode = YMKMapMode.init(rawValue: mapMode.uintValue)!
+    }
   }
 
   public func applyMapObjects(_ params: [String: Any]) {

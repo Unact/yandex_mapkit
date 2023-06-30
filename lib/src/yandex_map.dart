@@ -37,7 +37,8 @@ class YandexMap extends StatefulWidget {
     this.onTrafficChanged,
     this.mapType = MapType.vector,
     this.poiLimit,
-    this.onObjectTap
+    this.onObjectTap,
+    this.mapMode = MapMode.normal
   }) : super(key: key);
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
@@ -113,9 +114,12 @@ class YandexMap extends StatefulWidget {
   /// Callback to be called where a change has occured in traffic layer.
   final TrafficChangedCallback? onTrafficChanged;
 
+  /// Sets the base map type.
+  final MapType mapType;
+
   /// Selects one of predefined map style modes optimized for particular use case(transit, driving, etc).
   /// Resets json styles set with [YandexMapController.setMapStyle].
-  final MapType mapType;
+  final MapMode mapMode;
 
   /// Limits the number of visible basemap POIs
   final int? poiLimit;
@@ -283,6 +287,7 @@ class _YandexMapOptions {
     logoAlignment = map.logoAlignment,
     focusRect = map.focusRect,
     mapType = map.mapType,
+    mapMode = map.mapMode,
     poiLimit = map.poiLimit;
 
     final bool tiltGesturesEnabled;
@@ -307,6 +312,8 @@ class _YandexMapOptions {
 
     final MapType mapType;
 
+    final MapMode mapMode;
+
     final int? poiLimit;
 
   Map<String, dynamic> toJson() {
@@ -322,6 +329,7 @@ class _YandexMapOptions {
       'logoAlignment': logoAlignment.toJson(),
       'focusRect': focusRect?.toJson(),
       'mapType': mapType.index,
+      'mapMode': mapMode.index,
       'poiLimit': poiLimit
     };
   }

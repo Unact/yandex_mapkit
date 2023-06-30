@@ -36,7 +36,12 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool mode2DEnabled = false;
   ScreenRect? focusRect;
   MapType mapType = MapType.vector;
+  MapMode mapMode = MapMode.normal;
   int? poiLimit;
+  MapAlignment logoAlignment = const MapAlignment(
+    horizontal: HorizontalAlignment.left,
+    vertical: VerticalAlignment.bottom
+  );
 
   final String style = '''
     [
@@ -57,8 +62,8 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
     return enabled ? 'on' : 'off';
   }
 
-  MapType _nextMapType(MapType oldMapType) {
-    switch (oldMapType) {
+  MapType _nextMapType(MapType old) {
+    switch (old) {
       case MapType.map:
         return MapType.hybrid;
       case MapType.hybrid:
@@ -74,6 +79,47 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
     }
   }
 
+  MapMode _nextMapMode(MapMode old) {
+    switch (old) {
+      case MapMode.normal:
+        return MapMode.transit;
+      case MapMode.transit:
+        return MapMode.driving;
+      case MapMode.driving:
+        return MapMode.normal;
+      default:
+        return MapMode.normal;
+    }
+  }
+
+  MapAlignment _nextLogoAlignment(MapAlignment old) {
+    if (old.horizontal == HorizontalAlignment.left && old.vertical == VerticalAlignment.bottom) {
+      return const MapAlignment(horizontal: HorizontalAlignment.center, vertical: VerticalAlignment.bottom);
+    }
+
+    if (old.horizontal == HorizontalAlignment.center && old.vertical == VerticalAlignment.bottom) {
+      return const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.bottom);
+    }
+
+    if (old.horizontal == HorizontalAlignment.right && old.vertical == VerticalAlignment.bottom) {
+      return const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.top);
+    }
+
+    if (old.horizontal == HorizontalAlignment.right && old.vertical == VerticalAlignment.top) {
+      return const MapAlignment(horizontal: HorizontalAlignment.center, vertical: VerticalAlignment.top);
+    }
+
+    if (old.horizontal == HorizontalAlignment.center && old.vertical == VerticalAlignment.top) {
+      return const MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.top);
+    }
+
+    if (old.horizontal == HorizontalAlignment.left && old.vertical == VerticalAlignment.top) {
+      return const MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom);
+    }
+
+    throw Exception('Failed to select next logoAlignment');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -83,6 +129,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
         Expanded(
           child: YandexMap(
             mapType: mapType,
+            mapMode: mapMode,
             poiLimit: poiLimit,
             tiltGesturesEnabled: tiltGesturesEnabled,
             zoomGesturesEnabled: zoomGesturesEnabled,
@@ -92,7 +139,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             nightModeEnabled: nightModeEnabled,
             fastTapEnabled: fastTapEnabled,
             mode2DEnabled: mode2DEnabled,
-            logoAlignment: const MapAlignment(horizontal: HorizontalAlignment.left, vertical: VerticalAlignment.bottom),
+            logoAlignment: logoAlignment,
             focusRect: focusRect,
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
@@ -226,10 +273,28 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       setState(() {
+                        logoAlignment = _nextLogoAlignment(logoAlignment);
+                      });
+                    },
+                    title: "Logo: ${logoAlignment.horizontal.toString()}/${logoAlignment.vertical.toString()}"
+                  ),
+                ]),
+                TableRow(children: <Widget>[
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
                         mapType = _nextMapType(mapType);
                       });
                     },
                     title: mapType.toString()
+                  ),
+                  ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        mapMode = _nextMapMode(mapMode);
+                      });
+                    },
+                    title: mapMode.toString()
                   )
                 ]),
                 TableRow(children: <Widget>[

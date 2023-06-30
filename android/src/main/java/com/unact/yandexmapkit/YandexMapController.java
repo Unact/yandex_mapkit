@@ -28,6 +28,7 @@ import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.GeoObjectSelectionMetadata;
 import com.yandex.mapkit.map.InputListener;
+import com.yandex.mapkit.map.MapMode;
 import com.yandex.mapkit.map.MapType;
 import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.CameraUpdateReason;
@@ -571,6 +572,10 @@ public class YandexMapController implements
 
     if (params.get("mapType") != null) {
       map.setMapType(MapType.values()[(Integer) params.get("mapType")]);
+    }
+
+    if (params.get("mapMode") != null) {
+      map.setMode(MapMode.values()[(Integer) params.get("mapMode")]);
     }
 
     if (params.containsKey("poiLimit")) {
