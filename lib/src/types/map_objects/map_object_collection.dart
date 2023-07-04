@@ -3,6 +3,8 @@ part of yandex_mapkit;
 /// A collection of [MapObject] to be displayed on [YandexMap]
 /// All [mapObjects] must be unique, i.e. each [MapObject.mapId] must be unique
 class MapObjectCollection extends Equatable implements MapObject {
+  static const _kType = 'MapObjectCollection';
+
   MapObjectCollection({
     required this.mapId,
     required List<MapObject> mapObjects,
@@ -114,7 +116,7 @@ class MapObjectCollection extends Equatable implements MapObject {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType,
       'mapObjects': MapObjectUpdates.from(
         const <MapObject>{...[]},
         mapObjects.toSet()
@@ -127,7 +129,7 @@ class MapObjectCollection extends Equatable implements MapObject {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType,
       'mapObjects': MapObjectUpdates.from(
         (previous as MapObjectCollection).mapObjects.toSet(),
         mapObjects.toSet()
@@ -139,7 +141,7 @@ class MapObjectCollection extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 

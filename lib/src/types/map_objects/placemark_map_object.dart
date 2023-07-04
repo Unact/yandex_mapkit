@@ -2,6 +2,8 @@ part of yandex_mapkit;
 
 /// A placemark to be displayed on [YandexMap] at a specific point
 class PlacemarkMapObject extends Equatable implements MapObject {
+  static const _kType = 'PlacemarkMapObject';
+
   const PlacemarkMapObject({
     required this.mapId,
     required this.point,
@@ -171,7 +173,7 @@ class PlacemarkMapObject extends Equatable implements MapObject {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString()
+      'type': _kType
     });
   }
 
@@ -180,7 +182,7 @@ class PlacemarkMapObject extends Equatable implements MapObject {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType
     });
   }
 
@@ -188,7 +190,7 @@ class PlacemarkMapObject extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 

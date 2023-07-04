@@ -2,6 +2,8 @@ part of yandex_mapkit;
 
 /// A circle to be displayed on [YandexMap].
 class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
+  static const _kType = 'CircleMapObject';
+
   const CircleMapObject({
     required this.mapId,
     required this.circle,
@@ -150,7 +152,7 @@ class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString()
+      'type': _kType
     });
   }
 
@@ -159,7 +161,7 @@ class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType
     });
   }
 
@@ -167,7 +169,7 @@ class CircleMapObject extends Equatable implements MapObject<CircleMapObject> {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 

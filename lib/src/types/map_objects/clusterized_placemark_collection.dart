@@ -5,6 +5,8 @@ part of yandex_mapkit;
 /// Depending on distance from each other and current zoom level
 /// can be grouped into a single or multiple [Cluster]
 class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
+  static const _kType = 'ClusterizedPlacemarkCollection';
+
   ClusterizedPlacemarkCollection({
     required this.mapId,
     required List<PlacemarkMapObject> placemarks,
@@ -168,7 +170,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType,
       'placemarks': MapObjectUpdates.from(
         const <PlacemarkMapObject>{...[]},
         placemarks.toSet()
@@ -181,7 +183,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType,
       'placemarks': MapObjectUpdates.from(
         (previous as ClusterizedPlacemarkCollection).placemarks.toSet(),
         placemarks.toSet()
@@ -193,7 +195,7 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 

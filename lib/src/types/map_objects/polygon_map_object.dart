@@ -2,6 +2,8 @@ part of yandex_mapkit;
 
 /// A polygon to be displayed on [YandexMap]
 class PolygonMapObject extends Equatable implements MapObject {
+  static const _kType = 'PolygonMapObject';
+
   const PolygonMapObject({
     required this.mapId,
     required this.polygon,
@@ -151,7 +153,7 @@ class PolygonMapObject extends Equatable implements MapObject {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString()
+      'type': _kType
     });
   }
 
@@ -160,7 +162,7 @@ class PolygonMapObject extends Equatable implements MapObject {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType
     });
   }
 
@@ -168,7 +170,7 @@ class PolygonMapObject extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 

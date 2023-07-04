@@ -2,6 +2,8 @@ part of yandex_mapkit;
 
 /// Collection of points connected by lines to be displayed on [YandexMap]
 class PolylineMapObject extends Equatable implements MapObject {
+  static const _kType = 'PolylineMapObject';
+
   const PolylineMapObject({
     required this.mapId,
     required this.polyline,
@@ -206,7 +208,7 @@ class PolylineMapObject extends Equatable implements MapObject {
   @override
   Map<String, dynamic> _createJson() {
     return toJson()..addAll({
-      'type': runtimeType.toString()
+      'type': _kType
     });
   }
 
@@ -215,7 +217,7 @@ class PolylineMapObject extends Equatable implements MapObject {
     assert(mapId == previous.mapId);
 
     return toJson()..addAll({
-      'type': runtimeType.toString(),
+      'type': _kType
     });
   }
 
@@ -223,7 +225,7 @@ class PolylineMapObject extends Equatable implements MapObject {
   Map<String, dynamic> _removeJson() {
     return {
       'id': mapId.value,
-      'type': runtimeType.toString()
+      'type': _kType
     };
   }
 
