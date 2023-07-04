@@ -134,6 +134,7 @@ class YandexMap extends StatefulWidget {
 
 class _YandexMapState extends State<YandexMap> {
   late _YandexMapOptions _yandexMapOptions;
+  late final Map<String, dynamic> _creationParams;
 
   /// Root object which contains all [MapObject] which were added to the map by user
   MapObjectCollection _mapObjectCollection = MapObjectCollection(
@@ -159,6 +160,7 @@ class _YandexMapState extends State<YandexMap> {
     super.initState();
     _yandexMapOptions = _YandexMapOptions.fromWidget(widget);
     _mapObjectCollection = _mapObjectCollection.copyWith(mapObjects: widget.mapObjects);
+    _creationParams = _makeCreationParams();
   }
 
   @override
@@ -220,7 +222,7 @@ class _YandexMapState extends State<YandexMap> {
               id: params.id,
               viewType: YandexMap._viewType,
               layoutDirection: TextDirection.ltr,
-              creationParams: _creationParams(),
+              creationParams: _creationParams,
               creationParamsCodec: const StandardMessageCodec(),
               onFocus: () => params.onFocusChanged(true),
             )
@@ -235,7 +237,7 @@ class _YandexMapState extends State<YandexMap> {
           onPlatformViewCreated: _onPlatformViewCreated,
           gestureRecognizers: widget.gestureRecognizers,
           creationParamsCodec: const StandardMessageCodec(),
-          creationParams: _creationParams(),
+          creationParams: _creationParams,
         );
       }
     } else {
@@ -244,7 +246,7 @@ class _YandexMapState extends State<YandexMap> {
         onPlatformViewCreated: _onPlatformViewCreated,
         gestureRecognizers: widget.gestureRecognizers,
         creationParamsCodec: const StandardMessageCodec(),
-        creationParams: _creationParams(),
+        creationParams: _creationParams,
       );
     }
   }
@@ -259,7 +261,7 @@ class _YandexMapState extends State<YandexMap> {
     }
   }
 
-  Map<String, dynamic> _creationParams() {
+  Map<String, dynamic> _makeCreationParams() {
     final mapOptions = _yandexMapOptions.toJson();
     final mapObjects = MapObjectUpdates.from(
       {_mapObjectCollection.copyWith(mapObjects: [])},
