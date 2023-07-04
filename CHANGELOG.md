@@ -1,3 +1,7 @@
+## 3.3.3
+
+* Fix Android obfuscation breaking MapObject manipulation
+
 ## 3.3.2
 
 * Add the ability to add text to PlacemarkMapObject
