@@ -78,7 +78,6 @@ public class YandexPedestrianSession: NSObject {
         "metadata": [
           "weight": [
             "time": Utils.localizedValueToJson(weight.time),
-//            "timeWithTraffic": Utils.localizedValueToJson(weight.timeWithTraffic),
             "distance": Utils.localizedValueToJson(weight.walkingDistance)
           ]
         ]

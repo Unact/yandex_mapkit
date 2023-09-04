@@ -14,7 +14,7 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
       binaryMessenger: registrar.messenger()
     )
 
-    let plugin = YandexPedestrianRouter(channel: channel, registrar: registrar)
+    let plugin = YandexPedestrian(channel: channel, registrar: registrar)
 
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
@@ -46,10 +46,8 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
       (pointParams) -> YMKRequestPoint in Utils.requestPointFromJson(pointParams)
     }
       let session = pedestrianRouter.requestRoutes(
-        with: requestPoints, timeOptions:YMKTimeOptions(),
-     drivingOptions: Utils.drivingOptionsFromJson(params["drivingOptions"] as! [String: Any]),
-     vehicleOptions: YMKDrivingVehicleOptions(),
-      routeHandler: {(pedestrianResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
+    with: requestPoints, timeOptions:YMKTimeOptions(),
+    routeHandler: {(pedestrianResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
         self.pedestrianSessions[sessionId]?.handleResponse(pedestrianResponse: pedestrianResponse, error: error, result: result)
       }
     )
