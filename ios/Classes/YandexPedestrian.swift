@@ -16,6 +16,7 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
 
     let plugin = YandexPedestrian(channel: channel, registrar: registrar)
 
+
     registrar.addMethodCallDelegate(plugin, channel: channel)
   }
 
