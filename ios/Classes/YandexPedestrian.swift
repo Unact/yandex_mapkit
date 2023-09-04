@@ -6,7 +6,7 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let pedestrianRouter: YMKPedestrianRouter!
-  private var routeSessions: [Int: YandexPedestrianSession] = [:]
+  private var pedestrianSessions: [Int: YandexPedestrianSession] = [:]
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -47,18 +47,18 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
     }
       let session = pedestrianRouter.requestRoutes(
         with: requestPoints, timeOptions:YMKTimeOptions(),
-//      drivingOptions: Utils.drivingOptionsFromJson(params["drivingOptions"] as! [String: Any]),
-//      vehicleOptions: YMKDrivingVehicleOptions(),
-      routeHandler: {(drivingResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
-        self.routeSessions[sessionId]?.handleResponse(drivingResponse: drivingResponse, error: error, result: result)
+     drivingOptions: Utils.drivingOptionsFromJson(params["drivingOptions"] as! [String: Any]),
+     vehicleOptions: YMKDrivingVehicleOptions(),
+      routeHandler: {(pedestrianResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
+        self.pedestrianSessions[sessionId]?.handleResponse(pedestrianResponse: pedestrianResponse, error: error, result: result)
       }
     )
 
-      routeSessions[sessionId] = YandexPedestrianSession(
+      pedestrianSessions[sessionId] = YandexPedestrianSession(
       id: sessionId,
       session: session,
       registrar: pluginRegistrar,
-      onClose: { (id) in self.routeSessions.removeValue(forKey: id) }
+      onClose: { (id) in self.pedestrianSessions.removeValue(forKey: id) }
     )
   }
 }

@@ -48,8 +48,8 @@ public class YandexPedestrianSession: NSObject {
   }
 
   public func retry(_ result: @escaping FlutterResult) {
-      session.retry(routeHandler: {(drivingResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
-      self.handleResponse(drivingResponse: drivingResponse, error: error, result: result)
+      session.retry(routeHandler: {(pedestrianResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
+      self.handleResponse(pedestrianResponse: pedestrianResponse, error: error, result: result)
     })
   }
 
@@ -59,8 +59,8 @@ public class YandexPedestrianSession: NSObject {
     onClose(id)
   }
 
-  public func handleResponse(drivingResponse: [YMKMasstransitRoute]?, error: Error?, result: @escaping FlutterResult) {
-    if let response = drivingResponse {
+  public func handleResponse(pedestrianResponse: [YMKMasstransitRoute]?, error: Error?, result: @escaping FlutterResult) {
+    if let response = pedestrianResponse {
       onSuccess(response, result)
     } else {
       onError(error!, result)
