@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ControlButton extends StatelessWidget {
-  const ControlButton({
-    Key? key,
-    required this.onPressed,
-    required this.title
-  }) : super(key: key);
+  const ControlButton({Key? key, required this.onPressed, required this.title})
+      : super(key: key);
 
   final VoidCallback onPressed;
   final String title;

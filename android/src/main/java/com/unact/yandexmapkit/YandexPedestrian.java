@@ -46,8 +46,6 @@ public class YandexPedestrian implements MethodCallHandler {
         }
     }
 
-    // public Session requestRoutes
-    // (Point source, Point destination, TimeOptions timeOptions, RouteListener routeListener)
     @SuppressWarnings({"unchecked", "ConstantConditions"})
     private void requestRoutes(final MethodCall call, final MethodChannel.Result result) {
         Map<String, Object> params = (Map<String, Object>) call.arguments;
@@ -58,19 +56,9 @@ public class YandexPedestrian implements MethodCallHandler {
             points.add(Utils.requestPointFromJson(pointParams));
         }
 
-        Session session = pedestrianRouter.requestRoutes(
-                points,
-                //(TimeOptions) params.get("timeOptions"),
-                new TimeOptions(),
-                new YandexPedestrianListener(result)
-        );
+        Session session = pedestrianRouter.requestRoutes(points, new TimeOptions(), new YandexPedestrianListener(result));
 
-        YandexPedestrianSession pedestrianSession = new YandexPedestrianSession(
-                sessionId,
-                session,
-                binaryMessenger,
-                new YandexPedestrian.PedestrianCloseListener()
-        );
+        YandexPedestrianSession pedestrianSession = new YandexPedestrianSession(sessionId, session, binaryMessenger, new YandexPedestrian.PedestrianCloseListener());
 
         pedestrianSessions.put(sessionId, pedestrianSession);
     }

@@ -8,22 +8,21 @@ class YandexDriving {
   static int _nextSessionId = 0;
 
   /// Builds a route.
-  static DrivingResultWithSession requestRoutes({
-    required List<RequestPoint> points,
-    required DrivingOptions drivingOptions
-  }) {
+  static DrivingResultWithSession requestRoutes(
+      {required List<RequestPoint> points,
+      required DrivingOptions drivingOptions}) {
     final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
-      'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
+      'points': points
+          .map((RequestPoint requestPoint) => requestPoint.toJson())
+          .toList(),
       'drivingOptions': drivingOptions.toJson()
     };
     final result = _channel
-      .invokeMethod('requestRoutes', params)
-      .then((result) => DrivingSessionResult._fromJson(result));
+        .invokeMethod('requestRoutes', params)
+        .then((result) => DrivingSessionResult._fromJson(result));
 
     return DrivingResultWithSession._(
-      session: DrivingSession._(id: params['sessionId']),
-      result: result
-    );
+        session: DrivingSession._(id: params['sessionId']), result: result);
   }
 }

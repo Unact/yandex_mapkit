@@ -10,26 +10,19 @@ class BitmapDescriptor extends Equatable {
 
   /// Creates a [BitmapDescriptor] from an asset image.
   factory BitmapDescriptor.fromAssetImage(String assetName) {
-    return BitmapDescriptor._({
-      'type': 'fromAssetImage',
-      'assetName': assetName
-    });
+    return BitmapDescriptor._(
+        {'type': 'fromAssetImage', 'assetName': assetName});
   }
 
   /// Creates a [BitmapDescriptor] using an array of bytes that must be encoded as PNG.
   factory BitmapDescriptor.fromBytes(Uint8List byteData) {
-    return BitmapDescriptor._({
-      'type': 'fromBytes',
-      'rawImageData': byteData
-    });
+    return BitmapDescriptor._({'type': 'fromBytes', 'rawImageData': byteData});
   }
 
   Map<String, dynamic> toJson() => _json;
 
   @override
-  List<Object> get props => <Object>[
-    _json
-  ];
+  List<Object> get props => <Object>[_json];
 
   @override
   bool get stringify => true;

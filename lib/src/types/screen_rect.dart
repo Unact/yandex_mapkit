@@ -15,9 +15,9 @@ class ScreenRect extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    topLeft,
-    bottomRight,
-  ];
+        topLeft,
+        bottomRight,
+      ];
 
   @override
   bool get stringify => true;
@@ -32,10 +32,7 @@ class ScreenRect extends Equatable {
 
 /// A point on the device screen.
 class ScreenPoint extends Equatable {
-  const ScreenPoint({
-    required this.x,
-    required this.y
-  });
+  const ScreenPoint({required this.x, required this.y});
 
   /// The horizontal position of the point in pixels from the top screen border.
   final double x;
@@ -44,10 +41,7 @@ class ScreenPoint extends Equatable {
   final double y;
 
   @override
-  List<Object> get props => <Object>[
-    x,
-    y
-  ];
+  List<Object> get props => <Object>[x, y];
 
   @override
   bool get stringify => true;
@@ -60,9 +54,6 @@ class ScreenPoint extends Equatable {
   }
 
   factory ScreenPoint._fromJson(Map<dynamic, dynamic> json) {
-    return ScreenPoint(
-      x: json['x'],
-      y: json['y']
-    );
+    return ScreenPoint(x: json['x'], y: json['y']);
   }
 }

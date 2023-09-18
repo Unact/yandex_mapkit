@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -26,35 +25,27 @@ class _SearchExampleState extends State<_SearchExample> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const SizedBox(height: 20),
+          Expanded(
+              child: SingleChildScrollView(
+                  child: Column(children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Flexible(
-                      child: TextField(
-                        controller: queryController,
-                        decoration: const InputDecoration(hintText: 'Search'),
-                      ),
-                    ),
-                    ControlButton(
-                      onPressed: _search,
-                      title: 'Query'
-                    ),
-                  ],
+                Flexible(
+                  child: TextField(
+                    controller: queryController,
+                    decoration: const InputDecoration(hintText: 'Search'),
+                  ),
                 ),
-              ]
-            )
-          )
-        )
-      ]
-    );
+                ControlButton(onPressed: _search, title: 'Query'),
+              ],
+            ),
+          ])))
+        ]);
   }
 
   void _search() async {
@@ -64,12 +55,12 @@ class _SearchExampleState extends State<_SearchExample> {
 
     final resultWithSession = YandexSearch.searchByText(
       searchText: query,
-      geometry: Geometry.fromBoundingBox(
-        const BoundingBox(
-          southWest: Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
-          northEast: Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
-        )
-      ),
+      geometry: Geometry.fromBoundingBox(const BoundingBox(
+        southWest:
+            Point(latitude: 55.76996383933034, longitude: 37.57483142322235),
+        northEast:
+            Point(latitude: 55.785322774728414, longitude: 37.590924677311705),
+      )),
       searchOptions: const SearchOptions(
         searchType: SearchType.geo,
         geometry: false,
@@ -77,11 +68,10 @@ class _SearchExampleState extends State<_SearchExample> {
     );
 
     await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(query, resultWithSession.session, resultWithSession.result)
-      )
-    );
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => _SessionPage(
+                query, resultWithSession.session, resultWithSession.result)));
   }
 }
 
@@ -117,55 +107,50 @@ class _SessionState extends State<_SessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search ${widget.session.id}')),
-      body: Container(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            const SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
+        appBar: AppBar(title: Text('Search ${widget.session.id}')),
+        body: Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Expanded(
+                      child: SingleChildScrollView(
+                          child: Column(children: <Widget>[
                     SizedBox(
-                      height: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(widget.query, style: const TextStyle(fontSize: 20,)),
-                          !_progress ? Container() : TextButton.icon(
-                            icon: const CircularProgressIndicator(),
-                            label: const Text('Cancel'),
-                            onPressed: _cancel
-                          )
-                        ],
-                      )
-                    ),
+                        height: 60,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(widget.query,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                )),
+                            !_progress
+                                ? Container()
+                                : TextButton.icon(
+                                    icon: const CircularProgressIndicator(),
+                                    label: const Text('Cancel'),
+                                    onPressed: _cancel)
+                          ],
+                        )),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: _getList(),
-                            )
-                          ),
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: _getList(),
+                              )),
                         ),
                       ],
                     ),
-                  ]
-                )
-              )
-            )
-          ]
-        )
-      )
-    );
+                  ])))
+                ])));
   }
 
   List<Widget> _getList() {
@@ -180,7 +165,8 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.items!.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
+        list.add(
+            Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
       });
 
       list.add(Container(height: 20));
@@ -192,7 +178,9 @@ class _SessionState extends State<_SessionPage> {
   Future<void> _cancel() async {
     await widget.session.cancel();
 
-    setState(() { _progress = false; });
+    setState(() {
+      _progress = false;
+    });
   }
 
   Future<void> _close() async {
@@ -204,7 +192,9 @@ class _SessionState extends State<_SessionPage> {
   }
 
   Future<void> _handleResult(SearchSessionResult result) async {
-    setState(() { _progress = false; });
+    setState(() {
+      _progress = false;
+    });
 
     if (result.error != null) {
       print('Error: ${result.error}');
@@ -213,11 +203,15 @@ class _SessionState extends State<_SessionPage> {
 
     print('Page ${result.page}: $result');
 
-    setState(() { results.add(result); });
+    setState(() {
+      results.add(result);
+    });
 
     if (await widget.session.hasNextPage()) {
       print('Got ${result.found} items, fetching next page...');
-      setState(() { _progress = true; });
+      setState(() {
+        _progress = true;
+      });
       await _handleResult(await widget.session.fetchNextPage());
     }
   }

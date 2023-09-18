@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Quantitative characteristics of any segment of the route.
 class BicycleWeight extends Equatable {
-
   /// Time to travel, not considering traffic.
   final LocalizedValue time;
 
@@ -20,9 +19,9 @@ class BicycleWeight extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    time,
-    distance,
-  ];
+        time,
+        distance,
+      ];
 
   @override
   bool get stringify => true;

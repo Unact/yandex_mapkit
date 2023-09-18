@@ -2,7 +2,8 @@ part of yandex_mapkit;
 
 /// Defines a started suggest request
 class SuggestSession {
-  static const String _methodChannelName = 'yandex_mapkit/yandex_suggest_session_';
+  static const String _methodChannelName =
+      'yandex_mapkit/yandex_suggest_session_';
   final MethodChannel _methodChannel;
 
   /// Unique session identifier
@@ -12,8 +13,8 @@ class SuggestSession {
   /// Has the current session been closed
   bool get isClosed => _isClosed;
 
-  SuggestSession._({required this.id}) :
-    _methodChannel = MethodChannel(_methodChannelName + id.toString());
+  SuggestSession._({required this.id})
+      : _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Resets current session
   ///
@@ -47,7 +48,6 @@ class SuggestSessionException extends SessionException {
 /// Result of a suggest request
 /// If any error has occured then [items] will be empty, otherwise [error] will be empty
 class SuggestSessionResult {
-
   /// All found items
   final List<SuggestItem>? items;
 
@@ -58,9 +58,10 @@ class SuggestSessionResult {
 
   factory SuggestSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return SuggestSessionResult._(
-      json['items']?.map<SuggestItem>((dynamic item) => SuggestItem._fromJson(item)).toList(),
-      json['error']
-    );
+        json['items']
+            ?.map<SuggestItem>((dynamic item) => SuggestItem._fromJson(item))
+            .toList(),
+        json['error']);
   }
 }
 
@@ -73,8 +74,5 @@ class SuggestResultWithSession {
   /// Request result
   Future<SuggestSessionResult> result;
 
-  SuggestResultWithSession._({
-    required this.session,
-    required this.result
-  });
+  SuggestResultWithSession._({required this.session, required this.result});
 }

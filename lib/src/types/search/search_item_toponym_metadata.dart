@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Additional data for toponym objects.
 class SearchItemToponymMetadata extends Equatable {
-
   /// Point where balloon for the toponym should be shown.
   ///
   /// Differs for direct and reverse search modes:
@@ -27,9 +26,9 @@ class SearchItemToponymMetadata extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    balloonPoint,
-    address,
-  ];
+        balloonPoint,
+        address,
+      ];
 
   @override
   bool get stringify => true;

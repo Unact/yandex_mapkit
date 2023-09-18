@@ -1,6 +1,3 @@
 part of yandex_mapkit;
 
-enum BicycleVehicleType {
-  bicycle,
-  scooter
-}
+enum BicycleVehicleType { bicycle, scooter }

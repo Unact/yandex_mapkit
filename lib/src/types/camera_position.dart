@@ -23,27 +23,17 @@ class CameraPosition extends Equatable {
 
   /// Returns a copy of [CameraPosition] whose values are the same as this instance,
   /// unless overwritten by the specified parameters.
-  CameraPosition copyWith({
-    Point? target,
-    double? zoom,
-    double? azimuth,
-    double? tilt
-  }) {
+  CameraPosition copyWith(
+      {Point? target, double? zoom, double? azimuth, double? tilt}) {
     return CameraPosition(
-      target: target ?? this.target,
-      zoom: zoom ?? this.zoom,
-      azimuth: azimuth ?? this.azimuth,
-      tilt: tilt ?? this.tilt
-    );
+        target: target ?? this.target,
+        zoom: zoom ?? this.zoom,
+        azimuth: azimuth ?? this.azimuth,
+        tilt: tilt ?? this.tilt);
   }
 
   @override
-  List<Object> get props => <Object>[
-    target,
-    zoom,
-    azimuth,
-    tilt
-  ];
+  List<Object> get props => <Object>[target, zoom, azimuth, tilt];
 
   @override
   bool get stringify => true;
@@ -67,10 +57,7 @@ class CameraPosition extends Equatable {
   }
 }
 
-enum CameraUpdateReason {
-  gestures,
-  application
-}
+enum CameraUpdateReason { gestures, application }
 
 /// Defines a camera move, supporting absolute moves as well as moves relative
 /// the current position.
@@ -81,16 +68,15 @@ class CameraUpdate {
   static CameraUpdate newCameraPosition(CameraPosition cameraPosition) {
     return CameraUpdate._({
       'type': 'newCameraPosition',
-      'params': {
-        'cameraPosition': cameraPosition.toJson()
-      }
+      'params': {'cameraPosition': cameraPosition.toJson()}
     });
   }
 
   /// Returns a camera update that moves the camera target to the specified
   /// geographical location in the custom focus rect.
   /// If [focusRect] is null then the current focus rect is used.
-  static CameraUpdate newBounds(BoundingBox boundingBox, { ScreenRect? focusRect }) {
+  static CameraUpdate newBounds(BoundingBox boundingBox,
+      {ScreenRect? focusRect}) {
     return CameraUpdate._({
       'type': 'newBounds',
       'params': {
@@ -109,17 +95,10 @@ class CameraUpdate {
   @Deprecated("""
     Will be removed in future versions. Instead use [newTiltAzimuthGeometry]
   """)
-  static CameraUpdate newTiltAzimuthBounds(BoundingBox boundingBox, {
-    double azimuth = 0,
-    double tilt = 0,
-    ScreenRect? focusRect
-  }) {
-    return newTiltAzimuthGeometry(
-      Geometry.fromBoundingBox(boundingBox),
-      azimuth: azimuth,
-      tilt: tilt,
-      focusRect: focusRect
-    );
+  static CameraUpdate newTiltAzimuthBounds(BoundingBox boundingBox,
+      {double azimuth = 0, double tilt = 0, ScreenRect? focusRect}) {
+    return newTiltAzimuthGeometry(Geometry.fromBoundingBox(boundingBox),
+        azimuth: azimuth, tilt: tilt, focusRect: focusRect);
   }
 
   /// Returns a camera update so that the specified
@@ -127,11 +106,8 @@ class CameraUpdate {
   /// possible zoom level in the custom focus rect.
   /// If [focusRect] is null then the current focus rect is used.
   /// The camera's new tilt and bearing will both be 0.0.
-  static CameraUpdate newTiltAzimuthGeometry(Geometry geometry, {
-    double azimuth = 0,
-    double tilt = 0,
-    ScreenRect? focusRect
-  }) {
+  static CameraUpdate newTiltAzimuthGeometry(Geometry geometry,
+      {double azimuth = 0, double tilt = 0, ScreenRect? focusRect}) {
     return CameraUpdate._({
       'type': 'newTiltAzimuthGeometry',
       'params': {
@@ -148,9 +124,7 @@ class CameraUpdate {
   ///
   /// Equivalent to the result of calling `zoomBy(1.0)`.
   static CameraUpdate zoomIn() {
-    return CameraUpdate._({
-      'type': 'zoomIn'
-    });
+    return CameraUpdate._({'type': 'zoomIn'});
   }
 
   /// Returns a camera update that zooms the camera out, bringing the camera
@@ -158,18 +132,14 @@ class CameraUpdate {
   ///
   /// Equivalent to the result of calling `zoomBy(-1.0)`.
   static CameraUpdate zoomOut() {
-    return CameraUpdate._({
-      'type': 'zoomOut'
-    });
+    return CameraUpdate._({'type': 'zoomOut'});
   }
 
   /// Returns a camera update that sets the camera zoom level.
   static CameraUpdate zoomTo(double zoom) {
     return CameraUpdate._({
       'type': 'zoomTo',
-      'params': {
-        'zoom': zoom
-      }
+      'params': {'zoom': zoom}
     });
   }
 
@@ -177,9 +147,7 @@ class CameraUpdate {
   static CameraUpdate azimuthTo(double azimuth) {
     return CameraUpdate._({
       'type': 'azimuthTo',
-      'params': {
-        'azimuth': azimuth
-      }
+      'params': {'azimuth': azimuth}
     });
   }
 
@@ -187,9 +155,7 @@ class CameraUpdate {
   static CameraUpdate tiltTo(double tilt) {
     return CameraUpdate._({
       'type': 'tiltTo',
-      'params': {
-        'tilt': tilt
-      }
+      'params': {'tilt': tilt}
     });
   }
 

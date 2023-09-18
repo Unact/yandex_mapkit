@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Options to fine-tune suggest request.
 class SuggestOptions extends Equatable {
-
   /// What type of suggestions to look for
   /// If suggestType is empty, it means to use server-defined types
   final SuggestType suggestType;
@@ -28,11 +27,7 @@ class SuggestOptions extends Equatable {
   }
 
   @override
-  List<Object?> get props => <Object?>[
-    suggestType,
-    userPosition,
-    suggestWords
-  ];
+  List<Object?> get props => <Object?>[suggestType, userPosition, suggestWords];
 
   @override
   bool get stringify => true;

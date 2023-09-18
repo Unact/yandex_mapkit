@@ -13,15 +13,15 @@ class YandexPedestrian {
   }) {
     final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
-      'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList()
+      'points': points
+          .map((RequestPoint requestPoint) => requestPoint.toJson())
+          .toList()
     };
     final result = _channel
         .invokeMethod('requestRoutes', params)
         .then((result) => PedestrianSessionResult._fromJson(result));
 
     return PedestrianResultWithSession._(
-        session: PedestrianSession._(id: params['sessionId']),
-        result: result
-    );
+        session: PedestrianSession._(id: params['sessionId']), result: result);
   }
 }

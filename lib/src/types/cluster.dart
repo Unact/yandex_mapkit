@@ -3,11 +3,8 @@ part of yandex_mapkit;
 /// A number placemarks grouped into single placemark created for [ClusterizedPlacemarkCollection]
 /// [Cluster]
 class Cluster extends Equatable {
-  const Cluster._({
-    required this.size,
-    required this.appearance,
-    required this.placemarks
-  });
+  const Cluster._(
+      {required this.size, required this.appearance, required this.placemarks});
 
   /// Placemarks from [ClusterizedPlacemarkCollection] in this cluster
   final List<PlacemarkMapObject> placemarks;
@@ -19,22 +16,15 @@ class Cluster extends Equatable {
   final PlacemarkMapObject appearance;
 
   /// Returns a copy of [Cluster] with new appearance
-  Cluster copyWith({
-    PlacemarkMapObject? appearance
-  }) {
+  Cluster copyWith({PlacemarkMapObject? appearance}) {
     return Cluster._(
-      size: size,
-      appearance: appearance ?? this.appearance,
-      placemarks: placemarks
-    );
+        size: size,
+        appearance: appearance ?? this.appearance,
+        placemarks: placemarks);
   }
 
   @override
-  List<Object> get props => <Object>[
-    size,
-    appearance,
-    placemarks
-  ];
+  List<Object> get props => <Object>[size, appearance, placemarks];
 
   @override
   bool get stringify => true;

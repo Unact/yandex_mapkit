@@ -23,11 +23,11 @@ class VisibleRegion extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    topLeft,
-    topRight,
-    bottomLeft,
-    bottomRight,
-  ];
+        topLeft,
+        topRight,
+        bottomLeft,
+        bottomRight,
+      ];
 
   @override
   bool get stringify => true;

@@ -15,9 +15,9 @@ class BoundingBox extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    northEast,
-    southWest,
-  ];
+        northEast,
+        southWest,
+      ];
 
   @override
   bool get stringify => true;
@@ -31,8 +31,7 @@ class BoundingBox extends Equatable {
 
   factory BoundingBox._fromJson(Map<dynamic, dynamic> json) {
     return BoundingBox(
-      northEast: Point._fromJson(json['northEast']),
-      southWest: Point._fromJson(json['southWest'])
-    );
+        northEast: Point._fromJson(json['northEast']),
+        southWest: Point._fromJson(json['southWest']));
   }
 }

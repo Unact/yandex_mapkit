@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
 class ReverseSearchPage extends MapPage {
-  const ReverseSearchPage({Key? key}) : super('Reverse search example', key: key);
+  const ReverseSearchPage({Key? key})
+      : super('Reverse search example', key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +27,9 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     PlacemarkMapObject(
       mapId: cameraMapObjectId,
       point: const Point(latitude: 55.755848, longitude: 37.620409),
-      icon: PlacemarkIcon.single(
-        PlacemarkIconStyle(
+      icon: PlacemarkIcon.single(PlacemarkIconStyle(
           image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
-          scale: 0.75
-        )
-      ),
+          scale: 0.75)),
       opacity: 0.5,
     )
   ];
@@ -55,25 +52,29 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
               children: [
                 YandexMap(
                   mapObjects: mapObjects,
-                  onCameraPositionChanged: (CameraPosition cameraPosition, CameraUpdateReason _, bool __) async {
+                  onCameraPositionChanged: (CameraPosition cameraPosition,
+                      CameraUpdateReason _, bool __) async {
                     final placemarkMapObject = mapObjects
-                      .firstWhere((el) => el.mapId == cameraMapObjectId) as PlacemarkMapObject;
+                            .firstWhere((el) => el.mapId == cameraMapObjectId)
+                        as PlacemarkMapObject;
 
                     setState(() {
-                      mapObjects[mapObjects.indexOf(placemarkMapObject)] = placemarkMapObject.copyWith(
-                        point: cameraPosition.target
-                      );
+                      mapObjects[mapObjects.indexOf(placemarkMapObject)] =
+                          placemarkMapObject.copyWith(
+                              point: cameraPosition.target);
                     });
                   },
-                  onMapCreated: (YandexMapController yandexMapController) async {
+                  onMapCreated:
+                      (YandexMapController yandexMapController) async {
                     final placemarkMapObject = mapObjects
-                      .firstWhere((el) => el.mapId == cameraMapObjectId) as PlacemarkMapObject;
+                            .firstWhere((el) => el.mapId == cameraMapObjectId)
+                        as PlacemarkMapObject;
 
                     controller = yandexMapController;
 
-                    await controller.moveCamera(
-                      CameraUpdate.newCameraPosition(CameraPosition(target: placemarkMapObject.point, zoom: 17))
-                    );
+                    await controller.moveCamera(CameraUpdate.newCameraPosition(
+                        CameraPosition(
+                            target: placemarkMapObject.point, zoom: 17)));
                   },
                 )
               ],
@@ -81,24 +82,16 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      ControlButton(
-                        onPressed: _search,
-                        title: 'What is here?'
-                      ),
-                    ],
-                  ),
-                ]
-              )
-            )
-          )
-        ]
-    );
+              child: SingleChildScrollView(
+                  child: Column(children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                ControlButton(onPressed: _search, title: 'What is here?'),
+              ],
+            ),
+          ])))
+        ]);
   }
 
   void _search() async {
@@ -116,15 +109,12 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
     );
 
     await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(
-          cameraPosition.target,
-          resultWithSession.session,
-          resultWithSession.result
-        )
-      )
-    );
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => _SessionPage(
+                cameraPosition.target,
+                resultWithSession.session,
+                resultWithSession.result)));
   }
 }
 
@@ -162,95 +152,85 @@ class _SessionState extends State<_SessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Search ${widget.session.id}')),
-      body: Container(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 300,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  YandexMap(
-                    mapObjects: mapObjects,
-                    onMapCreated: (YandexMapController yandexMapController) async {
-                      final placemarkMapObject = PlacemarkMapObject(
-                        mapId: const MapObjectId('search_placemark'),
-                        point: widget.point,
-                        icon: PlacemarkIcon.single(
-                          PlacemarkIconStyle(
-                            image: BitmapDescriptor.fromAssetImage('lib/assets/place.png'),
-                            scale: 0.75
-                          )
-                        )
-                      );
+        appBar: AppBar(title: Text('Search ${widget.session.id}')),
+        body: Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        YandexMap(
+                          mapObjects: mapObjects,
+                          onMapCreated:
+                              (YandexMapController yandexMapController) async {
+                            final placemarkMapObject = PlacemarkMapObject(
+                                mapId: const MapObjectId('search_placemark'),
+                                point: widget.point,
+                                icon: PlacemarkIcon.single(PlacemarkIconStyle(
+                                    image: BitmapDescriptor.fromAssetImage(
+                                        'lib/assets/place.png'),
+                                    scale: 0.75)));
 
-                      setState(() {
-                        mapObjects.add(placemarkMapObject);
-                      });
+                            setState(() {
+                              mapObjects.add(placemarkMapObject);
+                            });
 
-                      await yandexMapController.moveCamera(
-                        CameraUpdate.newCameraPosition(CameraPosition(target: widget.point, zoom: 17))
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Point',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                          !_progress ? Container() : TextButton.icon(
-                            icon: const CircularProgressIndicator(),
-                            label: const Text('Cancel'),
-                            onPressed: _cancel
-                          )
-                        ],
-                      )
+                            await yandexMapController.moveCamera(
+                                CameraUpdate.newCameraPosition(CameraPosition(
+                                    target: widget.point, zoom: 17)));
+                          },
+                        ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                      child: SingleChildScrollView(
+                          child: Column(children: <Widget>[
+                    SizedBox(
+                        height: 60,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Point',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            !_progress
+                                ? Container()
+                                : TextButton.icon(
+                                    icon: const CircularProgressIndicator(),
+                                    label: const Text('Cancel'),
+                                    onPressed: _cancel)
+                          ],
+                        )),
                     Row(children: [
-                      Flexible(child:
-                        Text('Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}')
-                      )
+                      Flexible(
+                          child: Text(
+                              'Lat: ${widget.point.latitude}, Lon: ${widget.point.longitude}'))
                     ]),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         Flexible(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: _getList(),
-                            )
-                          ),
+                              padding: const EdgeInsets.only(top: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: _getList(),
+                              )),
                         ),
                       ],
                     ),
-                  ]
-                )
-              )
-            )
-          ]
-        )
-      )
-    );
+                  ])))
+                ])));
   }
 
   List<Widget> _getList() {
@@ -265,7 +245,8 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.items!.asMap().forEach((i, item) {
-        list.add(Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
+        list.add(
+            Text('Item $i: ${item.toponymMetadata!.address.formattedAddress}'));
       });
 
       list.add(Container(height: 20));
@@ -277,7 +258,9 @@ class _SessionState extends State<_SessionPage> {
   Future<void> _cancel() async {
     await widget.session.cancel();
 
-    setState(() { _progress = false; });
+    setState(() {
+      _progress = false;
+    });
   }
 
   Future<void> _close() async {
@@ -289,7 +272,9 @@ class _SessionState extends State<_SessionPage> {
   }
 
   Future<void> _handleResult(SearchSessionResult result) async {
-    setState(() { _progress = false; });
+    setState(() {
+      _progress = false;
+    });
 
     if (result.error != null) {
       print('Error: ${result.error}');
@@ -298,11 +283,15 @@ class _SessionState extends State<_SessionPage> {
 
     print('Page ${result.page}: $result');
 
-    setState(() { results.add(result); });
+    setState(() {
+      results.add(result);
+    });
 
     if (await widget.session.hasNextPage()) {
       print('Got ${result.found} items, fetching next page...');
-      setState(() { _progress = true; });
+      setState(() {
+        _progress = true;
+      });
       await _handleResult(await widget.session.fetchNextPage());
     }
   }

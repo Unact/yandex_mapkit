@@ -1,8 +1,8 @@
 part of yandex_mapkit;
 
-
 class PedestrianSession {
-  static const String _methodChannelName = 'yandex_mapkit/yandex_pedestrian_session_';
+  static const String _methodChannelName =
+      'yandex_mapkit/yandex_pedestrian_session_';
   final MethodChannel _methodChannel;
 
   /// Unique session identifier
@@ -12,8 +12,8 @@ class PedestrianSession {
   /// Has the current session been closed
   bool get isClosed => _isClosed;
 
-  PedestrianSession._({required this.id}) :
-        _methodChannel = MethodChannel(_methodChannelName + id.toString());
+  PedestrianSession._({required this.id})
+      : _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Retries current session
   ///
@@ -68,9 +68,11 @@ class PedestrianSessionResult {
 
   factory PedestrianSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return PedestrianSessionResult._(
-        json['routes']?.map<PedestrianRoute>((dynamic route) => PedestrianRoute._fromJson(route)).toList(),
-        json['error']
-    );
+        json['routes']
+            ?.map<PedestrianRoute>(
+                (dynamic route) => PedestrianRoute._fromJson(route))
+            .toList(),
+        json['error']);
   }
 }
 
@@ -83,8 +85,5 @@ class PedestrianResultWithSession {
   /// Request result
   Future<PedestrianSessionResult> result;
 
-  PedestrianResultWithSession._({
-    required this.session,
-    required this.result
-  });
+  PedestrianResultWithSession._({required this.session, required this.result});
 }

@@ -1,7 +1,8 @@
 part of yandex_mapkit;
 
 class BicycleSession {
-  static const String _methodChannelName = 'yandex_mapkit/yandex_bicycle_session_';
+  static const String _methodChannelName =
+      'yandex_mapkit/yandex_bicycle_session_';
   final MethodChannel _methodChannel;
 
   /// Unique session identifier
@@ -11,8 +12,8 @@ class BicycleSession {
   /// Has the current session been closed
   bool get isClosed => _isClosed;
 
-  BicycleSession._({required this.id}) :
-    _methodChannel = MethodChannel(_methodChannelName + id.toString());
+  BicycleSession._({required this.id})
+      : _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Retries current session
   ///
@@ -67,9 +68,11 @@ class BicycleSessionResult {
 
   factory BicycleSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return BicycleSessionResult._(
-      json['routes']?.map<BicycleRoute>((dynamic route) => BicycleRoute._fromJson(route)).toList(),
-      json['error']
-    );
+        json['routes']
+            ?.map<BicycleRoute>(
+                (dynamic route) => BicycleRoute._fromJson(route))
+            .toList(),
+        json['error']);
   }
 }
 
@@ -82,8 +85,5 @@ class BicycleResultWithSession {
   /// Request result
   Future<BicycleSessionResult> result;
 
-  BicycleResultWithSession._({
-    required this.session,
-    required this.result
-  });
+  BicycleResultWithSession._({required this.session, required this.result});
 }

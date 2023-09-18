@@ -1,9 +1,7 @@
 part of yandex_mapkit;
 
-
 /// Information about driving route metadata.
 class DrivingSectionMetadata extends Equatable {
-
   /// Route "weight".
   final DrivingWeight weight;
 
@@ -15,8 +13,8 @@ class DrivingSectionMetadata extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    weight,
-  ];
+        weight,
+      ];
 
   @override
   bool get stringify => true;
@@ -24,7 +22,6 @@ class DrivingSectionMetadata extends Equatable {
 
 /// Quantitative characteristics of any segment of the route.
 class DrivingWeight extends Equatable {
-
   /// Time to travel, not considering traffic.
   final LocalizedValue time;
 
@@ -46,10 +43,10 @@ class DrivingWeight extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    time,
-    timeWithTraffic,
-    distance,
-  ];
+        time,
+        timeWithTraffic,
+        distance,
+      ];
 
   @override
   bool get stringify => true;

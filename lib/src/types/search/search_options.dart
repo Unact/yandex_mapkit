@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Options to fine-tune search request.
 class SearchOptions extends Equatable {
-
   /// What type of searches to look for
   /// If searchType is empty, it means to use server-defined types
   final SearchType searchType;
@@ -44,13 +43,13 @@ class SearchOptions extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    searchType,
-    geometry,
-    disableSpellingCorrection,
-    resultPageSize,
-    userPosition,
-    origin
-  ];
+        searchType,
+        geometry,
+        disableSpellingCorrection,
+        resultPageSize,
+        userPosition,
+        origin
+      ];
 
   @override
   bool get stringify => true;

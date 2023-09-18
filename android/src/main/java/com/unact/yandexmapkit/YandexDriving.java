@@ -21,60 +21,60 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 public class YandexDriving implements MethodCallHandler {
-  private final DrivingRouter drivingRouter;
-  private final BinaryMessenger binaryMessenger;
-  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-  private final Map<Integer, YandexDrivingSession> drivingSessions = new HashMap<>();
+    private final DrivingRouter drivingRouter;
+    private final BinaryMessenger binaryMessenger;
+    @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
+    private final Map<Integer, YandexDrivingSession> drivingSessions = new HashMap<>();
 
-  public YandexDriving(Context context, BinaryMessenger messenger) {
-    DirectionsFactory.initialize(context);
+    public YandexDriving(Context context, BinaryMessenger messenger) {
+        DirectionsFactory.initialize(context);
 
-    drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
-    binaryMessenger = messenger;
-  }
-
-  @Override
-  @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
-  public void onMethodCall(MethodCall call, @NonNull Result result) {
-    switch (call.method) {
-      case "requestRoutes":
-        requestRoutes(call, result);
-        break;
-      default:
-        result.notImplemented();
-        break;
-    }
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
-  private void requestRoutes(final MethodCall call, final Result result) {
-    Map<String, Object> params = (Map<String, Object>) call.arguments;
-    Integer sessionId = (Integer) params.get("sessionId");
-    List<RequestPoint> points = new ArrayList<>();
-    for (Map<String, Object> pointParams : (List<Map<String, Object>>) params.get("points")) {
-      points.add(Utils.requestPointFromJson(pointParams));
+        drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
+        binaryMessenger = messenger;
     }
 
-    DrivingSession session = drivingRouter.requestRoutes(
-      points,
-      Utils.drivingOptionsFromJson((Map<String, Object>) params.get("drivingOptions")),
-      new VehicleOptions(),
-      new YandexDrivingListener(result)
-    );
-
-    YandexDrivingSession drivingSession = new YandexDrivingSession(
-      sessionId,
-      session,
-      binaryMessenger,
-      new DrivingCloseListener()
-    );
-
-    drivingSessions.put(sessionId, drivingSession);
-  }
-
-  public class DrivingCloseListener {
-    public void onClose(int id) {
-      drivingSessions.remove(id);
+    @Override
+    @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
+    public void onMethodCall(MethodCall call, @NonNull Result result) {
+        switch (call.method) {
+            case "requestRoutes":
+                requestRoutes(call, result);
+                break;
+            default:
+                result.notImplemented();
+                break;
+        }
     }
-  }
+
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    private void requestRoutes(final MethodCall call, final Result result) {
+        Map<String, Object> params = (Map<String, Object>) call.arguments;
+        Integer sessionId = (Integer) params.get("sessionId");
+        List<RequestPoint> points = new ArrayList<>();
+        for (Map<String, Object> pointParams : (List<Map<String, Object>>) params.get("points")) {
+            points.add(Utils.requestPointFromJson(pointParams));
+        }
+
+        DrivingSession session = drivingRouter.requestRoutes(
+                points,
+                Utils.drivingOptionsFromJson((Map<String, Object>) params.get("drivingOptions")),
+                new VehicleOptions(),
+                new YandexDrivingListener(result)
+        );
+
+        YandexDrivingSession drivingSession = new YandexDrivingSession(
+                sessionId,
+                session,
+                binaryMessenger,
+                new DrivingCloseListener()
+        );
+
+        drivingSessions.put(sessionId, drivingSession);
+    }
+
+    public class DrivingCloseListener {
+        public void onClose(int id) {
+            drivingSessions.remove(id);
+        }
+    }
 }

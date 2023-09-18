@@ -8,11 +8,10 @@ class YandexSuggest {
   static int _nextSessionId = 0;
 
   /// Get suggestions for text
-  static SuggestResultWithSession getSuggestions({
-    required String text,
-    required BoundingBox boundingBox,
-    required SuggestOptions suggestOptions
-  }) {
+  static SuggestResultWithSession getSuggestions(
+      {required String text,
+      required BoundingBox boundingBox,
+      required SuggestOptions suggestOptions}) {
     final params = <String, dynamic>{
       'sessionId': _nextSessionId++,
       'text': text,
@@ -20,12 +19,10 @@ class YandexSuggest {
       'suggestOptions': suggestOptions.toJson(),
     };
     final result = _channel
-      .invokeMethod('getSuggestions', params)
-      .then((result) => SuggestSessionResult._fromJson(result));
+        .invokeMethod('getSuggestions', params)
+        .then((result) => SuggestSessionResult._fromJson(result));
 
     return SuggestResultWithSession._(
-      session: SuggestSession._(id: params['sessionId']),
-      result: result
-    );
+        session: SuggestSession._(id: params['sessionId']), result: result);
   }
 }

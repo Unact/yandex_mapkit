@@ -59,30 +59,28 @@ class PolygonMapObject extends Equatable implements MapObject {
   /// with the camera position's tilt at 0 and a scale factor of 1
   final double strokeWidth;
 
-  PolygonMapObject copyWith({
-    Polygon? polygon,
-    List<List<Point>>? innerRingsCoordinates,
-    bool? isGeodesic,
-    double? zIndex,
-    TapCallback<PolygonMapObject>? onTap,
-    bool? consumeTapEvents,
-    bool? isVisible,
-    Color? fillColor,
-    Color? strokeColor,
-    double? strokeWidth
-  }) {
+  PolygonMapObject copyWith(
+      {Polygon? polygon,
+      List<List<Point>>? innerRingsCoordinates,
+      bool? isGeodesic,
+      double? zIndex,
+      TapCallback<PolygonMapObject>? onTap,
+      bool? consumeTapEvents,
+      bool? isVisible,
+      Color? fillColor,
+      Color? strokeColor,
+      double? strokeWidth}) {
     return PolygonMapObject(
-      mapId: mapId,
-      polygon: polygon ?? this.polygon,
-      isGeodesic: isGeodesic ?? this.isGeodesic,
-      zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap,
-      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
-      isVisible: isVisible ?? this.isVisible,
-      fillColor: fillColor ?? this.fillColor,
-      strokeColor: strokeColor ?? this.strokeColor,
-      strokeWidth: strokeWidth ?? this.strokeWidth
-    );
+        mapId: mapId,
+        polygon: polygon ?? this.polygon,
+        isGeodesic: isGeodesic ?? this.isGeodesic,
+        zIndex: zIndex ?? this.zIndex,
+        onTap: onTap ?? this.onTap,
+        consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
+        isVisible: isVisible ?? this.isVisible,
+        fillColor: fillColor ?? this.fillColor,
+        strokeColor: strokeColor ?? this.strokeColor,
+        strokeWidth: strokeWidth ?? this.strokeWidth);
   }
 
   @override
@@ -94,17 +92,16 @@ class PolygonMapObject extends Equatable implements MapObject {
   @override
   PolygonMapObject dup(MapObjectId mapId) {
     return PolygonMapObject(
-      mapId: mapId,
-      polygon: polygon,
-      isGeodesic: isGeodesic,
-      zIndex: zIndex,
-      onTap: onTap,
-      consumeTapEvents: consumeTapEvents,
-      isVisible: isVisible,
-      fillColor: fillColor,
-      strokeColor: strokeColor,
-      strokeWidth: strokeWidth
-    );
+        mapId: mapId,
+        polygon: polygon,
+        isGeodesic: isGeodesic,
+        zIndex: zIndex,
+        onTap: onTap,
+        consumeTapEvents: consumeTapEvents,
+        isVisible: isVisible,
+        fillColor: fillColor,
+        strokeColor: strokeColor,
+        strokeWidth: strokeWidth);
   }
 
   @override
@@ -152,40 +149,33 @@ class PolygonMapObject extends Equatable implements MapObject {
 
   @override
   Map<String, dynamic> _createJson() {
-    return toJson()..addAll({
-      'type': _kType
-    });
+    return toJson()..addAll({'type': _kType});
   }
 
   @override
   Map<String, dynamic> _updateJson(MapObject previous) {
     assert(mapId == previous.mapId);
 
-    return toJson()..addAll({
-      'type': _kType
-    });
+    return toJson()..addAll({'type': _kType});
   }
 
   @override
   Map<String, dynamic> _removeJson() {
-    return {
-      'id': mapId.value,
-      'type': _kType
-    };
+    return {'id': mapId.value, 'type': _kType};
   }
 
   @override
   List<Object> get props => <Object>[
-    mapId,
-    polygon,
-    isGeodesic,
-    zIndex,
-    consumeTapEvents,
-    isVisible,
-    strokeColor,
-    strokeWidth,
-    fillColor
-  ];
+        mapId,
+        polygon,
+        isGeodesic,
+        zIndex,
+        consumeTapEvents,
+        isVisible,
+        strokeColor,
+        strokeWidth,
+        fillColor
+      ];
 
   @override
   bool get stringify => true;

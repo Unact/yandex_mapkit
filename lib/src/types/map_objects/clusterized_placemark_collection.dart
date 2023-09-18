@@ -7,21 +7,21 @@ part of yandex_mapkit;
 class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   static const _kType = 'ClusterizedPlacemarkCollection';
 
-  ClusterizedPlacemarkCollection({
-    required this.mapId,
-    required List<PlacemarkMapObject> placemarks,
-    required this.radius,
-    required this.minZoom,
-    this.zIndex = 0.0,
-    this.onTap,
-    this.onClusterAdded,
-    this.onClusterTap,
-    this.consumeTapEvents = false,
-    this.isVisible = true
-  }) : placemarks = List.unmodifiable(placemarks.groupFoldBy<MapObjectId, PlacemarkMapObject>(
-      (element) => element.mapId,
-      (previous, element) => element
-    ).values);
+  ClusterizedPlacemarkCollection(
+      {required this.mapId,
+      required List<PlacemarkMapObject> placemarks,
+      required this.radius,
+      required this.minZoom,
+      this.zIndex = 0.0,
+      this.onTap,
+      this.onClusterAdded,
+      this.onClusterTap,
+      this.consumeTapEvents = false,
+      this.isVisible = true})
+      : placemarks = List.unmodifiable(placemarks
+            .groupFoldBy<MapObjectId, PlacemarkMapObject>(
+                (element) => element.mapId, (previous, element) => element)
+            .values);
 
   /// List of [PlacemarkMapObject] eligible for clusterization.
   ///
@@ -65,29 +65,27 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   ///
   /// Specified fields will get the specified value, all other fields will get
   /// the same value from the current object.
-  ClusterizedPlacemarkCollection copyWith({
-    List<PlacemarkMapObject>? placemarks,
-    double? radius,
-    int? minZoom,
-    double? zIndex,
-    TapCallback<ClusterizedPlacemarkCollection>? onTap,
-    ClusterCallback? onClusterAdded,
-    ClusterCallback? onClusterTap,
-    bool? consumeTapEvents,
-    bool? isVisible
-  }) {
+  ClusterizedPlacemarkCollection copyWith(
+      {List<PlacemarkMapObject>? placemarks,
+      double? radius,
+      int? minZoom,
+      double? zIndex,
+      TapCallback<ClusterizedPlacemarkCollection>? onTap,
+      ClusterCallback? onClusterAdded,
+      ClusterCallback? onClusterTap,
+      bool? consumeTapEvents,
+      bool? isVisible}) {
     return ClusterizedPlacemarkCollection(
-      mapId: mapId,
-      placemarks: placemarks ?? this.placemarks,
-      radius: radius ?? this.radius,
-      minZoom: minZoom ?? this.minZoom,
-      zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap,
-      onClusterAdded: onClusterAdded ?? this.onClusterAdded,
-      onClusterTap: onClusterTap ?? this.onClusterTap,
-      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
-      isVisible: isVisible ?? this.isVisible
-    );
+        mapId: mapId,
+        placemarks: placemarks ?? this.placemarks,
+        radius: radius ?? this.radius,
+        minZoom: minZoom ?? this.minZoom,
+        zIndex: zIndex ?? this.zIndex,
+        onTap: onTap ?? this.onTap,
+        onClusterAdded: onClusterAdded ?? this.onClusterAdded,
+        onClusterTap: onClusterTap ?? this.onClusterTap,
+        consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
+        isVisible: isVisible ?? this.isVisible);
   }
 
   Future<Cluster?> _clusterAdd(Cluster cluster) async {
@@ -113,17 +111,16 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
   @override
   ClusterizedPlacemarkCollection dup(MapObjectId mapId) {
     return ClusterizedPlacemarkCollection(
-      mapId: mapId,
-      placemarks: placemarks,
-      radius: radius,
-      minZoom: minZoom,
-      zIndex: zIndex,
-      onTap: onTap,
-      onClusterAdded: onClusterAdded,
-      onClusterTap: onClusterTap,
-      consumeTapEvents: consumeTapEvents,
-      isVisible: isVisible
-    );
+        mapId: mapId,
+        placemarks: placemarks,
+        radius: radius,
+        minZoom: minZoom,
+        zIndex: zIndex,
+        onTap: onTap,
+        onClusterAdded: onClusterAdded,
+        onClusterTap: onClusterTap,
+        consumeTapEvents: consumeTapEvents,
+        isVisible: isVisible);
   }
 
   @override
@@ -160,7 +157,8 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
       'id': mapId.value,
       'radius': radius,
       'minZoom': minZoom,
-      'placemarks': placemarks.map((PlacemarkMapObject p) => p.toJson()).toList(),
+      'placemarks':
+          placemarks.map((PlacemarkMapObject p) => p.toJson()).toList(),
       'zIndex': zIndex,
       'consumeTapEvents': consumeTapEvents,
       'isVisible': isVisible
@@ -169,44 +167,42 @@ class ClusterizedPlacemarkCollection extends Equatable implements MapObject {
 
   @override
   Map<String, dynamic> _createJson() {
-    return toJson()..addAll({
-      'type': _kType,
-      'placemarks': MapObjectUpdates.from(
-        const <PlacemarkMapObject>{...[]},
-        placemarks.toSet()
-      ).toJson()
-    });
+    return toJson()
+      ..addAll({
+        'type': _kType,
+        'placemarks': MapObjectUpdates.from(
+                const <PlacemarkMapObject>{...[]}, placemarks.toSet())
+            .toJson()
+      });
   }
 
   @override
   Map<String, dynamic> _updateJson(MapObject previous) {
     assert(mapId == previous.mapId);
 
-    return toJson()..addAll({
-      'type': _kType,
-      'placemarks': MapObjectUpdates.from(
-        (previous as ClusterizedPlacemarkCollection).placemarks.toSet(),
-        placemarks.toSet()
-      ).toJson()
-    });
+    return toJson()
+      ..addAll({
+        'type': _kType,
+        'placemarks': MapObjectUpdates.from(
+                (previous as ClusterizedPlacemarkCollection).placemarks.toSet(),
+                placemarks.toSet())
+            .toJson()
+      });
   }
 
   @override
   Map<String, dynamic> _removeJson() {
-    return {
-      'id': mapId.value,
-      'type': _kType
-    };
+    return {'id': mapId.value, 'type': _kType};
   }
 
   @override
   List<Object> get props => <Object>[
-    mapId,
-    placemarks,
-    zIndex,
-    consumeTapEvents,
-    isVisible,
-  ];
+        mapId,
+        placemarks,
+        zIndex,
+        consumeTapEvents,
+        isVisible,
+      ];
 
   @override
   bool get stringify => true;

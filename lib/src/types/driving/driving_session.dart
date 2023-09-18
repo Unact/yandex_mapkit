@@ -1,7 +1,8 @@
 part of yandex_mapkit;
 
 class DrivingSession {
-  static const String _methodChannelName = 'yandex_mapkit/yandex_driving_session_';
+  static const String _methodChannelName =
+      'yandex_mapkit/yandex_driving_session_';
   final MethodChannel _methodChannel;
 
   /// Unique session identifier
@@ -11,8 +12,8 @@ class DrivingSession {
   /// Has the current session been closed
   bool get isClosed => _isClosed;
 
-  DrivingSession._({required this.id}) :
-    _methodChannel = MethodChannel(_methodChannelName + id.toString());
+  DrivingSession._({required this.id})
+      : _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Retries current session
   ///
@@ -67,9 +68,11 @@ class DrivingSessionResult {
 
   factory DrivingSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return DrivingSessionResult._(
-      json['routes']?.map<DrivingRoute>((dynamic route) => DrivingRoute._fromJson(route)).toList(),
-      json['error']
-    );
+        json['routes']
+            ?.map<DrivingRoute>(
+                (dynamic route) => DrivingRoute._fromJson(route))
+            .toList(),
+        json['error']);
   }
 }
 
@@ -82,8 +85,5 @@ class DrivingResultWithSession {
   /// Request result
   Future<DrivingSessionResult> result;
 
-  DrivingResultWithSession._({
-    required this.session,
-    required this.result
-  });
+  DrivingResultWithSession._({required this.session, required this.result});
 }

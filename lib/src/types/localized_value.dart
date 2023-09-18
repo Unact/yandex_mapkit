@@ -16,9 +16,9 @@ class LocalizedValue extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    value,
-    text,
-  ];
+        value,
+        text,
+      ];
 
   @override
   bool get stringify => true;

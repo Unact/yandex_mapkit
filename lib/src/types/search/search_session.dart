@@ -2,7 +2,8 @@ part of yandex_mapkit;
 
 /// Defines a started search request
 class SearchSession {
-  static const String _methodChannelName = 'yandex_mapkit/yandex_search_session_';
+  static const String _methodChannelName =
+      'yandex_mapkit/yandex_search_session_';
   final MethodChannel _methodChannel;
 
   /// Unique session identifier
@@ -12,8 +13,8 @@ class SearchSession {
   /// Has the current session been closed
   bool get isClosed => _isClosed;
 
-  SearchSession._({required this.id}) :
-    _methodChannel = MethodChannel(_methodChannelName + id.toString());
+  SearchSession._({required this.id})
+      : _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Cancels running search request if there is one
   ///
@@ -86,7 +87,6 @@ class SearchSessionException extends SessionException {
 /// Result of a search request
 /// If any errors have occured then [items], [found], [page] will be empty, otherwise [error] will be empty
 class SearchSessionResult {
-
   /// Total count of found items
   final int? found;
 
@@ -99,35 +99,27 @@ class SearchSessionResult {
   /// Error message
   String? error;
 
-  SearchSessionResult._(
-    this.found,
-    this.items,
-    this.page,
-    this.error
-  );
+  SearchSessionResult._(this.found, this.items, this.page, this.error);
 
   factory SearchSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return SearchSessionResult._(
-      json['found'],
-      json['items']?.map<SearchItem>((dynamic item) => SearchItem._fromJson(item)).toList(),
-      json['page'],
-      json['error']
-    );
+        json['found'],
+        json['items']
+            ?.map<SearchItem>((dynamic item) => SearchItem._fromJson(item))
+            .toList(),
+        json['page'],
+        json['error']);
   }
 }
 
 /// Object containing the result of a search request and
 /// a [session] object for further working with newly made request
 class SearchResultWithSession {
-
   /// Created session
   SearchSession session;
 
   /// Request result
   Future<SearchSessionResult> result;
 
-  SearchResultWithSession._({
-    required this.session,
-    required this.result
-  });
+  SearchResultWithSession._({required this.session, required this.result});
 }

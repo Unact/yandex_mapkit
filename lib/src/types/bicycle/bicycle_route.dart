@@ -4,7 +4,6 @@ part of yandex_mapkit;
 /// A route consists of multiple sections
 /// Each section has a corresponding annotation that describes the action at the beginning of the section.
 class BicycleRoute extends Equatable {
-
   /// Route geometry.
   final List<Point> geometry;
 
@@ -22,9 +21,9 @@ class BicycleRoute extends Equatable {
 
   @override
   List<Object> get props => <Object>[
-    geometry,
-    weight,
-  ];
+        geometry,
+        weight,
+      ];
 
   @override
   bool get stringify => true;

@@ -12,19 +12,19 @@ import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
 
 public class YandexMapFactory extends PlatformViewFactory {
-  private final BinaryMessenger messenger;
-  private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
+    private final BinaryMessenger messenger;
+    private final YandexMapkitPlugin.LifecycleProvider lifecycleProvider;
 
-  public YandexMapFactory(BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
-    super(StandardMessageCodec.INSTANCE);
-    this.messenger = messenger;
-    this.lifecycleProvider = lifecycleProvider;
-  }
+    public YandexMapFactory(BinaryMessenger messenger, YandexMapkitPlugin.LifecycleProvider lifecycleProvider) {
+        super(StandardMessageCodec.INSTANCE);
+        this.messenger = messenger;
+        this.lifecycleProvider = lifecycleProvider;
+    }
 
-  @NonNull
-  @Override
-  @SuppressWarnings({"unchecked"})
-  public PlatformView create(Context context, int id, Object args) {
-    return new YandexMapController(id, context, messenger, (Map<String, Object>) args, lifecycleProvider);
-  }
+    @NonNull
+    @Override
+    @SuppressWarnings({"unchecked"})
+    public PlatformView create(Context context, int id, Object args) {
+        return new YandexMapController(id, context, messenger, (Map<String, Object>) args, lifecycleProvider);
+    }
 }

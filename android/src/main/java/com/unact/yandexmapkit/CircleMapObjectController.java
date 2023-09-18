@@ -12,79 +12,79 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 
 public class CircleMapObjectController extends MapObjectController implements MapObjectTapListener {
-  private final boolean internallyControlled;
-  public final CircleMapObject circle;
-  private boolean consumeTapEvents = false;
-  @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-  private final WeakReference<YandexMapController> controller;
-  public final String id;
+    public final CircleMapObject circle;
+    public final String id;
+    private final boolean internallyControlled;
+    @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
+    private final WeakReference<YandexMapController> controller;
+    private boolean consumeTapEvents = false;
 
-  @SuppressWarnings({"ConstantConditions", "unchecked"})
-  public CircleMapObjectController(
-    MapObjectCollection parent,
-    Map<String, Object> params,
-    WeakReference<YandexMapController> controller
-  ) {
-    CircleMapObject circle = parent.addCircle(
-      Utils.circleFromJson((Map<String, Object>) params.get("circle")),
-      ((Number) params.get("strokeColor")).intValue(),
-      ((Double) params.get("strokeWidth")).floatValue(),
-      ((Number) params.get("fillColor")).intValue()
-    );
+    @SuppressWarnings({"ConstantConditions", "unchecked"})
+    public CircleMapObjectController(
+            MapObjectCollection parent,
+            Map<String, Object> params,
+            WeakReference<YandexMapController> controller
+    ) {
+        CircleMapObject circle = parent.addCircle(
+                Utils.circleFromJson((Map<String, Object>) params.get("circle")),
+                ((Number) params.get("strokeColor")).intValue(),
+                ((Double) params.get("strokeWidth")).floatValue(),
+                ((Number) params.get("fillColor")).intValue()
+        );
 
-    this.circle = circle;
-    this.id = (String) params.get("id");
-    this.controller = controller;
-    this.internallyControlled = false;
+        this.circle = circle;
+        this.id = (String) params.get("id");
+        this.controller = controller;
+        this.internallyControlled = false;
 
-    circle.setUserData(this.id);
-    circle.addTapListener(this);
-    update(params);
-  }
-
-  public CircleMapObjectController(
-    CircleMapObject circle,
-    Map<String, Object> params,
-    WeakReference<YandexMapController> controller
-  ) {
-    this.circle = circle;
-    this.id = (String) params.get("id");
-    this.controller = controller;
-    this.internallyControlled = true;
-
-    circle.setUserData(id);
-    circle.addTapListener(this);
-    update(params);
-  }
-
-  @SuppressWarnings({"ConstantConditions", "unchecked"})
-  public void update(Map<String, Object> params) {
-    if (!internallyControlled) {
-      circle.setGeometry(Utils.circleFromJson((Map<String, Object>) params.get("circle")));
-      circle.setVisible((Boolean) params.get("isVisible"));
+        circle.setUserData(this.id);
+        circle.addTapListener(this);
+        update(params);
     }
 
-    circle.setGeodesic((Boolean) params.get("isGeodesic"));
-    circle.setZIndex(((Double) params.get("zIndex")).floatValue());
-    circle.setStrokeColor(((Number) params.get("strokeColor")).intValue());
-    circle.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
-    circle.setFillColor(((Number) params.get("fillColor")).intValue());
+    public CircleMapObjectController(
+            CircleMapObject circle,
+            Map<String, Object> params,
+            WeakReference<YandexMapController> controller
+    ) {
+        this.circle = circle;
+        this.id = (String) params.get("id");
+        this.controller = controller;
+        this.internallyControlled = true;
 
-    consumeTapEvents = (Boolean) params.get("consumeTapEvents");
-  }
-
-  public void remove() {
-    if (internallyControlled) {
-      return;
+        circle.setUserData(id);
+        circle.addTapListener(this);
+        update(params);
     }
 
-    circle.getParent().remove(circle);
-  }
+    @SuppressWarnings({"ConstantConditions", "unchecked"})
+    public void update(Map<String, Object> params) {
+        if (!internallyControlled) {
+            circle.setGeometry(Utils.circleFromJson((Map<String, Object>) params.get("circle")));
+            circle.setVisible((Boolean) params.get("isVisible"));
+        }
 
-  @Override
-  public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
-    controller.get().mapObjectTap(id, point);
+        circle.setGeodesic((Boolean) params.get("isGeodesic"));
+        circle.setZIndex(((Double) params.get("zIndex")).floatValue());
+        circle.setStrokeColor(((Number) params.get("strokeColor")).intValue());
+        circle.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
+        circle.setFillColor(((Number) params.get("fillColor")).intValue());
 
-    return consumeTapEvents;
-  }
+        consumeTapEvents = (Boolean) params.get("consumeTapEvents");
+    }
+
+    public void remove() {
+        if (internallyControlled) {
+            return;
+        }
+
+        circle.getParent().remove(circle);
+    }
+
+    @Override
+    public boolean onMapObjectTap(@NonNull MapObject mapObject, @NonNull Point point) {
+        controller.get().mapObjectTap(id, point);
+
+        return consumeTapEvents;
+    }
 }

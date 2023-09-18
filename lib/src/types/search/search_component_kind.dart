@@ -1,7 +1,6 @@
 part of yandex_mapkit;
 
 enum SearchComponentKind {
-
   /// Unknown component kind
   unknown,
 

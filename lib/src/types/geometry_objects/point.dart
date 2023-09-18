@@ -2,10 +2,7 @@ part of yandex_mapkit;
 
 /// A point at the specified coordinates.
 class Point extends Equatable {
-  const Point({
-    required this.latitude,
-    required this.longitude
-  });
+  const Point({required this.latitude, required this.longitude});
 
   /// The point's latitude.
   final double latitude;
@@ -14,10 +11,7 @@ class Point extends Equatable {
   final double longitude;
 
   @override
-  List<Object> get props => <Object>[
-    latitude,
-    longitude
-  ];
+  List<Object> get props => <Object>[latitude, longitude];
 
   @override
   bool get stringify => true;
@@ -30,9 +24,6 @@ class Point extends Equatable {
   }
 
   factory Point._fromJson(Map<dynamic, dynamic> json) {
-    return Point(
-      latitude: json['latitude'],
-      longitude: json['longitude']
-    );
+    return Point(latitude: json['latitude'], longitude: json['longitude']);
   }
 }

@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Options to fine-tune driving request.
 class DrivingOptions extends Equatable {
-
   /// Starting location azimuth.
   final double? initialAzimuth;
 
@@ -18,13 +17,12 @@ class DrivingOptions extends Equatable {
   /// Instructs the router to return routes that avoid roads in poor conditions when possible.
   final bool? avoidPoorConditions;
 
-  const DrivingOptions({
-    this.initialAzimuth,
-    this.routesCount,
-    this.avoidTolls,
-    this.avoidUnpaved,
-    this.avoidPoorConditions
-  });
+  const DrivingOptions(
+      {this.initialAzimuth,
+      this.routesCount,
+      this.avoidTolls,
+      this.avoidUnpaved,
+      this.avoidPoorConditions});
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -38,12 +36,12 @@ class DrivingOptions extends Equatable {
 
   @override
   List<Object?> get props => <Object?>[
-    initialAzimuth,
-    routesCount,
-    avoidTolls,
-    avoidUnpaved,
-    avoidPoorConditions
-  ];
+        initialAzimuth,
+        routesCount,
+        avoidTolls,
+        avoidUnpaved,
+        avoidPoorConditions
+      ];
 
   @override
   bool get stringify => true;

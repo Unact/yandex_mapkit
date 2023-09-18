@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// The rectangle to display on the map.
 class MapRect {
-
   /// Minimum rectangle coordinates.
   final Offset min;
 

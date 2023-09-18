@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -17,7 +16,8 @@ class PolygonMapObjectPage extends MapPage {
 
 class _PolygonMapObjectExample extends StatefulWidget {
   @override
-  _PolygonMapObjectExampleState createState() => _PolygonMapObjectExampleState();
+  _PolygonMapObjectExampleState createState() =>
+      _PolygonMapObjectExampleState();
 }
 
 class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
@@ -28,31 +28,26 @@ class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-          child: YandexMap(
-            mapObjects: mapObjects
-          )
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(child: YandexMap(mapObjects: mapObjects)),
+          const SizedBox(height: 20),
+          Expanded(
+              child: SingleChildScrollView(
+                  child: Column(children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    ControlButton(
-                      onPressed: () async {
-                        if (mapObjects.any((el) => el.mapId == mapObjectId)) {
-                          return;
-                        }
+                ControlButton(
+                    onPressed: () async {
+                      if (mapObjects.any((el) => el.mapId == mapObjectId)) {
+                        return;
+                      }
 
-                        final mapObject = PolygonMapObject(
-                          mapId: mapObjectId,
-                          polygon: const Polygon(
+                      final mapObject = PolygonMapObject(
+                        mapId: mapObjectId,
+                        polygon: const Polygon(
                             outerRing: LinearRing(points: [
                               Point(latitude: 56.34295, longitude: 74.62829),
                               Point(latitude: 70.12669, longitude: 98.97399),
@@ -64,53 +59,50 @@ class _PolygonMapObjectExampleState extends State<_PolygonMapObjectExample> {
                                 Point(latitude: 69.12669, longitude: 98.97399),
                                 Point(latitude: 57.04956, longitude: 121.07751),
                               ])
-                            ]
-                          ),
+                            ]),
+                        strokeColor: Colors.orange[700]!,
+                        strokeWidth: 3.0,
+                        fillColor: Colors.yellow[200]!,
+                        onTap: (PolygonMapObject self, Point point) =>
+                            print('Tapped me at $point'),
+                      );
+
+                      setState(() {
+                        mapObjects.add(mapObject);
+                      });
+                    },
+                    title: 'Add'),
+                ControlButton(
+                    onPressed: () async {
+                      if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
+                        return;
+                      }
+
+                      final mapObject =
+                          mapObjects.firstWhere((el) => el.mapId == mapObjectId)
+                              as PolygonMapObject;
+
+                      setState(() {
+                        mapObjects[mapObjects.indexOf(mapObject)] =
+                            mapObject.copyWith(
                           strokeColor: Colors.orange[700]!,
                           strokeWidth: 3.0,
-                          fillColor: Colors.yellow[200]!,
-                          onTap: (PolygonMapObject self, Point point) => print('Tapped me at $point'),
+                          fillColor: Colors.primaries[
+                              Random().nextInt(Colors.primaries.length)],
                         );
-
-                        setState(() {
-                          mapObjects.add(mapObject);
-                        });
-                      },
-                      title: 'Add'
-                    ),
-                    ControlButton(
-                      onPressed: () async {
-                        if (!mapObjects.any((el) => el.mapId == mapObjectId)) {
-                          return;
-                        }
-
-                        final mapObject = mapObjects.firstWhere((el) => el.mapId == mapObjectId) as PolygonMapObject;
-
-                        setState(() {
-                          mapObjects[mapObjects.indexOf(mapObject)] = mapObject.copyWith(
-                            strokeColor: Colors.orange[700]!,
-                            strokeWidth: 3.0,
-                            fillColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-                          );
-                        });
-                      },
-                      title: 'Update'
-                    ),
-                    ControlButton(
-                      onPressed: () async {
-                        setState(() {
-                          mapObjects.removeWhere((el) => el.mapId == mapObjectId);
-                        });
-                      },
-                      title: 'Remove'
-                    )
-                  ],
-                )
-              ]
+                      });
+                    },
+                    title: 'Update'),
+                ControlButton(
+                    onPressed: () async {
+                      setState(() {
+                        mapObjects.removeWhere((el) => el.mapId == mapObjectId);
+                      });
+                    },
+                    title: 'Remove')
+              ],
             )
-          )
-        )
-      ]
-    );
+          ])))
+        ]);
   }
 }

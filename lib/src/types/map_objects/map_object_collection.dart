@@ -5,17 +5,17 @@ part of yandex_mapkit;
 class MapObjectCollection extends Equatable implements MapObject {
   static const _kType = 'MapObjectCollection';
 
-  MapObjectCollection({
-    required this.mapId,
-    required List<MapObject> mapObjects,
-    this.zIndex = 0.0,
-    this.onTap,
-    this.consumeTapEvents = false,
-    this.isVisible = true
-  }) : mapObjects = List.unmodifiable(mapObjects.groupFoldBy<MapObjectId, MapObject>(
-      (element) => element.mapId,
-      (previous, element) => element
-    ).values);
+  MapObjectCollection(
+      {required this.mapId,
+      required List<MapObject> mapObjects,
+      this.zIndex = 0.0,
+      this.onTap,
+      this.consumeTapEvents = false,
+      this.isVisible = true})
+      : mapObjects = List.unmodifiable(mapObjects
+            .groupFoldBy<MapObjectId, MapObject>(
+                (element) => element.mapId, (previous, element) => element)
+            .values);
 
   /// List of [MapObject] in this collection.
   ///
@@ -39,21 +39,19 @@ class MapObjectCollection extends Equatable implements MapObject {
   /// Manages visibility of the object on the map.
   final bool isVisible;
 
-  MapObjectCollection copyWith({
-    List<MapObject>? mapObjects,
-    double? zIndex,
-    TapCallback<MapObjectCollection>? onTap,
-    bool? consumeTapEvents,
-    bool? isVisible
-  }) {
+  MapObjectCollection copyWith(
+      {List<MapObject>? mapObjects,
+      double? zIndex,
+      TapCallback<MapObjectCollection>? onTap,
+      bool? consumeTapEvents,
+      bool? isVisible}) {
     return MapObjectCollection(
-      mapId: mapId,
-      mapObjects: mapObjects ?? this.mapObjects,
-      zIndex: zIndex ?? this.zIndex,
-      onTap: onTap ?? this.onTap,
-      consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
-      isVisible: isVisible ?? this.isVisible
-    );
+        mapId: mapId,
+        mapObjects: mapObjects ?? this.mapObjects,
+        zIndex: zIndex ?? this.zIndex,
+        onTap: onTap ?? this.onTap,
+        consumeTapEvents: consumeTapEvents ?? this.consumeTapEvents,
+        isVisible: isVisible ?? this.isVisible);
   }
 
   @override
@@ -65,13 +63,12 @@ class MapObjectCollection extends Equatable implements MapObject {
   @override
   MapObjectCollection dup(MapObjectId mapId) {
     return MapObjectCollection(
-      mapId: mapId,
-      mapObjects: mapObjects,
-      zIndex: zIndex,
-      onTap: onTap,
-      consumeTapEvents: consumeTapEvents,
-      isVisible: isVisible
-    );
+        mapId: mapId,
+        mapObjects: mapObjects,
+        zIndex: zIndex,
+        onTap: onTap,
+        consumeTapEvents: consumeTapEvents,
+        isVisible: isVisible);
   }
 
   @override
@@ -115,44 +112,37 @@ class MapObjectCollection extends Equatable implements MapObject {
 
   @override
   Map<String, dynamic> _createJson() {
-    return toJson()..addAll({
-      'type': _kType,
-      'mapObjects': MapObjectUpdates.from(
-        const <MapObject>{...[]},
-        mapObjects.toSet()
-      ).toJson()
-    });
+    return toJson()
+      ..addAll({
+        'type': _kType,
+        'mapObjects':
+            MapObjectUpdates.from(const <MapObject>{...[]}, mapObjects.toSet())
+                .toJson()
+      });
   }
 
   @override
   Map<String, dynamic> _updateJson(MapObject previous) {
     assert(mapId == previous.mapId);
 
-    return toJson()..addAll({
-      'type': _kType,
-      'mapObjects': MapObjectUpdates.from(
-        (previous as MapObjectCollection).mapObjects.toSet(),
-        mapObjects.toSet()
-      ).toJson()
-    });
+    return toJson()
+      ..addAll({
+        'type': _kType,
+        'mapObjects': MapObjectUpdates.from(
+                (previous as MapObjectCollection).mapObjects.toSet(),
+                mapObjects.toSet())
+            .toJson()
+      });
   }
 
   @override
   Map<String, dynamic> _removeJson() {
-    return {
-      'id': mapId.value,
-      'type': _kType
-    };
+    return {'id': mapId.value, 'type': _kType};
   }
 
   @override
-  List<Object> get props => <Object>[
-    mapId,
-    mapObjects,
-    zIndex,
-    consumeTapEvents,
-    isVisible
-  ];
+  List<Object> get props =>
+      <Object>[mapId, mapObjects, zIndex, consumeTapEvents, isVisible];
 
   @override
   bool get stringify => true;

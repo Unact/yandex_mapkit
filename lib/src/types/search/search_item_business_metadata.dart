@@ -2,7 +2,6 @@ part of yandex_mapkit;
 
 /// Extended information about company.
 class SearchItemBusinessMetadata extends Equatable {
-
   /// Company name.
   final String name;
 
@@ -20,18 +19,17 @@ class SearchItemBusinessMetadata extends Equatable {
 
   factory SearchItemBusinessMetadata._fromJson(Map<dynamic, dynamic> json) {
     return SearchItemBusinessMetadata._(
-      name: json['name'],
-      shortName: json['shortName'],
-      address: SearchAddress._fromJson(json['address'])
-    );
+        name: json['name'],
+        shortName: json['shortName'],
+        address: SearchAddress._fromJson(json['address']));
   }
 
   @override
   List<Object?> get props => <Object?>[
-    name,
-    address,
-    shortName,
-  ];
+        name,
+        address,
+        shortName,
+      ];
 
   @override
   bool get stringify => true;

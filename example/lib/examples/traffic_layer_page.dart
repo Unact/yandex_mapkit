@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
-
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
@@ -40,64 +39,54 @@ class _TrafficLayerExampleState extends State<_TrafficLayerExample> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-          child: Stack(
-            children: [
-              YandexMap(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+              child: Stack(children: [
+            YandexMap(
                 onMapCreated: (YandexMapController yandexMapController) async {
-                  controller = yandexMapController;
-                },
-                onTrafficChanged: (TrafficLevel? trafficLevel) {
-                  setState(() {
-                    level = trafficLevel?.level ?? 0;
-                    trafficColor = trafficLevel != null ? _colorFromTraffic(trafficLevel.color) : Colors.white;
-                  });
-                }
+              controller = yandexMapController;
+            }, onTrafficChanged: (TrafficLevel? trafficLevel) {
+              setState(() {
+                level = trafficLevel?.level ?? 0;
+                trafficColor = trafficLevel != null
+                    ? _colorFromTraffic(trafficLevel.color)
+                    : Colors.white;
+              });
+            }),
+            SizedBox(
+              width: 28,
+              height: 28,
+              child: Padding(
+                padding: const EdgeInsets.all(2),
+                child: Container(
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle, color: trafficColor),
+                    child: Center(child: Text(level.toString()))),
               ),
-              SizedBox(
-                width: 28,
-                height: 28,
-                child: Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: Container(
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: trafficColor),
-                    child: Center(child: Text(level.toString()))
-                  ),
-                ),
-              )
-            ]
-          )
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    ControlButton(
-                      onPressed: () async {
-                        await controller.toggleTrafficLayer(visible: true);
-                      },
-                      title:'Show traffic layer'
-                    ),
-                    ControlButton(
-                      onPressed: () async {
-                        await controller.toggleTrafficLayer(visible: false);
-                      },
-                      title:'Hide traffic layer'
-                    )
-                  ],
-                )
-              ]
             )
-          )
-        )
-      ]
-    );
+          ])),
+          const SizedBox(height: 20),
+          Expanded(
+              child: SingleChildScrollView(
+                  child: Column(children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                ControlButton(
+                    onPressed: () async {
+                      await controller.toggleTrafficLayer(visible: true);
+                    },
+                    title: 'Show traffic layer'),
+                ControlButton(
+                    onPressed: () async {
+                      await controller.toggleTrafficLayer(visible: false);
+                    },
+                    title: 'Hide traffic layer')
+              ],
+            )
+          ])))
+        ]);
   }
 }

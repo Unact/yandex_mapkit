@@ -5,26 +5,27 @@ import 'package:yandex_mapkit/yandex_mapkit.dart';
 import 'package:yandex_mapkit_example/examples/widgets/control_button.dart';
 import 'package:yandex_mapkit_example/examples/widgets/map_page.dart';
 
-class BicyclePage extends MapPage {
-  const BicyclePage({Key? key}) : super('Bicycle example', key: key);
+class PedestrianPage extends MapPage {
+  const PedestrianPage({Key? key}) : super('Pedestrian example', key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _BicycleExample();
+    return _PedestrianExample();
   }
 }
 
-class _BicycleExample extends StatefulWidget {
+class _PedestrianExample extends StatefulWidget {
   @override
-  _BicycleExampleState createState() => _BicycleExampleState();
+  _PedestrianExampleState createState() => _PedestrianExampleState();
 }
 
-class _BicycleExampleState extends State<_BicycleExample> {
+class _PedestrianExampleState extends State<_PedestrianExample> {
   late final List<MapObject> mapObjects = [
     startPlacemark,
     stopByPlacemark,
     endPlacemark
   ];
+
   final PlacemarkMapObject startPlacemark = PlacemarkMapObject(
     mapId: const MapObjectId('start_placemark'),
     point: const Point(latitude: 55.7558, longitude: 37.6173),
@@ -79,19 +80,17 @@ class _BicycleExampleState extends State<_BicycleExample> {
     print(
         'Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
-    var resultWithSession = YandexBicycle.requestRoutes(
-        bicycleVehicleType: BicycleVehicleType.bicycle,
-        points: [
-          RequestPoint(
-              point: startPlacemark.point,
-              requestPointType: RequestPointType.wayPoint),
-          RequestPoint(
-              point: stopByPlacemark.point,
-              requestPointType: RequestPointType.viaPoint),
-          RequestPoint(
-              point: endPlacemark.point,
-              requestPointType: RequestPointType.wayPoint),
-        ]);
+    var resultWithSession = YandexPedestrian.requestRoutes(points: [
+      RequestPoint(
+          point: startPlacemark.point,
+          requestPointType: RequestPointType.wayPoint),
+      RequestPoint(
+          point: stopByPlacemark.point,
+          requestPointType: RequestPointType.viaPoint),
+      RequestPoint(
+          point: endPlacemark.point,
+          requestPointType: RequestPointType.wayPoint),
+    ]);
 
     await Navigator.push(
         context,
@@ -105,8 +104,8 @@ class _BicycleExampleState extends State<_BicycleExample> {
 }
 
 class _SessionPage extends StatefulWidget {
-  final Future<BicycleSessionResult> result;
-  final BicycleSession session;
+  final Future<PedestrianSessionResult> result;
+  final PedestrianSession session;
   final PlacemarkMapObject startPlacemark;
   final PlacemarkMapObject endPlacemark;
 
@@ -123,7 +122,7 @@ class _SessionState extends State<_SessionPage> {
     widget.endPlacemark
   ];
 
-  final List<BicycleSessionResult> results = [];
+  final List<PedestrianSessionResult> results = [];
   bool _progress = true;
 
   @override
@@ -143,7 +142,7 @@ class _SessionState extends State<_SessionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Bicycle ${widget.session.id}')),
+        appBar: AppBar(title: Text('Pedestrian ${widget.session.id}')),
         body: Container(
             padding: const EdgeInsets.all(8),
             child: Column(
@@ -219,7 +218,7 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.routes!.asMap().forEach((i, route) {
-        list.add(Text('Route $i: ${route.weight.time.text}'));
+        list.add(Text('Route $i: ${route.metadata.weight.time.text}'));
       });
 
       list.add(Container(height: 20));
@@ -244,7 +243,7 @@ class _SessionState extends State<_SessionPage> {
     await _handleResult(await widget.result);
   }
 
-  Future<void> _handleResult(BicycleSessionResult result) async {
+  Future<void> _handleResult(PedestrianSessionResult result) async {
     setState(() {
       _progress = false;
     });

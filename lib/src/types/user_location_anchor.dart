@@ -2,10 +2,7 @@ part of yandex_mapkit;
 
 /// Defines the anchor points for user location layer
 class UserLocationAnchor extends Equatable {
-  const UserLocationAnchor({
-    required this.normal,
-    required this.course
-  });
+  const UserLocationAnchor({required this.normal, required this.course});
 
   /// The anchor position when the app is not on a steady course; usually, the center of the screen.
   final Offset normal;
@@ -14,10 +11,7 @@ class UserLocationAnchor extends Equatable {
   final Offset course;
 
   @override
-  List<Object> get props => <Object>[
-    course,
-    normal
-  ];
+  List<Object> get props => <Object>[course, normal];
 
   @override
   bool get stringify => true;

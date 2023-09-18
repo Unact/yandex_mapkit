@@ -10,23 +10,19 @@ part of yandex_mapkit;
 /// Waypoints are guaranteed to be between sections in the resulting route.
 /// Via points are embedded into sections.
 class RequestPoint extends Equatable {
-
   /// The request point.
   final Point point;
 
   /// The type of request point specified.
   final RequestPointType requestPointType;
 
-  const RequestPoint({
-    required this.point,
-    required this.requestPointType
-  });
+  const RequestPoint({required this.point, required this.requestPointType});
 
   @override
   List<Object> get props => <Object>[
-    point,
-    requestPointType,
-  ];
+        point,
+        requestPointType,
+      ];
 
   @override
   bool get stringify => true;
@@ -40,10 +36,7 @@ class RequestPoint extends Equatable {
 }
 
 /// The waypoint and a point the path must go through.
-enum RequestPointType {
-  wayPoint,
-  viaPoint
-}
+enum RequestPointType { wayPoint, viaPoint }
 
 extension RequestPointTypeExtension on RequestPointType {
   int get value {
