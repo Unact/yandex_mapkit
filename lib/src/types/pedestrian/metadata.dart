@@ -1,14 +1,14 @@
 part of yandex_mapkit;
 
 /// Information about pedestrian route metadata.
-class PedestrianSectionMetadata extends Equatable {
+class PedestrianRouteMetadata extends Equatable {
   /// Route "weight".
   final PedestrianWeight weight;
 
-  const PedestrianSectionMetadata._(this.weight);
+  const PedestrianRouteMetadata._(this.weight);
 
-  factory PedestrianSectionMetadata._fromJson(Map<dynamic, dynamic> json) {
-    return PedestrianSectionMetadata._(
+  factory PedestrianRouteMetadata._fromJson(Map<dynamic, dynamic> json) {
+    return PedestrianRouteMetadata._(
         PedestrianWeight._fromJson(json['weight']));
   }
 

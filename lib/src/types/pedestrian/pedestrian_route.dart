@@ -8,7 +8,7 @@ class PedestrianRoute extends Equatable {
   final List<Point> geometry;
 
   /// The route metadata.
-  final PedestrianSectionMetadata metadata;
+  final PedestrianRouteMetadata metadata;
 
   const PedestrianRoute._(this.geometry, this.metadata);
 
@@ -17,7 +17,7 @@ class PedestrianRoute extends Equatable {
       json['geometry']
           .map<Point>((dynamic resultPoint) => Point._fromJson(resultPoint))
           .toList(),
-      PedestrianSectionMetadata._fromJson(json['metadata']),
+      PedestrianRouteMetadata._fromJson(json['metadata']),
     );
   }
 
