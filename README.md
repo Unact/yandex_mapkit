@@ -150,5 +150,5 @@ AndroidYandexMap.useAndroidViewSurface = false;
 - [X] Address suggestions
 - [X] Basic driving/bicycle routing/pedestrian routing
 - [X] Basic address direct/reverse search
-- [X] Workking with geo objects
+- [X] Working with geo objects
 - [X] Showing current traffic conditions
