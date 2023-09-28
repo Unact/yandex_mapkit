@@ -148,7 +148,7 @@ AndroidYandexMap.useAndroidViewSurface = false;
 - [X] Showing current user location
 - [X] Styling the map
 - [X] Address suggestions
-- [X] Basic driving/bicycle routing
+- [X] Basic driving/bicycle routing/pedestrian routing
 - [X] Basic address direct/reverse search
 - [X] Workking with geo objects
 - [X] Showing current traffic conditions
