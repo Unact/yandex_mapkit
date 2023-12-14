@@ -90,11 +90,24 @@ class CameraUpdate {
   /// Returns a camera update that moves the camera target to the specified
   /// geographical location in the custom focus rect.
   /// If [focusRect] is null then the current focus rect is used.
+  @Deprecated("""
+    Will be removed in future versions. Instead use [newGeometry]
+  """)
   static CameraUpdate newBounds(BoundingBox boundingBox, { ScreenRect? focusRect }) {
+    return newGeometry(
+      Geometry.fromBoundingBox(boundingBox),
+      focusRect: focusRect
+    );
+  }
+
+  /// Returns a camera update that moves the camera target to the specified
+  /// geographical location in the custom focus rect.
+  /// If [focusRect] is null then the current focus rect is used.
+  static CameraUpdate newGeometry(Geometry geometry, { ScreenRect? focusRect }) {
     return CameraUpdate._({
-      'type': 'newBounds',
+      'type': 'newGeometry',
       'params': {
-        'boundingBox': boundingBox.toJson(),
+        'geometry': geometry.toJson(),
         'focusRect': focusRect?.toJson()
       }
     });

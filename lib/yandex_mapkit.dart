@@ -46,7 +46,6 @@ part 'src/types/map_objects/map_object.dart';
 part 'src/types/map_objects/placemark_map_object.dart';
 part 'src/types/map_objects/polygon_map_object.dart';
 part 'src/types/map_objects/polyline_map_object.dart';
-part 'src/types/map_mode.dart';
 part 'src/types/map_rect.dart';
 part 'src/types/map_type.dart';
 part 'src/types/request_point.dart';

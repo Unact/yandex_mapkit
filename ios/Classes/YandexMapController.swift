@@ -89,6 +89,12 @@ public class YandexMapController:
     case "getMaxZoom":
       let maxZoom = getMaxZoom()
       result(maxZoom)
+    case "setMinZoom":
+      setMinZoom(call)
+      result(nil)
+    case "setMaxZoom":
+      setMaxZoom(call)
+      result(nil)
     case "getPoint":
       result(getPoint(call))
     case "getScreenPoint":
@@ -157,8 +163,11 @@ public class YandexMapController:
     let params = call.arguments as! [String: Any]
 
     mapView.mapWindow.map.selectGeoObject(
-      withObjectId: params["objectId"] as! String,
-      layerId: params["layerId"] as! String
+      withSelectionMetaData: YMKGeoObjectSelectionMetadata(
+        objectId: params["objectId"] as! String,
+        dataSourceName: params["dataSourceName"] as! String,
+        layerId: params["layerId"] as! String
+      )
     )
   }
 
@@ -167,11 +176,23 @@ public class YandexMapController:
   }
 
   public func getMinZoom() -> Float {
-    return mapView.mapWindow.map.getMinZoom()
+    return mapView.mapWindow.map.cameraBounds.getMinZoom()
   }
 
   public func getMaxZoom() -> Float {
-    return mapView.mapWindow.map.getMaxZoom()
+    return mapView.mapWindow.map.cameraBounds.getMaxZoom()
+  }
+
+  public func setMinZoom(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: NSNumber]
+
+    mapView.mapWindow.map.cameraBounds.setMinZoomPreferenceWithZoom(params["zoom"]!.floatValue)
+  }
+
+  public func setMaxZoom(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: NSNumber]
+
+    mapView.mapWindow.map.cameraBounds.setMaxZoomPreferenceWithZoom(params["zoom"]!.floatValue)
   }
 
   public func getScreenPoint(_ call: FlutterMethodCall) -> [String: Any]? {
@@ -267,8 +288,8 @@ public class YandexMapController:
     switch cameraUpdate["type"] as! String {
     case "newCameraPosition":
       return newCameraPosition(cameraUpdateParams!)
-    case "newBounds":
-      return newBounds(cameraUpdateParams!)
+    case "newGeometry":
+      return newGeometry(cameraUpdateParams!)
     case "newTiltAzimuthGeometry":
       return newTiltAzimuthGeometry(cameraUpdateParams!)
     case "zoomIn":
@@ -297,16 +318,16 @@ public class YandexMapController:
     )
   }
 
-  private func newBounds(_ params: [String: Any]) -> YMKCameraPosition {
+  private func newGeometry(_ params: [String: Any]) -> YMKCameraPosition {
     if (params["focusRect"] as? [String: Any] != nil) {
       return mapView.mapWindow.map.cameraPosition(
-        with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
+        with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
         focus: Utils.screenRectFromJson(params["focusRect"] as! [String: Any])
       )
     }
 
     return mapView.mapWindow.map.cameraPosition(
-      with: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any])
+      with: Utils.geometryFromJson(params["geometry"] as! [String: Any])
     )
   }
 
@@ -317,8 +338,8 @@ public class YandexMapController:
 
     return mapView.mapWindow.map.cameraPosition(
       with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
-      azimuth: (params["azimuth"] as! NSNumber),
-      tilt: (params["tilt"] as! NSNumber),
+      azimuth: (params["azimuth"] as! NSNumber).floatValue,
+      tilt: (params["tilt"] as! NSNumber).floatValue,
       focus: focus
     )
   }
@@ -411,7 +432,7 @@ public class YandexMapController:
 
     mapView.mapWindow.map.move(
       with: cameraPosition,
-      animationType: animation,
+      animation: animation,
       cameraCallback: { (completed: Bool) -> Void in result(completed) }
     )
   }
@@ -447,10 +468,6 @@ public class YandexMapController:
       map.set2DMode(withEnable: mode2DEnabled.boolValue)
     }
 
-    if let modelsEnabled = params["modelsEnabled"] as? NSNumber {
-      map.isModelsEnabled = modelsEnabled.boolValue
-    }
-
     if let logoAlignment = params["logoAlignment"] as? [String: Any] {
       applyAlignLogo(logoAlignment)
     }
@@ -465,10 +482,6 @@ public class YandexMapController:
 
     if params.keys.contains("poiLimit") {
       map.poiLimit = params["poiLimit"] as? NSNumber
-    }
-
-    if let mapMode = params["mapMode"] as? NSNumber {
-      map.mode = YMKMapMode.init(rawValue: mapMode.uintValue)!
     }
   }
 
@@ -603,7 +616,8 @@ public class YandexMapController:
         "geometry": geoObj.geometry.map({ Utils.geometryToJson($0) }),
         "boundingBox": geoObj.boundingBox != nil ? Utils.boundingBoxToJson(geoObj.boundingBox!) : nil,
         "selectionMetadata": meta == nil ? nil : [
-          "id": meta!.id,
+          "dataSourceName": meta!.dataSourceName,
+          "objectId": meta!.objectId,
           "layerId": meta!.layerId
         ],
         "aref": geoObj.aref

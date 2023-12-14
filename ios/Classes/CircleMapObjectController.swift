@@ -12,12 +12,7 @@ class CircleMapObjectController: NSObject, MapObjectController, YMKMapObjectTapL
     params: [String: Any],
     controller: YandexMapController
   ) {
-    let circle = parent.addCircle(
-      with: Utils.circleFromJson(params["circle"] as! [String: Any]),
-      stroke: Utils.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value),
-      strokeWidth: (params["strokeWidth"] as! NSNumber).floatValue,
-      fill: Utils.uiColor(fromInt: (params["fillColor"] as! NSNumber).int64Value)
-    )
+    let circle = parent.addCircle(with: Utils.circleFromJson(params["circle"] as! [String: Any]))
 
     self.circle = circle
     self.id = params["id"] as! String

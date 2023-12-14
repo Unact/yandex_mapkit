@@ -26,10 +26,7 @@ public class CircleMapObjectController extends MapObjectController implements Ma
     WeakReference<YandexMapController> controller
   ) {
     CircleMapObject circle = parent.addCircle(
-      Utils.circleFromJson((Map<String, Object>) params.get("circle")),
-      ((Number) params.get("strokeColor")).intValue(),
-      ((Double) params.get("strokeWidth")).floatValue(),
-      ((Number) params.get("fillColor")).intValue()
+      Utils.circleFromJson((Map<String, Object>) params.get("circle"))
     );
 
     this.circle = circle;

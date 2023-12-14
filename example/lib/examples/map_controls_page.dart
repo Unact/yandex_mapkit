@@ -30,13 +30,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
   bool zoomGesturesEnabled = true;
   bool rotateGesturesEnabled = true;
   bool scrollGesturesEnabled = true;
-  bool modelsEnabled = true;
   bool nightModeEnabled = false;
   bool fastTapEnabled = false;
   bool mode2DEnabled = false;
   ScreenRect? focusRect;
   MapType mapType = MapType.vector;
-  MapMode mapMode = MapMode.normal;
   int? poiLimit;
   MapAlignment logoAlignment = const MapAlignment(
     horizontal: HorizontalAlignment.left,
@@ -79,19 +77,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
     }
   }
 
-  MapMode _nextMapMode(MapMode old) {
-    switch (old) {
-      case MapMode.normal:
-        return MapMode.transit;
-      case MapMode.transit:
-        return MapMode.driving;
-      case MapMode.driving:
-        return MapMode.normal;
-      default:
-        return MapMode.normal;
-    }
-  }
-
   MapAlignment _nextLogoAlignment(MapAlignment old) {
     if (old.horizontal == HorizontalAlignment.left && old.vertical == VerticalAlignment.bottom) {
       return const MapAlignment(horizontal: HorizontalAlignment.center, vertical: VerticalAlignment.bottom);
@@ -129,13 +114,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
         Expanded(
           child: YandexMap(
             mapType: mapType,
-            mapMode: mapMode,
             poiLimit: poiLimit,
             tiltGesturesEnabled: tiltGesturesEnabled,
             zoomGesturesEnabled: zoomGesturesEnabled,
             rotateGesturesEnabled: rotateGesturesEnabled,
             scrollGesturesEnabled: scrollGesturesEnabled,
-            modelsEnabled: modelsEnabled,
             nightModeEnabled: nightModeEnabled,
             fastTapEnabled: fastTapEnabled,
             mode2DEnabled: mode2DEnabled,
@@ -144,6 +127,9 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
+
+              await controller.setMinZoom(zoom: 2);
+              await controller.setMaxZoom(zoom: 18);
 
               final cameraPosition = await controller.getCameraPosition();
               final minZoom = await controller.getMinZoom();
@@ -169,7 +155,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
               print('Tapped object: ${geoObject.name}');
 
               if (geoObject.selectionMetadata != null) {
-                await controller.selectGeoObject(geoObject.selectionMetadata!.id, geoObject.selectionMetadata!.layerId);
+                await controller.selectGeoObject(
+                  objectId: geoObject.selectionMetadata!.objectId,
+                  layerId: geoObject.selectionMetadata!.layerId,
+                  dataSourceName: geoObject.selectionMetadata!.dataSourceName
+                );
               }
             },
           )
@@ -227,11 +217,11 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 TableRow(children: <Widget>[
                   ControlButton(
                     onPressed: () async {
-                      const newBounds = BoundingBox(
+                      final newGeometry = Geometry.fromBoundingBox(const BoundingBox(
                         northEast: Point(latitude: 65.0, longitude: 40.0),
                         southWest: Point(latitude: 60.0, longitude: 30.0),
-                      );
-                      await controller.moveCamera(CameraUpdate.newBounds(newBounds), animation: animation);
+                      ));
+                      await controller.moveCamera(CameraUpdate.newGeometry(newGeometry), animation: animation);
                     },
                     title: 'New geometry'
                   ),
@@ -246,7 +236,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                         animation: animation
                       );
                     },
-                    title: 'New bounds with tilt and azimuth'
+                    title: 'New geometry with tilt and azimuth'
                   ),
                 ]),
                 TableRow(children: <Widget>[
@@ -278,24 +268,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                     },
                     title: "Logo: ${logoAlignment.horizontal.toString()}/${logoAlignment.vertical.toString()}"
                   ),
-                ]),
-                TableRow(children: <Widget>[
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        mapType = _nextMapType(mapType);
-                      });
-                    },
-                    title: mapType.toString()
-                  ),
-                  ControlButton(
-                    onPressed: () async {
-                      setState(() {
-                        mapMode = _nextMapMode(mapMode);
-                      });
-                    },
-                    title: mapMode.toString()
-                  )
                 ]),
                 TableRow(children: <Widget>[
                   ControlButton(
@@ -418,10 +390,10 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                   ControlButton(
                     onPressed: () async {
                       setState(() {
-                        modelsEnabled = !modelsEnabled;
+                        mapType = _nextMapType(mapType);
                       });
                     },
-                    title: 'Models: ${_enabledText(modelsEnabled)}'
+                    title: mapType.toString()
                   ),
                   ControlButton(
                     onPressed: () async {

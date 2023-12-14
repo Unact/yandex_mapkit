@@ -21,11 +21,11 @@ class PlacemarkMapObjectController:
     let point = Utils.pointFromJson(params["point"] as! [String: NSNumber])
 
     if (parent is YMKClusterizedPlacemarkCollection) {
-      placemark = (parent as! YMKClusterizedPlacemarkCollection).addPlacemark(with: point)
+      placemark = (parent as! YMKClusterizedPlacemarkCollection).addPlacemark()
     }
 
     if (parent is YMKMapObjectCollection) {
-      placemark = (parent as! YMKMapObjectCollection).addPlacemark(with: point)
+      placemark = (parent as! YMKMapObjectCollection).addPlacemark()
     }
 
     self.placemark = placemark!

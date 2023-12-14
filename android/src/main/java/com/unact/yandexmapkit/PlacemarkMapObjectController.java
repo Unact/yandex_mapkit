@@ -46,11 +46,11 @@ public class PlacemarkMapObjectController
     Point point = Utils.pointFromJson((Map<String, Object>) params.get("point"));
 
     if (parent instanceof ClusterizedPlacemarkCollection) {
-      placemark = ((ClusterizedPlacemarkCollection) parent).addPlacemark(point);
+      placemark = ((ClusterizedPlacemarkCollection) parent).addPlacemark();
     }
 
     if (parent instanceof MapObjectCollection) {
-       placemark = ((MapObjectCollection) parent).addPlacemark(point);
+       placemark = ((MapObjectCollection) parent).addPlacemark();
     }
 
     this.placemark = placemark;
@@ -192,7 +192,7 @@ public class PlacemarkMapObjectController
     return iconStyle;
   }
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   private TextStyle getTextStyle(Map<String, Object> style) {
     TextStyle textStyle = new TextStyle();
 

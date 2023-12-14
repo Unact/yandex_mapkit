@@ -28,7 +28,6 @@ import com.yandex.mapkit.logo.VerticalAlignment;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.GeoObjectSelectionMetadata;
 import com.yandex.mapkit.map.InputListener;
-import com.yandex.mapkit.map.MapMode;
 import com.yandex.mapkit.map.MapType;
 import com.yandex.mapkit.map.PointOfView;
 import com.yandex.mapkit.map.CameraUpdateReason;
@@ -110,14 +109,14 @@ public class YandexMapController implements
     methodChannel.setMethodCallHandler(this);
 
     rootController = new MapObjectCollectionController(
-      mapView.getMap().getMapObjects(),
+      mapView.getMapWindow().getMap().getMapObjects(),
       "root_map_object_collection",
       new WeakReference<>(this)
     );
 
-    mapView.getMap().addInputListener(this);
-    mapView.getMap().addCameraListener(this);
-    mapView.getMap().addTapListener(this);
+    mapView.getMapWindow().getMap().addInputListener(this);
+    mapView.getMapWindow().getMap().addCameraListener(this);
+    mapView.getMapWindow().getMap().addTapListener(this);
     mapView.addOnLayoutChangeListener(this);
 
     lifecycleProvider.getLifecycle().addObserver(this);
@@ -172,6 +171,14 @@ public class YandexMapController implements
       case "getMaxZoom":
         float maxZoom = getMaxZoom();
         result.success(maxZoom);
+        break;
+      case "setMinZoom":
+        setMinZoom(call);
+        result.success(null);
+        break;
+      case "setMaxZoom":
+        setMaxZoom(call);
+        result.success(null);
         break;
       case "getPoint":
         result.success(getPoint(call));
@@ -250,7 +257,7 @@ public class YandexMapController implements
   public boolean setMapStyle(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
-    return mapView.getMap().setMapStyle((String) params.get("style"));
+    return mapView.getMapWindow().getMap().setMapStyle((String) params.get("style"));
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -258,8 +265,11 @@ public class YandexMapController implements
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
 
     mapView.getMapWindow().getMap().selectGeoObject(
-      (String) params.get("objectId"),
-      (String) params.get("layerId")
+      new GeoObjectSelectionMetadata(
+        (String) params.get("objectId"),
+        (String) params.get("dataSourceName"),
+        (String) params.get("layerId")
+      )
     );
   }
 
@@ -268,11 +278,29 @@ public class YandexMapController implements
   }
 
   public float getMinZoom() {
-    return mapView.getMap().getMinZoom();
+    return mapView.getMapWindow().getMap().getCameraBounds().getMinZoom();
   }
 
   public float getMaxZoom() {
-    return mapView.getMap().getMaxZoom();
+    return mapView.getMapWindow().getMap().getCameraBounds().getMaxZoom();
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public void setMinZoom(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    mapView.getMapWindow().getMap().getCameraBounds().setMinZoomPreference(
+      ((Double) params.get("zoom")).floatValue()
+    );
+  }
+
+  @SuppressWarnings({"unchecked"})
+  public void setMaxZoom(MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+
+    mapView.getMapWindow().getMap().getCameraBounds().setMaxZoomPreference(
+      ((Double) params.get("zoom")).floatValue()
+    );
   }
 
   @SuppressWarnings({"unchecked"})
@@ -339,14 +367,20 @@ public class YandexMapController implements
 
   public Map<String, Object> getVisibleRegion() {
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("visibleRegion", Utils.visibleRegionToJson(mapView.getMap().getVisibleRegion()));
+    arguments.put(
+      "visibleRegion",
+      Utils.visibleRegionToJson(mapView.getMapWindow().getMap().getVisibleRegion())
+    );
 
     return arguments;
   }
 
   public Map<String, Object> getFocusRegion() {
     Map<String, Object> arguments = new HashMap<>();
-    arguments.put("focusRegion", Utils.visibleRegionToJson(mapView.getMapWindow().getFocusRegion()));
+    arguments.put(
+      "focusRegion",
+      Utils.visibleRegionToJson(mapView.getMapWindow().getFocusRegion())
+    );
 
     return arguments;
   }
@@ -367,8 +401,8 @@ public class YandexMapController implements
     switch ((String) cameraUpdate.get("type")) {
       case "newCameraPosition":
         return newCameraPosition(cameraUpdateParams);
-      case "newBounds":
-        return newBounds(cameraUpdateParams);
+      case "newGeometry":
+        return newGeometry(cameraUpdateParams);
       case "newTiltAzimuthGeometry":
         return newTiltAzimuthGeometry(cameraUpdateParams);
       case "zoomIn":
@@ -399,16 +433,16 @@ public class YandexMapController implements
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public CameraPosition newBounds(Map<String, Object> params) {
+  public CameraPosition newGeometry(Map<String, Object> params) {
     if ((Map<String, Object>) params.get("focusRect") != null) {
-      return mapView.getMap().cameraPosition(
-        Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
+      return mapView.getMapWindow().getMap().cameraPosition(
+        Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
         Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect"))
       );
     }
 
-    return mapView.getMap().cameraPosition(
-      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox"))
+    return mapView.getMapWindow().getMap().cameraPosition(
+      Utils.geometryFromJson((Map<String, Object>) params.get("geometry"))
     );
   }
 
@@ -418,7 +452,7 @@ public class YandexMapController implements
       Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect")) :
       null;
 
-    return mapView.getMap().cameraPosition(
+    return mapView.getMapWindow().getMap().cameraPosition(
       Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
       ((Double) params.get("azimuth")).floatValue(),
       ((Double) params.get("tilt")).floatValue(),
@@ -427,7 +461,7 @@ public class YandexMapController implements
   }
 
   private CameraPosition zoomIn() {
-    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+    CameraPosition curPosition = mapView.getMapWindow().getMap().getCameraPosition();
 
     return new CameraPosition(
       curPosition.getTarget(),
@@ -438,7 +472,7 @@ public class YandexMapController implements
   }
 
   private CameraPosition zoomOut() {
-    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+    CameraPosition curPosition = mapView.getMapWindow().getMap().getCameraPosition();
 
     return new CameraPosition(
       curPosition.getTarget(),
@@ -450,7 +484,7 @@ public class YandexMapController implements
 
   @SuppressWarnings({"ConstantConditions"})
   public CameraPosition zoomTo(Map<String, Object> params) {
-    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+    CameraPosition curPosition = mapView.getMapWindow().getMap().getCameraPosition();
 
     return new CameraPosition(
       curPosition.getTarget(),
@@ -462,7 +496,7 @@ public class YandexMapController implements
 
   @SuppressWarnings({"ConstantConditions"})
   public CameraPosition azimuthTo(Map<String, Object> params) {
-    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+    CameraPosition curPosition = mapView.getMapWindow().getMap().getCameraPosition();
 
     return new CameraPosition(
       curPosition.getTarget(),
@@ -474,7 +508,7 @@ public class YandexMapController implements
 
   @SuppressWarnings({"ConstantConditions"})
   public CameraPosition tiltTo(Map<String, Object> params) {
-    CameraPosition curPosition = mapView.getMap().getCameraPosition();
+    CameraPosition curPosition = mapView.getMapWindow().getMap().getCameraPosition();
 
     return new CameraPosition(
       curPosition.getTarget(),
@@ -505,7 +539,7 @@ public class YandexMapController implements
     }
 
     if (paramsAnimation == null) {
-      mapView.getMap().move(cameraPosition);
+      mapView.getMapWindow().getMap().move(cameraPosition);
       result.success(true);
 
       return;
@@ -514,7 +548,7 @@ public class YandexMapController implements
     Animation.Type type = Animation.Type.values()[(Integer) paramsAnimation.get("type")];
     Animation animation = new Animation(type, ((Double) paramsAnimation.get("duration")).floatValue());
 
-    mapView.getMap().move(
+    mapView.getMapWindow().getMap().move(
       cameraPosition,
       animation,
       new com.yandex.mapkit.map.Map.CameraCallback() {
@@ -528,7 +562,7 @@ public class YandexMapController implements
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   private void applyMapOptions(Map<String, Object> params) {
-    com.yandex.mapkit.map.Map map = mapView.getMap();
+    com.yandex.mapkit.map.Map map = mapView.getMapWindow().getMap();
 
     if (params.get("tiltGesturesEnabled") != null) {
       map.setTiltGesturesEnabled((Boolean) params.get("tiltGesturesEnabled"));
@@ -558,10 +592,6 @@ public class YandexMapController implements
       map.set2DMode((Boolean) params.get("mode2DEnabled"));
     }
 
-    if (params.get("modelsEnabled") != null) {
-      map.setModelsEnabled((Boolean) params.get("modelsEnabled"));
-    }
-
     if (params.get("logoAlignment") != null) {
       applyAlignLogo((Map<String, Object>) params.get("logoAlignment"));
     }
@@ -572,10 +602,6 @@ public class YandexMapController implements
 
     if (params.get("mapType") != null) {
       map.setMapType(MapType.values()[(Integer) params.get("mapType")]);
-    }
-
-    if (params.get("mapMode") != null) {
-      map.setMode(MapMode.values()[(Integer) params.get("mapMode")]);
     }
 
     if (params.containsKey("poiLimit")) {
@@ -600,13 +626,13 @@ public class YandexMapController implements
       HorizontalAlignment.values()[(Integer) params.get("horizontal")],
       VerticalAlignment.values()[(Integer) params.get("vertical")]
     );
-    mapView.getMap().getLogo().setAlignment(logoPosition);
+    mapView.getMapWindow().getMap().getLogo().setAlignment(logoPosition);
   }
 
   private void applyFocusRect(Map<String, Object> params) {
     if (params == null) {
-      mapView.setFocusRect(null);
-      mapView.setPointOfView(PointOfView.SCREEN_CENTER);
+      mapView.getMapWindow().setFocusRect(null);
+      mapView.getMapWindow().setPointOfView(PointOfView.SCREEN_CENTER);
 
       return;
     }
@@ -622,8 +648,8 @@ public class YandexMapController implements
       return;
     }
 
-    mapView.setFocusRect(focusRect);
-    mapView.setPointOfView(PointOfView.ADAPT_TO_FOCUS_POINT_HORIZONTALLY);
+    mapView.getMapWindow().setFocusRect(focusRect);
+    mapView.getMapWindow().setPointOfView(PointOfView.ADAPT_TO_FOCUS_POINT_HORIZONTALLY);
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -732,8 +758,9 @@ public class YandexMapController implements
     }
 
     if (meta != null) {
-      metaMap.put("id", meta.getId());
+      metaMap.put("objectId", meta.getObjectId());
       metaMap.put("layerId", meta.getLayerId());
+      metaMap.put("dataSourceName", meta.getDataSourceName());
     }
 
     geoObjMap.put("name", geoObj.getName());

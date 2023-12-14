@@ -58,13 +58,18 @@ class YandexMapController extends ChangeNotifier {
     );
   }
 
-  /// Selects a geo object with the specified objectId in the specified layerId.
+  /// Selects a geo object with the specified objectId in the specified layerId with specified dataSourceName.
   /// If the object is not currently on the screen, it is selected anyway, but the user will not actually see that.
   /// You need to move the camera in addition to this call to be sure that the selected object is visible for the user.
-  Future<void> selectGeoObject(String objectId, String layerId) async {
+  Future<void> selectGeoObject({
+    required String objectId,
+    required String layerId,
+    required String dataSourceName
+  }) async {
     await _channel.invokeMethod('selectGeoObject', {
       'objectId': objectId,
-      'layerId': layerId
+      'layerId': layerId,
+      'dataSourceName': dataSourceName
     });
   }
 
@@ -142,6 +147,20 @@ class YandexMapController extends ChangeNotifier {
     final double maxZoom = await _channel.invokeMethod('getMaxZoom');
 
     return maxZoom;
+  }
+
+  // Returns min available zoom for visible map region
+  Future<void> setMinZoom({required double zoom }) async {
+    await _channel.invokeMethod('setMinZoom', {
+      'zoom': zoom
+    });
+  }
+
+  // Returns max available zoom for visible map region
+  Future<void> setMaxZoom({required double zoom }) async {
+    await _channel.invokeMethod('setMaxZoom', {
+      'zoom': zoom
+    });
   }
 
   /// Returns current user position point

@@ -118,7 +118,7 @@ public class YandexSearchSession: NSObject {
     result(Utils.errorToJson(error))
   }
 
-  private func getToponymMetadata(metadataContainer: YRTCollection) -> [String: Any]? {
+  private func getToponymMetadata(metadataContainer: YRTTypeDictionary<YMKBaseMetadata>) -> [String: Any]? {
     let meta = metadataContainer.getItemOf(YMKSearchToponymObjectMetadata.self) as? YMKSearchToponymObjectMetadata
 
     if (meta == nil) {
@@ -134,7 +134,7 @@ public class YandexSearchSession: NSObject {
     ]
   }
 
-  private func getBusinessMetadata(metadataContainer: YRTCollection) -> [String: Any?]? {
+  private func getBusinessMetadata(metadataContainer: YRTTypeDictionary<YMKBaseMetadata>) -> [String: Any?]? {
     let meta = metadataContainer.getItemOf(YMKSearchBusinessObjectMetadata.self) as? YMKSearchBusinessObjectMetadata
 
     if (meta == nil) {

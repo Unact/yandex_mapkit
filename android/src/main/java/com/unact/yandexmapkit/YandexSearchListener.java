@@ -2,6 +2,7 @@ package com.unact.yandexmapkit;
 
 import androidx.annotation.NonNull;
 
+import com.yandex.mapkit.BaseMetadata;
 import com.yandex.mapkit.GeoObject;
 import com.yandex.mapkit.GeoObjectCollection;
 import com.yandex.mapkit.geometry.Geometry;
@@ -11,7 +12,7 @@ import com.yandex.mapkit.search.Response;
 import com.yandex.mapkit.search.Session;
 import com.yandex.mapkit.search.ToponymObjectMetadata;
 import com.yandex.runtime.Error;
-import com.yandex.runtime.any.Collection;
+import com.yandex.runtime.TypeDictionary;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class YandexSearchListener implements Session.SearchListener {
     result.success(Utils.errorToJson(error));
   }
 
-  private Map<String, Object> getToponymMetadata(Collection metadataContainer) {
+  private Map<String, Object> getToponymMetadata(TypeDictionary<BaseMetadata> metadataContainer) {
     ToponymObjectMetadata meta = metadataContainer.getItem(ToponymObjectMetadata.class);
 
     if (meta == null) {
@@ -85,7 +86,7 @@ public class YandexSearchListener implements Session.SearchListener {
     return toponymMetadata;
   }
 
-  private Map<String, Object> getBusinessMetadata(Collection metadataContainer) {
+  private Map<String, Object> getBusinessMetadata(TypeDictionary<BaseMetadata> metadataContainer) {
     BusinessObjectMetadata meta = metadataContainer.getItem(BusinessObjectMetadata.class);
 
     if (meta == null) {

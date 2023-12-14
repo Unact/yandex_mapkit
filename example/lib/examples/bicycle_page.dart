@@ -58,12 +58,12 @@ class _BicycleExampleState extends State<_BicycleExample> {
           child: YandexMap(
             mapObjects: mapObjects,
             onMapCreated: (YandexMapController yandexMapController) async {
-              final boundingBox = BoundingBox(
+              final geometry = Geometry.fromBoundingBox(BoundingBox(
                 northEast: startPlacemark.point,
                 southWest: endPlacemark.point
-              );
+              ));
 
-              await yandexMapController.moveCamera(CameraUpdate.newBounds(boundingBox));
+              await yandexMapController.moveCamera(CameraUpdate.newGeometry(geometry));
               await yandexMapController.moveCamera(CameraUpdate.zoomOut());
             },
           )
@@ -165,12 +165,12 @@ class _SessionState extends State<_SessionPage> {
                   YandexMap(
                     mapObjects: mapObjects,
                     onMapCreated: (YandexMapController yandexMapController) async {
-                      final boundingBox = BoundingBox(
+                      final geometry = Geometry.fromBoundingBox(BoundingBox(
                         northEast: widget.startPlacemark.point,
                         southWest: widget.endPlacemark.point
-                      );
+                      ));
 
-                      await yandexMapController.moveCamera(CameraUpdate.newBounds(boundingBox));
+                      await yandexMapController.moveCamera(CameraUpdate.newGeometry(geometry));
                       await yandexMapController.moveCamera(CameraUpdate.zoomOut());
                     },
                   ),

@@ -62,19 +62,24 @@ class GeoObject extends Equatable {
 /// Geo object metadata which is needed to select object
 class GeoObjectSelectionMetadata extends Equatable {
   const GeoObjectSelectionMetadata._({
-    required this.id,
-    required this.layerId
+    required this.objectId,
+    required this.layerId,
+    required this.dataSourceName
   });
   /// Object ID.
-  final String id;
+  final String objectId;
 
   /// Layer ID.
   final String layerId;
 
+  /// Data source name
+  final String dataSourceName;
+
   @override
   List<Object?> get props => <Object?>[
-    id,
+    objectId,
     layerId,
+    dataSourceName
   ];
 
   @override
@@ -82,8 +87,9 @@ class GeoObjectSelectionMetadata extends Equatable {
 
   factory GeoObjectSelectionMetadata._fromJson(Map<dynamic, dynamic> json) {
     return GeoObjectSelectionMetadata._(
-      id: json['id'],
-      layerId: json['layerId']
+      objectId: json['objectId'],
+      layerId: json['layerId'],
+      dataSourceName: json['dataSourceName']
     );
   }
 }

@@ -42,7 +42,7 @@ class Utils {
     let point = pointFromJson(json["point"] as! [String: NSNumber])
     let pointType = YMKRequestPointType(rawValue: (json["requestPointType"] as! NSNumber).uintValue)!
 
-    return YMKRequestPoint(point: point, type: pointType, pointContext: nil)
+    return YMKRequestPoint(point: point, type: pointType, pointContext: nil, drivingArrivalPointId: nil)
   }
 
   static func drivingOptionsFromJson(_ json: [String: Any]) -> YMKDrivingDrivingOptions {

@@ -23,7 +23,6 @@ class YandexMap extends StatefulWidget {
     this.zoomGesturesEnabled = true,
     this.rotateGesturesEnabled = true,
     this.scrollGesturesEnabled = true,
-    this.modelsEnabled = true,
     this.nightModeEnabled = false,
     this.fastTapEnabled = false,
     this.mode2DEnabled = false,
@@ -37,8 +36,7 @@ class YandexMap extends StatefulWidget {
     this.onTrafficChanged,
     this.mapType = MapType.vector,
     this.poiLimit,
-    this.onObjectTap,
-    this.mapMode = MapMode.normal
+    this.onObjectTap
   }) : super(key: key);
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
@@ -77,9 +75,6 @@ class YandexMap extends StatefulWidget {
   /// false - All tiles start showing the "rise up" animation.
   final bool mode2DEnabled;
 
-  /// Enables detailed 3D models on the map.
-  final bool modelsEnabled;
-
   /// Set logo alignment on the map
   final MapAlignment logoAlignment;
 
@@ -116,10 +111,6 @@ class YandexMap extends StatefulWidget {
 
   /// Sets the base map type.
   final MapType mapType;
-
-  /// Selects one of predefined map style modes optimized for particular use case(transit, driving, etc).
-  /// Resets json styles set with [YandexMapController.setMapStyle].
-  final MapMode mapMode;
 
   /// Limits the number of visible basemap POIs
   final int? poiLimit;
@@ -280,14 +271,12 @@ class _YandexMapOptions {
     zoomGesturesEnabled = map.zoomGesturesEnabled,
     rotateGesturesEnabled = map.rotateGesturesEnabled,
     scrollGesturesEnabled = map.scrollGesturesEnabled,
-    modelsEnabled = map.modelsEnabled,
     nightModeEnabled = map.nightModeEnabled,
     fastTapEnabled = map.fastTapEnabled,
     mode2DEnabled = map.mode2DEnabled,
     logoAlignment = map.logoAlignment,
     focusRect = map.focusRect,
     mapType = map.mapType,
-    mapMode = map.mapMode,
     poiLimit = map.poiLimit;
 
     final bool tiltGesturesEnabled;
@@ -304,15 +293,11 @@ class _YandexMapOptions {
 
     final bool mode2DEnabled;
 
-    final bool modelsEnabled;
-
     final MapAlignment logoAlignment;
 
     final ScreenRect? focusRect;
 
     final MapType mapType;
-
-    final MapMode mapMode;
 
     final int? poiLimit;
 
@@ -325,11 +310,9 @@ class _YandexMapOptions {
       'scrollGesturesEnabled': scrollGesturesEnabled,
       'fastTapEnabled': fastTapEnabled,
       'mode2DEnabled': mode2DEnabled,
-      'modelsEnabled': modelsEnabled,
       'logoAlignment': logoAlignment.toJson(),
       'focusRect': focusRect?.toJson(),
       'mapType': mapType.index,
-      'mapMode': mapMode.index,
       'poiLimit': poiLimit
     };
   }

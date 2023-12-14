@@ -64,6 +64,7 @@ public class Utils {
     return new RequestPoint(
       pointFromJson((Map<String, Object>) json.get("point")),
       RequestPointType.values()[(Integer) json.get("requestPointType")],
+      null,
       null
     );
   }
