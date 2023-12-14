@@ -16,14 +16,9 @@ When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/do
 1. Go to https://developer.tech.yandex.ru/services/
 2. Create a `MapKit Mobile SDK` key
 
-### Initializing for iOS
+### Setup for iOS
 
-1. Add `import YandexMapsMobile` to `ios/Runner/AppDelegate.swift`
-2. Add `YMKMapKit.setApiKey("YOUR_API_KEY")` inside `func application` in `ios/Runner/AppDelegate.swift`
-3. Specify your API key in the application delegate `ios/Runner/AppDelegate.swift`
-4. Uncomment `platform :ios, '9.0'` in `ios/Podfile` and change to `platform :ios, '12.0'`
-
-`ios/Runner/AppDelegate.swift`:
+* Specify your API key and locale in `ios/Runner/AppDelegate.swift`. It should be similar to the following
 
 ```swift
 import UIKit
@@ -44,15 +39,16 @@ import YandexMapsMobile
 }
 ```
 
-### Initializing for Android
+* Uncomment `platform :ios, '9.0'` in `ios/Podfile` and change to `platform :ios, '12.0'`
 
-1. Add dependency `implementation 'com.yandex.android:maps.mobile:4.4.0-full'` to `android/app/build.gradle`
-2. Add permissions `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>` to `android/app/src/main/AndroidManifest.xml`
-3. Add `import com.yandex.mapkit.MapKitFactory;` to `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
-4. `MapKitFactory.setApiKey("YOUR_API_KEY");` inside method `onCreate` in `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
-5. Specify your API key in the application delegate `android/app/src/main/.../MainActivity.java`/`android/app/src/main/.../MainActivity.kt`
+```ruby
+# Uncomment this line to define a global platform for your project
+platform :ios, '12.0'
+```
 
-`android/app/build.gradle`:
+### Setup for Android
+
+* Add dependency `implementation 'com.yandex.android:maps.mobile:4.4.0-full'` to `android/app/build.gradle`
 
 ```groovy
 dependencies {
@@ -60,45 +56,54 @@ dependencies {
 }
 ```
 
-#### For Java projects
+* Specify your API key and locale in your custom application class.  
+If you don't have one the you can create it like so
 
-`android/app/src/main/.../MainActivity.java`:
+`android/app/src/main/.../MainApplication.java`
 
 ```java
-import androidx.annotation.NonNull;
-import io.flutter.embedding.android.FlutterActivity;
-import io.flutter.embedding.engine.FlutterEngine;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import android.app.Application;
+
 import com.yandex.mapkit.MapKitFactory;
 
-public class MainActivity extends FlutterActivity {
-  @Override
-  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-    MapKitFactory.setLocale("YOUR_LOCALE"); // Your preferred language. Not required, defaults to system language
-    MapKitFactory.setApiKey("YOUR_API_KEY"); // Your generated API key
-    super.configureFlutterEngine(flutterEngine);
+public class MainApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        MapKitFactory.setLocale("YOUR_LOCALE"); // Your preferred language. Not required, defaults to system language
+        MapKitFactory.setApiKey("YOUR_API_KEY"); // Your generated API key
+    }
+}
+```
+
+`android/app/src/main/.../MainApplication.kt`
+
+```kotlin
+import android.app.Application
+
+import com.yandex.mapkit.MapKitFactory
+
+class MainApplication: Application() {
+  override fun onCreate() {
+    super.onCreate()
+    MapKitFactory.setLocale("YOUR_LOCALE") // Your preferred language. Not required, defaults to system language
+    MapKitFactory.setApiKey("YOUR_API_KEY") // Your generated API key
   }
 }
 ```
 
-#### For Kotlin projects
+* In your `android/app/src/main/AndroidManifest.xml`
 
-`android/app/src/main/.../MainActivity.kt`
+Add permissions `<uses-permission android:name="android.permission.INTERNET"/>` and `<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>`
 
-```kotlin
-import androidx.annotation.NonNull
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugins.GeneratedPluginRegistrant
-import com.yandex.mapkit.MapKitFactory
+Find `application` tag and replace `android:name` to the name of your custom application class prefixed by a dot `.`.
+In the end it should look like the following
 
-class MainActivity: FlutterActivity() {
-  override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
-    MapKitFactory.setLocale("YOUR_LOCALE") // Your preferred language. Not required, defaults to system language
-    MapKitFactory.setApiKey("YOUR_API_KEY") // Your generated API key
-    super.configureFlutterEngine(flutterEngine)
-  }
-}
+```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <application
+      android:name=".MainApplication" >
 ```
 
 ### Usage
@@ -126,15 +131,15 @@ AndroidYandexMap.useAndroidViewSurface = false;
 
 ### Features
 
-- [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
-- [X] Working with collections of map objects
-- [X] Working with clusters
-- [X] Moving around the map
-- [X] Setting map bounds
-- [X] Showing current user location
-- [X] Styling the map
-- [X] Address suggestions
-- [X] Basic driving/bicycle routing
-- [X] Basic address direct/reverse search
-- [X] Workking with geo objects
-- [X] Showing current traffic conditions
+* [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
+* [X] Working with collections of map objects
+* [X] Working with clusters
+* [X] Moving around the map
+* [X] Setting map bounds
+* [X] Showing current user location
+* [X] Styling the map
+* [X] Address suggestions
+* [X] Basic driving/bicycle routing
+* [X] Basic address direct/reverse search
+* [X] Workking with geo objects
+* [X] Showing current traffic conditions
