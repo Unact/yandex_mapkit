@@ -132,14 +132,14 @@ class ClusterizedPlacemarkCollectionController:
         return
       }
 
-      let params = result as! [String: Any]
-
-      self.clusters[cluster] = PlacemarkMapObjectController(
-        placemark: cluster.appearance,
-        params: params,
-        controller: self.controller!
-      )
-      cluster.addClusterTapListener(with: self)
+      if let params = result as? [String: Any] {
+        self.clusters[cluster] = PlacemarkMapObjectController(
+          placemark: cluster.appearance,
+          params: params,
+          controller: self.controller!
+        )
+        cluster.addClusterTapListener(with: self)
+      }
     }
   }
 
