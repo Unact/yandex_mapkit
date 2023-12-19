@@ -416,7 +416,7 @@ public class YandexMapController implements
       case "tiltTo":
         return tiltTo(cameraUpdateParams);
       default:
-        return new CameraPosition();
+        return null;
     }
   }
 
@@ -434,16 +434,24 @@ public class YandexMapController implements
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
   public CameraPosition newGeometry(Map<String, Object> params) {
-    if ((Map<String, Object>) params.get("focusRect") != null) {
+    ScreenRect focus = (Map<String, Object>) params.get("focusRect") != null ?
+      Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect")) :
+      null;
+
+    if (focus == null) {
       return mapView.getMapWindow().getMap().cameraPosition(
-        Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
-        Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect"))
+        Utils.geometryFromJson((Map<String, Object>) params.get("geometry"))
       );
     }
 
-    return mapView.getMapWindow().getMap().cameraPosition(
-      Utils.geometryFromJson((Map<String, Object>) params.get("geometry"))
-    );
+    if (validFocusRect(focus)) {
+      return mapView.getMapWindow().getMap().cameraPosition(
+        Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
+        focus
+      );
+    }
+
+    return null;
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -452,12 +460,25 @@ public class YandexMapController implements
       Utils.screenRectFromJson((Map<String, Object>) params.get("focusRect")) :
       null;
 
-    return mapView.getMapWindow().getMap().cameraPosition(
-      Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
-      ((Double) params.get("azimuth")).floatValue(),
-      ((Double) params.get("tilt")).floatValue(),
-      focus
-    );
+    if (focus == null) {
+      return mapView.getMapWindow().getMap().cameraPosition(
+        Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
+        ((Double) params.get("azimuth")).floatValue(),
+        ((Double) params.get("tilt")).floatValue(),
+        null
+      );
+    }
+
+    if (validFocusRect(focus)) {
+      return mapView.getMapWindow().getMap().cameraPosition(
+        Utils.geometryFromJson((Map<String, Object>) params.get("geometry")),
+        ((Double) params.get("azimuth")).floatValue(),
+        ((Double) params.get("tilt")).floatValue(),
+        focus
+      );
+    }
+
+    return null;
   }
 
   private CameraPosition zoomIn() {
@@ -526,13 +547,20 @@ public class YandexMapController implements
       !((Double) cameraPosition.getTarget().getLongitude()).isNaN();
   }
 
+  private boolean validFocusRect(ScreenRect focusRect) {
+    return focusRect.getTopLeft().getY() > 0 &&
+      focusRect.getTopLeft().getX() > 0 &&
+      focusRect.getBottomRight().getY() <= mapView.getMapWindow().height() &&
+      focusRect.getBottomRight().getX() <= mapView.getMapWindow().width();
+  }
+
   @SuppressWarnings({"ConstantConditions"})
   private void move(
     CameraPosition cameraPosition,
     Map<String, Object> paramsAnimation,
     final MethodChannel.Result result
   ) {
-    if (!validCameraPosition(cameraPosition)) {
+    if (cameraPosition == null || !validCameraPosition(cameraPosition)) {
       result.success(false);
 
       return;
@@ -639,12 +667,7 @@ public class YandexMapController implements
 
     ScreenRect focusRect = Utils.screenRectFromJson(params);
 
-    if (
-      focusRect.getTopLeft().getY() < 0 ||
-      focusRect.getTopLeft().getX() < 0 ||
-      focusRect.getBottomRight().getY() > mapView.getMapWindow().height() ||
-      focusRect.getBottomRight().getX() > mapView.getMapWindow().width()
-    ) {
+    if (!validFocusRect(focusRect)) {
       return;
     }
 

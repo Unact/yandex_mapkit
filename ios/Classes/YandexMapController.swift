@@ -282,7 +282,7 @@ public class YandexMapController:
     }
   }
 
-  private func cameraUpdateToPosition(_ cameraUpdate: [String: Any]) -> YMKCameraPosition {
+  private func cameraUpdateToPosition(_ cameraUpdate: [String: Any]) -> YMKCameraPosition? {
     let cameraUpdateParams = cameraUpdate["params"] as? [String: Any]
 
     switch cameraUpdate["type"] as! String {
@@ -303,7 +303,7 @@ public class YandexMapController:
     case "tiltTo":
       return tiltTo(cameraUpdateParams!)
     default:
-      return YMKCameraPosition()
+      return nil
     }
   }
 
@@ -318,30 +318,51 @@ public class YandexMapController:
     )
   }
 
-  private func newGeometry(_ params: [String: Any]) -> YMKCameraPosition {
-    if (params["focusRect"] as? [String: Any] != nil) {
-      return mapView.mapWindow.map.cameraPosition(
-        with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
-        focus: Utils.screenRectFromJson(params["focusRect"] as! [String: Any])
-      )
-    }
-
-    return mapView.mapWindow.map.cameraPosition(
-      with: Utils.geometryFromJson(params["geometry"] as! [String: Any])
-    )
-  }
-
-  private func newTiltAzimuthGeometry(_ params: [String: Any]) -> YMKCameraPosition {
+  private func newGeometry(_ params: [String: Any]) -> YMKCameraPosition? {
     let focus = params["focusRect"] as? [String: Any] != nil ?
       Utils.screenRectFromJson(params["focusRect"] as! [String: Any]) :
       nil
 
-    return mapView.mapWindow.map.cameraPosition(
-      with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
-      azimuth: (params["azimuth"] as! NSNumber).floatValue,
-      tilt: (params["tilt"] as! NSNumber).floatValue,
-      focus: focus
-    )
+    if (focus == nil) {
+      return mapView.mapWindow.map.cameraPosition(
+        with: Utils.geometryFromJson(params["geometry"] as! [String: Any])
+      )
+    }
+
+    if (validFocusRect(focus!)) {
+      return mapView.mapWindow.map.cameraPosition(
+        with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
+        focus: focus!
+      )
+    }
+
+    return nil
+  }
+
+  private func newTiltAzimuthGeometry(_ params: [String: Any]) -> YMKCameraPosition? {
+    let focus = params["focusRect"] as? [String: Any] != nil ?
+      Utils.screenRectFromJson(params["focusRect"] as! [String: Any]) :
+      nil
+
+    if (focus == nil) {
+      return mapView.mapWindow.map.cameraPosition(
+        with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
+        azimuth: (params["azimuth"] as! NSNumber).floatValue,
+        tilt: (params["tilt"] as! NSNumber).floatValue,
+        focus: nil
+      )
+    }
+
+    if (validFocusRect(focus!)) {
+      return mapView.mapWindow.map.cameraPosition(
+        with: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
+        azimuth: (params["azimuth"] as! NSNumber).floatValue,
+        tilt: (params["tilt"] as! NSNumber).floatValue,
+        focus: focus
+      )
+    }
+
+    return nil
   }
 
   private func zoomIn() -> YMKCameraPosition {
@@ -407,19 +428,27 @@ public class YandexMapController:
       !cameraPosition.target.longitude.isNaN
   }
 
+  private func validFocusRect(_ focusRect: YMKScreenRect) -> Bool {
+    return
+      focusRect.topLeft.y >= 0 &&
+      focusRect.topLeft.x >= 0 &&
+      focusRect.bottomRight.y <= Float(mapView.mapWindow.height()) &&
+      focusRect.bottomRight.x <= Float(mapView.mapWindow.width())
+  }
+
   private func move(
-    cameraPosition: YMKCameraPosition,
+    cameraPosition: YMKCameraPosition?,
     animationParams: [String: Any]?,
     result: @escaping FlutterResult
   ) {
-    if !validCameraPosition(cameraPosition) {
+    if cameraPosition == nil || !validCameraPosition(cameraPosition!) {
       result(false)
 
       return
     }
 
     if animationParams == nil {
-      mapView.mapWindow.map.move(with: cameraPosition)
+      mapView.mapWindow.map.move(with: cameraPosition!)
       result(true)
 
       return
@@ -431,7 +460,7 @@ public class YandexMapController:
     )
 
     mapView.mapWindow.map.move(
-      with: cameraPosition,
+      with: cameraPosition!,
       animation: animation,
       cameraCallback: { (completed: Bool) -> Void in result(completed) }
     )
@@ -511,12 +540,7 @@ public class YandexMapController:
 
     let focusRect = Utils.screenRectFromJson(params!)
 
-    if (
-      focusRect.topLeft.y < 0 ||
-      focusRect.topLeft.x < 0 ||
-      focusRect.bottomRight.y > Float(mapView.mapWindow.height()) ||
-      focusRect.bottomRight.x > Float(mapView.mapWindow.width())
-    ) {
+    if (!validFocusRect(focusRect)) {
       return
     }
 
