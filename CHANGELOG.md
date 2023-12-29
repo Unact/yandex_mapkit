@@ -1,3 +1,12 @@
+## 3.4.0
+
+* Update and lock YandexMapkit version to 4.4.0-full for iOS and Android
+* Fix plugin not working with gradle 8.0
+* Fix `YandexMapController.moveCamera` crash on iOS
+* Added `YandexMapController.setMaxZoom`/`YandexMapController.setMinZoom` for setting map min/max zoom
+* **Breaking change** `YandexMapController.selectGeoObject` now also requires `dataSourceName` parameter
+* **Breaking change** `YandexMap.modelsEnabled`, `YandexMap.mapMode` have been removed.
+
 ## 3.3.3
 
 * Fix Android obfuscation breaking MapObject manipulation
