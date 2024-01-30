@@ -285,6 +285,10 @@ public class YandexMapController:
   private func cameraUpdateToPosition(_ cameraUpdate: [String: Any]) -> YMKCameraPosition? {
     let cameraUpdateParams = cameraUpdate["params"] as? [String: Any]
 
+    if (!validMapWindow()) {
+      return nil
+    }
+
     switch cameraUpdate["type"] as! String {
     case "newCameraPosition":
       return newCameraPosition(cameraUpdateParams!)
@@ -434,6 +438,10 @@ public class YandexMapController:
       focusRect.topLeft.x >= 0 &&
       focusRect.bottomRight.y <= Float(mapView.mapWindow.height()) &&
       focusRect.bottomRight.x <= Float(mapView.mapWindow.width())
+  }
+
+  private func validMapWindow() -> Bool {
+    return mapView.mapWindow.width() > 0 && mapView.mapWindow.height() > 0;
   }
 
   private func move(

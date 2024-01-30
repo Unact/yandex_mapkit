@@ -398,6 +398,10 @@ public class YandexMapController implements
   private CameraPosition cameraUpdateToPosition(Map<String, Object> cameraUpdate) {
     Map<String, Object> cameraUpdateParams = ((Map<String, Object>) cameraUpdate.get("params"));
 
+    if (!validMapWindow()) {
+      return null;
+    }
+
     switch ((String) cameraUpdate.get("type")) {
       case "newCameraPosition":
         return newCameraPosition(cameraUpdateParams);
@@ -552,6 +556,10 @@ public class YandexMapController implements
       focusRect.getTopLeft().getX() > 0 &&
       focusRect.getBottomRight().getY() <= mapView.getMapWindow().height() &&
       focusRect.getBottomRight().getX() <= mapView.getMapWindow().width();
+  }
+
+  private boolean validMapWindow() {
+    return mapView.getMapWindow().width() > 0 && mapView.getMapWindow().height() > 0;
   }
 
   @SuppressWarnings({"ConstantConditions"})
