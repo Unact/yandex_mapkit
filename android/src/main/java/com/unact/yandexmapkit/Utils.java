@@ -119,7 +119,7 @@ public class Utils {
       return Geometry.fromBoundingBox(boundingBoxFromJson((Map<String, Object>) json.get("boundingBox")));
     } else if (json.get("circle") != null) {
       return Geometry.fromCircle(circleFromJson((Map<String, Object>) json.get("circle")));
-    } else if (json.get("boundingBox") != null) {
+    } else if (json.get("polyline") != null) {
       return Geometry.fromPolyline(polylineFromJson((Map<String, Object>) json.get("polyline")));
     } else if (json.get("polygon") != null) {
       return Geometry.fromPolygon(polygonFromJson((Map<String, Object>) json.get("polygon")));
