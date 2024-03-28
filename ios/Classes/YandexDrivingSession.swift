@@ -3,24 +3,22 @@ import YandexMapsMobile
 
 public class YandexDrivingSession: NSObject {
   private var id: Int
-  private var session: YMKDrivingSession
+  private var session: YMKDrivingSession!
   private let methodChannel: FlutterMethodChannel!
-  private var onClose: (Int) -> ()
+  private let drivingRouter: YMKDrivingRouter!
+  private static var drivingSessions: [Int: YandexDrivingSession] = [:]
 
-  public required init(
-    id: Int,
-    session: YMKDrivingSession,
-    registrar: FlutterPluginRegistrar,
-    onClose: @escaping ((Int) -> ())
-  ) {
+  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, drivingRouter: YMKDrivingRouter) {
+    drivingSessions[id] = YandexDrivingSession(id: id, registrar: registrar, drivingRouter: drivingRouter)
+  }
+
+  public required init(id: Int, registrar: FlutterPluginRegistrar, drivingRouter: YMKDrivingRouter) {
     self.id = id
-    self.session = session
-    self.onClose = onClose
-
-    methodChannel = FlutterMethodChannel(
+    self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_driving_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.drivingRouter = drivingRouter
 
     super.init()
 
@@ -30,6 +28,8 @@ public class YandexDrivingSession: NSObject {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "requestRoutes":
+      requestRoutes(call, result)
     case "cancel":
       cancel()
       result(nil)
@@ -41,6 +41,22 @@ public class YandexDrivingSession: NSObject {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func requestRoutes(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let params = call.arguments as! [String: Any]
+    let requestPoints = (params["points"] as! [[String: Any]]).map {
+      (pointParams) -> YMKRequestPoint in Utils.requestPointFromJson(pointParams)
+    }
+
+    session = drivingRouter.requestRoutes(
+      with: requestPoints,
+      drivingOptions: Utils.drivingOptionsFromJson(params["drivingOptions"] as! [String: Any]),
+      vehicleOptions: YMKDrivingVehicleOptions(),
+      routeHandler: {(drivingResponse: [YMKDrivingRoute]?, error: Error?) -> Void in
+        self.handleResponse(drivingResponse: drivingResponse, error: error, result: result)
+      }
+    )
   }
 
   public func cancel() {
@@ -56,7 +72,7 @@ public class YandexDrivingSession: NSObject {
   public func close() {
     session.cancel()
 
-    onClose(id)
+    YandexDrivingSession.drivingSessions.removeValue(forKey: id)
   }
 
   public func handleResponse(drivingResponse: [YMKDrivingRoute]?, error: Error?, result: @escaping FlutterResult) {

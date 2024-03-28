@@ -3,25 +3,23 @@ import YandexMapsMobile
 
 public class YandexSearchSession: NSObject {
   private var id: Int
-  private var session: YMKSearchSession
-  private var page = 0
+  private var session: YMKSearchSession!
   private let methodChannel: FlutterMethodChannel!
-  private var onClose: (Int) -> ()
+  private let searchManager: YMKSearchManager
+  private var page = 0
+  private static var searchSessions: [Int: YandexSearchSession] = [:]
 
-  public required init(
-    id: Int,
-    session: YMKSearchSession,
-    registrar: FlutterPluginRegistrar,
-    onClose: @escaping ((Int) -> ())
-  ) {
+  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, searchManager: YMKSearchManager) {
+    searchSessions[id] = YandexSearchSession(id: id, registrar: registrar, searchManager: searchManager)
+  }
+
+  public required init(id: Int, registrar: FlutterPluginRegistrar, searchManager: YMKSearchManager) {
     self.id = id
-    self.session = session
-    self.onClose = onClose
-
-    methodChannel = FlutterMethodChannel(
+    self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_search_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.searchManager = searchManager
 
     super.init()
 
@@ -31,6 +29,10 @@ public class YandexSearchSession: NSObject {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "searchByText":
+      searchByText(call, result)
+    case "searchByPoint":
+      searchByPoint(call, result)
     case "cancel":
       cancel()
       result(nil)
@@ -47,6 +49,32 @@ public class YandexSearchSession: NSObject {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  public func searchByText(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let params = call.arguments as! [String: Any]
+
+    session = searchManager.submit(
+      withText: params["searchText"] as! String,
+      geometry: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
+      searchOptions: Utils.searchOptionsFromJson(params["searchOptions"] as! [String: Any]),
+      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        self.handleResponse(searchResponse: searchResponse, error: error, result: result)
+      }
+    )
+  }
+
+  public func searchByPoint(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let params = call.arguments as! [String: Any]
+
+    session = searchManager.submit(
+      with: Utils.pointFromJson(params["point"] as! [String: NSNumber]),
+      zoom: params["zoom"] as? NSNumber,
+      searchOptions: Utils.searchOptionsFromJson(params["searchOptions"] as! [String: Any]),
+      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
+        self.handleResponse(searchResponse: searchResponse, error: error, result: result)
+      }
+    )
   }
 
   public func cancel() {
@@ -78,7 +106,7 @@ public class YandexSearchSession: NSObject {
   public func close() {
     session.cancel()
 
-    onClose(id)
+    YandexSearchSession.searchSessions.removeValue(forKey: id)
   }
 
   public func handleResponse(searchResponse: YMKSearchResponse?, error: Error?, result: @escaping FlutterResult) {

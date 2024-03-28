@@ -62,7 +62,7 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
 
     print('Suggest query: $query');
 
-    final resultWithSession = YandexSuggest.getSuggestions(
+    final resultWithSession = await YandexSuggest.getSuggestions(
       text: query,
       boundingBox: const BoundingBox(
         northEast: Point(latitude: 56.0421, longitude: 38.0284),
@@ -78,7 +78,7 @@ class _SuggestionsExampleState extends State<_SuggestionsExample> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(query, resultWithSession.session, resultWithSession.result)
+        builder: (BuildContext context) => _SessionPage(query, resultWithSession.$1, resultWithSession.$2)
       )
     );
   }

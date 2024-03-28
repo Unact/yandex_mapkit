@@ -4,15 +4,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.yandex.mapkit.RequestPoint;
 import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
-import com.yandex.mapkit.directions.driving.DrivingSession;
-import com.yandex.mapkit.directions.driving.VehicleOptions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -23,8 +17,6 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexDriving implements MethodCallHandler {
   private final DrivingRouter drivingRouter;
   private final BinaryMessenger binaryMessenger;
-  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-  private final Map<Integer, YandexDrivingSession> drivingSessions = new HashMap<>();
 
   public YandexDriving(Context context, BinaryMessenger messenger) {
     DirectionsFactory.initialize(context);
@@ -37,8 +29,9 @@ public class YandexDriving implements MethodCallHandler {
   @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
   public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
-      case "requestRoutes":
-        requestRoutes(call, result);
+      case "initSession":
+        initSession(call);
+        result.success(null);
         break;
       default:
         result.notImplemented();
@@ -47,34 +40,10 @@ public class YandexDriving implements MethodCallHandler {
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  private void requestRoutes(final MethodCall call, final Result result) {
-    Map<String, Object> params = (Map<String, Object>) call.arguments;
-    Integer sessionId = (Integer) params.get("sessionId");
-    List<RequestPoint> points = new ArrayList<>();
-    for (Map<String, Object> pointParams : (List<Map<String, Object>>) params.get("points")) {
-      points.add(Utils.requestPointFromJson(pointParams));
-    }
+  public void initSession(final MethodCall call) {
+    Map<String, Object> params = ((Map<String, Object>) call.arguments);
+    final int id = ((Number) params.get("id")).intValue();
 
-    DrivingSession session = drivingRouter.requestRoutes(
-      points,
-      Utils.drivingOptionsFromJson((Map<String, Object>) params.get("drivingOptions")),
-      new VehicleOptions(),
-      new YandexDrivingListener(result)
-    );
-
-    YandexDrivingSession drivingSession = new YandexDrivingSession(
-      sessionId,
-      session,
-      binaryMessenger,
-      new DrivingCloseListener()
-    );
-
-    drivingSessions.put(sessionId, drivingSession);
-  }
-
-  public class DrivingCloseListener {
-    public void onClose(int id) {
-      drivingSessions.remove(id);
-    }
+    YandexDrivingSession.initSession(id, binaryMessenger, drivingRouter);
   }
 }

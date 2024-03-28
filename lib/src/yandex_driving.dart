@@ -5,25 +5,24 @@ class YandexDriving {
   static const String _channelName = 'yandex_mapkit/yandex_driving';
   static const MethodChannel _channel = MethodChannel(_channelName);
 
-  static int _nextSessionId = 0;
+  static int _nextId = 0;
 
   /// Builds a route.
-  static DrivingResultWithSession requestRoutes({
+  static Future<(DrivingSession, Future<DrivingSessionResult>)> requestRoutes({
     required List<RequestPoint> points,
     required DrivingOptions drivingOptions
-  }) {
-    final params = <String, dynamic>{
-      'sessionId': _nextSessionId++,
-      'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
-      'drivingOptions': drivingOptions.toJson()
-    };
-    final result = _channel
-      .invokeMethod('requestRoutes', params)
-      .then((result) => DrivingSessionResult._fromJson(result));
+  }) async {
+    final session = await _initSession();
 
-    return DrivingResultWithSession._(
-      session: DrivingSession._(id: params['sessionId']),
-      result: result
-    );
+    return (session, session._requestRoutes(points: points, drivingOptions: drivingOptions));
+  }
+
+  /// Initialize session on native side for further use
+  static Future<DrivingSession> _initSession() async {
+    final id = _nextId++;
+
+    await _channel.invokeMethod('initSession', { 'id': id });
+
+    return DrivingSession._(id: id);
   }
 }

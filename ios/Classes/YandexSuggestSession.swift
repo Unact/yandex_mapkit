@@ -3,24 +3,22 @@ import YandexMapsMobile
 
 public class YandexSuggestSession: NSObject {
   private var id: Int
-  private var session: YMKSearchSuggestSession
+  private var session: YMKSearchSuggestSession!
   private let methodChannel: FlutterMethodChannel!
-  private var onClose: (Int) -> ()
+  private let searchManager: YMKSearchManager
+  private static var suggestSessions: [Int: YandexSuggestSession] = [:]
 
-  public required init(
-    id: Int,
-    session: YMKSearchSuggestSession,
-    registrar: FlutterPluginRegistrar,
-    onClose: @escaping ((Int) -> ())
-  ) {
+  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, searchManager: YMKSearchManager) {
+    suggestSessions[id] = YandexSuggestSession(id: id, registrar: registrar, searchManager: searchManager)
+  }
+
+  public required init(id: Int, registrar: FlutterPluginRegistrar, searchManager: YMKSearchManager) {
     self.id = id
-    self.session = session
-    self.onClose = onClose
-
-    methodChannel = FlutterMethodChannel(
+    self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_suggest_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.searchManager = searchManager
 
     super.init()
 
@@ -30,6 +28,8 @@ public class YandexSuggestSession: NSObject {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "getSuggestions":
+      getSuggestions(call, result)
     case "reset":
       reset()
       result(nil)
@@ -41,6 +41,20 @@ public class YandexSuggestSession: NSObject {
     }
   }
 
+  public func getSuggestions(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let params = call.arguments as! [String: Any]
+
+    session = self.searchManager.createSuggestSession()
+    session.suggest(
+      withText: params["text"] as! String,
+      window: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
+      suggestOptions: Utils.suggestOptionsFromJson(params["suggestOptions"] as! [String: Any]),
+      responseHandler: {(suggestResponse: [YMKSuggestItem]?, error: Error?) -> Void in
+        self.handleResponse(suggestResponse: suggestResponse, error: error, result: result)
+      }
+    )
+  }
+
   public func reset() {
     session.reset()
   }
@@ -48,7 +62,7 @@ public class YandexSuggestSession: NSObject {
   public func close() {
     session.reset()
 
-    onClose(id)
+    YandexSuggestSession.suggestSessions.removeValue(forKey: id)
   }
 
   public func handleResponse(suggestResponse: [YMKSuggestItem]?, error: Error?, result: @escaping FlutterResult) {

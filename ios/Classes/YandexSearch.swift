@@ -7,7 +7,6 @@ public class YandexSearch: NSObject, FlutterPlugin {
   private let pluginRegistrar: FlutterPluginRegistrar!
   private let methodChannel: FlutterMethodChannel!
   private let searchManager: YMKSearchManager!
-  private var searchSessions: [Int: YandexSearchSession] = [:]
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -32,52 +31,18 @@ public class YandexSearch: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "searchByText":
-      searchByText(call, result)
-    case "searchByPoint":
-      searchByPoint(call, result)
+    case "initSession":
+      initSession(call)
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
   }
 
-  public func searchByText(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+  public func initSession(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let sessionId  = params["sessionId"] as! Int
-    let session = searchManager.submit(
-      withText: params["searchText"] as! String,
-      geometry: Utils.geometryFromJson(params["geometry"] as! [String: Any]),
-      searchOptions: Utils.searchOptionsFromJson(params["searchOptions"] as! [String: Any]),
-      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-        self.searchSessions[sessionId]?.handleResponse(searchResponse: searchResponse, error: error, result: result)
-      }
-    )
+    let id  = params["id"] as! Int
 
-    searchSessions[sessionId] = YandexSearchSession(
-      id: sessionId,
-      session: session,
-      registrar: pluginRegistrar,
-      onClose: { (id) in self.searchSessions.removeValue(forKey: id) }
-    )
-  }
-
-  public func searchByPoint(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-    let params = call.arguments as! [String: Any]
-    let sessionId = params["sessionId"] as! Int
-    let session = searchManager.submit(
-      with: Utils.pointFromJson(params["point"] as! [String: NSNumber]),
-      zoom: params["zoom"] as? NSNumber,
-      searchOptions: Utils.searchOptionsFromJson(params["searchOptions"] as! [String: Any]),
-      responseHandler: {(searchResponse: YMKSearchResponse?, error: Error?) -> Void in
-        self.searchSessions[sessionId]?.handleResponse(searchResponse: searchResponse, error: error, result: result)
-      }
-    )
-
-    searchSessions[sessionId] = YandexSearchSession(
-      id: sessionId,
-      session: session,
-      registrar: pluginRegistrar,
-      onClose: { (id) in self.searchSessions.removeValue(forKey: id) }
-    )
+    YandexSearchSession.initSession(id: id, registrar: pluginRegistrar, searchManager: searchManager)
   }
 }

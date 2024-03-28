@@ -5,25 +5,24 @@ class YandexBicycle {
   static const String _channelName = 'yandex_mapkit/yandex_bicycle';
   static const MethodChannel _channel = MethodChannel(_channelName);
 
-  static int _nextSessionId = 0;
+  static int _nextId = 0;
 
   /// Builds a route.
-  static BicycleResultWithSession requestRoutes({
+  static Future<(BicycleSession, Future<BicycleSessionResult>)> requestRoutes({
     required List<RequestPoint> points,
     required BicycleVehicleType bicycleVehicleType
-  }) {
-    final params = <String, dynamic>{
-      'sessionId': _nextSessionId++,
-      'bicycleVehicleType': bicycleVehicleType.index,
-      'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
-    };
-    final result = _channel
-      .invokeMethod('requestRoutes', params)
-      .then((result) => BicycleSessionResult._fromJson(result));
+  }) async {
+    final session = await _initSession();
 
-    return BicycleResultWithSession._(
-      session: BicycleSession._(id: params['sessionId']),
-      result: result
-    );
+    return (session, session._requestRoutes(points: points, bicycleVehicleType: bicycleVehicleType));
+  }
+
+  /// Initialize session on native side for further use
+  static Future<BicycleSession> _initSession() async {
+    final id = _nextId++;
+
+    await _channel.invokeMethod('initSession', { 'id': id });
+
+    return BicycleSession._(id: id);
   }
 }
