@@ -1,6 +1,5 @@
 part of '../../../yandex_mapkit.dart';
 
-
 /// Information about driving route metadata.
 class PedestrianTravelEstimation extends Equatable {
 
