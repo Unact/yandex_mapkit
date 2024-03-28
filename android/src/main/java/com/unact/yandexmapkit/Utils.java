@@ -23,11 +23,13 @@ import com.yandex.mapkit.map.Rect;
 import com.yandex.mapkit.map.VisibleRegion;
 import com.yandex.mapkit.search.SearchOptions;
 import com.yandex.mapkit.search.SuggestOptions;
+import com.yandex.mapkit.transport.masstransit.TimeOptions;
 import com.yandex.runtime.Error;
 import com.yandex.runtime.network.NetworkError;
 import com.yandex.runtime.network.RemoteError;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +68,13 @@ public class Utils {
       RequestPointType.values()[(Integer) json.get("requestPointType")],
       null,
       null
+    );
+  }
+
+  public static TimeOptions timeOptionsFromJson(Map<String, Object> json) {
+    return new TimeOptions(
+      (Long) json.get("departureTime"),
+      (Long) json.get("arrivalTime")
     );
   }
 
