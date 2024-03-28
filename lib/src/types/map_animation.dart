@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// The animation that is used to switch between states.
 class MapAnimation extends Equatable {

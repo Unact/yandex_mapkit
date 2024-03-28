@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// Geo object.
 /// Can be displayed as a placemark, polyline, polygon, etc. depending on the geometry type.

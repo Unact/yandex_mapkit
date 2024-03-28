@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// Collection of points connected by lines to be displayed on [YandexMap]
 class PolylineMapObject extends Equatable implements MapObject {

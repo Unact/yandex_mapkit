@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 typedef CameraPositionCallback = void Function(CameraPosition cameraPosition, CameraUpdateReason reason, bool finished);
 typedef ArgumentCallback<T> = void Function(T argument);

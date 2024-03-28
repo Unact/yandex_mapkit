@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../yandex_mapkit.dart';
 
 /// Interface for the driving router.
 class YandexDriving {

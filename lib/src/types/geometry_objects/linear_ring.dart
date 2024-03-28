@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A sequence of four or more vertices, with all points along the
 /// linearly-interpolated curves (line segments) between each pair of

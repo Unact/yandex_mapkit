@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../yandex_mapkit.dart';
 
 class YandexMapController extends ChangeNotifier {
   YandexMapController._(this._channel, this._yandexMapState) {

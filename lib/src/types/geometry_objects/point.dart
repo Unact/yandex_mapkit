@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A point at the specified coordinates.
 class Point extends Equatable {

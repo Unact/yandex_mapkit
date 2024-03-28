@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A collection of [PlacemarkMapObject] to be displayed on [YandexMap]
 ///

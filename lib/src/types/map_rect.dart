@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// The rectangle to display on the map.
 class MapRect {

@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A geometric representation of an object on map
 class Geometry extends Equatable {

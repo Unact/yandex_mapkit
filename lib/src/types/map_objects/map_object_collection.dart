@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A collection of [MapObject] to be displayed on [YandexMap]
 /// All [mapObjects] must be unique, i.e. each [MapObject.mapId] must be unique

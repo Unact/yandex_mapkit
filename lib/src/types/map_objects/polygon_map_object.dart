@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A polygon to be displayed on [YandexMap]
 class PolygonMapObject extends Equatable implements MapObject {

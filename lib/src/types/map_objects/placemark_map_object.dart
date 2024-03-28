@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A placemark to be displayed on [YandexMap] at a specific point
 class PlacemarkMapObject extends Equatable implements MapObject {

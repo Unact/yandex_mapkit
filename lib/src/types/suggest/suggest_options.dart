@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// Options to fine-tune suggest request.
 class SuggestOptions extends Equatable {

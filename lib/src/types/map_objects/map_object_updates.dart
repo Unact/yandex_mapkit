@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// Update specification for a set of objects.
 class MapObjectUpdates<T extends MapObject> extends Equatable {

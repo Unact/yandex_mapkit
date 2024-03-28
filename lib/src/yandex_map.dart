@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../yandex_mapkit.dart';
 
 /// Android specific settings for [YandexMap].
 class AndroidYandexMap {
@@ -16,7 +16,7 @@ class AndroidYandexMap {
 class YandexMap extends StatefulWidget {
   /// A `Widget` for displaying Yandex Map
   const YandexMap({
-    Key? key,
+    super.key,
     this.gestureRecognizers = const <Factory<OneSequenceGestureRecognizer>>{},
     this.mapObjects = const [],
     this.tiltGesturesEnabled = true,
@@ -37,7 +37,7 @@ class YandexMap extends StatefulWidget {
     this.mapType = MapType.vector,
     this.poiLimit,
     this.onObjectTap
-  }) : super(key: key);
+  });
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
 

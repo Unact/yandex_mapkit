@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// Defines the visible region.
 class VisibleRegion extends Equatable {

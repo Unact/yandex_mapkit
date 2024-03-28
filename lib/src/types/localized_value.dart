@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// A value respecting the device locale.
 class LocalizedValue extends Equatable {

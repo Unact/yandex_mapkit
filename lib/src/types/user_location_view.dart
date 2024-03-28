@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// Interface used to specify the appearance of the user location icon elements.
 class UserLocationView extends Equatable {

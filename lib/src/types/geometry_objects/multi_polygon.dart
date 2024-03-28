@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// An area consisting of multiple external polygons
 class MultiPolygon extends Equatable {

@@ -37,7 +37,7 @@ const List<MapPage> _allPages = <MapPage>[
 ];
 
 class MainPage extends StatelessWidget {
-  const MainPage({ Key? key}) : super(key: key);
+  const MainPage({ super.key});
 
   void _pushPage(BuildContext context, MapPage page) {
     Navigator.push(

@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// Options to fine-tune driving request.
 class DrivingOptions extends Equatable {

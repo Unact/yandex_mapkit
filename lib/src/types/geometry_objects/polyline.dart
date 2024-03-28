@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 /// A polyline between a number of points.
 /// A polyline is drawn between consecutive points.

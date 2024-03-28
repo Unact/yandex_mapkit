@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// The level of traffic.
 class TrafficLevel extends Equatable {

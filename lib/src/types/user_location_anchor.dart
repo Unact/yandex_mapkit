@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../yandex_mapkit.dart';
 
 /// Defines the anchor points for user location layer
 class UserLocationAnchor extends Equatable {

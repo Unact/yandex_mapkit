@@ -1,4 +1,4 @@
-part of yandex_mapkit;
+part of '../../../yandex_mapkit.dart';
 
 class BicycleSession {
   static const String _methodChannelName = 'yandex_mapkit/yandex_bicycle_session_';
