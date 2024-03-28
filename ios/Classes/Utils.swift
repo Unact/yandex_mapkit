@@ -45,8 +45,8 @@ class Utils {
     return YMKRequestPoint(point: point, type: pointType, pointContext: nil, drivingArrivalPointId: nil)
   }
 
-  static func drivingOptionsFromJson(_ json: [String: Any]) -> YMKDrivingDrivingOptions {
-    return YMKDrivingDrivingOptions(
+  static func drivingOptionsFromJson(_ json: [String: Any]) -> YMKDrivingOptions {
+    return YMKDrivingOptions(
       initialAzimuth: json["initialAzimuth"] as? NSNumber,
       routesCount: json["routesCount"] as? NSNumber,
       avoidTolls: json["avoidTolls"] as? NSNumber,
@@ -65,6 +65,7 @@ class Utils {
     return YMKSearchOptions(
       searchTypes: YMKSearchType(rawValue: (json["searchType"] as! NSNumber).uintValue),
       resultPageSize: json["resultPageSize"] as? NSNumber,
+      snippets: YMKSearchSnippet(),
       userPosition: userPosition,
       origin: json["origin"] as? String,
       geometry: (json["geometry"] as! NSNumber).boolValue,

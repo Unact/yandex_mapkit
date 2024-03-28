@@ -17,6 +17,7 @@ import com.yandex.mapkit.GeoObject;
 import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.ScreenPoint;
 import com.yandex.mapkit.ScreenRect;
+import com.yandex.mapkit.geometry.BoundingBox;
 import com.yandex.mapkit.geometry.Geometry;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.layers.GeoObjectTapEvent;
@@ -164,22 +165,6 @@ public class YandexMapController implements
         updateMapOptions(call);
         result.success(null);
         break;
-      case "getMinZoom":
-        float minZoom = getMinZoom();
-        result.success(minZoom);
-        break;
-      case "getMaxZoom":
-        float maxZoom = getMaxZoom();
-        result.success(maxZoom);
-        break;
-      case "setMinZoom":
-        setMinZoom(call);
-        result.success(null);
-        break;
-      case "setMaxZoom":
-        setMaxZoom(call);
-        result.success(null);
-        break;
       case "getPoint":
         result.success(getPoint(call));
         break;
@@ -268,39 +253,14 @@ public class YandexMapController implements
       new GeoObjectSelectionMetadata(
         (String) params.get("objectId"),
         (String) params.get("dataSourceName"),
-        (String) params.get("layerId")
+        (String) params.get("layerId"),
+        (Long) params.get("groupId")
       )
     );
   }
 
   public void deselectGeoObject() {
     mapView.getMapWindow().getMap().deselectGeoObject();
-  }
-
-  public float getMinZoom() {
-    return mapView.getMapWindow().getMap().getCameraBounds().getMinZoom();
-  }
-
-  public float getMaxZoom() {
-    return mapView.getMapWindow().getMap().getCameraBounds().getMaxZoom();
-  }
-
-  @SuppressWarnings({"unchecked"})
-  public void setMinZoom(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    mapView.getMapWindow().getMap().getCameraBounds().setMinZoomPreference(
-      ((Double) params.get("zoom")).floatValue()
-    );
-  }
-
-  @SuppressWarnings({"unchecked"})
-  public void setMaxZoom(MethodCall call) {
-    Map<String, Object> params = ((Map<String, Object>) call.arguments);
-
-    mapView.getMapWindow().getMap().getCameraBounds().setMaxZoomPreference(
-      ((Double) params.get("zoom")).floatValue()
-    );
   }
 
   @SuppressWarnings({"unchecked"})
@@ -643,6 +603,10 @@ public class YandexMapController implements
     if (params.containsKey("poiLimit")) {
       map.setPoiLimit((Integer) params.get("poiLimit"));
     }
+
+    if (params.get("cameraBounds") != null) {
+      applyCameraBounds((Map<String, Object>) params.get("cameraBounds"));
+    }
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -681,6 +645,21 @@ public class YandexMapController implements
 
     mapView.getMapWindow().setFocusRect(focusRect);
     mapView.getMapWindow().setPointOfView(PointOfView.ADAPT_TO_FOCUS_POINT_HORIZONTALLY);
+  }
+
+  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  private void applyCameraBounds(Map<String, Object> params) {
+    BoundingBox latLngBounds = (Map<String, Object>) params.get("latLngBounds") != null ?
+      Utils.boundingBoxFromJson((Map<String, Object>) params.get("latLngBounds")) :
+      null;
+
+    mapView.getMapWindow().getMap().getCameraBounds().setMinZoomPreference(
+      ((Double) params.get("minZoom")).floatValue()
+    );
+    mapView.getMapWindow().getMap().getCameraBounds().setMaxZoomPreference(
+      ((Double) params.get("maxZoom")).floatValue()
+    );
+    mapView.getMapWindow().getMap().getCameraBounds().setLatLngBounds(latLngBounds);
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
@@ -791,6 +770,7 @@ public class YandexMapController implements
     if (meta != null) {
       metaMap.put("objectId", meta.getObjectId());
       metaMap.put("layerId", meta.getLayerId());
+      metaMap.put("groupId", meta.getGroupId());
       metaMap.put("dataSourceName", meta.getDataSourceName());
     }
 

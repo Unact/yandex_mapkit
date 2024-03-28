@@ -90,6 +90,7 @@ public class Utils {
     return new SearchOptions(
       ((Number) json.get("searchType")).intValue(),
       (Integer) json.get("resultPageSize"),
+      0,
       userPosition,
       (String) json.get("origin"),
       (Boolean) json.get("geometry"),

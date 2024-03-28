@@ -64,6 +64,7 @@ class GeoObjectSelectionMetadata extends Equatable {
   const GeoObjectSelectionMetadata._({
     required this.objectId,
     required this.layerId,
+    required this.groupId,
     required this.dataSourceName
   });
   /// Object ID.
@@ -72,6 +73,9 @@ class GeoObjectSelectionMetadata extends Equatable {
   /// Layer ID.
   final String layerId;
 
+  /// Group ID.
+  final int? groupId;
+
   /// Data source name
   final String dataSourceName;
 
@@ -79,6 +83,7 @@ class GeoObjectSelectionMetadata extends Equatable {
   List<Object?> get props => <Object?>[
     objectId,
     layerId,
+    groupId,
     dataSourceName
   ];
 
@@ -89,6 +94,7 @@ class GeoObjectSelectionMetadata extends Equatable {
     return GeoObjectSelectionMetadata._(
       objectId: json['objectId'],
       layerId: json['layerId'],
+      groupId: json['groupId'],
       dataSourceName: json['dataSourceName']
     );
   }

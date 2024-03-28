@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.directions.DirectionsFactory;
 import com.yandex.mapkit.directions.driving.DrivingRouter;
+import com.yandex.mapkit.directions.driving.DrivingRouterType;
 
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class YandexDriving implements MethodCallHandler {
   public YandexDriving(Context context, BinaryMessenger messenger) {
     DirectionsFactory.initialize(context);
 
-    drivingRouter = DirectionsFactory.getInstance().createDrivingRouter();
+    drivingRouter = DirectionsFactory.getInstance().createDrivingRouter(DrivingRouterType.COMBINED);
     binaryMessenger = messenger;
   }
 

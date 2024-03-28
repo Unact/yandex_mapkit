@@ -83,18 +83,6 @@ public class YandexMapController:
     case "updateMapOptions":
       updateMapOptions(call)
       result(nil)
-    case "getMinZoom":
-      let minZoom = getMinZoom()
-      result(minZoom)
-    case "getMaxZoom":
-      let maxZoom = getMaxZoom()
-      result(maxZoom)
-    case "setMinZoom":
-      setMinZoom(call)
-      result(nil)
-    case "setMaxZoom":
-      setMaxZoom(call)
-      result(nil)
     case "getPoint":
       result(getPoint(call))
     case "getScreenPoint":
@@ -166,33 +154,14 @@ public class YandexMapController:
       withSelectionMetaData: YMKGeoObjectSelectionMetadata(
         objectId: params["objectId"] as! String,
         dataSourceName: params["dataSourceName"] as! String,
-        layerId: params["layerId"] as! String
+        layerId: params["layerId"] as! String,
+        groupId: params["groupId"] as? NSNumber
       )
     )
   }
 
   public func deselectGeoObject() {
     mapView.mapWindow.map.deselectGeoObject()
-  }
-
-  public func getMinZoom() -> Float {
-    return mapView.mapWindow.map.cameraBounds.getMinZoom()
-  }
-
-  public func getMaxZoom() -> Float {
-    return mapView.mapWindow.map.cameraBounds.getMaxZoom()
-  }
-
-  public func setMinZoom(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: NSNumber]
-
-    mapView.mapWindow.map.cameraBounds.setMinZoomPreferenceWithZoom(params["zoom"]!.floatValue)
-  }
-
-  public func setMaxZoom(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: NSNumber]
-
-    mapView.mapWindow.map.cameraBounds.setMaxZoomPreferenceWithZoom(params["zoom"]!.floatValue)
   }
 
   public func getScreenPoint(_ call: FlutterMethodCall) -> [String: Any]? {
@@ -520,6 +489,10 @@ public class YandexMapController:
     if params.keys.contains("poiLimit") {
       map.poiLimit = params["poiLimit"] as? NSNumber
     }
+
+    if let cameraBounds = params["cameraBounds"] as? [String: Any] {
+      applyCameraBounds(cameraBounds)
+    }
   }
 
   public func applyMapObjects(_ params: [String: Any]) {
@@ -554,6 +527,16 @@ public class YandexMapController:
 
     mapView.mapWindow.focusRect = focusRect
     mapView.mapWindow.pointOfView = YMKPointOfView.adaptToFocusPointHorizontally
+  }
+
+  private func applyCameraBounds(_ params: [String: Any]) {
+    let latLngBounds = params["latLngBounds"] as? [String: Any] != nil ?
+      Utils.boundingBoxFromJson(params["latLngBounds"] as! [String: Any]) :
+      nil
+
+    mapView.mapWindow.map.cameraBounds.setMinZoomPreferenceWithZoom((params["minZoom"] as! NSNumber).floatValue)
+    mapView.mapWindow.map.cameraBounds.setMaxZoomPreferenceWithZoom((params["maxZoom"] as! NSNumber).floatValue)
+    mapView.mapWindow.map.cameraBounds.latLngBounds = latLngBounds
   }
 
   public func onObjectAdded(with view: YMKUserLocationView) {
@@ -650,7 +633,8 @@ public class YandexMapController:
         "selectionMetadata": meta == nil ? nil : [
           "dataSourceName": meta!.dataSourceName,
           "objectId": meta!.objectId,
-          "layerId": meta!.layerId
+          "layerId": meta!.layerId,
+          "groupId": meta!.groupId as Any
         ],
         "aref": geoObj.aref
       ]

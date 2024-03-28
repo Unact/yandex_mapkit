@@ -49,10 +49,11 @@ public class YandexSuggestSession: NSObject {
       withText: params["text"] as! String,
       window: Utils.boundingBoxFromJson(params["boundingBox"] as! [String: Any]),
       suggestOptions: Utils.suggestOptionsFromJson(params["suggestOptions"] as! [String: Any]),
-      responseHandler: {(suggestResponse: [YMKSuggestItem]?, error: Error?) -> Void in
+      responseHandler: {(suggestResponse: YMKSuggestResponse?, error: Error?) -> Void in
         self.handleResponse(suggestResponse: suggestResponse, error: error, result: result)
       }
     )
+
   }
 
   public func reset() {
@@ -65,7 +66,7 @@ public class YandexSuggestSession: NSObject {
     YandexSuggestSession.suggestSessions.removeValue(forKey: id)
   }
 
-  public func handleResponse(suggestResponse: [YMKSuggestItem]?, error: Error?, result: @escaping FlutterResult) {
+  public func handleResponse(suggestResponse: YMKSuggestResponse?, error: Error?, result: @escaping FlutterResult) {
     if let response = suggestResponse {
       onSuccess(response, result)
     } else {
@@ -73,8 +74,8 @@ public class YandexSuggestSession: NSObject {
     }
   }
 
-  private func onSuccess(_ res: [YMKSuggestItem], _ result: @escaping FlutterResult) {
-    let items = res.map { (suggestItem) -> [String: Any?] in
+  private func onSuccess(_ res: YMKSuggestResponse, _ result: @escaping FlutterResult) {
+    let items = res.items.map { (suggestItem) -> [String: Any?] in
       return [
         "title": suggestItem.title.text,
         "subtitle": suggestItem.subtitle?.text,

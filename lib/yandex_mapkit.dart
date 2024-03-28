@@ -15,6 +15,7 @@ import 'package:flutter/widgets.dart';
 
 part 'src/types/bitmap_descriptor.dart';
 part 'src/types/callbacks.dart';
+part 'src/types/camera_bounds.dart';
 part 'src/types/camera_position.dart';
 part 'src/types/cluster.dart';
 part 'src/types/geo_object.dart';

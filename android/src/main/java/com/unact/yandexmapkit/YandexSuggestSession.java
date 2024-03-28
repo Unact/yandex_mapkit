@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.search.SearchManager;
 import com.yandex.mapkit.search.SuggestItem;
+import com.yandex.mapkit.search.SuggestResponse;
 import com.yandex.mapkit.search.SuggestSession;
 import com.yandex.runtime.Error;
 
@@ -80,17 +81,17 @@ public class YandexSuggestSession implements MethodChannel.MethodCallHandler {
       Utils.suggestOptionsFromJson((Map<String, Object>) params.get("suggestOptions")),
       new SuggestSession.SuggestListener() {
         @Override
-        public void onResponse(@NonNull List<SuggestItem> list) { self.onResponse(list, result); }
+        public void onResponse(@NonNull SuggestResponse response) { self.onResponse(response, result); }
         @Override
         public void onError(@NonNull Error error) { self.onError(error, result); }
       }
     );
   }
 
-  private void onResponse(@NonNull List<SuggestItem> suggestItems, @NonNull Result result) {
+  private void onResponse(@NonNull SuggestResponse response, @NonNull Result result) {
     List<Map<String, Object>> suggests = new ArrayList<>();
 
-    for (SuggestItem suggestItem : suggestItems) {
+    for (SuggestItem suggestItem : response.getItems()) {
       Map<String, Object> suggestMap = new HashMap<>();
 
       suggestMap.put("title", suggestItem.getTitle().getText());

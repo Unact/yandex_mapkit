@@ -64,11 +64,13 @@ class YandexMapController extends ChangeNotifier {
   Future<void> selectGeoObject({
     required String objectId,
     required String layerId,
+    int? groupId,
     required String dataSourceName
   }) async {
     await _channel.invokeMethod('selectGeoObject', {
       'objectId': objectId,
       'layerId': layerId,
+      'groupId': groupId,
       'dataSourceName': dataSourceName
     });
   }
@@ -133,34 +135,6 @@ class YandexMapController extends ChangeNotifier {
     }
 
     return null;
-  }
-
-  // Returns min available zoom for visible map region
-  Future<double> getMinZoom() async {
-    final double minZoom = await _channel.invokeMethod('getMinZoom');
-
-    return minZoom;
-  }
-
-  // Returns max available zoom for visible map region
-  Future<double> getMaxZoom() async {
-    final double maxZoom = await _channel.invokeMethod('getMaxZoom');
-
-    return maxZoom;
-  }
-
-  // Returns min available zoom for visible map region
-  Future<void> setMinZoom({required double zoom }) async {
-    await _channel.invokeMethod('setMinZoom', {
-      'zoom': zoom
-    });
-  }
-
-  // Returns max available zoom for visible map region
-  Future<void> setMaxZoom({required double zoom }) async {
-    await _channel.invokeMethod('setMaxZoom', {
-      'zoom': zoom
-    });
   }
 
   /// Returns current user position point

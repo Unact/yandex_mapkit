@@ -125,18 +125,19 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
             logoAlignment: logoAlignment,
             focusRect: focusRect,
             mapObjects: mapObjects,
+            cameraBounds: const CameraBounds(
+              minZoom: 1,
+              maxZoom: 20,
+              latLngBounds: BoundingBox(
+                northEast: Point(latitude: 65.0, longitude: 40.0),
+                southWest: Point(latitude: 50.0, longitude: 30.0),
+              )
+            ),
             onMapCreated: (YandexMapController yandexMapController) async {
               controller = yandexMapController;
-
-              await controller.setMinZoom(zoom: 2);
-              await controller.setMaxZoom(zoom: 18);
-
               final cameraPosition = await controller.getCameraPosition();
-              final minZoom = await controller.getMinZoom();
-              final maxZoom = await controller.getMaxZoom();
 
               print('Camera position: $cameraPosition');
-              print('Min zoom: $minZoom, Max zoom: $maxZoom');
             },
             onMapTap: (Point point) async {
               print('Tapped map at $point');
@@ -158,6 +159,7 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
                 await controller.selectGeoObject(
                   objectId: geoObject.selectionMetadata!.objectId,
                   layerId: geoObject.selectionMetadata!.layerId,
+                  groupId: geoObject.selectionMetadata!.groupId,
                   dataSourceName: geoObject.selectionMetadata!.dataSourceName
                 );
               }

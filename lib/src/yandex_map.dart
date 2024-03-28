@@ -36,7 +36,8 @@ class YandexMap extends StatefulWidget {
     this.onTrafficChanged,
     this.mapType = MapType.vector,
     this.poiLimit,
-    this.onObjectTap
+    this.onObjectTap,
+    this.cameraBounds = const CameraBounds()
   });
 
   static const String _viewType = 'yandex_mapkit/yandex_map';
@@ -117,6 +118,9 @@ class YandexMap extends StatefulWidget {
 
   /// Called every time a [YandexMap] geo object is tapped.
   final ObjectTapCallback? onObjectTap;
+
+  /// Map camera bounds
+  final CameraBounds cameraBounds;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -277,29 +281,32 @@ class _YandexMapOptions {
     logoAlignment = map.logoAlignment,
     focusRect = map.focusRect,
     mapType = map.mapType,
-    poiLimit = map.poiLimit;
+    poiLimit = map.poiLimit,
+    cameraBounds = map.cameraBounds;
 
-    final bool tiltGesturesEnabled;
+  final bool tiltGesturesEnabled;
 
-    final bool zoomGesturesEnabled;
+  final bool zoomGesturesEnabled;
 
-    final bool rotateGesturesEnabled;
+  final bool rotateGesturesEnabled;
 
-    final bool nightModeEnabled;
+  final bool nightModeEnabled;
 
-    final bool scrollGesturesEnabled;
+  final bool scrollGesturesEnabled;
 
-    final bool fastTapEnabled;
+  final bool fastTapEnabled;
 
-    final bool mode2DEnabled;
+  final bool mode2DEnabled;
 
-    final MapAlignment logoAlignment;
+  final MapAlignment logoAlignment;
 
-    final ScreenRect? focusRect;
+  final ScreenRect? focusRect;
 
-    final MapType mapType;
+  final MapType mapType;
 
-    final int? poiLimit;
+  final int? poiLimit;
+
+  final CameraBounds cameraBounds;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -313,7 +320,8 @@ class _YandexMapOptions {
       'logoAlignment': logoAlignment.toJson(),
       'focusRect': focusRect?.toJson(),
       'mapType': mapType.index,
-      'poiLimit': poiLimit
+      'poiLimit': poiLimit,
+      'cameraBounds': cameraBounds.toJson()
     };
   }
 
