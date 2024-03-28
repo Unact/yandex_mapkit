@@ -17,7 +17,6 @@ part 'src/types/bitmap_descriptor.dart';
 part 'src/types/callbacks.dart';
 part 'src/types/camera_position.dart';
 part 'src/types/cluster.dart';
-part 'src/types/exception.dart';
 part 'src/types/geo_object.dart';
 part 'src/types/bicycle/bicycle_route.dart';
 part 'src/types/bicycle/bicycle_session.dart';
