@@ -62,7 +62,7 @@ class _SearchExampleState extends State<_SearchExample> {
 
     print('Search query: $query');
 
-    final resultWithSession = YandexSearch.searchByText(
+    final resultWithSession = await YandexSearch.searchByText(
       searchText: query,
       geometry: Geometry.fromBoundingBox(
         const BoundingBox(
@@ -79,7 +79,7 @@ class _SearchExampleState extends State<_SearchExample> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => _SessionPage(query, resultWithSession.session, resultWithSession.result)
+        builder: (BuildContext context) => _SessionPage(query, resultWithSession.$1, resultWithSession.$2)
       )
     );
   }

@@ -7,9 +7,7 @@ import androidx.annotation.NonNull;
 import com.yandex.mapkit.search.SearchFactory;
 import com.yandex.mapkit.search.SearchManagerType;
 import com.yandex.mapkit.search.SearchManager;
-import com.yandex.mapkit.search.SuggestSession;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -20,8 +18,6 @@ import io.flutter.plugin.common.MethodChannel.Result;
 public class YandexSuggest implements MethodCallHandler {
   private final SearchManager searchManager;
   private final BinaryMessenger binaryMessenger;
-  @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-  private final Map<Integer, YandexSuggestSession> suggestSessions  = new HashMap<>();
 
   public YandexSuggest(Context context, BinaryMessenger messenger) {
     SearchFactory.initialize(context);
@@ -34,8 +30,9 @@ public class YandexSuggest implements MethodCallHandler {
   @SuppressWarnings({"SwitchStatementWithTooFewBranches"})
   public void onMethodCall(MethodCall call, @NonNull Result result) {
     switch (call.method) {
-      case "getSuggestions":
-        getSuggestions(call, result);
+      case "initSession":
+        initSession(call);
+        result.success(null);
         break;
       default:
         result.notImplemented();
@@ -44,31 +41,10 @@ public class YandexSuggest implements MethodCallHandler {
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  private void getSuggestions(MethodCall call, Result result) {
+  public void initSession(MethodCall call) {
     Map<String, Object> params = ((Map<String, Object>) call.arguments);
-    final int sessionId = ((Number) params.get("sessionId")).intValue();
-    SuggestSession session = searchManager.createSuggestSession();
+    final int id = ((Number) params.get("id")).intValue();
 
-    session.suggest(
-      (String) params.get("text"),
-      Utils.boundingBoxFromJson((Map<String, Object>) params.get("boundingBox")),
-      Utils.suggestOptionsFromJson((Map<String, Object>) params.get("suggestOptions")),
-      new YandexSuggestListener(result)
-    );
-
-    YandexSuggestSession suggestSession = new YandexSuggestSession(
-      sessionId,
-      session,
-      binaryMessenger,
-      new SuggestCloseListener()
-    );
-
-    suggestSessions.put(sessionId, suggestSession);
-  }
-
-  public class SuggestCloseListener {
-    public void onClose(int id) {
-      suggestSessions.remove(id);
-    }
+    YandexSuggestSession.initSession(id, binaryMessenger, searchManager);
   }
 }

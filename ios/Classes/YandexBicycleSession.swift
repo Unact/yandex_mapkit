@@ -3,24 +3,22 @@ import YandexMapsMobile
 
 public class YandexBicycleSession: NSObject {
   private var id: Int
-  private var session: YMKBicycleSession
+  private var session: YMKBicycleSession!
   private let methodChannel: FlutterMethodChannel!
-  private var onClose: (Int) -> ()
+  private let bicycleRouter: YMKBicycleRouter!
+  private static var bicycleSessions: [Int: YandexBicycleSession] = [:]
 
-  public required init(
-    id: Int,
-    session: YMKBicycleSession,
-    registrar: FlutterPluginRegistrar,
-    onClose: @escaping ((Int) -> ())
-  ) {
+  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouter) {
+    bicycleSessions[id] = YandexBicycleSession(id: id, registrar: registrar, bicycleRouter: bicycleRouter)
+  }
+
+  public required init(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouter) {
     self.id = id
-    self.session = session
-    self.onClose = onClose
-
-    methodChannel = FlutterMethodChannel(
+    self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_bicycle_session_\(id)",
       binaryMessenger: registrar.messenger()
     )
+    self.bicycleRouter = bicycleRouter
 
     super.init()
 
@@ -30,6 +28,8 @@ public class YandexBicycleSession: NSObject {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
+    case "requestRoutes":
+      requestRoutes(call, result)
     case "cancel":
       cancel()
       result(nil)
@@ -41,6 +41,21 @@ public class YandexBicycleSession: NSObject {
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func requestRoutes(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    let params = call.arguments as! [String: Any]
+    let requestPoints = (params["points"] as! [[String: Any]]).map {
+      (pointParams) -> YMKRequestPoint in Utils.requestPointFromJson(pointParams)
+    }
+
+    session = bicycleRouter.requestRoutes(
+      with: requestPoints,
+      type: YMKBicycleVehicleType(rawValue: (params["bicycleVehicleType"] as! NSNumber).uintValue)!,
+      routeListener: {(bicycleResponse: [YMKBicycleRoute]?, error: Error?) -> Void in
+        self.handleResponse(bicycleResponse: bicycleResponse, error: error, result: result)
+      }
+    )
   }
 
   public func cancel() {
@@ -56,7 +71,7 @@ public class YandexBicycleSession: NSObject {
   public func close() {
     session.cancel()
 
-    onClose(id)
+    YandexBicycleSession.bicycleSessions.removeValue(forKey: id)
   }
 
   public func handleResponse(bicycleResponse: [YMKBicycleRoute]?, error: Error?, result: @escaping FlutterResult) {

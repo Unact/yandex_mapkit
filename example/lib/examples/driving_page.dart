@@ -88,7 +88,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
   Future<void> _requestRoutes() async {
     print('Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
-    var resultWithSession = YandexDriving.requestRoutes(
+    var resultWithSession = await YandexDriving.requestRoutes(
       points: [
         RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
         RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
@@ -107,8 +107,8 @@ class _DrivingExampleState extends State<_DrivingExample> {
         builder: (BuildContext context) => _SessionPage(
           startPlacemark,
           endPlacemark,
-          resultWithSession.session,
-          resultWithSession.result
+          resultWithSession.$1,
+          resultWithSession.$2
         )
       )
     );

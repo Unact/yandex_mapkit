@@ -88,7 +88,7 @@ class _BicycleExampleState extends State<_BicycleExample> {
   Future<void> _requestRoutes() async {
     print('Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
-    var resultWithSession = YandexBicycle.requestRoutes(
+    var resultWithSession = await YandexBicycle.requestRoutes(
       bicycleVehicleType: BicycleVehicleType.bicycle,
       points: [
         RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
@@ -103,8 +103,8 @@ class _BicycleExampleState extends State<_BicycleExample> {
         builder: (BuildContext context) => _SessionPage(
           startPlacemark,
           endPlacemark,
-          resultWithSession.session,
-          resultWithSession.result
+          resultWithSession.$1,
+          resultWithSession.$2
         )
       )
     );

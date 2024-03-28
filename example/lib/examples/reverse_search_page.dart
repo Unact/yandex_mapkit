@@ -106,7 +106,7 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
 
     print('Point: ${cameraPosition.target}, Zoom: ${cameraPosition.zoom}');
 
-    final resultWithSession = YandexSearch.searchByPoint(
+    final resultWithSession = await YandexSearch.searchByPoint(
       point: cameraPosition.target,
       zoom: cameraPosition.zoom.toInt(),
       searchOptions: const SearchOptions(
@@ -120,8 +120,8 @@ class _ReverseSearchExampleState extends State<_ReverseSearchExample> {
       MaterialPageRoute(
         builder: (BuildContext context) => _SessionPage(
           cameraPosition.target,
-          resultWithSession.session,
-          resultWithSession.result
+          resultWithSession.$1,
+          resultWithSession.$2
         )
       )
     );

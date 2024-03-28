@@ -7,22 +7,12 @@ class SearchSession {
 
   /// Unique session identifier
   final int id;
-  bool _isClosed = false;
-
-  /// Has the current session been closed
-  bool get isClosed => _isClosed;
 
   SearchSession._({required this.id}) :
     _methodChannel = MethodChannel(_methodChannelName + id.toString());
 
   /// Cancels running search request if there is one
-  ///
-  /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<void> cancel() async {
-    if (_isClosed) {
-      throw SearchSessionException._('Session is closed');
-    }
-
     await _methodChannel.invokeMethod<void>('cancel');
   }
 
@@ -30,57 +20,62 @@ class SearchSession {
   ///
   /// Use all the options of previous request.
   /// Automatically cancels running search if there is one.
-  /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<SearchSessionResult> retry() async {
-    if (_isClosed) {
-      throw SearchSessionException._('Session is closed');
-    }
-
     final result = await _methodChannel.invokeMethod('retry');
 
     return SearchSessionResult._fromJson(result);
   }
 
   /// Returns true/false depending on if the next page is available
-  ///
-  /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<bool> hasNextPage() async {
-    if (_isClosed) {
-      throw SearchSessionException._('Session is closed');
-    }
-
     return await _methodChannel.invokeMethod('hasNextPage');
   }
 
   /// If [SearchResponse.hasNextPage] is false then calling of this method will have no effect
-  ///
-  /// After [SearchSession.close] has been called, all subsequent calls will return a [SearchSessionException]
   Future<SearchSessionResult> fetchNextPage() async {
-    if (_isClosed) {
-      throw SearchSessionException._('Session is closed');
-    }
-
     final result = await _methodChannel.invokeMethod('fetchNextPage');
 
     return SearchSessionResult._fromJson(result);
   }
 
   /// Closes current session
-  ///
-  /// After first call, all subsequent calls will return a [SearchSessionException]
   Future<void> close() async {
-    if (_isClosed) {
-      throw SearchSessionException._('Session is closed');
-    }
-
     await _methodChannel.invokeMethod<void>('close');
-
-    _isClosed = true;
   }
-}
 
-class SearchSessionException extends SessionException {
-  SearchSessionException._(String message) : super._(message);
+  /// Starts text search session
+  Future<SearchSessionResult> _searchByText({
+    required String searchText,
+    required Geometry geometry,
+    required SearchOptions searchOptions
+  }) async {
+    final params = <String, dynamic>{
+      'searchText': searchText,
+      'geometry': geometry.toJson(),
+      'searchOptions': searchOptions.toJson(),
+    };
+
+    final result = await _methodChannel.invokeMethod('searchByText', params);
+
+    return SearchSessionResult._fromJson(result);
+  }
+
+  /// Starts point search session
+  Future<SearchSessionResult> _searchByPoint({
+    required Point point,
+    int? zoom,
+    required SearchOptions searchOptions
+  }) async {
+    final params = <String, dynamic>{
+      'point': point.toJson(),
+      'zoom': zoom,
+      'searchOptions': searchOptions.toJson(),
+    };
+
+    final result = await _methodChannel.invokeMethod('searchByPoint', params);
+
+    return SearchSessionResult._fromJson(result);
+  }
 }
 
 /// Result of a search request
@@ -114,20 +109,4 @@ class SearchSessionResult {
       json['error']
     );
   }
-}
-
-/// Object containing the result of a search request and
-/// a [session] object for further working with newly made request
-class SearchResultWithSession {
-
-  /// Created session
-  SearchSession session;
-
-  /// Request result
-  Future<SearchSessionResult> result;
-
-  SearchResultWithSession._({
-    required this.session,
-    required this.result
-  });
 }
