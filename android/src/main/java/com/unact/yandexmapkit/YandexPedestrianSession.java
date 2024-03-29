@@ -83,7 +83,7 @@ public class YandexPedestrianSession implements MethodChannel.MethodCallHandler 
         @Override
         public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }
         @Override
-        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result);}
+        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result); }
       }
     );
   }
@@ -100,7 +100,7 @@ public class YandexPedestrianSession implements MethodChannel.MethodCallHandler 
         @Override
         public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }
         @Override
-        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result);}
+        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result); }
       }
     );
   }
