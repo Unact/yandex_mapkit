@@ -20,6 +20,7 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private static final String SUGGEST_CHANNEL_ID  = "yandex_mapkit/yandex_suggest";
   private static final String DRIVING_CHANNEL_ID  = "yandex_mapkit/yandex_driving";
   private static final String BICYCLE_CHANNEL_ID  = "yandex_mapkit/yandex_bicycle";
+  private static final String PEDESTRIAN_CHANNEL_ID  = "yandex_mapkit/yandex_pedestrian";
 
   @Nullable private Lifecycle lifecycle;
 
@@ -27,6 +28,7 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   @Nullable private MethodChannel suggestMethodChannel;
   @Nullable private MethodChannel drivingMethodChannel;
   @Nullable private MethodChannel bicycleMethodChannel;
+  @Nullable private MethodChannel pedestrianMethodChannel;
 
   @Override
   public void onAttachedToEngine(FlutterPluginBinding binding) {
@@ -59,6 +61,10 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
     bicycleMethodChannel = new MethodChannel(messenger, BICYCLE_CHANNEL_ID);
     YandexBicycle yandexBicycle = new YandexBicycle(context, messenger);
     bicycleMethodChannel.setMethodCallHandler(yandexBicycle);
+
+    pedestrianMethodChannel = new MethodChannel(messenger, PEDESTRIAN_CHANNEL_ID);
+    YandexPedestrian yandexPedestrian = new YandexPedestrian(context, messenger);
+    pedestrianMethodChannel.setMethodCallHandler(yandexPedestrian);
   }
 
   @SuppressWarnings({"ConstantConditions"})
@@ -74,6 +80,9 @@ public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
 
     bicycleMethodChannel.setMethodCallHandler(null);
     bicycleMethodChannel = null;
+
+    pedestrianMethodChannel.setMethodCallHandler(null);
+    pedestrianMethodChannel = null;
   }
 
   @Override

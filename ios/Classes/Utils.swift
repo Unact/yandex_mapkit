@@ -45,6 +45,17 @@ class Utils {
     return YMKRequestPoint(point: point, type: pointType, pointContext: nil, drivingArrivalPointId: nil)
   }
 
+  static func timeOptionsFromJson(_ json: [String: Any]) -> YMKTimeOptions {
+    return YMKTimeOptions(
+      departureTime: json["departureTime"] as? NSNumber == nil ?
+        nil :
+        Date(timeIntervalSince1970: (json["departureTime"] as! NSNumber).doubleValue / 1000.0),
+      arrivalTime: json["arrivalTime"] as? NSNumber == nil ?
+        nil :
+        Date(timeIntervalSince1970: (json["arrivalTime"] as! NSNumber).doubleValue / 1000.0)
+    )
+  }
+
   static func drivingOptionsFromJson(_ json: [String: Any]) -> YMKDrivingOptions {
     return YMKDrivingOptions(
       initialAzimuth: json["initialAzimuth"] as? NSNumber,

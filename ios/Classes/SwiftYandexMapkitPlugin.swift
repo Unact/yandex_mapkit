@@ -16,5 +16,6 @@ public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
     YandexSuggest.register(with: registrar)
     YandexDriving.register(with: registrar)
     YandexBicycle.register(with: registrar)
+    YandexPedestrian.register(with: registrar)
   }
 }

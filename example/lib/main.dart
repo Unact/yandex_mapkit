@@ -8,6 +8,7 @@ import 'package:yandex_mapkit_example/examples/bicycle_page.dart';
 import 'package:yandex_mapkit_example/examples/driving_page.dart';
 import 'package:yandex_mapkit_example/examples/map_controls_page.dart';
 import 'package:yandex_mapkit_example/examples/map_object_collection_page.dart';
+import 'package:yandex_mapkit_example/examples/pedestrian_page.dart';
 import 'package:yandex_mapkit_example/examples/placemark_map_object_page.dart';
 import 'package:yandex_mapkit_example/examples/polyline_map_object_page.dart';
 import 'package:yandex_mapkit_example/examples/polygon_map_object_page.dart';
@@ -33,6 +34,7 @@ const List<MapPage> _allPages = <MapPage>[
   SearchPage(),
   ReverseSearchPage(),
   BicyclePage(),
+  PedestrianPage(),
   DrivingPage(),
 ];
 
