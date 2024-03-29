@@ -134,7 +134,7 @@ public class YandexPedestrianSession implements MethodChannel.MethodCallHandler 
       resultMetadata.put("estimation", resultEstimation);
 
       Map<String, Object> resultRoute = new HashMap<>();
-      resultRoute.put("polyline", Utils.polylineToJson(route.getGeometry()));
+      resultRoute.put("geometry", Utils.polylineToJson(route.getGeometry()));
       resultRoute.put("metadata", resultMetadata);
 
       resultRoutes.add(resultRoute);

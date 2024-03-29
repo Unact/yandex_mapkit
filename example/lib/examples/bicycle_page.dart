@@ -267,7 +267,7 @@ class _SessionState extends State<_SessionPage> {
       result.routes!.asMap().forEach((i, route) {
         mapObjects.add(PolylineMapObject(
           mapId: MapObjectId('route_${i}_polyline'),
-          polyline: Polyline(points: route.geometry),
+          polyline: route.geometry,
           strokeColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
           strokeWidth: 3,
         ));

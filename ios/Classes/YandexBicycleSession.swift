@@ -87,7 +87,7 @@ public class YandexBicycleSession: NSObject {
       let weight = route.weight
 
       return [
-        "polyline": Utils.polylineToJson(route.geometry),
+        "geometry": Utils.polylineToJson(route.geometry),
         "weight": [
           "time": Utils.localizedValueToJson(weight.time),
           "distance": Utils.localizedValueToJson(weight.distance)

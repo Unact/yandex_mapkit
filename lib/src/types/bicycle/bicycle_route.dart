@@ -6,7 +6,7 @@ part of '../../../yandex_mapkit.dart';
 class BicycleRoute extends Equatable {
 
   /// Route geometry.
-  final List<Point> geometry;
+  final Polyline geometry;
 
   /// The route metadata.
   final BicycleWeight weight;
@@ -15,7 +15,7 @@ class BicycleRoute extends Equatable {
 
   factory BicycleRoute._fromJson(Map<dynamic, dynamic> json) {
     return BicycleRoute._(
-      Polyline._fromJson(json['polyline']).points,
+      Polyline._fromJson(json['geometry']),
       BicycleWeight._fromJson(json['weight']),
     );
   }

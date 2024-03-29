@@ -6,7 +6,7 @@ part of '../../../yandex_mapkit.dart';
 class DrivingRoute extends Equatable {
 
   /// Route geometry.
-  final List<Point> geometry;
+  final Polyline geometry;
 
   /// The route metadata.
   final DrivingSectionMetadata metadata;
@@ -15,7 +15,7 @@ class DrivingRoute extends Equatable {
 
   factory DrivingRoute._fromJson(Map<dynamic, dynamic> json) {
     return DrivingRoute._(
-      Polyline._fromJson(json['polyline']).points,
+      Polyline._fromJson(json['geometry']),
       DrivingSectionMetadata._fromJson(json['metadata']),
     );
   }

@@ -88,7 +88,7 @@ public class YandexPedestrianSession: NSObject {
       let estimation = route.metadata.estimation
 
       return [
-        "polyline": Utils.polylineToJson(route.geometry),
+        "geometry": Utils.polylineToJson(route.geometry),
         "metadata": [
           "estimation": estimation == nil ? nil : [
             "departureTime": estimation!.departureTime.value * 1000,

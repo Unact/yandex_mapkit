@@ -125,7 +125,7 @@ public class YandexDrivingSession implements MethodChannel.MethodCallHandler {
       resultMetadata.put("weight", resultWeight);
 
       Map<String, Object> resultRoute = new HashMap<>();
-      resultRoute.put("polyline", Utils.polylineToJson(route.getGeometry()));
+      resultRoute.put("geometry", Utils.polylineToJson(route.getGeometry()));
       resultRoute.put("metadata", resultMetadata);
 
       resultRoutes.add(resultRoute);

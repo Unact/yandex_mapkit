@@ -88,7 +88,7 @@ public class YandexDrivingSession: NSObject {
       let weight = route.metadata.weight
 
       return [
-        "polyline": Utils.polylineToJson(route.geometry),
+        "geometry": Utils.polylineToJson(route.geometry),
         "metadata": [
           "weight": [
             "time": Utils.localizedValueToJson(weight.time),

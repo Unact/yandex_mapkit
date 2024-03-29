@@ -6,7 +6,7 @@ part of '../../../yandex_mapkit.dart';
 class PedestrianRoute extends Equatable {
 
   /// Route geometry.
-  final List<Point> geometry;
+  final Polyline geometry;
 
   /// The route metadata.
   final PedestrianMetadata metadata;
@@ -15,7 +15,7 @@ class PedestrianRoute extends Equatable {
 
   factory PedestrianRoute._fromJson(Map<dynamic, dynamic> json) {
     return PedestrianRoute._(
-      Polyline._fromJson(json['polyline']).points,
+      Polyline._fromJson(json['geometry']),
       PedestrianMetadata._fromJson(json['metadata'])
     );
   }

@@ -121,7 +121,7 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
       resultWeight.put("distance", Utils.localizedValueToJson(weight.getDistance()));
 
       Map<String, Object> resultRoute = new HashMap<>();
-      resultRoute.put("polyline", Utils.polylineToJson(route.getGeometry()));
+      resultRoute.put("geometry", Utils.polylineToJson(route.getGeometry()));
       resultRoute.put("weight", resultWeight);
 
       resultRoutes.add(resultRoute);
