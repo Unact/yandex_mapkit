@@ -46,13 +46,33 @@ import YandexMapsMobile
 platform :ios, '12.0'
 ```
 
+* Specify your desired variant of native library.  
+Available options: `lite` and `full`. `navikit` variant is currently not supported.  
+Defaults to `lite`.  
+
+Include the following line right after `ENV['COCOAPODS_DISABLE_STATS'] = 'true'`
+
+```ruby
+ENV['YANDEX_MAPKIT_VARIANT'] = '<YOUR_DESIRED_VARIANT>'
+```
+
 ### Setup for Android
 
-* Add dependency `implementation 'com.yandex.android:maps.mobile:4.5.1-full'` to `android/app/build.gradle`
+* Specify your desired variant of native library.  
+Available options: `lite` and `full`. `navikit` variant is currently not supported.  
+Defaults to `lite`.  
+
+Add the following line to `android/gradle.properties`
+
+```groovy
+yandexMapkit.variant=<YOUR_DESIRED_VARIANT>
+```
+
+* Add dependency `implementation 'com.yandex.android:maps.mobile:4.5.1-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.5.1-full'
+    implementation 'com.yandex.android:maps.mobile:4.5.1-<YOUR_DESIRED_VARIANT>'
 }
 ```
 
