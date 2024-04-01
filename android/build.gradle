@@ -1,3 +1,5 @@
+def variant = project.hasProperty("yandexMapkit.variant") ? project.property("yandexMapkit.variant") : "lite"
+
 group 'com.unact.yandexmapkit'
 version '1.0-SNAPSHOT'
 
@@ -26,13 +28,27 @@ android {
         namespace 'com.unact.yandexmapkit'
     }
 
+    sourceSets {
+        main {
+            java {
+                include("com/unact/yandexmapkit/lite/*")
+
+                if (variant == "lite") {
+                    exclude("com/unact/yandexmapkit/full/*")
+                }
+            }
+        }
+    }
+
     compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 21
+
+        buildConfigField "String", "YANDEX_MAPKIT", "\"${variant}\""
     }
 }
 
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.5.1-full'
+    implementation 'com.yandex.android:maps.mobile:4.5.1-' + variant
 }

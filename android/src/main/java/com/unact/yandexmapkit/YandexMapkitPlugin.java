@@ -1,116 +1,48 @@
 package com.unact.yandexmapkit;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.Lifecycle;
 
-import com.yandex.mapkit.MapKitFactory;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
-import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
-import io.flutter.plugin.common.BinaryMessenger;
-import io.flutter.plugin.common.MethodChannel;
 
 public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
-  private static final String VIEW_TYPE = "yandex_mapkit/yandex_map";
-  private static final String SEARCH_CHANNEL_ID   = "yandex_mapkit/yandex_search";
-  private static final String SUGGEST_CHANNEL_ID  = "yandex_mapkit/yandex_suggest";
-  private static final String DRIVING_CHANNEL_ID  = "yandex_mapkit/yandex_driving";
-  private static final String BICYCLE_CHANNEL_ID  = "yandex_mapkit/yandex_bicycle";
-  private static final String PEDESTRIAN_CHANNEL_ID  = "yandex_mapkit/yandex_pedestrian";
+  private final Init variantInit;
 
-  @Nullable private Lifecycle lifecycle;
+  public YandexMapkitPlugin() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+    String name = "com.unact.yandexmapkit." + BuildConfig.YANDEX_MAPKIT + ".Init" +
+      BuildConfig.YANDEX_MAPKIT.substring(0, 1).toUpperCase() + BuildConfig.YANDEX_MAPKIT.substring(1);
 
-  @Nullable private MethodChannel searchMethodChannel;
-  @Nullable private MethodChannel suggestMethodChannel;
-  @Nullable private MethodChannel drivingMethodChannel;
-  @Nullable private MethodChannel bicycleMethodChannel;
-  @Nullable private MethodChannel pedestrianMethodChannel;
+    this.variantInit = (Init) Class.forName(name).newInstance();
+  }
 
   @Override
-  public void onAttachedToEngine(FlutterPluginBinding binding) {
-    MapKitFactory.initialize(binding.getApplicationContext());
-
-    BinaryMessenger messenger = binding.getBinaryMessenger();
-    binding.getPlatformViewRegistry().registerViewFactory(VIEW_TYPE, new YandexMapFactory(messenger, new LifecycleProvider()));
-
-    setupChannels(messenger, binding.getApplicationContext());
+  public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+    variantInit.onAttachedToEngine(binding);
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    teardownChannels();
-  }
-
-  private void setupChannels(BinaryMessenger messenger, Context context) {
-    searchMethodChannel = new MethodChannel(messenger, SEARCH_CHANNEL_ID);
-    YandexSearch yandexSearch = new YandexSearch(context, messenger);
-    searchMethodChannel.setMethodCallHandler(yandexSearch);
-
-    suggestMethodChannel = new MethodChannel(messenger, SUGGEST_CHANNEL_ID);
-    YandexSuggest yandexSuggest = new YandexSuggest(context, messenger);
-    suggestMethodChannel.setMethodCallHandler(yandexSuggest);
-
-    drivingMethodChannel = new MethodChannel(messenger, DRIVING_CHANNEL_ID);
-    YandexDriving yandexDriving = new YandexDriving(context, messenger);
-    drivingMethodChannel.setMethodCallHandler(yandexDriving);
-
-    bicycleMethodChannel = new MethodChannel(messenger, BICYCLE_CHANNEL_ID);
-    YandexBicycle yandexBicycle = new YandexBicycle(context, messenger);
-    bicycleMethodChannel.setMethodCallHandler(yandexBicycle);
-
-    pedestrianMethodChannel = new MethodChannel(messenger, PEDESTRIAN_CHANNEL_ID);
-    YandexPedestrian yandexPedestrian = new YandexPedestrian(context, messenger);
-    pedestrianMethodChannel.setMethodCallHandler(yandexPedestrian);
-  }
-
-  @SuppressWarnings({"ConstantConditions"})
-  private void teardownChannels() {
-    searchMethodChannel.setMethodCallHandler(null);
-    searchMethodChannel = null;
-
-    suggestMethodChannel.setMethodCallHandler(null);
-    suggestMethodChannel = null;
-
-    drivingMethodChannel.setMethodCallHandler(null);
-    drivingMethodChannel = null;
-
-    bicycleMethodChannel.setMethodCallHandler(null);
-    bicycleMethodChannel = null;
-
-    pedestrianMethodChannel.setMethodCallHandler(null);
-    pedestrianMethodChannel = null;
+    variantInit.onDetachedFromEngine(binding);
   }
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-    lifecycle = FlutterLifecycleAdapter.getActivityLifecycle(binding);
-    MapKitFactory.getInstance().onStart();
+    variantInit.onAttachedToActivity(binding);
   }
 
   @Override
   public void onDetachedFromActivityForConfigChanges() {
-    onDetachedFromActivity();
+    variantInit.onDetachedFromActivityForConfigChanges();
   }
 
   @Override
   public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-    onAttachedToActivity(binding);
+    variantInit.onReattachedToActivityForConfigChanges(binding);
   }
 
   @Override
   public void onDetachedFromActivity() {
-    lifecycle = null;
-    MapKitFactory.getInstance().onStop();
-  }
-
-  public class LifecycleProvider {
-    @Nullable
-    Lifecycle getLifecycle() {
-      return lifecycle;
-    }
+    variantInit.onDetachedFromActivity();
   }
 }
