@@ -9,6 +9,18 @@ A flutter plugin for displaying yandex maps on iOS and Android.
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
 When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/doc/en/conditions)
 
+## Features
+
+* [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
+* [X] Working with collections of map objects and clusters
+* [X] Setting map bounds and limiting user interactions
+* [X] Showing current user location
+* [X] Address suggestions
+* [X] Basic driving/bicycle/pedestrian routing
+* [X] Basic address direct/reverse search
+* [X] Working with geo objects
+* [X] Support for both lite and full variants 
+
 ## Getting Started
 
 ### Generate your API Key
@@ -130,36 +142,22 @@ In the end it should look like the following
 
 For usage examples refer to example [app](https://github.com/Unact/yandex_mapkit/tree/master/example)
 
-![image](https://user-images.githubusercontent.com/8961745/100362969-26e23880-300d-11eb-9529-6ab36beffa51.png)
+![image](https://github.com/Unact/yandex_mapkit/assets/8961745/eba23fa6-1381-4a3f-98cd-47d3346a767b)
 
 ### Additional remarks
+
+#### Language
 
 YandexMapkit always works with __one language__ only.  
 Due to native constraints after the application is launched it can't be changed.
 
-#### Android
+#### Android. Hybrid Composition
 
-##### Hybrid Composition
-
-By default android views are rendered using [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views).
-To render the `YandexMap` widget on Android using Virtual Display(old composition), set AndroidYandexMap.useAndroidViewSurface to false.
-Place this anywhere in your code, before using `YandexMap` widget.
+By default android views are rendered using [Hybrid Composition](https://flutter.dev/docs/development/platform-integration/platform-views).  
+To render the `YandexMap` widget on Android using Virtual Display(old composition), set AndroidYandexMap.useAndroidViewSurface to false.  
+Place this anywhere in your code, before using `YandexMap` widget.  
 
 ```dart
 AndroidYandexMap.useAndroidViewSurface = false;
 ```
 
-### Features
-
-* [X] Working with Placemarks/Polylines/Polygons/Circles - adding, updating, removing, tap events, styling
-* [X] Working with collections of map objects
-* [X] Working with clusters
-* [X] Moving around the map
-* [X] Setting map bounds
-* [X] Showing current user location
-* [X] Styling the map
-* [X] Address suggestions
-* [X] Basic driving/bicycle/pedestrian routing
-* [X] Basic address direct/reverse search
-* [X] Working with geo objects
-* [X] Showing current traffic conditions
