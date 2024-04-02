@@ -5,17 +5,12 @@ import YandexMapsMobile
 
 public class SwiftYandexMapkitPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    registrar.register(
-      YandexMapFactory(registrar: registrar),
-      withId: "yandex_mapkit/yandex_map"
-    )
+    #if YANDEX_MAPKIT_LITE
+    InitLite.register(with: registrar)
+    #endif
 
-    YMKMapKit.sharedInstance().onStart()
-
-    YandexSearch.register(with: registrar)
-    YandexSuggest.register(with: registrar)
-    YandexDriving.register(with: registrar)
-    YandexBicycle.register(with: registrar)
-    YandexPedestrian.register(with: registrar)
+    #if YANDEX_MAPKIT_FULL
+    InitFull.register(with: registrar)
+    #endif
   }
 }
