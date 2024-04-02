@@ -1,3 +1,15 @@
+## 4.0.0
+
+* Update and lock YandexMapkit version to 4.5.1 for iOS and Android
+* Implement `YandexPedestrian`
+* Fix polyline geometry camera crash on Android
+* Fix `YandexMapController.moveCamera` crash on iOS and Android
+* **Breaking change** Implement `full`/`lite` variant selection. Due to large footprint of `full` variant, default is set to `lite`. Refer to README.md on how to set desired variant
+* **Breaking change** `BicycleRoute.geometry`, `DrivingRoute.geometry` return types have been changed
+* **Breaking change** `YandexMapController.getMinZoom`, `YandexMapController.getMaxZoom`, `YandexMapController.setMinZoom`, `YandexMapController.setMaxZoom` has been removed. Use `YandexMap.cameraBounds` to set desired zoom
+* **Breaking change** `YandexMapkitException` has been removed
+* **Breaking change** `YandexBycicle.requestRoutes`, `YandexDriving.requestRoutes`, `YandexSearch.searchByText`, `YandexSearch.searchByPoint`, `YandexSuggest.getSuggestions` return types have been changed
+
 ## 3.4.0
 
 * Update and lock YandexMapkit version to 4.4.0-full for iOS and Android
