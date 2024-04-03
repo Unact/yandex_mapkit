@@ -1,4 +1,5 @@
 def variant = project.hasProperty("yandexMapkit.variant") ? project.property("yandexMapkit.variant") : "lite"
+def initClass = "com.unact.yandexmapkit." + variant + ".Init" + variant.capitalize() + ".class"
 
 group 'com.unact.yandexmapkit'
 version '1.0-SNAPSHOT'
@@ -45,7 +46,7 @@ android {
     defaultConfig {
         minSdkVersion 21
 
-        buildConfigField "String", "YANDEX_MAPKIT", "\"${variant}\""
+        buildConfigField "Class", "YANDEX_MAPKIT_INIT_CLASS", initClass
     }
 }
 

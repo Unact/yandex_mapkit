@@ -9,11 +9,8 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
   private final Init variantInit;
 
-  public YandexMapkitPlugin() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    String name = "com.unact.yandexmapkit." + BuildConfig.YANDEX_MAPKIT + ".Init" +
-      BuildConfig.YANDEX_MAPKIT.substring(0, 1).toUpperCase() + BuildConfig.YANDEX_MAPKIT.substring(1);
-
-    this.variantInit = (Init) Class.forName(name).newInstance();
+  public YandexMapkitPlugin() throws IllegalAccessException, InstantiationException {
+    this.variantInit = (Init) BuildConfig.YANDEX_MAPKIT_INIT_CLASS.newInstance();
   }
 
   @Override
