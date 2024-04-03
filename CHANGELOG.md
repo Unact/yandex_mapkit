@@ -1,3 +1,7 @@
+## 4.0.1
+
+* Fix release mode on Android breaking YandexMap rendering
+
 ## 4.0.0
 
 * Update and lock YandexMapkit version to 4.5.1 for iOS and Android
