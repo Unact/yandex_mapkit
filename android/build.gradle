@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.3'
+        classpath 'com.android.tools.build:gradle:8.1.1'
     }
 }
 
@@ -25,6 +25,10 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
+    buildFeatures {
+        buildConfig = true
+    }
+
     if (project.android.hasProperty("namespace")) {
         namespace 'com.unact.yandexmapkit'
     }
