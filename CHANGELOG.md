@@ -1,3 +1,7 @@
+## 4.0.2
+
+* Fix Android compatibility with AGP 8.0+
+
 ## 4.0.1
 
 * Fix release mode on Android breaking YandexMap rendering
