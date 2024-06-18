@@ -513,8 +513,8 @@ public class YandexMapController implements
   }
 
   private boolean validFocusRect(ScreenRect focusRect) {
-    return focusRect.getTopLeft().getY() > 0 &&
-      focusRect.getTopLeft().getX() > 0 &&
+    return focusRect.getTopLeft().getY() >= 0 &&
+      focusRect.getTopLeft().getX() >= 0 &&
       focusRect.getBottomRight().getY() <= mapView.getMapWindow().height() &&
       focusRect.getBottomRight().getX() <= mapView.getMapWindow().width();
   }
