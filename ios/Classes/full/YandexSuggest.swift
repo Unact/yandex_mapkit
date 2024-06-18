@@ -22,7 +22,7 @@ public class YandexSuggest: NSObject, FlutterPlugin {
   public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
     self.methodChannel = channel
-    self.searchManager = YMKSearch.sharedInstance().createSearchManager(with: .combined)
+    self.searchManager = YMKSearchFactory.instance().createSearchManager(with: .combined)
 
     super.init()
 

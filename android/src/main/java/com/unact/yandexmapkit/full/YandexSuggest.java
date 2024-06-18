@@ -20,8 +20,6 @@ public class YandexSuggest implements MethodCallHandler {
   private final BinaryMessenger binaryMessenger;
 
   public YandexSuggest(Context context, BinaryMessenger messenger) {
-    SearchFactory.initialize(context);
-
     searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
     binaryMessenger = messenger;
   }

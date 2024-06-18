@@ -21,7 +21,7 @@ public class YandexDriving: NSObject, FlutterPlugin {
   public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
     self.methodChannel = channel
-    self.drivingRouter = YMKDirections.sharedInstance().createDrivingRouter(withType: YMKDrivingRouterType.combined)
+    self.drivingRouter = YMKDirectionsFactory.instance().createDrivingRouter(withType: YMKDrivingRouterType.combined)
 
     super.init()
 

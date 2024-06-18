@@ -21,7 +21,7 @@ public class YandexBicycle: NSObject, FlutterPlugin {
   public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
     self.methodChannel = channel
-    self.bicycleRouter = YMKTransport.sharedInstance().createBicycleRouter()
+    self.bicycleRouter = YMKTransportFactory.instance().createBicycleRouter()
 
     super.init()
 

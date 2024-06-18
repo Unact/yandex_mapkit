@@ -20,8 +20,6 @@ public class YandexSearch implements MethodCallHandler {
   private final BinaryMessenger binaryMessenger;
 
   public YandexSearch(Context context, BinaryMessenger messenger) {
-    SearchFactory.initialize(context);
-
     searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED);
     binaryMessenger = messenger;
   }

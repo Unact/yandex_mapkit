@@ -21,7 +21,7 @@ public class YandexPedestrian: NSObject, FlutterPlugin {
   public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
     self.methodChannel = channel
-    self.pedestrianRouter = YMKTransport.sharedInstance().createPedestrianRouter()
+    self.pedestrianRouter = YMKTransportFactory.instance().createPedestrianRouter()
 
     super.init()
 

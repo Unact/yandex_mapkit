@@ -10,11 +10,12 @@ class YandexPedestrian {
   /// Builds a route.
   static Future<(PedestrianSession, Future<PedestrianSessionResult>)> requestRoutes({
     required List<RequestPoint> points,
+    required avoidSteep,
     required TimeOptions timeOptions
   }) async {
     final session = await _initSession();
 
-    return (session, session._requestRoutes(points: points, timeOptions: timeOptions));
+    return (session, session._requestRoutes(points: points, avoidSteep: avoidSteep, timeOptions: timeOptions));
   }
 
   /// Initialize session on native side for further use

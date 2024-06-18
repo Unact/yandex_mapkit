@@ -27,10 +27,12 @@ class PedestrianSession {
 
   Future<PedestrianSessionResult> _requestRoutes({
     required List<RequestPoint> points,
+    required bool avoidSteep,
     required TimeOptions timeOptions
   }) async {
     final params = <String, dynamic>{
       'timeOptions': timeOptions.toJson(),
+      'avoidSteep': avoidSteep,
       'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
     };
     final result = await _methodChannel.invokeMethod('requestRoutes', params);

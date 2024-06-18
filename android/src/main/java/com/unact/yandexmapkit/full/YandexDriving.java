@@ -20,8 +20,6 @@ public class YandexDriving implements MethodCallHandler {
   private final BinaryMessenger binaryMessenger;
 
   public YandexDriving(Context context, BinaryMessenger messenger) {
-    DirectionsFactory.initialize(context);
-
     drivingRouter = DirectionsFactory.getInstance().createDrivingRouter(DrivingRouterType.COMBINED);
     binaryMessenger = messenger;
   }

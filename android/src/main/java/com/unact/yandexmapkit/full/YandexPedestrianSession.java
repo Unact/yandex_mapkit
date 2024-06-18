@@ -79,6 +79,7 @@ public class YandexPedestrianSession implements MethodChannel.MethodCallHandler 
     session = pedestrianRouter.requestRoutes(
       points,
       UtilsFull.timeOptionsFromJson((Map<String, Object>) params.get("timeOptions")),
+      (Boolean) params.get("avoidSteep"),
       new Session.RouteListener() {
         @Override
         public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }

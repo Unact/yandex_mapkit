@@ -19,8 +19,6 @@ public class YandexBicycle implements MethodCallHandler {
   private final BinaryMessenger binaryMessenger;
 
   public YandexBicycle(Context context, BinaryMessenger messenger) {
-    TransportFactory.initialize(context);
-
     bicycleRouter = TransportFactory.getInstance().createBicycleRouter();
     binaryMessenger = messenger;
   }

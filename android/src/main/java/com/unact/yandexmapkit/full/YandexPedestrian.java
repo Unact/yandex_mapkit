@@ -19,8 +19,6 @@ public class YandexPedestrian implements MethodCallHandler {
   private final BinaryMessenger binaryMessenger;
 
   public YandexPedestrian(Context context, BinaryMessenger messenger) {
-    TransportFactory.initialize(context);
-
     pedestrianRouter = TransportFactory.getInstance().createPedestrianRouter();
     binaryMessenger = messenger;
   }
