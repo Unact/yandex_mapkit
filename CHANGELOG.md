@@ -1,3 +1,10 @@
+## 4.1.0
+
+* Update and lock YandexMapkit version to 4.6.1 for iOS and Android
+* Additional fix for Android release mode breaking YandexMap rendering
+* Fix `YandexMap.focusRect` not working for Android
+* **Breaking change** `YandexPedestrian.requestRoutes` now requires an additional parameter.
+
 ## 4.0.2
 
 * Fix Android compatibility with AGP 8.0+
