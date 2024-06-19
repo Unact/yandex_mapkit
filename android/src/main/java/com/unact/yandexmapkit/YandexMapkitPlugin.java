@@ -7,39 +7,34 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 
 public class YandexMapkitPlugin implements FlutterPlugin, ActivityAware {
-  private final Init variantInit;
-
-  public YandexMapkitPlugin() throws IllegalAccessException, InstantiationException {
-    this.variantInit = (Init) BuildConfig.YANDEX_MAPKIT_INIT_CLASS.newInstance();
-  }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-    variantInit.onAttachedToEngine(binding);
+    BuildConfig.YANDEX_MAPKIT_INIT.onAttachedToEngine(binding);
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    variantInit.onDetachedFromEngine(binding);
+    BuildConfig.YANDEX_MAPKIT_INIT.onDetachedFromEngine(binding);
   }
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-    variantInit.onAttachedToActivity(binding);
+    BuildConfig.YANDEX_MAPKIT_INIT.onAttachedToActivity(binding);
   }
 
   @Override
   public void onDetachedFromActivityForConfigChanges() {
-    variantInit.onDetachedFromActivityForConfigChanges();
+    BuildConfig.YANDEX_MAPKIT_INIT.onDetachedFromActivityForConfigChanges();
   }
 
   @Override
   public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-    variantInit.onReattachedToActivityForConfigChanges(binding);
+    BuildConfig.YANDEX_MAPKIT_INIT.onReattachedToActivityForConfigChanges(binding);
   }
 
   @Override
   public void onDetachedFromActivity() {
-    variantInit.onDetachedFromActivity();
+    BuildConfig.YANDEX_MAPKIT_INIT.onDetachedFromActivity();
   }
 }
