@@ -7,7 +7,7 @@ A flutter plugin for displaying yandex maps on iOS and Android.
 | __Support__ | SDK 21+ | iOS 12+ |
 
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
-When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/doc/en/conditions)
+When using Mapkit refer to these [terms of use](https://yandex.com/dev/commercial/doc/en/)
 
 ## Features
 
