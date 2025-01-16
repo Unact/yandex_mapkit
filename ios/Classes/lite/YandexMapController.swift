@@ -478,6 +478,10 @@ public class YandexMapController:
       applyAlignLogo(logoAlignment)
     }
 
+    if let logoPadding = params["logoPadding"] as? [String: Any] {
+      applyLogoPadding(logoPadding)
+    }
+
     if params.keys.contains("focusRect") {
       applyFocusRect(params["focusRect"] as? [String: Any])
     }
@@ -509,6 +513,14 @@ public class YandexMapController:
       verticalAlignment: YMKLogoVerticalAlignment(rawValue: (params["vertical"] as! NSNumber).uintValue)!
     )
     mapView.mapWindow.map.logo.setAlignmentWith(logoPosition)
+  }
+
+  private func applyLogoPadding(_ params: [String: Any]) {
+    let logoPadding = YMKLogoPadding(
+      horizontalPadding: (params["horizontal"] as! NSNumber).uintValue,
+      verticalPadding: (params["vertical"] as! NSNumber).uintValue
+    )
+    mapView.mapWindow.map.logo.setPaddingWith(logoPadding)
   }
 
   private func applyFocusRect(_ params: [String: Any]?) {

@@ -27,6 +27,7 @@ class YandexMap extends StatefulWidget {
     this.fastTapEnabled = false,
     this.mode2DEnabled = false,
     this.logoAlignment = const MapAlignment(horizontal: HorizontalAlignment.right, vertical: VerticalAlignment.bottom),
+    this.logoPadding,
     this.focusRect,
     this.onMapCreated,
     this.onMapTap,
@@ -78,6 +79,9 @@ class YandexMap extends StatefulWidget {
 
   /// Set logo alignment on the map
   final MapAlignment logoAlignment;
+
+  /// Set logo padding on the map
+  final MapPadding? logoPadding;
 
   /// Allows to set map focus to a certain rectangle instead of the whole map
   /// For more info refer to https://yandex.com/dev/maps/mapkit/doc/ios-ref/full/Classes/YMKMapWindow.html#focusRect
@@ -279,6 +283,7 @@ class _YandexMapOptions {
     fastTapEnabled = map.fastTapEnabled,
     mode2DEnabled = map.mode2DEnabled,
     logoAlignment = map.logoAlignment,
+    logoPadding = map.logoPadding,
     focusRect = map.focusRect,
     mapType = map.mapType,
     poiLimit = map.poiLimit,
@@ -300,6 +305,8 @@ class _YandexMapOptions {
 
   final MapAlignment logoAlignment;
 
+  final MapPadding? logoPadding;
+
   final ScreenRect? focusRect;
 
   final MapType mapType;
@@ -318,6 +325,7 @@ class _YandexMapOptions {
       'fastTapEnabled': fastTapEnabled,
       'mode2DEnabled': mode2DEnabled,
       'logoAlignment': logoAlignment.toJson(),
+      'logoPadding': logoPadding?.toJson(),
       'focusRect': focusRect?.toJson(),
       'mapType': mapType.index,
       'poiLimit': poiLimit,
