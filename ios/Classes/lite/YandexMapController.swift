@@ -233,7 +233,14 @@ public class YandexMapController:
   }
 
   private static func isM1Simulator() -> Bool {
-    return (TARGET_IPHONE_SIMULATOR & TARGET_CPU_ARM64) != 0
+      #if targetEnvironment(simulator)
+      if ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]?.contains("arm64") == true {
+          return true
+      }
+      return false
+      #else
+      return false
+      #endif
   }
 
   private func hasLocationPermission() -> Bool {
