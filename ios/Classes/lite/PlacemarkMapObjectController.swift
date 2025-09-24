@@ -18,7 +18,6 @@ class PlacemarkMapObjectController:
     controller: YandexMapController
   ) {
     var placemark: YMKPlacemarkMapObject? = nil
-    let point = UtilsLite.pointFromJson(params["point"] as! [String: NSNumber])
 
     if (parent is YMKClusterizedPlacemarkCollection) {
       placemark = (parent as! YMKClusterizedPlacemarkCollection).addPlacemark()

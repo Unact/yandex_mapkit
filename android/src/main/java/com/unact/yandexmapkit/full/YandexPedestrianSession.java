@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.yandex.mapkit.RequestPoint;
 import com.yandex.mapkit.transport.masstransit.PedestrianRouter;
 import com.yandex.mapkit.transport.masstransit.Route;
+import com.yandex.mapkit.transport.masstransit.RouteOptions;
 import com.yandex.mapkit.transport.masstransit.Session;
 import com.yandex.mapkit.transport.masstransit.TravelEstimation;
 import com.yandex.mapkit.transport.masstransit.Weight;
@@ -79,7 +80,7 @@ public class YandexPedestrianSession implements MethodChannel.MethodCallHandler 
     session = pedestrianRouter.requestRoutes(
       points,
       UtilsFull.timeOptionsFromJson((Map<String, Object>) params.get("timeOptions")),
-      (Boolean) params.get("avoidSteep"),
+      new RouteOptions(UtilsFull.fitnessOptionsFromJson((Map<String, Object>) params.get("fitnessOptions"))),
       new Session.RouteListener() {
         @Override
         public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }

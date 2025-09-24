@@ -1,18 +1,18 @@
-part of '../../../yandex_mapkit.dart';
+part of '../../yandex_mapkit.dart';
 
 /// Information about driving route metadata.
-class PedestrianTravelEstimation extends Equatable {
+class MasstransitTravelEstimation extends Equatable {
 
-  /// Departure time for a pedestrian route
+  /// Departure time for a masstransit route
   final DateTime departureTime;
 
-  /// Departure time for a pedestrian route
+  /// Departure time for a masstransit route
   final DateTime arrivalTime;
 
-  const PedestrianTravelEstimation._(this.departureTime, this.arrivalTime);
+  const MasstransitTravelEstimation._(this.departureTime, this.arrivalTime);
 
-  factory PedestrianTravelEstimation._fromJson(Map<dynamic, dynamic> json) {
-    return PedestrianTravelEstimation._(
+  factory MasstransitTravelEstimation._fromJson(Map<dynamic, dynamic> json) {
+    return MasstransitTravelEstimation._(
       DateTime.fromMillisecondsSinceEpoch(json['departureTime']),
       DateTime.fromMillisecondsSinceEpoch(json['arrivalTime'])
     );

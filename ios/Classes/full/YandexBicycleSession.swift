@@ -3,16 +3,16 @@ import YandexMapsMobile
 
 public class YandexBicycleSession: NSObject {
   private var id: Int
-  private var session: YMKBicycleSession!
+  private var session: YMKMasstransitSession!
   private let methodChannel: FlutterMethodChannel!
-  private let bicycleRouter: YMKBicycleRouter!
+  private let bicycleRouter: YMKBicycleRouterV2!
   private static var bicycleSessions: [Int: YandexBicycleSession] = [:]
 
-  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouter) {
+  public static func initSession(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouterV2) {
     bicycleSessions[id] = YandexBicycleSession(id: id, registrar: registrar, bicycleRouter: bicycleRouter)
   }
 
-  public required init(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouter) {
+  public required init(id: Int, registrar: FlutterPluginRegistrar, bicycleRouter: YMKBicycleRouterV2) {
     self.id = id
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_bicycle_session_\(id)",
@@ -51,8 +51,11 @@ public class YandexBicycleSession: NSObject {
 
     session = bicycleRouter.requestRoutes(
       with: requestPoints,
-      type: YMKBicycleVehicleType(rawValue: (params["bicycleVehicleType"] as! NSNumber).uintValue)!,
-      routeListener: {(bicycleResponse: [YMKBicycleRoute]?, error: Error?) -> Void in
+      timeOptions: UtilsFull.timeOptionsFromJson(params["timeOptions"] as! [String: Any]),
+      routeOptions: YMKRouteOptions(
+        fitnessOptions: UtilsFull.fitnessOptionsFromJson(params["fitnessOptions"] as! [String : Any])
+      ),
+      routeHandler: {(bicycleResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
         self.handleResponse(bicycleResponse: bicycleResponse, error: error, result: result)
       }
     )
@@ -63,7 +66,7 @@ public class YandexBicycleSession: NSObject {
   }
 
   public func retry(_ result: @escaping FlutterResult) {
-    session.retry(routeListener: {(bicycleResponse: [YMKBicycleRoute]?, error: Error?) -> Void in
+    session.retry(routeHandler: {(bicycleResponse: [YMKMasstransitRoute]?, error: Error?) -> Void in
       self.handleResponse(bicycleResponse: bicycleResponse, error: error, result: result)
     })
   }
@@ -74,7 +77,7 @@ public class YandexBicycleSession: NSObject {
     YandexBicycleSession.bicycleSessions.removeValue(forKey: id)
   }
 
-  public func handleResponse(bicycleResponse: [YMKBicycleRoute]?, error: Error?, result: @escaping FlutterResult) {
+  public func handleResponse(bicycleResponse: [YMKMasstransitRoute]?, error: Error?, result: @escaping FlutterResult) {
     if let response = bicycleResponse {
       onSuccess(response, result)
     } else {
@@ -82,25 +85,33 @@ public class YandexBicycleSession: NSObject {
     }
   }
 
-  private func onSuccess(_ res: [YMKBicycleRoute], _ result: @escaping FlutterResult) {
-    let routes = res.map { (route) -> [String: Any] in
-      let weight = route.weight
+  private func onSuccess(_ res: [YMKMasstransitRoute], _ result: @escaping FlutterResult) {
+    let routes = res.map { (route) -> [String: Any?] in
+      let weight = route.metadata.weight
+      let estimation = route.metadata.estimation
 
       return [
         "geometry": UtilsFull.polylineToJson(route.geometry),
-        "weight": [
-          "time": UtilsFull.localizedValueToJson(weight.time),
-          "distance": UtilsFull.localizedValueToJson(weight.distance)
+        "metadata": [
+          "estimation": estimation == nil ? nil : [
+            "departureTime": estimation!.departureTime.value * 1000,
+            "arrivalTime": estimation!.arrivalTime.value * 1000
+          ] as Any,
+          "weight": [
+            "time": UtilsFull.localizedValueToJson(weight.time),
+            "walkingDistance": UtilsFull.localizedValueToJson(weight.walkingDistance),
+            "transfersCount": weight.transfersCount
+          ]
         ]
       ]
     }
 
-    let arguments: [String: Any] = [
-      "routes": routes
-    ]
+      let arguments: [String: Any] = [
+        "routes": routes
+      ]
 
-    result(arguments)
-  }
+      result(arguments)
+    }
 
   private func onError(_ error: Error, _ result: @escaping FlutterResult) {
     result(UtilsFull.errorToJson(error))

@@ -89,7 +89,8 @@ class _BicycleExampleState extends State<_BicycleExample> {
     print('Points: ${startPlacemark.point},${stopByPlacemark.point},${endPlacemark.point}');
 
     var resultWithSession = await YandexBicycle.requestRoutes(
-      bicycleVehicleType: BicycleVehicleType.bicycle,
+      timeOptions: TimeOptions(departureTime: DateTime.now()),
+      fitnessOptions: const FitnessOptions(avoidSteep: true, avoidStairs: true),
       points: [
         RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
         RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),
@@ -231,7 +232,7 @@ class _SessionState extends State<_SessionPage> {
       list.add(Container(height: 20));
 
       r.routes!.asMap().forEach((i, route) {
-        list.add(Text('Route $i: ${route.weight.time.text}'));
+        list.add(Text('Route $i: ${route.metadata.weight.time.text}'));
       });
 
       list.add(Container(height: 20));

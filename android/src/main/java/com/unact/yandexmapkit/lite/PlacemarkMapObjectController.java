@@ -36,14 +36,13 @@ public class PlacemarkMapObjectController
   private final WeakReference<YandexMapController> controller;
   public final String id;
 
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public PlacemarkMapObjectController(
     BaseMapObjectCollection parent,
     Map<String, Object> params,
     WeakReference<YandexMapController> controller
   ) {
     PlacemarkMapObject placemark = null;
-    Point point = UtilsLite.pointFromJson((Map<String, Object>) params.get("point"));
 
     if (parent instanceof ClusterizedPlacemarkCollection) {
       placemark = ((ClusterizedPlacemarkCollection) parent).addPlacemark();

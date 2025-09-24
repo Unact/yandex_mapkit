@@ -31,7 +31,7 @@ public class YandexMapController:
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
-    self.mapView = FLYMKMapView(frame: frame, vulkanPreferred: YandexMapController.isM1Simulator())
+    self.mapView = FLYMKMapView(frame: frame, vulkanPreferred: YandexMapController.isSimulator())
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
@@ -123,7 +123,7 @@ public class YandexMapController:
 
     let params = call.arguments as! [String: Any]
     userLocationLayer.setVisibleWithOn(params["visible"] as! Bool)
-    userLocationLayer.isHeadingEnabled = params["headingEnabled"] as! Bool
+    userLocationLayer.isHeadingModeActive = params["headingEnabled"] as! Bool
     userLocationLayer.isAutoZoomEnabled = params["autoZoomEnabled"] as! Bool
     userLocationLayer.resetAnchor()
 
@@ -232,8 +232,12 @@ public class YandexMapController:
     return arguments
   }
 
-  private static func isM1Simulator() -> Bool {
-    return (TARGET_IPHONE_SIMULATOR & TARGET_CPU_ARM64) != 0
+  private static func isSimulator() -> Bool {
+#if targetEnvironment(simulator)
+    return true
+#else
+    return false
+#endif
   }
 
   private func hasLocationPermission() -> Bool {

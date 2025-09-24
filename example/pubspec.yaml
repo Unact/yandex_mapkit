@@ -11,7 +11,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter:
     sdk: flutter
-  permission_handler: ^11.3.1
+  permission_handler: ^12.0.1
   yandex_mapkit:
     path: ../
 

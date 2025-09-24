@@ -9,30 +9,31 @@ class DrivingOptions extends Equatable {
   /// The number of alternatives.
   final int? routesCount;
 
+  /// Desired departure time in UTC for a time-dependent route request.
+  /// This option cannot be used with [arrivalTime].
+  final DateTime? departureTime;
+
+  /// The annotation language.
+  final AnnotationLanguage? annotationLanguage;
+
   /// Instructs the router to return routes that avoid tolls, when possible.
-  final bool? avoidTolls;
-
-  /// Instructs the router to return routes that avoid unpaved roads when possible.
-  final bool? avoidUnpaved;
-
-  /// Instructs the router to return routes that avoid roads in poor conditions when possible.
-  final bool? avoidPoorConditions;
+  final DrivingAvoidanceFlags? avoidanceFlags;
 
   const DrivingOptions({
     this.initialAzimuth,
     this.routesCount,
-    this.avoidTolls,
-    this.avoidUnpaved,
-    this.avoidPoorConditions
+    this.departureTime,
+    this.annotationLanguage,
+    this.avoidanceFlags
   });
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'initialAzimuth': initialAzimuth,
       'routesCount': routesCount,
-      'avoidTolls': avoidTolls,
-      'avoidUnpaved': avoidUnpaved,
-      'avoidPoorConditions': avoidPoorConditions
+      'departureTime': departureTime,
+      'annotationLanguage': annotationLanguage?.index,
+      'avoidanceFlags': avoidanceFlags?.toJson()
     };
   }
 
@@ -40,9 +41,9 @@ class DrivingOptions extends Equatable {
   List<Object?> get props => <Object?>[
     initialAzimuth,
     routesCount,
-    avoidTolls,
-    avoidUnpaved,
-    avoidPoorConditions
+    annotationLanguage,
+    departureTime?.millisecondsSinceEpoch,
+    avoidanceFlags
   ];
 
   @override

@@ -72,8 +72,6 @@ class _MapControlsExampleState extends State<_MapControlsExample> {
         return MapType.none;
       case MapType.none:
         return MapType.map;
-      default:
-        return MapType.none;
     }
   }
 

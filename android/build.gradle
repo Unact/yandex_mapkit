@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.android.tools.build:gradle:8.6.0'
     }
 }
 
@@ -25,12 +25,10 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
+    namespace 'com.unact.yandexmapkit'
+
     buildFeatures {
         buildConfig = true
-    }
-
-    if (project.android.hasProperty("namespace")) {
-        namespace 'com.unact.yandexmapkit'
     }
 
     sourceSets {
@@ -45,15 +43,15 @@ android {
         }
     }
 
-    compileSdkVersion 33
+    compileSdkVersion 35
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 26
 
         buildConfigField "com.unact.yandexmapkit.Init", "YANDEX_MAPKIT_INIT", init
     }
 }
 
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.6.1-' + variant
+    implementation 'com.yandex.android:maps.mobile:4.22.0-' + variant
 }

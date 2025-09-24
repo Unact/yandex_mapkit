@@ -97,7 +97,7 @@ class _DrivingExampleState extends State<_DrivingExample> {
       drivingOptions: const DrivingOptions(
         initialAzimuth: 0,
         routesCount: 5,
-        avoidTolls: true
+        avoidanceFlags: DrivingAvoidanceFlags()
       )
     );
 

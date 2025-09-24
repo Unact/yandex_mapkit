@@ -10,18 +10,25 @@ class SuggestOptions extends Equatable {
   /// Enable word-by-word suggestion items.
   final bool suggestWords;
 
+  /// Strictly limit the output and keep only objects that fall within the window.
+  /// The window is advisory in nature and doesn't impose strict restrictions on search results,
+  /// helping to select the most relevant hints.
+  final bool strictBounds;
+
   /// The server uses the user position to calculate the distance from the user to suggest results.
   final Point? userPosition;
 
   const SuggestOptions({
     required this.suggestType,
     this.suggestWords = true,
+    this.strictBounds = true,
     this.userPosition,
   });
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'suggestWords': suggestWords,
+      'strictBounds': strictBounds,
       'userPosition': userPosition?.toJson(),
       'suggestType': suggestType.index
     };
@@ -31,7 +38,8 @@ class SuggestOptions extends Equatable {
   List<Object?> get props => <Object?>[
     suggestType,
     userPosition,
-    suggestWords
+    suggestWords,
+    strictBounds
   ];
 
   @override

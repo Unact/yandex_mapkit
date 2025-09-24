@@ -29,16 +29,18 @@ class PolylineMapObjectController: NSObject, MapObjectController, YMKMapObjectTa
     polyline.zIndex = (params["zIndex"] as! NSNumber).floatValue
     polyline.isVisible = (params["isVisible"] as! NSNumber).boolValue
     polyline.setStrokeColorWith(UtilsLite.uiColor(fromInt: (params["strokeColor"] as! NSNumber).int64Value))
-    polyline.outlineColor = UtilsLite.uiColor(fromInt: (params["outlineColor"] as! NSNumber).int64Value)
-    polyline.outlineWidth = (params["outlineWidth"] as! NSNumber).floatValue
-    polyline.strokeWidth = (params["strokeWidth"] as! NSNumber).floatValue
-    polyline.dashLength = (params["dashLength"] as! NSNumber).floatValue
-    polyline.dashOffset = (params["dashOffset"] as! NSNumber).floatValue
-    polyline.gapLength = (params["gapLength"] as! NSNumber).floatValue
-    polyline.turnRadius = (params["turnRadius"] as! NSNumber).floatValue
-    polyline.arcApproximationStep = (params["arcApproximationStep"] as! NSNumber).floatValue
-    polyline.gradientLength = (params["gradientLength"] as! NSNumber).floatValue
-    polyline.isInnerOutlineEnabled = (params["isInnerOutlineEnabled"] as! NSNumber).boolValue
+    polyline.style = YMKLineStyle(
+      strokeWidth: (params["strokeWidth"] as! NSNumber).floatValue,
+      gradientLength: (params["gradientLength"] as! NSNumber).floatValue,
+      outlineColor: UtilsLite.uiColor(fromInt: (params["outlineColor"] as! NSNumber).int64Value),
+      outlineWidth: (params["outlineWidth"] as! NSNumber).floatValue,
+      innerOutlineEnabled: (params["isInnerOutlineEnabled"] as! NSNumber).boolValue,
+      turnRadius: (params["turnRadius"] as! NSNumber).floatValue,
+      arcApproximationStep: (params["arcApproximationStep"] as! NSNumber).floatValue,
+      dashLength: (params["dashLength"] as! NSNumber).floatValue,
+      gapLength: (params["gapLength"] as! NSNumber).floatValue,
+      dashOffset: (params["dashOffset"] as! NSNumber).floatValue
+    )
 
     consumeTapEvents = (params["consumeTapEvents"] as! NSNumber).boolValue
   }

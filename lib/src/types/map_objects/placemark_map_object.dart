@@ -421,8 +421,8 @@ class PlacemarkTextStyle extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'offset': offset,
-      'color': color?.value,
-      'outlineColor': outlineColor?.value,
+      'color': color?.toARGB32(),
+      'outlineColor': outlineColor?.toARGB32(),
       'size': size,
       'offsetFromIcon': offsetFromIcon,
       'textOptional': textOptional,

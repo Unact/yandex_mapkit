@@ -3,6 +3,7 @@ package com.unact.yandexmapkit.lite;
 import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.geometry.Point;
+import com.yandex.mapkit.map.LineStyle;
 import com.yandex.mapkit.map.MapObject;
 import com.yandex.mapkit.map.MapObjectCollection;
 import com.yandex.mapkit.map.MapObjectTapListener;
@@ -42,17 +43,19 @@ public class PolylineMapObjectController extends MapObjectController implements 
     polyline.setGeometry(UtilsLite.polylineFromJson((Map<String, Object>) params.get("polyline")));
     polyline.setZIndex(((Double) params.get("zIndex")).floatValue());
     polyline.setVisible((Boolean) params.get("isVisible"));
-    polyline.setOutlineColor(((Number) params.get("outlineColor")).intValue());
-    polyline.setOutlineWidth(((Double) params.get("outlineWidth")).floatValue());
     polyline.setStrokeColor(((Number) params.get("strokeColor")).intValue());
-    polyline.setStrokeWidth(((Double) params.get("strokeWidth")).floatValue());
-    polyline.setDashLength(((Double) params.get("dashLength")).floatValue());
-    polyline.setDashOffset(((Double) params.get("dashOffset")).floatValue());
-    polyline.setGapLength(((Double) params.get("gapLength")).floatValue());
-    polyline.setTurnRadius(((Double) params.get("turnRadius")).floatValue());
-    polyline.setArcApproximationStep(((Double) params.get("arcApproximationStep")).floatValue());
-    polyline.setGradientLength(((Double) params.get("gradientLength")).floatValue());
-    polyline.setInnerOutlineEnabled(((Boolean) params.get("isInnerOutlineEnabled")));
+    polyline.setStyle(new LineStyle(
+      ((Double) params.get("strokeWidth")).floatValue(),
+      ((Double) params.get("gradientLength")).floatValue(),
+      ((Number) params.get("outlineColor")).intValue(),
+      ((Double) params.get("outlineWidth")).floatValue(),
+      (Boolean) params.get("isInnerOutlineEnabled"),
+      ((Double) params.get("turnRadius")).floatValue(),
+      ((Double) params.get("arcApproximationStep")).floatValue(),
+      ((Double) params.get("dashLength")).floatValue(),
+      ((Double) params.get("gapLength")).floatValue(),
+      ((Double) params.get("dashOffset")).floatValue()
+    ));
 
     consumeTapEvents = (Boolean) params.get("consumeTapEvents");
   }

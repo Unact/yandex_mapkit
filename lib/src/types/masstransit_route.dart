@@ -1,29 +1,29 @@
-part of '../../../yandex_mapkit.dart';
+part of '../../yandex_mapkit.dart';
 
-/// Driving route.
+/// Masstransit route.
 /// A route consists of multiple sections
 /// Each section has a corresponding annotation that describes the action at the beginning of the section.
-class BicycleRoute extends Equatable {
+class MasstransitRoute extends Equatable {
 
   /// Route geometry.
   final Polyline geometry;
 
   /// The route metadata.
-  final BicycleWeight weight;
+  final MasstransitMetadata metadata;
 
-  const BicycleRoute._(this.geometry, this.weight);
+  const MasstransitRoute._(this.geometry, this.metadata);
 
-  factory BicycleRoute._fromJson(Map<dynamic, dynamic> json) {
-    return BicycleRoute._(
+  factory MasstransitRoute._fromJson(Map<dynamic, dynamic> json) {
+    return MasstransitRoute._(
       Polyline._fromJson(json['geometry']),
-      BicycleWeight._fromJson(json['weight']),
+      MasstransitMetadata._fromJson(json['metadata'])
     );
   }
 
   @override
   List<Object> get props => <Object>[
     geometry,
-    weight,
+    metadata
   ];
 
   @override
