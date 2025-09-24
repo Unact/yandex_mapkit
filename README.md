@@ -80,11 +80,11 @@ Add the following line to `android/gradle.properties`
 yandexMapkit.variant=<YOUR_DESIRED_VARIANT>
 ```
 
-* Add dependency `implementation 'com.yandex.android:maps.mobile:4.6.1-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
+* Add dependency `implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.6.1-<YOUR_DESIRED_VARIANT>'
+    implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'
 }
 ```
 
