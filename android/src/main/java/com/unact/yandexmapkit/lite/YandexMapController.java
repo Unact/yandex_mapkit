@@ -255,7 +255,7 @@ public class YandexMapController implements
         (String) params.get("objectId"),
         (String) params.get("dataSourceName"),
         (String) params.get("layerId"),
-        (Long) params.get("groupId")
+        ((Number) params.get("groupId")).longValue()
       )
     );
   }
