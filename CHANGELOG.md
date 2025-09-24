@@ -1,3 +1,7 @@
+## 4.2.1
+
+* Fix `YandexMapController.selectGeoObject` crash on Android
+
 ## 4.2.0
 
 * Update and lock YandexMapkit version to 4.22.0 for iOS and Android
