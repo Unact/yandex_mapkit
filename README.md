@@ -19,7 +19,7 @@ When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/do
 * [X] Basic driving/bicycle/pedestrian routing
 * [X] Basic address direct/reverse search
 * [X] Working with geo objects
-* [X] Support for both lite and full variants 
+* [X] Support for both lite and full variants
 
 ## Getting Started
 
