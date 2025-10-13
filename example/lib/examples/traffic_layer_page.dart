@@ -32,8 +32,6 @@ class _TrafficLayerExampleState extends State<_TrafficLayerExample> {
         return Colors.yellow;
       case TrafficColor.green:
         return Colors.green;
-      default:
-        return Colors.white;
     }
   }
 

@@ -1,3 +1,17 @@
+## 4.2.1
+
+* Fix `YandexMapController.selectGeoObject` crash on Android
+
+## 4.2.0
+
+* Update and lock YandexMapkit version to 4.22.0 for iOS and Android
+* Set minimum flutter version to 3.22.0
+* Fix `Cannot find 'TARGET_IPHONE_SIMULATOR' in scope` for Xcode 16.3
+* **Breaking change** `YandexPedestrian.requestRoutes` now requires an additional parameter.
+* **Breaking change** `YandexBicycle.requestRoutes` now requires an additional parameter.
+* **Breaking change** `BicycleRoute` has been removed in favor of `MasstransitRoute`.
+* **Breaking change** `DrivingOptions` now requires an different parameters.
+
 ## 4.1.0
 
 * Update and lock YandexMapkit version to 4.6.1 for iOS and Android

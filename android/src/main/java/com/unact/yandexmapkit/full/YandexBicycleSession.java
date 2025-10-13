@@ -3,11 +3,12 @@ package com.unact.yandexmapkit.full;
 import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.RequestPoint;
-import com.yandex.mapkit.transport.bicycle.BicycleRouter;
-import com.yandex.mapkit.transport.bicycle.Route;
-import com.yandex.mapkit.transport.bicycle.Session;
-import com.yandex.mapkit.transport.bicycle.VehicleType;
-import com.yandex.mapkit.transport.bicycle.Weight;
+import com.yandex.mapkit.transport.masstransit.Route;
+import com.yandex.mapkit.transport.masstransit.Session;
+import com.yandex.mapkit.transport.masstransit.BicycleRouterV2;
+import com.yandex.mapkit.transport.masstransit.RouteOptions;
+import com.yandex.mapkit.transport.masstransit.TravelEstimation;
+import com.yandex.mapkit.transport.masstransit.Weight;
 import com.yandex.runtime.Error;
 
 import java.util.ArrayList;
@@ -24,18 +25,18 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
   private final int id;
   private Session session;
   private final MethodChannel methodChannel;
-  private final BicycleRouter bicycleRouter;
+  private final BicycleRouterV2 bicycleRouter;
   @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
   private static final Map<Integer, YandexBicycleSession> bicycleSessions = new HashMap<>();
 
-  public static void initSession(int id, BinaryMessenger messenger, BicycleRouter bicycleRouter) {
+  public static void initSession(int id, BinaryMessenger messenger, BicycleRouterV2 bicycleRouter) {
     bicycleSessions.put(id, new YandexBicycleSession(id, messenger, bicycleRouter));
   }
 
   public YandexBicycleSession(
     int id,
     BinaryMessenger messenger,
-    BicycleRouter bicycleRouter
+    BicycleRouterV2 bicycleRouter
   ) {
     this.id = id;
     this.bicycleRouter = bicycleRouter;
@@ -78,12 +79,13 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
 
     session = bicycleRouter.requestRoutes(
       points,
-      VehicleType.values()[(Integer) params.get("bicycleVehicleType")],
+      UtilsFull.timeOptionsFromJson((Map<String, Object>) params.get("timeOptions")),
+      new RouteOptions(UtilsFull.fitnessOptionsFromJson((Map<String, Object>) params.get("fitnessOptions"))),
       new Session.RouteListener() {
         @Override
-        public void onBicycleRoutes(@NonNull List<Route> list) { self.onBicycleRoutes(list, result); }
+        public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }
         @Override
-        public void onBicycleRoutesError(@NonNull Error error) { self.onBicycleRoutesError(error, result);}
+        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result); }
       }
     );
   }
@@ -98,9 +100,9 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
     session.retry(
       new Session.RouteListener() {
         @Override
-        public void onBicycleRoutes(@NonNull List<Route> list) { self.onBicycleRoutes(list, result); }
+        public void onMasstransitRoutes(@NonNull List<Route> list) { self.onMasstransitRoutes(list, result); }
         @Override
-        public void onBicycleRoutesError(@NonNull Error error) { self.onBicycleRoutesError(error, result);}
+        public void onMasstransitRoutesError(@NonNull Error error) { self.onMasstransitRoutesError(error, result);}
       }
     );
   }
@@ -112,17 +114,30 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
     bicycleSessions.remove(id);
   }
 
-  private void onBicycleRoutes(@NonNull List<Route> list, @NonNull Result result) {
+  private void onMasstransitRoutes(@NonNull List<Route> list, @NonNull Result result) {
     List<Map<String, Object>> resultRoutes = new ArrayList<>();
     for (Route route : list) {
-      Weight weight = route.getWeight();
+      Weight weight = route.getMetadata().getWeight();
+      TravelEstimation estimation = route.getMetadata().getEstimation();
+
       Map<String, Object> resultWeight = new HashMap<>();
       resultWeight.put("time", UtilsFull.localizedValueToJson(weight.getTime()));
-      resultWeight.put("distance", UtilsFull.localizedValueToJson(weight.getDistance()));
+      resultWeight.put("walkingDistance", UtilsFull.localizedValueToJson(weight.getWalkingDistance()));
+      resultWeight.put("transfersCount", weight.getTransfersCount());
+
+      Map<String, Object> resultEstimation = estimation != null ? new HashMap<>() : null;
+      if (resultEstimation != null) {
+        resultEstimation.put("departureTime", estimation.getDepartureTime().getValue() * 1000);
+        resultEstimation.put("arrivalTime", estimation.getArrivalTime().getValue() * 1000);
+      }
+
+      Map<String, Object> resultMetadata = new HashMap<>();
+      resultMetadata.put("weight", resultWeight);
+      resultMetadata.put("estimation", resultEstimation);
 
       Map<String, Object> resultRoute = new HashMap<>();
       resultRoute.put("geometry", UtilsFull.polylineToJson(route.getGeometry()));
-      resultRoute.put("weight", resultWeight);
+      resultRoute.put("metadata", resultMetadata);
 
       resultRoutes.add(resultRoute);
     }
@@ -133,7 +148,7 @@ public class YandexBicycleSession implements MethodChannel.MethodCallHandler {
     result.success(resultMap);
   }
 
-  private void onBicycleRoutesError(@NonNull Error error, @NonNull Result result) {
+  private void onMasstransitRoutesError(@NonNull Error error, @NonNull Result result) {
     result.success(UtilsFull.errorToJson(error));
   }
 }

@@ -5,7 +5,7 @@ import YandexMapsMobile
 public class YandexBicycle: NSObject, FlutterPlugin {
   private let methodChannel: FlutterMethodChannel!
   private let pluginRegistrar: FlutterPluginRegistrar!
-  private let bicycleRouter: YMKBicycleRouter!
+  private let bicycleRouter: YMKBicycleRouterV2!
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(
@@ -21,7 +21,7 @@ public class YandexBicycle: NSObject, FlutterPlugin {
   public required init(channel: FlutterMethodChannel, registrar: FlutterPluginRegistrar) {
     self.pluginRegistrar = registrar
     self.methodChannel = channel
-    self.bicycleRouter = YMKTransportFactory.instance().createBicycleRouter()
+    self.bicycleRouter = YMKTransportFactory.instance().createBicycleRouterV2()
 
     super.init()
 

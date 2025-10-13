@@ -17,15 +17,30 @@ class RequestPoint extends Equatable {
   /// The type of request point specified.
   final RequestPointType requestPointType;
 
+  ///  Opaque string that describe entrances, driving arrival points and so on.
+  final String? pointContext;
+
+  /// Specifies what driving arrival point to use. If point is not specified then server will select one.
+  final String? drivingArrivalPointId;
+
+  /// Indoor level (floor) id
+  final String? indoorLevelId;
+
   const RequestPoint({
     required this.point,
-    required this.requestPointType
+    required this.requestPointType,
+    this.pointContext,
+    this.drivingArrivalPointId,
+    this.indoorLevelId,
   });
 
   @override
-  List<Object> get props => <Object>[
+  List<Object?> get props => <Object?>[
     point,
     requestPointType,
+    pointContext,
+    drivingArrivalPointId,
+    indoorLevelId
   ];
 
   @override
@@ -34,7 +49,10 @@ class RequestPoint extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'requestPointType': requestPointType.value,
-      'point': point.toJson()
+      'point': point.toJson(),
+      'pointContext': pointContext,
+      'drivingArrivalPointId': drivingArrivalPointId,
+      'indoorLevelId': indoorLevelId,
     };
   }
 }

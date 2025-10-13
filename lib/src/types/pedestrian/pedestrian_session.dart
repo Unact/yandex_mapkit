@@ -27,12 +27,12 @@ class PedestrianSession {
 
   Future<PedestrianSessionResult> _requestRoutes({
     required List<RequestPoint> points,
-    required bool avoidSteep,
+    required FitnessOptions fitnessOptions,
     required TimeOptions timeOptions
   }) async {
     final params = <String, dynamic>{
       'timeOptions': timeOptions.toJson(),
-      'avoidSteep': avoidSteep,
+      'fitnessOptions': fitnessOptions.toJson(),
       'points': points.map((RequestPoint requestPoint) => requestPoint.toJson()).toList(),
     };
     final result = await _methodChannel.invokeMethod('requestRoutes', params);
@@ -45,7 +45,7 @@ class PedestrianSession {
 /// If any error has occured then [routes] will be empty, otherwise [error] will be empty
 class PedestrianSessionResult {
   /// Calculated routes
-  final List<PedestrianRoute>? routes;
+  final List<MasstransitRoute>? routes;
 
   /// Error message
   final String? error;
@@ -54,7 +54,7 @@ class PedestrianSessionResult {
 
   factory PedestrianSessionResult._fromJson(Map<dynamic, dynamic> json) {
     return PedestrianSessionResult._(
-      json['routes']?.map<PedestrianRoute>((dynamic route) => PedestrianRoute._fromJson(route)).toList(),
+      json['routes']?.map<MasstransitRoute>((dynamic route) => MasstransitRoute._fromJson(route)).toList(),
       json['error']
     );
   }

@@ -57,16 +57,6 @@ public class UtilsLite {
   }
 
   @SuppressWarnings({"unchecked", "ConstantConditions"})
-  public static RequestPoint requestPointFromJson(Map<String, Object> json) {
-    return new RequestPoint(
-      pointFromJson((Map<String, Object>) json.get("point")),
-      RequestPointType.values()[(Integer) json.get("requestPointType")],
-      null,
-      null
-    );
-  }
-
-  @SuppressWarnings({"unchecked", "ConstantConditions"})
   public static Geometry geometryFromJson(Map<String, Object> json) {
     if (json.get("point") != null) {
       return Geometry.fromPoint(pointFromJson((Map<String, Object>) json.get("point")));

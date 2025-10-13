@@ -90,7 +90,7 @@ class _PedestrianExampleState extends State<_PedestrianExample> {
 
     var resultWithSession = await YandexPedestrian.requestRoutes(
       timeOptions: TimeOptions(departureTime: DateTime.now()),
-      avoidSteep: true,
+      fitnessOptions: const FitnessOptions(avoidSteep: true, avoidStairs: true),
       points: [
         RequestPoint(point: startPlacemark.point, requestPointType: RequestPointType.wayPoint),
         RequestPoint(point: stopByPlacemark.point, requestPointType: RequestPointType.viaPoint),

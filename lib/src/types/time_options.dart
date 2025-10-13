@@ -1,4 +1,4 @@
-part of '../../../yandex_mapkit.dart';
+part of '../../yandex_mapkit.dart';
 
 /// Options to fine-tune pedestrian request.
 class TimeOptions extends Equatable {

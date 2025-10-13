@@ -19,7 +19,7 @@ When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/do
 * [X] Basic driving/bicycle/pedestrian routing
 * [X] Basic address direct/reverse search
 * [X] Working with geo objects
-* [X] Support for both lite and full variants 
+* [X] Support for both lite and full variants
 
 ## Getting Started
 
@@ -80,11 +80,11 @@ Add the following line to `android/gradle.properties`
 yandexMapkit.variant=<YOUR_DESIRED_VARIANT>
 ```
 
-* Add dependency `implementation 'com.yandex.android:maps.mobile:4.6.1-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
+* Add dependency `implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.6.1-<YOUR_DESIRED_VARIANT>'
+    implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'
 }
 ```
 

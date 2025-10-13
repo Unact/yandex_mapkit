@@ -54,7 +54,7 @@ class _UserLayerExampleState extends State<_UserLayerExample> {
                   )
                 ),
                 accuracyCircle: view.accuracyCircle.copyWith(
-                  fillColor: Colors.green.withOpacity(0.5)
+                  fillColor: Colors.green.withValues(alpha: 0.5)
                 )
               );
             },

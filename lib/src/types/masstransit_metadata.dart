@@ -1,20 +1,20 @@
-part of '../../../yandex_mapkit.dart';
+part of '../../yandex_mapkit.dart';
 
-/// Information about pedestrian route metadata.
-class PedestrianMetadata extends Equatable {
+/// Information about masstransit route metadata.
+class MasstransitMetadata extends Equatable {
 
   /// Route "weight".
-  final PedestrianWeight weight;
+  final MasstransitWeight weight;
 
   /// Arrival and departure time estimations for time-dependent routes.
-  final PedestrianTravelEstimation? estimation;
+  final MasstransitTravelEstimation? estimation;
 
-  const PedestrianMetadata._(this.weight, this.estimation);
+  const MasstransitMetadata._(this.weight, this.estimation);
 
-  factory PedestrianMetadata._fromJson(Map<dynamic, dynamic> json) {
-    return PedestrianMetadata._(
-      PedestrianWeight._fromJson(json['weight']),
-      json['estimation'] != null ? PedestrianTravelEstimation._fromJson(json['estimation']) : null
+  factory MasstransitMetadata._fromJson(Map<dynamic, dynamic> json) {
+    return MasstransitMetadata._(
+      MasstransitWeight._fromJson(json['weight']),
+      json['estimation'] != null ? MasstransitTravelEstimation._fromJson(json['estimation']) : null
     );
   }
 
@@ -29,7 +29,7 @@ class PedestrianMetadata extends Equatable {
 }
 
 /// Quantitative characteristics of any segment of the route.
-class PedestrianWeight extends Equatable {
+class MasstransitWeight extends Equatable {
 
   /// Time to travel.
   final LocalizedValue time;
@@ -40,10 +40,10 @@ class PedestrianWeight extends Equatable {
   /// Distance to travel.
   final LocalizedValue walkingDistance;
 
-  const PedestrianWeight._(this.time, this.transfersCount, this.walkingDistance);
+  const MasstransitWeight._(this.time, this.transfersCount, this.walkingDistance);
 
-  factory PedestrianWeight._fromJson(Map<dynamic, dynamic> json) {
-    return PedestrianWeight._(
+  factory MasstransitWeight._fromJson(Map<dynamic, dynamic> json) {
+    return MasstransitWeight._(
       LocalizedValue._fromJson(json['time']),
       json['transfersCount'],
       LocalizedValue._fromJson(json['walkingDistance']),

@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.yandex.mapkit.transport.TransportFactory;
-import com.yandex.mapkit.transport.bicycle.BicycleRouter;
+import com.yandex.mapkit.transport.masstransit.BicycleRouterV2;
 
 import java.util.Map;
 
@@ -15,11 +15,11 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 public class YandexBicycle implements MethodCallHandler {
-  private final BicycleRouter bicycleRouter;
+  private final BicycleRouterV2 bicycleRouter;
   private final BinaryMessenger binaryMessenger;
 
   public YandexBicycle(Context context, BinaryMessenger messenger) {
-    bicycleRouter = TransportFactory.getInstance().createBicycleRouter();
+    bicycleRouter = TransportFactory.getInstance().createBicycleRouterV2();
     binaryMessenger = messenger;
   }
 
