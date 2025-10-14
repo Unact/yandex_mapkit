@@ -7,10 +7,10 @@ class MapPadding extends Equatable {
     required this.vertical,
   });
 
-  /// Defines horizontal padding.
+  /// The horizontal padding.
   final int horizontal;
 
-  /// Defines vertical padding.
+  /// The vertical padding.
   final int vertical;
 
   @override

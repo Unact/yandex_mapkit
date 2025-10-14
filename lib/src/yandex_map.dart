@@ -80,7 +80,7 @@ class YandexMap extends StatefulWidget {
   /// Set logo alignment on the map
   final MapAlignment logoAlignment;
 
-  /// Set logo padding on the map
+  /// The logo padding on the map.
   final MapPadding? logoPadding;
 
   /// Allows to set map focus to a certain rectangle instead of the whole map
