@@ -9,7 +9,6 @@ Pod::Spec.new do |s|
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
-  s.public_header_files = 'Classes/**/*.h'
   s.static_framework = true
   s.dependency 'Flutter'
 
@@ -18,15 +17,15 @@ Pod::Spec.new do |s|
   }
   s.dependency 'YandexMapsMobile', "4.39.1-#{variant}"
   s.source_files = [
-    'Classes/*',
-    'Classes/lite/*'
+    'yandex_mapkit/Sources/yandex_mapkit/*',
+    'yandex_mapkit/Sources/yandex_mapkit/lite/*'
   ]
 
   if variant == 'full'
     s.source_files = [
-      'Classes/*',
-      'Classes/lite/*',
-      'Classes/full/*'
+      'yandex_mapkit/Sources/yandex_mapkit/*',
+      'yandex_mapkit/Sources/yandex_mapkit/lite/*',
+      'yandex_mapkit/Sources/yandex_mapkit/full/*'
     ]
   end
 
