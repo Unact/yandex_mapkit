@@ -4,7 +4,7 @@ A flutter plugin for displaying yandex maps on iOS and Android.
 
 |             | Android |   iOS   |
 |-------------|---------|---------|
-| __Support__ | SDK 21+ | iOS 12+ |
+| __Support__ | SDK 26+ | iOS 15+ |
 
 __Disclaimer__: This project uses Yandex Mapkit which belongs to Yandex  
 When using Mapkit refer to these [terms of use](https://yandex.com/dev/mapkit/doc/en/conditions)
@@ -51,11 +51,11 @@ import YandexMapsMobile
 }
 ```
 
-* Uncomment `platform :ios, '9.0'` in `ios/Podfile` and change to `platform :ios, '12.0'`
+* Uncomment `platform :ios, '12.0'` in `ios/Podfile` and change to `platform :ios, '15.0'`
 
 ```ruby
 # Uncomment this line to define a global platform for your project
-platform :ios, '12.0'
+platform :ios, '15.0'
 ```
 
 * Specify your desired variant of native library.  
@@ -80,11 +80,11 @@ Add the following line to `android/gradle.properties`
 yandexMapkit.variant=<YOUR_DESIRED_VARIANT>
 ```
 
-* Add dependency `implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
+* Add dependency `implementation 'com.yandex.android:maps.mobile:4.39.1-<YOUR_DESIRED_VARIANT>'` to `android/app/build.gradle`
 
 ```groovy
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.22.0-<YOUR_DESIRED_VARIANT>'
+    implementation 'com.yandex.android:maps.mobile:4.39.1-<YOUR_DESIRED_VARIANT>'
 }
 ```
 

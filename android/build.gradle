@@ -43,7 +43,7 @@ android {
         }
     }
 
-    compileSdkVersion 35
+    compileSdkVersion 36
 
     defaultConfig {
         minSdkVersion 26
@@ -53,5 +53,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.yandex.android:maps.mobile:4.22.0-' + variant
+    implementation 'com.yandex.android:maps.mobile:4.39.1-' + variant
 }

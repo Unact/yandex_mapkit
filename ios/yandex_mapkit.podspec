@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     'OTHER_SWIFT_FLAGS' => "$(inherited) -D YANDEX_MAPKIT_#{variant.upcase}"
   }
-  s.dependency 'YandexMapsMobile', "4.22.0-#{variant}"
+  s.dependency 'YandexMapsMobile', "4.39.1-#{variant}"
   s.source_files = [
     'Classes/*',
     'Classes/lite/*'
@@ -30,5 +30,5 @@ Pod::Spec.new do |s|
     ]
   end
 
-  s.ios.deployment_target = '12.0'
+  s.ios.deployment_target = '15.0'
 end
