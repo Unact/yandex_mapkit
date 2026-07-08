@@ -429,18 +429,18 @@ public class YandexMapController implements
     if (focus == null) {
       return mapView.getMapWindow().getMap().cameraPosition(
         UtilsLite.geometryFromJson((Map<String, Object>) params.get("geometry")),
+        null,
         ((Double) params.get("azimuth")).floatValue(),
-        ((Double) params.get("tilt")).floatValue(),
-        null
+        ((Double) params.get("tilt")).floatValue()
       );
     }
 
     if (validFocusRect(focus)) {
       return mapView.getMapWindow().getMap().cameraPosition(
         UtilsLite.geometryFromJson((Map<String, Object>) params.get("geometry")),
+        focus,
         ((Double) params.get("azimuth")).floatValue(),
-        ((Double) params.get("tilt")).floatValue(),
-        focus
+        ((Double) params.get("tilt")).floatValue()
       );
     }
 

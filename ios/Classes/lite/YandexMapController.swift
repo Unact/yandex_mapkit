@@ -31,7 +31,11 @@ public class YandexMapController:
 
   public required init(id: Int64, frame: CGRect, registrar: FlutterPluginRegistrar, params: [String: Any]) {
     self.pluginRegistrar = registrar
-    self.mapView = FLYMKMapView(frame: frame, vulkanPreferred: YandexMapController.isSimulator())
+    self.mapView = FLYMKMapView(
+      frame: frame,
+      vulkanPreferred: YandexMapController.isSimulator(),
+      transparencySupport: false
+    )
     self.methodChannel = FlutterMethodChannel(
       name: "yandex_mapkit/yandex_map_\(id)",
       binaryMessenger: registrar.messenger()
@@ -324,18 +328,18 @@ public class YandexMapController:
     if (focus == nil) {
       return mapView.mapWindow.map.cameraPosition(
         with: UtilsLite.geometryFromJson(params["geometry"] as! [String: Any]),
-        azimuth: (params["azimuth"] as! NSNumber).floatValue,
-        tilt: (params["tilt"] as! NSNumber).floatValue,
-        focus: nil
+        focus: nil,
+        azimuth: (params["azimuth"] as! NSNumber),
+        tilt: (params["tilt"] as! NSNumber)
       )
     }
 
     if (validFocusRect(focus!)) {
       return mapView.mapWindow.map.cameraPosition(
         with: UtilsLite.geometryFromJson(params["geometry"] as! [String: Any]),
-        azimuth: (params["azimuth"] as! NSNumber).floatValue,
-        tilt: (params["tilt"] as! NSNumber).floatValue,
-        focus: focus
+        focus: focus,
+        azimuth: (params["azimuth"] as! NSNumber),
+        tilt: (params["tilt"] as! NSNumber)
       )
     }
 
