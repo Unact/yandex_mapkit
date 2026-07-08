@@ -57,21 +57,30 @@ public class InitFull extends InitLite {
     pedestrianMethodChannel.setMethodCallHandler(yandexPedestrian);
   }
 
-  @SuppressWarnings({"ConstantConditions"})
   public void teardownChannels() {
-    searchMethodChannel.setMethodCallHandler(null);
-    searchMethodChannel = null;
+    if (searchMethodChannel != null) {
+      searchMethodChannel.setMethodCallHandler(null);
+      searchMethodChannel = null;
+    }
 
-    suggestMethodChannel.setMethodCallHandler(null);
-    suggestMethodChannel = null;
+    if (suggestMethodChannel != null) {
+      suggestMethodChannel.setMethodCallHandler(null);
+      suggestMethodChannel = null;
+    }
 
-    drivingMethodChannel.setMethodCallHandler(null);
-    drivingMethodChannel = null;
+    if (drivingMethodChannel != null) {
+      drivingMethodChannel.setMethodCallHandler(null);
+      drivingMethodChannel = null;
+    }
 
-    bicycleMethodChannel.setMethodCallHandler(null);
-    bicycleMethodChannel = null;
+    if (bicycleMethodChannel != null) {
+      bicycleMethodChannel.setMethodCallHandler(null);
+      bicycleMethodChannel = null;
+    }
 
-    pedestrianMethodChannel.setMethodCallHandler(null);
-    pedestrianMethodChannel = null;
+    if (pedestrianMethodChannel != null) {
+      pedestrianMethodChannel.setMethodCallHandler(null);
+      pedestrianMethodChannel = null;
+    }
   }
 }
