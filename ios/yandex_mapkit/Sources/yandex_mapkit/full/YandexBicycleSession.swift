@@ -1,4 +1,5 @@
 import Foundation
+import Flutter
 import YandexMapsMobile
 
 public class YandexBicycleSession: NSObject {

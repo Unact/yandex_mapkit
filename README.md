@@ -51,26 +51,20 @@ import YandexMapsMobile
 }
 ```
 
-* Uncomment `platform :ios, '12.0'` in `ios/Podfile` and change to `platform :ios, '15.0'`
+* Specify your desired variant of native library using environment variable `YANDEX_MAPKIT_VARIANT`  
 
-```ruby
-# Uncomment this line to define a global platform for your project
-platform :ios, '15.0'
-```
-
-* Specify your desired variant of native library.  
 Available options: `lite` and `full`. `navikit` variant is currently not supported.  
 Defaults to `lite`.  
+After changing `YANDEX_MAPKIT_VARIANT` you need to invalidate Xcode cache using  
 
-Include the following line right after `ENV['COCOAPODS_DISABLE_STATS'] = 'true'`
-
-```ruby
-ENV['YANDEX_MAPKIT_VARIANT'] = '<YOUR_DESIRED_VARIANT>'
+```bash
+rm -rf ~/Library/Developer/Xcode/DerivedData
 ```
 
 ### Setup for Android
 
 * Specify your desired variant of native library.  
+
 Available options: `lite` and `full`. `navikit` variant is currently not supported.  
 Defaults to `lite`.  
 
