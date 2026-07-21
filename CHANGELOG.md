@@ -1,3 +1,9 @@
+## 4.3.0
+
+* Update and lock YandexMapkit version to 4.39.1 for iOS and Android
+* Add Swift Package Manager support for iOS
+* **Breaking change** iOS package variant selection has been changed. Please refer to [README](https://github.com/Unact/yandex_mapkit#setup-for-ios) for details.
+
 ## 4.2.1
 
 * Fix `YandexMapController.selectGeoObject` crash on Android
